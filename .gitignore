@@ -1,0 +1,35 @@
+# Windows artifacts
+*.Zone.Identifier
+Thumbs.db
+Desktop.ini
+
+# PHP
+vendor/
+composer.lock
+
+# Logs
+*.log
+logs/
+error_log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Environment
+.env
+config.local.php
+
+# Cache
+cache/
+tmp/
