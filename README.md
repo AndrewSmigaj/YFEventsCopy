@@ -10,18 +10,21 @@ A comprehensive event calendar system designed for yakimafinds.com that integrat
 - **Interactive Maps**: Google Maps integration showing events and local shops
 - **Mobile Optimized**: Touch-friendly interface with GPS location services
 - **Event Submission**: Public form for community event submissions
+- **Map Controls**: Toggle event pins, shop pins, and Yakima Finds marker
 
 ### Administrative Interface
 - **Event Management**: Approve, edit, and manage submitted events
 - **Source Management**: Configure and monitor automated scraping sources
-- **Local Business Directory**: Manage shops and businesses with full profiles
-- **Analytics Dashboard**: Track usage, popular events, and system health
+- **Local Business Directory**: Manage shops and businesses with images
+- **Scraper Dashboard**: Manual scraping, view logs, manage sources
+- **Authentication**: Secure admin access with session management
 
 ### Automated Features
-- **Daily Scraping**: Automated collection from iCal, HTML, JSON, and API sources
+- **Multi-Source Scraping**: Support for iCal, HTML, JSON, Yakima Valley format
+- **Smart Date Parsing**: Handles date ranges like "May 23 - 25"
 - **Geocoding**: Automatic address-to-coordinates conversion
 - **Duplicate Detection**: Smart filtering to prevent duplicate events
-- **Email Notifications**: Admin alerts for new submissions and system status
+- **Category Mapping**: Automatic event categorization from source data
 
 ## Technology Stack
 
@@ -35,7 +38,7 @@ A comprehensive event calendar system designed for yakimafinds.com that integrat
 
 ### Prerequisites
 
-- PHP 8.2 or higher
+- PHP 8.2 or higher with extensions: pdo, mysql, json, curl, mbstring
 - MySQL 5.7 or higher
 - Apache/Nginx web server
 - Google Maps API key
@@ -43,33 +46,56 @@ A comprehensive event calendar system designed for yakimafinds.com that integrat
 
 ### Quick Setup
 
-1. **Database Setup**
+1. **Clone the repository**
    ```bash
-   mysql -u root -p < database/calendar_schema.sql
+   git clone https://github.com/r0bug/yfevents.git
+   cd yfevents
    ```
 
-2. **Configure Environment**
+2. **Database Setup**
+   ```bash
+   mysql -u root -p
+   CREATE DATABASE yakima_finds;
+   EXIT;
+   mysql -u root -p yakima_finds < database/calendar_schema.sql
+   ```
+
+3. **Configure Environment**
    ```bash
    cp .env.example .env
    # Edit .env with your database and API credentials
+   nano .env
    ```
 
-3. **Install Dependencies**
+4. **Install Dependencies**
    ```bash
    composer install
    ```
 
-4. **Set Permissions**
+5. **Set Permissions**
    ```bash
    chmod +x cron/scrape-events.php
    mkdir -p cache/geocode logs
    chmod 755 cache logs
    ```
 
-5. **Configure Cron Job**
+6. **Configure Web Server**
+   
+   For Apache, create a virtual host pointing to `/www/html/`:
+   ```apache
+   <VirtualHost *:80>
+       DocumentRoot /path/to/yfevents/www/html
+       <Directory /path/to/yfevents/www/html>
+           AllowOverride All
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
+
+7. **Configure Cron Job** (Optional)
    ```bash
    # Add to crontab for daily scraping at 2 AM
-   0 2 * * * php /path/to/cron/scrape-events.php
+   0 2 * * * php /path/to/yfevents/cron/scrape-events.php
    ```
 
 ## Configuration

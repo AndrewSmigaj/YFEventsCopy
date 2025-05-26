@@ -8,12 +8,14 @@ use YakimaFinds\Utils\GeocodeService;
 
 class EventScraper
 {
+    private $db;
     private $eventModel;
     private $sourceModel;
     private $geocodeService;
     
     public function __construct($db)
     {
+        $this->db = $db;
         $this->eventModel = new EventModel($db);
         $this->sourceModel = new CalendarSourceModel($db);
         $this->geocodeService = new GeocodeService();
@@ -54,6 +56,9 @@ class EventScraper
                 case 'html':
                     $events = $this->scrapeHtmlSource($source);
                     break;
+                case 'yakima_valley':
+                    $events = $this->scrapeYakimaValleySource($source);
+                    break;
                 case 'json':
                     $events = $this->scrapeJsonSource($source);
                     break;
@@ -62,6 +67,9 @@ class EventScraper
                     break;
                 case 'facebook':
                     $events = $this->scrapeFacebookSource($source);
+                    break;
+                case 'intelligent':
+                    $events = $this->scrapeIntelligentSource($source);
                     break;
                 default:
                     throw new \Exception("Unsupported scrape type: {$source['scrape_type']}");
@@ -274,6 +282,49 @@ class EventScraper
     }
     
     /**
+     * Scrape Yakima Valley HTML source
+     */
+    private function scrapeYakimaValleySource($source)
+    {
+        require_once __DIR__ . '/YakimaValleyEventScraper.php';
+        
+        $content = $this->fetchContent($source['url']);
+        if (!$content) {
+            throw new \Exception('Failed to fetch content from Yakima Valley source');
+        }
+        
+        $config = json_decode($source['scrape_config'], true) ?: [];
+        $baseUrl = $config['base_url'] ?? $source['url'];
+        $currentYear = $config['year'] ?? date('Y');
+        
+        $rawEvents = YakimaValleyEventScraper::parseEvents($content, $baseUrl, $currentYear);
+        
+        // Convert to our event format
+        $events = [];
+        foreach ($rawEvents as $rawEvent) {
+            $event = [
+                'title' => $rawEvent['title'],
+                'description' => $rawEvent['description'] ?? '',
+                'start_datetime' => $rawEvent['start_datetime'],
+                'end_datetime' => $rawEvent['end_datetime'],
+                'location' => $rawEvent['full_location'] ?? $rawEvent['location'] ?? '',
+                'address' => $rawEvent['address'] ?? '',
+                'external_url' => $rawEvent['external_url'] ?? '',
+                'external_event_id' => md5($rawEvent['external_url'] ?? $rawEvent['title'])
+            ];
+            
+            // Add categories if available
+            if (!empty($rawEvent['categories'])) {
+                $event['categories'] = $rawEvent['categories'];
+            }
+            
+            $events[] = $event;
+        }
+        
+        return $events;
+    }
+    
+    /**
      * Scrape JSON source
      */
     private function scrapeJsonSource($source)
@@ -345,6 +396,41 @@ class EventScraper
     {
         // Would use Facebook Graph API
         throw new \Exception('Facebook scraping not yet implemented');
+    }
+    
+    /**
+     * Scrape Intelligent source using LLM-generated method
+     */
+    private function scrapeIntelligentSource($source)
+    {
+        // Check if method is linked
+        if (empty($source['intelligent_method_id'])) {
+            throw new \Exception('No intelligent method linked to this source');
+        }
+        
+        // Get the intelligent method
+        $stmt = $this->db->prepare("
+            SELECT * FROM intelligent_scraper_methods 
+            WHERE id = ? AND active = 1
+        ");
+        $stmt->execute([$source['intelligent_method_id']]);
+        $method = $stmt->fetch(\PDO::FETCH_ASSOC);
+        
+        if (!$method) {
+            throw new \Exception('Intelligent method not found or inactive');
+        }
+        
+        // Use LLMScraper to apply the method
+        require_once __DIR__ . '/Intelligent/LLMScraper.php';
+        $llmScraper = new \YakimaFinds\Scrapers\Intelligent\LLMScraper($this->db);
+        
+        $result = $llmScraper->applyExistingMethod($source['url'], $method);
+        
+        if (!$result['success']) {
+            throw new \Exception('Failed to apply intelligent method');
+        }
+        
+        return $result['events'];
     }
     
     /**

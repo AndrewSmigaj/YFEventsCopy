@@ -21,6 +21,9 @@
                     <a href="/events/submit" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Event
                     </a>
+                    <a href="/admin/" class="btn btn-outline" style="margin-left: 10px;">
+                        <i class="fas fa-cog"></i> Admin
+                    </a>
                 </div>
             </div>
         </header>
@@ -188,16 +191,18 @@
 
     <!-- Scripts -->
     <script src="/js/calendar.js"></script>
+    <script src="/js/calendar-map-fix.js"></script>
+    <script src="/js/map-controls.js"></script>
     <script>
         // Initialize calendar with configuration
         document.addEventListener('DOMContentLoaded', function() {
             const calendar = new YakimaCalendar({
-                apiEndpoint: '/api/events',
+                apiEndpoint: '/api/events-simple.php',
                 shopsEndpoint: '/api/shops',
                 currentDate: new Date(),
                 defaultView: 'month',
                 userLocation: null,
-                categories: <?= json_encode($categories) ?>,
+                categories: <?= json_encode($categories ?? []) ?>,
                 mapOptions: {
                     center: { lat: 46.6021, lng: -120.5059 }, // Yakima, WA
                     zoom: 12,

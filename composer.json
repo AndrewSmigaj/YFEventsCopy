@@ -1,0 +1,23 @@
+{
+    "name": "yakimafinds/yfevents",
+    "description": "Event calendar system for yakimafinds.com",
+    "type": "project",
+    "require": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-json": "*",
+        "ext-curl": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "YFEvents\\": "src/",
+            "YakimaFinds\\": "src/"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "chmod +x cron/scrape-events.php"
+        ]
+    }
+}

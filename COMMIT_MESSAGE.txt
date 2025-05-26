@@ -1,0 +1,62 @@
+Complete YFEvents calendar system with scraping and map features
+
+## Major Features Implemented
+
+### Calendar & Maps
+- Full event calendar with month, week, list, and map views
+- Interactive Google Maps with toggleable layers
+- Yakima Finds marker at 111 S 2nd St
+- Color-coded pins: red (YF), blue (events), green (shops)
+- Shop images in map info windows
+- Map control panel for toggling layers
+
+### Admin System
+- Secure authentication (YakFind/MapTime)
+- Event management dashboard
+- Shop directory management
+- Scraper configuration interface
+- Manual scrape triggers
+- Activity logging
+
+### Event Scraping
+- Multi-source scraper support:
+  - iCal feeds
+  - HTML with CSS selectors
+  - JSON APIs
+  - Custom Yakima Valley format
+  - Eventbrite (ready)
+  - Facebook (ready)
+- Smart date parsing (handles "May 23 - 25" format)
+- Automatic geocoding
+- Duplicate detection
+- Category extraction
+
+### Local Shops
+- Imported 15+ real shops from yakimafinds.com
+- Shop images from remote URLs
+- Categories: Food, Shopping, Arts, Services
+- Full contact information
+- Map integration
+
+### Technical Implementation
+- PHP 8.3 with PDO
+- Vanilla JavaScript + Google Maps API
+- MySQL with optimized indexes
+- Mobile-responsive design
+- Session-based authentication
+- RESTful API endpoints
+
+### Security & Performance
+- Protected admin routes
+- SQL injection prevention
+- XSS protection
+- Optimized database queries
+- Caching for geocoding
+- Error logging
+
+### Installation & Deployment
+- Comprehensive install documentation
+- Database migrations
+- Environment configuration
+- Apache/Nginx support
+- Cron job setup

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calendar Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #ddd;
+            padding: 1px;
+            margin: 20px 0;
+        }
+        .calendar-cell {
+            background: white;
+            padding: 10px;
+            min-height: 80px;
+            position: relative;
+        }
+        .calendar-cell.header {
+            background: #333;
+            color: white;
+            font-weight: bold;
+            min-height: auto;
+            text-align: center;
+        }
+        .event {
+            background: #007bff;
+            color: white;
+            padding: 2px 5px;
+            margin: 2px 0;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .event:hover {
+            background: #0056b3;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        #loading {
+            color: #666;
+            font-style: italic;
+        }
+        .map-container {
+            height: 400px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Calendar Test</h1>
+    
+    <div class="controls">
+        <button onclick="loadEvents()">Load Events</button>
+        <button onclick="showCalendar()">Show Calendar</button>
+        <button onclick="showMap()">Show Map</button>
+        <span id="loading"></span>
+    </div>
+    
+    <div id="month-display"></div>
+    
+    <div id="calendar-container"></div>
+    
+    <div id="map-container" class="map-container" style="display: none;"></div>
+    
+    <div id="events-list"></div>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDaFzWtdcnrvQmJLd893r5gxMGnp5jNUN0&libraries=places"></script>
+    <script>
+        let events = [];
+        let map = null;
+        let markers = [];
+        
+        async function loadEvents() {
+            const loading = document.getElementById('loading');
+            loading.textContent = 'Loading events...';
+            
+            try {
+                const response = await fetch('/api/events-simple.php?start=2025-05-01&end=2025-05-31');
+                const data = await response.json();
+                
+                if (data.success) {
+                    events = data.events;
+                    loading.textContent = `Loaded ${events.length} events`;
+                    
+                    // Display events list
+                    const listHtml = events.map(event => `
+                        <div class="event" onclick="alert('${event.title}')">
+                            <strong>${event.title}</strong><br>
+                            ${new Date(event.start_datetime).toLocaleDateString()} 
+                            at ${new Date(event.start_datetime).toLocaleTimeString()}<br>
+                            ${event.location}
+                        </div>
+                    `).join('');
+                    
+                    document.getElementById('events-list').innerHTML = '<h3>Events List:</h3>' + listHtml;
+                } else {
+                    loading.textContent = 'Error loading events';
+                }
+            } catch (error) {
+                loading.textContent = 'Error: ' + error.message;
+                console.error(error);
+            }
+        }
+        
+        function showCalendar() {
+            const container = document.getElementById('calendar-container');
+            const monthDisplay = document.getElementById('month-display');
+            
+            // May 2025
+            const year = 2025;
+            const month = 4; // May (0-indexed)
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            
+            monthDisplay.innerHTML = '<h2>May 2025</h2>';
+            
+            // Create calendar grid
+            let html = '<div class="calendar-grid">';
+            
+            // Header
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                html += `<div class="calendar-cell header">${day}</div>`;
+            });
+            
+            // Empty cells before first day
+            for (let i = 0; i < startDay; i++) {
+                html += '<div class="calendar-cell"></div>';
+            }
+            
+            // Days of month
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const cellDate = new Date(year, month, day);
+                const dateStr = cellDate.toISOString().split('T')[0];
+                
+                // Find events for this day
+                const dayEvents = events.filter(event => {
+                    const eventDate = new Date(event.start_datetime).toISOString().split('T')[0];
+                    return eventDate === dateStr;
+                });
+                
+                html += `<div class="calendar-cell">
+                    <div style="font-weight: bold;">${day}</div>`;
+                
+                dayEvents.forEach(event => {
+                    const time = new Date(event.start_datetime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    html += `<div class="event" title="${event.location}">${time} ${event.title}</div>`;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function showMap() {
+            document.getElementById('map-container').style.display = 'block';
+            
+            if (!map) {
+                map = new google.maps.Map(document.getElementById('map-container'), {
+                    center: { lat: 46.6021, lng: -120.5059 },
+                    zoom: 12
+                });
+            }
+            
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            // Add event markers
+            events.forEach(event => {
+                if (event.latitude && event.longitude) {
+                    const marker = new google.maps.Marker({
+                        position: { 
+                            lat: parseFloat(event.latitude), 
+                            lng: parseFloat(event.longitude) 
+                        },
+                        map: map,
+                        title: event.title
+                    });
+                    
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div>
+                                <h3>${event.title}</h3>
+                                <p>${event.location}</p>
+                                <p>${new Date(event.start_datetime).toLocaleString()}</p>
+                            </div>
+                        `
+                    });
+                    
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+                    
+                    markers.push(marker);
+                }
+            });
+        }
+        
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            loadEvents();
+        });
+    </script>
+</body>
+</html>

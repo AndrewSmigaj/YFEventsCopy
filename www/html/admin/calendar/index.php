@@ -8,12 +8,12 @@ require_once '../../../../src/Models/CalendarSourceModel.php';
 use YakimaFinds\Models\EventModel;
 use YakimaFinds\Models\CalendarSourceModel;
 
-// Check admin authentication (integrate with existing CMS auth)
-// session_start();
-// if (!isset($_SESSION['admin_logged_in'])) {
-//     header('Location: /admin/login.php');
-//     exit;
-// }
+// Check admin authentication
+session_start();
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('Location: /admin/login.php');
+    exit;
+}
 
 $db = getDatabaseConnection();
 $eventModel = new EventModel($db);

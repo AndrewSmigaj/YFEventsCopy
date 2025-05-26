@@ -1,35 +1,45 @@
-# Windows artifacts
-*.Zone.Identifier
-Thumbs.db
-Desktop.ini
+# Environment files
+.env
+.env.local
+.env.*.local
 
-# PHP
-vendor/
+# Dependencies
+/vendor/
 composer.lock
 
-# Logs
+# Cache and logs
+/cache/
+/logs/
 *.log
-logs/
-error_log
 
-# IDE
-.vscode/
-.idea/
+# System files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
 
-# Environment
-.env
-config.local.php
+# Temporary files
+*.tmp
+*.temp
+*.bak
 
-# Cache
-cache/
-tmp/
+# Local test scripts
+/test_*.php
+/get_coordinates.php
+/add_test_data.php
+/import_schema_ordered.php
+
+# Installation scripts (contain passwords)
+/install_*.sh
+/reset_mysql_root.sh
+/fix_apache_permissions.sh
+/check_environment.sh
+
+# Local changelog (for tracking only)
+/CHANGELOG_LOCAL.md
