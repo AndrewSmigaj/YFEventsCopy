@@ -1,68 +1,110 @@
+<?php
+// Load environment configuration
+require_once __DIR__ . '/../../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../..');
+$dotenv->load();
+
+// Get Google Maps API Key from environment
+$googleMapsApiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calendar Test</title>
+    <title>Simple Event Calendar Test</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background: #f5f5f5;
         }
+        
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            margin-right: 10px;
+            padding: 8px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        #loading {
+            margin-left: 10px;
+            color: #666;
+        }
+        
+        .event {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-left: 3px solid #007bff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .event:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+        
+        .map-container {
+            height: 500px;
+            width: 100%;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+        
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 1px;
             background: #ddd;
             padding: 1px;
-            margin: 20px 0;
         }
+        
         .calendar-cell {
             background: white;
-            padding: 10px;
+            padding: 8px;
             min-height: 80px;
-            position: relative;
+            font-size: 14px;
         }
+        
         .calendar-cell.header {
-            background: #333;
-            color: white;
-            font-weight: bold;
-            min-height: auto;
-            text-align: center;
-        }
-        .event {
             background: #007bff;
             color: white;
-            padding: 2px 5px;
+            text-align: center;
+            font-weight: bold;
+            min-height: auto;
+        }
+        
+        .calendar-cell .event {
+            font-size: 11px;
             margin: 2px 0;
-            border-radius: 3px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .event:hover {
-            background: #0056b3;
-        }
-        .controls {
-            margin: 20px 0;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-        #loading {
-            color: #666;
-            font-style: italic;
-        }
-        .map-container {
-            height: 400px;
-            margin: 20px 0;
-            border: 1px solid #ddd;
+            padding: 2px 4px;
+            background: #e3f2fd;
+            border-left: 2px solid #1976d2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
 <body>
-    <h1>Simple Calendar Test</h1>
+    <h1>Simple Event Calendar Test</h1>
     
     <div class="controls">
         <button onclick="loadEvents()">Load Events</button>
@@ -79,7 +121,15 @@
     
     <div id="events-list"></div>
     
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDaFzWtdcnrvQmJLd893r5gxMGnp5jNUN0&libraries=places"></script>
+    <?php if ($googleMapsApiKey): ?>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($googleMapsApiKey) ?>&libraries=places"></script>
+    <?php else: ?>
+    <script>
+        // No Google Maps API key configured
+        console.warn('Google Maps API key not configured. Map functionality will be limited.');
+    </script>
+    <?php endif; ?>
+    
     <script>
         let events = [];
         let map = null;
@@ -168,15 +218,20 @@
             
             html += '</div>';
             container.innerHTML = html;
+            
+            document.getElementById('map-container').style.display = 'none';
         }
         
         function showMap() {
-            document.getElementById('map-container').style.display = 'block';
+            <?php if ($googleMapsApiKey): ?>
+            const mapContainer = document.getElementById('map-container');
+            mapContainer.style.display = 'block';
             
+            // Initialize map if not already done
             if (!map) {
-                map = new google.maps.Map(document.getElementById('map-container'), {
-                    center: { lat: 46.6021, lng: -120.5059 },
-                    zoom: 12
+                map = new google.maps.Map(mapContainer, {
+                    center: {lat: 46.6021, lng: -120.5059}, // Yakima coordinates
+                    zoom: 11
                 });
             }
             
@@ -184,14 +239,11 @@
             markers.forEach(marker => marker.setMap(null));
             markers = [];
             
-            // Add event markers
+            // Add markers for events with coordinates
             events.forEach(event => {
                 if (event.latitude && event.longitude) {
                     const marker = new google.maps.Marker({
-                        position: { 
-                            lat: parseFloat(event.latitude), 
-                            lng: parseFloat(event.longitude) 
-                        },
+                        position: {lat: parseFloat(event.latitude), lng: parseFloat(event.longitude)},
                         map: map,
                         title: event.title
                     });
@@ -199,9 +251,9 @@
                     const infoWindow = new google.maps.InfoWindow({
                         content: `
                             <div>
-                                <h3>${event.title}</h3>
-                                <p>${event.location}</p>
+                                <h4>${event.title}</h4>
                                 <p>${new Date(event.start_datetime).toLocaleString()}</p>
+                                <p>${event.location}</p>
                             </div>
                         `
                     });
@@ -213,12 +265,22 @@
                     markers.push(marker);
                 }
             });
+            
+            // Fit bounds to show all markers
+            if (markers.length > 0) {
+                const bounds = new google.maps.LatLngBounds();
+                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                map.fitBounds(bounds);
+            }
+            
+            document.getElementById('calendar-container').innerHTML = '';
+            <?php else: ?>
+            alert('Google Maps API key not configured. Please set GOOGLE_MAPS_API_KEY in your .env file.');
+            <?php endif; ?>
         }
         
-        // Auto-load on page load
-        window.addEventListener('load', () => {
-            loadEvents();
-        });
+        // Load events on page load
+        window.onload = loadEvents;
     </script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
 // Simple events API endpoint for testing
-require_once '../../../config/database.php';
+require_once __DIR__ . '/../../../config/database.php';
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');

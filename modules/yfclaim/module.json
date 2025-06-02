@@ -1,0 +1,55 @@
+{
+  "name": "yfclaim",
+  "version": "1.0.0",
+  "description": "Facebook-style claim sale auction platform for estate sales",
+  "author": "YakimaFinds",
+  "requires": {
+    "yfevents": ">=1.0.0",
+    "php": ">=8.2",
+    "extensions": ["pdo", "pdo_mysql", "json", "curl"]
+  },
+  "namespace": "YFEvents\\Modules\\YFClaim",
+  "hooks": {
+    "admin_menu": "addAdminMenuItems",
+    "public_routes": "registerPublicRoutes"
+  },
+  "database": {
+    "tables": [
+      "claim_sellers",
+      "claim_sales",
+      "claim_items",
+      "claim_offers",
+      "claim_buyers",
+      "claim_qr_codes"
+    ],
+    "prefix": "yfc_"
+  },
+  "permissions": [
+    "manage_claims",
+    "view_claim_reports",
+    "manage_sellers"
+  ],
+  "settings": {
+    "enable_sms_auth": {
+      "type": "boolean",
+      "default": true,
+      "label": "Enable SMS authentication for buyers"
+    },
+    "max_images_per_item": {
+      "type": "number",
+      "default": 5,
+      "label": "Maximum images per claim item"
+    },
+    "offer_increment": {
+      "type": "number",
+      "default": 5,
+      "label": "Minimum offer increment ($)"
+    },
+    "show_price_ranges": {
+      "type": "boolean",
+      "default": true,
+      "label": "Show price ranges instead of exact offers"
+    }
+  },
+  "post_install_notes": "Remember to configure SMS/Email services for buyer authentication. Access the claim sale admin at /admin/modules/yfclaim/"
+}

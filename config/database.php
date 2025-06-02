@@ -28,6 +28,9 @@ try {
     ];
     
     $pdo = new PDO($dsn, $username, $password, $options);
+    
+    // Also set $db for backward compatibility
+    $db = $pdo;
 } catch (PDOException $e) {
     error_log("Database connection failed: " . $e->getMessage());
     die("Database connection failed. Please check your configuration.");

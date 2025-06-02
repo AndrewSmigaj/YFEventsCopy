@@ -1,0 +1,556 @@
+<?php
+// YFClaim Sellers Management
+require_once '../../../../config/database.php';
+require_once '../../src/Models/SellerModel.php';
+require_once '../../src/Models/SaleModel.php';
+
+// Authentication check
+session_start();
+
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('Location: /admin/login.php');
+    exit;
+}
+
+$isAdmin = true;
+
+// Initialize models
+$sellerModel = new SellerModel($pdo);
+$saleModel = new SaleModel($pdo);
+
+// Handle actions
+$message = '';
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        try {
+            switch ($_POST['action']) {
+                case 'create_seller':
+                    $data = [
+                        'name' => $_POST['name'],
+                        'email' => $_POST['email'],
+                        'phone' => $_POST['phone'] ?? null,
+                        'fb_name' => $_POST['fb_name'] ?? null,
+                        'fb_profile_url' => $_POST['fb_profile_url'] ?? null,
+                        'password_hash' => password_hash($_POST['password'], PASSWORD_DEFAULT),
+                        'status' => 'active'
+                    ];
+                    $sellerId = $sellerModel->create($data);
+                    $message = "Seller created successfully!";
+                    break;
+                    
+                case 'update_seller':
+                    $data = [
+                        'name' => $_POST['name'],
+                        'email' => $_POST['email'],
+                        'phone' => $_POST['phone'] ?? null,
+                        'fb_name' => $_POST['fb_name'] ?? null,
+                        'fb_profile_url' => $_POST['fb_profile_url'] ?? null,
+                        'status' => $_POST['status']
+                    ];
+                    if (!empty($_POST['password'])) {
+                        $data['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                    }
+                    $sellerModel->update($_POST['seller_id'], $data);
+                    $message = "Seller updated successfully!";
+                    break;
+                    
+                case 'delete_seller':
+                    // Check if seller has active sales
+                    $activeSales = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_sales WHERE seller_id = ? AND status = 'active'");
+                    $activeSales->execute([$_POST['seller_id']]);
+                    if ($activeSales->fetchColumn() > 0) {
+                        $error = "Cannot delete seller with active sales!";
+                    } else {
+                        $pdo->prepare("DELETE FROM yfclaim_sellers WHERE id = ?")->execute([$_POST['seller_id']]);
+                        $message = "Seller deleted successfully!";
+                    }
+                    break;
+            }
+        } catch (Exception $e) {
+            $error = "Error: " . $e->getMessage();
+        }
+    }
+}
+
+// Get filter parameters
+$status = $_GET['status'] ?? '';
+$search = $_GET['search'] ?? '';
+
+// Build query
+$query = "SELECT s.*, 
+          (SELECT COUNT(*) FROM yfclaim_sales WHERE seller_id = s.id) as total_sales,
+          (SELECT COUNT(*) FROM yfclaim_sales WHERE seller_id = s.id AND status = 'active') as active_sales
+          FROM yfclaim_sellers s WHERE 1=1";
+$params = [];
+
+if ($status) {
+    $query .= " AND s.status = ?";
+    $params[] = $status;
+}
+
+if ($search) {
+    $query .= " AND (s.name LIKE ? OR s.email LIKE ? OR s.fb_name LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+}
+
+$query .= " ORDER BY s.created_at DESC";
+
+$stmt = $pdo->prepare($query);
+$stmt->execute($params);
+$sellers = $stmt->fetchAll();
+
+// Get seller for edit modal
+$editSeller = null;
+if (isset($_GET['edit'])) {
+    $editSeller = $sellerModel->findById($_GET['edit']);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Sellers - YFClaim Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #333;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .header-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+        .header-nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .nav {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #007bff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: white;
+            border-radius: 3px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .nav a:hover, .nav a.active {
+            background: #007bff;
+            color: white;
+        }
+        .section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .section h2 {
+            margin: 0;
+            color: #333;
+        }
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .filters input, .filters select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status.pending {
+            background: #ffc107;
+            color: #000;
+        }
+        .status.active {
+            background: #28a745;
+            color: white;
+        }
+        .status.suspended {
+            background: #dc3545;
+            color: white;
+        }
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 5px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h3 {
+            margin: 0;
+        }
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .badge {
+            background: #6c757d;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Manage Sellers</h1>
+        <div class="header-nav">
+            <a href="/modules/yfclaim/www/admin/">Dashboard</a>
+            <a href="/admin/">YFEvents Admin</a>
+            <a href="/admin/logout.php">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <?php if ($message): ?>
+            <div class="message"><?= htmlspecialchars($message) ?></div>
+        <?php endif; ?>
+        
+        <?php if ($error): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+        
+        <div class="nav">
+            <a href="/modules/yfclaim/www/admin/index.php">Dashboard</a>
+            <a href="/modules/yfclaim/www/admin/sellers.php" class="active">Manage Sellers</a>
+            <a href="/modules/yfclaim/www/admin/sales.php">Manage Sales</a>
+            <a href="/modules/yfclaim/www/admin/offers.php">Manage Offers</a>
+            <a href="/modules/yfclaim/www/admin/buyers.php">Manage Buyers</a>
+            <a href="/modules/yfclaim/www/admin/reports.php">Reports</a>
+        </div>
+        
+        <div class="section">
+            <div class="section-header">
+                <h2>Sellers</h2>
+                <button class="btn btn-primary" onclick="showCreateModal()">+ Add New Seller</button>
+            </div>
+            
+            <form method="get" class="filters">
+                <input type="text" name="search" placeholder="Search sellers..." value="<?= htmlspecialchars($search) ?>">
+                <select name="status">
+                    <option value="">All Status</option>
+                    <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>>Pending</option>
+                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
+                    <option value="suspended" <?= $status === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="/modules/yfclaim/www/admin/sellers.php" class="btn">Clear</a>
+            </form>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>FB Name</th>
+                        <th>Sales</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($sellers as $seller): ?>
+                    <tr>
+                        <td><?= $seller['id'] ?></td>
+                        <td>
+                            <?= htmlspecialchars($seller['name']) ?>
+                            <?php if ($seller['active_sales'] > 0): ?>
+                                <span class="badge"><?= $seller['active_sales'] ?> active</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= htmlspecialchars($seller['email']) ?></td>
+                        <td><?= htmlspecialchars($seller['phone'] ?? '-') ?></td>
+                        <td>
+                            <?php if ($seller['fb_name']): ?>
+                                <?= htmlspecialchars($seller['fb_name']) ?>
+                                <?php if ($seller['fb_profile_url']): ?>
+                                    <a href="<?= htmlspecialchars($seller['fb_profile_url']) ?>" target="_blank" style="color: #007bff; text-decoration: none;">↗</a>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </td>
+                        <td><?= $seller['total_sales'] ?></td>
+                        <td>
+                            <span class="status <?= $seller['status'] ?>">
+                                <?= ucfirst($seller['status']) ?>
+                            </span>
+                        </td>
+                        <td><?= date('M d, Y', strtotime($seller['created_at'])) ?></td>
+                        <td>
+                            <div class="actions">
+                                <button onclick="editSeller(<?= $seller['id'] ?>)" class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Edit</button>
+                                <form method="post" style="margin: 0;">
+                                    <input type="hidden" name="seller_id" value="<?= $seller['id'] ?>">
+                                    <button type="submit" name="action" value="delete_seller" class="btn btn-danger" 
+                                            style="padding: 0.25rem 0.75rem; font-size: 0.875rem;"
+                                            onclick="return confirm('Delete this seller? This cannot be undone.')">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Create/Edit Modal -->
+    <div id="sellerModal" class="modal <?= $editSeller ? 'active' : '' ?>">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"><?= $editSeller ? 'Edit Seller' : 'Create New Seller' ?></h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form method="post" id="sellerForm">
+                <input type="hidden" name="action" value="<?= $editSeller ? 'update_seller' : 'create_seller' ?>">
+                <input type="hidden" name="seller_id" value="<?= $editSeller['id'] ?? '' ?>">
+                
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" name="name" value="<?= htmlspecialchars($editSeller['name'] ?? '') ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($editSeller['email'] ?? '') ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password <?= $editSeller ? '(leave blank to keep current)' : '*' ?></label>
+                    <input type="password" name="password" <?= !$editSeller ? 'required' : '' ?>>
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" name="phone" value="<?= htmlspecialchars($editSeller['phone'] ?? '') ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label>Facebook Name</label>
+                    <input type="text" name="fb_name" value="<?= htmlspecialchars($editSeller['fb_name'] ?? '') ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label>Facebook Profile URL</label>
+                    <input type="url" name="fb_profile_url" value="<?= htmlspecialchars($editSeller['fb_profile_url'] ?? '') ?>">
+                </div>
+                
+                <?php if ($editSeller): ?>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="pending" <?= $editSeller['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                        <option value="active" <?= $editSeller['status'] === 'active' ? 'selected' : '' ?>>Active</option>
+                        <option value="suspended" <?= $editSeller['status'] === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                    </select>
+                </div>
+                <?php endif; ?>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <?= $editSeller ? 'Update Seller' : 'Create Seller' ?>
+                    </button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function showCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Create New Seller';
+            document.getElementById('sellerForm').reset();
+            document.querySelector('[name="action"]').value = 'create_seller';
+            document.querySelector('[name="seller_id"]').value = '';
+            document.querySelector('[name="password"]').required = true;
+            document.getElementById('sellerModal').classList.add('active');
+        }
+        
+        function editSeller(id) {
+            window.location.href = '?edit=' + id;
+        }
+        
+        function closeModal() {
+            document.getElementById('sellerModal').classList.remove('active');
+            if (window.location.search.includes('edit=')) {
+                window.location.href = '/modules/yfclaim/www/admin/sellers.php';
+            }
+        }
+        
+        // Close modal on outside click
+        document.getElementById('sellerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

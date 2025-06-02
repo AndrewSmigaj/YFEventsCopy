@@ -1,0 +1,57 @@
+{
+  "name": "yfauth",
+  "version": "1.0.0",
+  "description": "Comprehensive authentication and authorization module for YFEvents",
+  "author": "YakimaFinds",
+  "requires": {
+    "yfevents": ">=1.0.0",
+    "php": ">=8.2",
+    "extensions": ["pdo", "pdo_mysql", "json", "password_argon2"]
+  },
+  "namespace": "YFEvents\\Modules\\YFAuth",
+  "hooks": {
+    "admin_menu": "addAdminMenuItems",
+    "auth_check": "checkAuthentication",
+    "permission_check": "checkPermission"
+  },
+  "database": {
+    "tables": [
+      "auth_users",
+      "auth_roles",
+      "auth_permissions",
+      "auth_role_permissions",
+      "auth_user_roles",
+      "auth_sessions",
+      "auth_password_resets"
+    ],
+    "prefix": "yfa_"
+  },
+  "permissions": [
+    "manage_users",
+    "manage_roles",
+    "view_user_activity"
+  ],
+  "settings": {
+    "session_lifetime": {
+      "type": "number",
+      "default": 7200,
+      "label": "Session lifetime in seconds"
+    },
+    "enable_two_factor": {
+      "type": "boolean",
+      "default": false,
+      "label": "Enable two-factor authentication"
+    },
+    "password_min_length": {
+      "type": "number",
+      "default": 8,
+      "label": "Minimum password length"
+    },
+    "max_login_attempts": {
+      "type": "number",
+      "default": 5,
+      "label": "Maximum login attempts before lockout"
+    }
+  },
+  "post_install_notes": "Run the migration to create default roles and permissions. Default admin user: admin@yakimafinds.com / ChangeMe123!"
+}

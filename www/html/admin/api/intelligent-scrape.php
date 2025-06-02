@@ -423,8 +423,9 @@ function processBatchItem($db, $scraper, $batchId, $item) {
             ");
             $stmt->execute([$eventsCount, $batchId]);
             
+            $savedCount = $result['events_saved'] ?? 0;
             logBatchActivity($db, $batchId, $sessionId, 'info', 
-                "Success: Found {$eventsCount} events for {$title}", 
+                "Success: Found {$eventsCount} events, saved {$savedCount} new events for {$title}", 
                 json_encode($result), $url);
                 
         } else {

@@ -177,11 +177,13 @@ $shops = $pdo->query("SELECT * FROM local_shops ORDER BY created_at DESC LIMIT 2
         <div class="nav">
             <a href="/">← Back to Calendar</a>
             <a href="/admin/calendar/">Advanced Admin</a>
+            <a href="/modules/yfclaim/www/admin/">YFClaim Sales</a>
             <a href="/admin/scrapers.php">Manage Scrapers</a>
             <a href="/admin/intelligent-scraper.php">AI Scraper</a>
             <a href="/admin/validate-urls.php">URL Validator</a>
-            <a href="#events">Events</a>
-            <a href="#shops">Shops</a>
+            <a href="/admin/events.php">Manage Events</a>
+            <a href="/admin/shops.php">Manage Shops</a>
+            <a href="/admin/geocode-fix.php">Fix Geocoding</a>
             <a href="/admin/logout.php" style="float: right; color: #dc3545;">Logout</a>
         </div>
         

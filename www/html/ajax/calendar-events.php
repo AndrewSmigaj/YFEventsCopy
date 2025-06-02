@@ -1,8 +1,7 @@
 <?php
 
-require_once '../../../config/database.php';
-require_once '../../../src/Models/EventModel.php';
-require_once '../../../src/Models/ShopModel.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../config/database.php';
 
 use YakimaFinds\Models\EventModel;
 use YakimaFinds\Models\ShopModel;
@@ -20,9 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 try {
-    // Get database connection
-    $db = getDatabaseConnection();
-    
+    // Use database connection from config
     $eventModel = new EventModel($db);
     $shopModel = new ShopModel($db);
     
@@ -405,30 +402,6 @@ function submitEvent($eventModel) {
     }
 }
 
-/**
- * Get database connection
- */
-function getDatabaseConnection() {
-    // This should match your existing CMS database configuration
-    $host = $_ENV['DB_HOST'] ?? 'localhost';
-    $dbname = $_ENV['DB_NAME'] ?? 'yakima_finds';
-    $username = $_ENV['DB_USER'] ?? 'root';
-    $password = $_ENV['DB_PASS'] ?? '';
-    
-    $dsn = "mysql:host={$host};dbname={$dbname};charset=utf8mb4";
-    
-    try {
-        $pdo = new PDO($dsn, $username, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]);
-        
-        return $pdo;
-        
-    } catch (PDOException $e) {
-        throw new Exception('Database connection failed: ' . $e->getMessage());
-    }
-}
+// Database connection handled by config/database.php
 
 ?>

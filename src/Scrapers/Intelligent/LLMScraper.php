@@ -95,6 +95,9 @@ class LLMScraper
                 ];
             }
             
+            // Save events to database
+            $savedCount = $this->saveEventsToDatabase($events, $url);
+            
             // Generate extraction method for future use
             $method = $this->generateMethod($htmlContent, $events, $url, $analysis);
             
@@ -108,7 +111,8 @@ class LLMScraper
                 'events' => $events,
                 'method' => $method,
                 'analysis' => $analysis,
-                'session_id' => $this->sessionId
+                'session_id' => $this->sessionId,
+                'events_saved' => $savedCount
             ];
             
         } catch (\Exception $e) {
@@ -586,6 +590,131 @@ class LLMScraper
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
         
         return $scheme . $host . $port . $path . $query . $fragment;
+    }
+    
+    /**
+     * Save events to database
+     */
+    private function saveEventsToDatabase($events, $sourceUrl)
+    {
+        $savedCount = 0;
+        
+        foreach ($events as $event) {
+            try {
+                // Check if event already exists
+                $existingCheck = $this->db->prepare("
+                    SELECT id FROM events 
+                    WHERE title = ? AND start_datetime = ? AND location = ?
+                    LIMIT 1
+                ");
+                
+                $startDatetime = $this->parseEventDateTime($event);
+                $existingCheck->execute([
+                    $event['title'] ?? 'Untitled Event',
+                    $startDatetime,
+                    $event['location'] ?? ''
+                ]);
+                
+                if ($existingCheck->fetchColumn()) {
+                    continue; // Skip existing event
+                }
+                
+                // Prepare event data
+                $eventData = [
+                    'title' => $event['title'] ?? 'Untitled Event',
+                    'description' => $event['description'] ?? '',
+                    'start_datetime' => $startDatetime,
+                    'end_datetime' => null, // Could be parsed from event data
+                    'location' => $event['location'] ?? '',
+                    'address' => $event['address'] ?? $event['location'] ?? '',
+                    'latitude' => null,
+                    'longitude' => null,
+                    'contact_info' => json_encode([
+                        'source' => 'AI Scraper',
+                        'url' => $sourceUrl
+                    ]),
+                    'external_url' => $event['link'] ?? $event['external_url'] ?? $sourceUrl,
+                    'source_id' => null, // Could link to intelligent_scraper_sessions
+                    'status' => 'pending', // All AI scraped events start as pending
+                    'scraped_at' => date('Y-m-d H:i:s')
+                ];
+                
+                // Geocode if we have an address
+                if (!empty($eventData['address']) && $this->geocodeService) {
+                    $coords = $this->geocodeService->geocode($eventData['address']);
+                    if ($coords) {
+                        $eventData['latitude'] = $coords['lat'];
+                        $eventData['longitude'] = $coords['lng'];
+                    }
+                }
+                
+                // Insert event
+                $stmt = $this->db->prepare("
+                    INSERT INTO events (
+                        title, description, start_datetime, end_datetime,
+                        location, address, latitude, longitude,
+                        contact_info, external_url, source_id, status, scraped_at
+                    ) VALUES (
+                        :title, :description, :start_datetime, :end_datetime,
+                        :location, :address, :latitude, :longitude,
+                        :contact_info, :external_url, :source_id, :status, :scraped_at
+                    )
+                ");
+                
+                $stmt->execute($eventData);
+                $savedCount++;
+                
+            } catch (\Exception $e) {
+                error_log('Error saving event: ' . $e->getMessage());
+                // Continue with next event
+            }
+        }
+        
+        return $savedCount;
+    }
+    
+    /**
+     * Parse event date/time into MySQL format
+     */
+    private function parseEventDateTime($event)
+    {
+        $dateStr = $event['date'] ?? '';
+        $timeStr = $event['time'] ?? '';
+        
+        // Combine date and time
+        $fullDateStr = trim($dateStr . ' ' . $timeStr);
+        
+        if (empty($fullDateStr)) {
+            return date('Y-m-d H:i:s'); // Default to now
+        }
+        
+        // Try to parse the date
+        $timestamp = strtotime($fullDateStr);
+        if ($timestamp === false) {
+            // Try some common formats
+            $formats = [
+                'F j, Y g:i A',
+                'M d, Y H:i',
+                'Y-m-d H:i:s',
+                'd/m/Y H:i',
+                'm/d/Y g:i A'
+            ];
+            
+            foreach ($formats as $format) {
+                $date = \DateTime::createFromFormat($format, $fullDateStr);
+                if ($date !== false) {
+                    return $date->format('Y-m-d H:i:s');
+                }
+            }
+            
+            // Last resort - try to extract any date
+            $timestamp = strtotime($dateStr);
+            if ($timestamp !== false) {
+                return date('Y-m-d 00:00:00', $timestamp);
+            }
+        }
+        
+        return $timestamp !== false ? date('Y-m-d H:i:s', $timestamp) : date('Y-m-d H:i:s');
     }
     
     /**
