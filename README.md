@@ -13,10 +13,13 @@ A comprehensive event calendar system designed for yakimafinds.com that integrat
 - **Map Controls**: Toggle event pins, shop pins, and Yakima Finds marker
 
 ### Administrative Interface
-- **Event Management**: Approve, edit, and manage submitted events
-- **Source Management**: Configure and monitor automated scraping sources
-- **Local Business Directory**: Manage shops and businesses with images
+- **Advanced Admin Dashboard**: Enhanced UI for event, source, and shop management
+- **Event Management**: Approve, edit, and manage submitted events with bulk actions
+- **Source Management**: Configure and monitor automated scraping sources with testing
+- **Local Business Directory**: Manage shops and businesses with images and geocoding
 - **Scraper Dashboard**: Manual scraping, view logs, manage sources
+- **YFClaim Module**: Facebook-style claim sale platform for estate sales
+- **Geocoding Tools**: Verify and fix location coordinates for events and shops
 - **Authentication**: Secure admin access with session management
 
 ### Automated Features
@@ -395,11 +398,56 @@ Test coverage areas:
 - Geocoding services
 - Input validation
 
+## Modules
+
+### YFClaim - Estate Sale Platform
+YFClaim is a modular extension that provides Facebook-style claim sales for estate sale companies:
+
+- **Seller Management**: Estate sale companies can register and manage their sales
+- **Claim Sales**: Items are posted with starting prices, buyers make offers
+- **Offer System**: Price ranges shown to buyers, sellers choose winning offers
+- **QR Code Access**: Easy buyer access via QR codes at physical sales
+- **Admin Interface**: Complete management dashboard for overseeing all sales
+
+**Status**: Database ready, admin interface functional, models need implementation
+**Documentation**: See `modules/yfclaim/README.md` for details
+
+## Current Status
+
+### ✅ Fully Functional
+- Event calendar with map integration
+- Event scraping from multiple sources
+- Local business directory with geocoding
+- Advanced admin interface
+- Shop management with JSON operating hours
+- Geocoding verification and repair tools
+
+### 🚧 In Development
+- YFClaim seller/buyer interfaces (admin ready, models need implementation)
+- Enhanced notification system
+- Advanced reporting and analytics
+
+## Security
+
+⚠️ **Important**: This project includes sensitive configuration files. See `SECURITY.md` for proper setup and deployment guidelines.
+
 ## License
 
 This project is proprietary software developed for yakimafinds.com. All rights reserved.
 
 ## Changelog
+
+### Version 1.2.0 (Current)
+- Fixed advanced admin functionality and 500 errors
+- Fixed geocoding namespace issues  
+- Added YFClaim module foundation with database schema
+- Enhanced security documentation and API key management
+- Improved shop management with proper JSON handling
+
+### Version 1.1.0
+- Added intelligent AI-powered event scraper
+- Enhanced admin interface with better navigation
+- Improved error handling and logging
 
 ### Version 1.0.0 (Initial Release)
 - Complete calendar system with map integration

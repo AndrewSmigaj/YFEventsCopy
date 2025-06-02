@@ -2,6 +2,33 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 📊 Current Development Status (December 2025)
+
+### ✅ YFEvents Core - COMPLETED
+- Event calendar with map integration ✅
+- Event scraping from multiple sources ✅ 
+- Local business directory with geocoding ✅
+- Advanced admin interface ✅ (fixed 500 errors)
+- Shop management with proper JSON handling ✅
+- Geocoding verification and repair tools ✅
+
+### 🚧 YFClaim Module - IN PROGRESS (40% complete)
+- **Database Schema**: ✅ Installed (6 tables, sample data)
+- **Admin Interface**: ✅ Templates functional, shows stats
+- **Model Classes**: 🚧 Structure created, CRUD methods needed
+- **Business Logic**: 📅 Planned (offer management, notifications)
+- **Public Interface**: 📅 Planned (buyer/seller portals)
+
+### 🎯 Immediate Next Task
+**Implement YFClaim SellerModel CRUD methods** to make admin interface fully functional:
+- `createSeller()`, `getAllSellers()`, `updateSeller()`, `getSellerById()`
+
+### 🔗 Quick Links
+- **Main Admin**: `http://137.184.245.149/admin/`
+- **Advanced Admin**: `http://137.184.245.149/admin/calendar/`
+- **YFClaim Admin**: `http://137.184.245.149/modules/yfclaim/www/admin/`
+- **YFClaim Progress**: `modules/yfclaim/PROGRESS.md`
+
 ## Common Development Commands
 
 ### Database Setup and Management
@@ -9,10 +36,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Create database
 mysql -u root -p -e "CREATE DATABASE yakima_finds;"
 
-# Apply schema
+# Apply core schema
 mysql -u root -p yakima_finds < database/calendar_schema.sql
 mysql -u root -p yakima_finds < database/batch_processing_schema.sql
 mysql -u root -p yakima_finds < database/intelligent_scraper_schema.sql
+
+# Install YFClaim module (✅ ALREADY DONE)
+mysql -u yfevents -p yakima_finds < modules/yfclaim/database/schema.sql
 
 # Apply migrations
 php database/apply_migrations.php
@@ -146,7 +176,37 @@ modules/
 ```
 
 ### Current Modules
-- **yfclaim**: Facebook-style claim sale platform for estate sales (in development)
+- **yfclaim**: Facebook-style claim sale platform for estate sales (database ready, models need implementation)
+
+## YFClaim Development Commands
+
+### Database Verification
+```bash
+# Check YFClaim tables
+mysql -u yfevents -p yakima_finds -e "SHOW TABLES LIKE 'yfc_%';"
+
+# Verify data
+mysql -u yfevents -p yakima_finds -e "SELECT COUNT(*) FROM yfc_categories;"
+```
+
+### Model Development
+```bash
+# Test model autoloading
+php -r "require 'vendor/autoload.php'; require 'config/database.php'; 
+use YFEvents\Modules\YFClaim\Models\SellerModel; 
+echo class_exists('YFEvents\Modules\YFClaim\Models\SellerModel') ? 'OK' : 'FAIL';"
+
+# Test model instantiation
+php -r "require 'vendor/autoload.php'; require 'config/database.php'; 
+\$model = new YFEvents\Modules\YFClaim\Models\SellerModel(\$db); 
+echo 'SellerModel loaded successfully\n';"
+```
+
+### Testing YFClaim Admin
+```bash
+# Test admin interface functionality
+curl -I http://137.184.245.149/modules/yfclaim/www/admin/
+```
 
 ## Important Notes
 
@@ -157,3 +217,4 @@ modules/
 - **Error Handling**: Errors are logged to `logs/` directory
 - **No CI/CD**: Deployment is manual, no automated pipelines
 - **Module System**: Optional modules extend functionality without modifying core
+- **Security**: See `SECURITY.md` for API key and deployment guidelines
