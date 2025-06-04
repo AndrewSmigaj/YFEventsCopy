@@ -14,7 +14,7 @@ YakimaCalendar.prototype.initializeMap = function() {
     
     // Yakima Finds location at 111 S 2nd St, Yakima, WA
     // Corrected coordinates for exact address
-    const yakimaFindsLocation = { lat: 46.6007, lng: -120.5065 };
+    const yakimaFindsLocation = { lat: 46.600825, lng: -120.503357 }; // 111 S. 2nd St
     
     this.map = new google.maps.Map(mapEl, {
         center: yakimaFindsLocation,

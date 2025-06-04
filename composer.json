@@ -12,7 +12,8 @@
     "autoload": {
         "psr-4": {
             "YFEvents\\": "src/",
-            "YakimaFinds\\": "src/"
+            "YakimaFinds\\": "src/",
+            "YFEvents\\Modules\\YFClaim\\": "modules/yfclaim/src/"
         }
     },
     "scripts": {

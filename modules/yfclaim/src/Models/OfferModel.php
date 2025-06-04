@@ -2,6 +2,7 @@
 namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
+use Exception;
 
 class OfferModel extends BaseModel {
     protected $table = 'yfc_offers';
@@ -279,5 +280,59 @@ class OfferModel extends BaseModel {
         ");
         
         return $stmt->execute([$hoursOld]);
+    }
+    
+    /**
+     * Get all offers with pagination
+     */
+    public function getAllOffers($limit = 50, $offset = 0, $orderBy = 'created_at DESC') {
+        $sql = "
+            SELECT o.*, 
+                   b.name as buyer_name, 
+                   b.email as buyer_email,
+                   i.title as item_title,
+                   i.item_number,
+                   s.title as sale_title
+            FROM {$this->table} o
+            LEFT JOIN yfc_buyers b ON o.buyer_id = b.id
+            LEFT JOIN yfc_items i ON o.item_id = i.id
+            LEFT JOIN yfc_sales s ON i.sale_id = s.id
+            ORDER BY {$orderBy}
+            LIMIT ? OFFSET ?
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Update offer (wrapper for consistency)
+     */
+    public function updateOffer($id, $data) {
+        return $this->update($id, $data);
+    }
+    
+    /**
+     * Get offer by ID (wrapper for consistency)
+     */
+    public function getOfferById($id) {
+        return $this->find($id);
+    }
+    
+    /**
+     * Delete offer (wrapper for consistency)
+     */
+    public function deleteOffer($id) {
+        return $this->delete($id);
+    }
+    
+    /**
+     * Get offers by item ID (wrapper for consistency)
+     */
+    public function getOffersByItem($itemId, $status = null) {
+        return $this->getByItem($itemId, $status);
     }
 }

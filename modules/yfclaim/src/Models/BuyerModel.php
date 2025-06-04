@@ -2,6 +2,7 @@
 namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
+use Exception;
 
 class BuyerModel extends BaseModel {
     protected $table = 'yfc_buyers';
@@ -250,5 +251,73 @@ class BuyerModel extends BaseModel {
         return $this->update($buyerId, [
             'last_activity' => date('Y-m-d H:i:s')
         ]);
+    }
+    
+    /**
+     * Create buyer (wrapper for consistency)
+     */
+    public function createBuyer($data) {
+        return $this->create($data);
+    }
+    
+    /**
+     * Get all buyers with pagination
+     */
+    public function getAllBuyers($limit = 50, $offset = 0, $orderBy = 'created_at DESC') {
+        $sql = "
+            SELECT b.*, s.title as sale_title, sel.company_name
+            FROM {$this->table} b
+            LEFT JOIN yfc_sales s ON b.sale_id = s.id
+            LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
+            ORDER BY {$orderBy}
+            LIMIT ? OFFSET ?
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Update buyer (wrapper for consistency)
+     */
+    public function updateBuyer($id, $data) {
+        return $this->update($id, $data);
+    }
+    
+    /**
+     * Get buyer by ID (wrapper for consistency)
+     */
+    public function getBuyerById($id) {
+        return $this->find($id);
+    }
+    
+    /**
+     * Delete buyer and associated offers
+     */
+    public function deleteBuyer($id) {
+        $this->beginTransaction();
+        
+        try {
+            // Delete offers
+            $stmt = $this->db->prepare("DELETE FROM yfc_offers WHERE buyer_id = ?");
+            $stmt->execute([$id]);
+            
+            // Delete offer history
+            $stmt = $this->db->prepare("DELETE FROM yfc_offer_history WHERE buyer_id = ?");
+            $stmt->execute([$id]);
+            
+            // Delete buyer
+            $this->delete($id);
+            
+            $this->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->rollback();
+            throw $e;
+        }
     }
 }

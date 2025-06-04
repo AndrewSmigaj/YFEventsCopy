@@ -2,13 +2,14 @@
 namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
+use Exception;
 
 class ItemModel extends BaseModel {
     protected $table = 'yfc_items';
     protected $fillable = [
-        'sale_id', 'title', 'description', 'starting_price', 'offer_increment',
-        'buy_now_price', 'category', 'condition_rating', 'dimensions', 'weight',
-        'item_number', 'sort_order', 'status', 'winning_offer_id'
+        'sale_id', 'title', 'description', 'starting_price', 'category_id',
+        'current_high_offer', 'offer_count', 'primary_image', 'images',
+        'condition_notes', 'measurements', 'sort_order', 'status', 'featured', 'qr_code'
     ];
     
     /**
@@ -230,5 +231,100 @@ class ItemModel extends BaseModel {
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Create new item with auto-generated sort order
+     */
+    public function createItem($data) {
+        // Set default sort order if not provided
+        if (!isset($data['sort_order'])) {
+            $stmt = $this->db->prepare("SELECT MAX(sort_order) FROM yfc_items WHERE sale_id = ?");
+            $stmt->execute([$data['sale_id']]);
+            $maxOrder = $stmt->fetchColumn();
+            $data['sort_order'] = ($maxOrder ?: 0) + 1;
+        }
+        
+        // Generate QR code if not provided
+        if (!isset($data['qr_code'])) {
+            do {
+                $qrCode = 'QRI' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
+                // Check if QR code already exists
+                $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE qr_code = ?");
+                $stmt->execute([$qrCode]);
+                $exists = $stmt->fetchColumn() > 0;
+            } while ($exists);
+            $data['qr_code'] = $qrCode;
+        }
+        
+        return $this->create($data);
+    }
+    
+    /**
+     * Get all items with pagination
+     */
+    public function getAllItems($limit = 50, $offset = 0, $orderBy = 'created_at DESC') {
+        $sql = "
+            SELECT i.*, s.title as sale_title, sel.company_name
+            FROM {$this->table} i
+            LEFT JOIN yfc_sales s ON i.sale_id = s.id
+            LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
+            ORDER BY {$orderBy}
+            LIMIT ? OFFSET ?
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Update item (wrapper for consistency)
+     */
+    public function updateItem($id, $data) {
+        return $this->update($id, $data);
+    }
+    
+    /**
+     * Get item by ID (wrapper for consistency)
+     */
+    public function getItemById($id) {
+        return $this->find($id);
+    }
+    
+    /**
+     * Delete item and associated data
+     */
+    public function deleteItem($id) {
+        $this->beginTransaction();
+        
+        try {
+            // Delete images
+            $stmt = $this->db->prepare("DELETE FROM yfc_item_images WHERE item_id = ?");
+            $stmt->execute([$id]);
+            
+            // Delete offers
+            $stmt = $this->db->prepare("DELETE FROM yfc_offers WHERE item_id = ?");
+            $stmt->execute([$id]);
+            
+            // Delete item
+            $this->delete($id);
+            
+            $this->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->rollback();
+            throw $e;
+        }
+    }
+    
+    /**
+     * Get items by sale ID (wrapper for consistency)
+     */
+    public function getItemsBySale($saleId, $status = null) {
+        return $this->getBySale($saleId, $status);
     }
 }

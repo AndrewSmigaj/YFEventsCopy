@@ -21,6 +21,9 @@
                     <a href="/events/submit" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Event
                     </a>
+                    <a href="/yfclaim-simple.php" class="btn btn-outline" style="margin-left: 10px;">
+                        <i class="fas fa-shopping-bag"></i> Estate Sales
+                    </a>
                     <a href="/admin/" class="btn btn-outline" style="margin-left: 10px;">
                         <i class="fas fa-cog"></i> Admin
                     </a>
@@ -204,7 +207,7 @@
                 userLocation: null,
                 categories: <?= json_encode($categories ?? []) ?>,
                 mapOptions: {
-                    center: { lat: 46.6021, lng: -120.5059 }, // Yakima, WA
+                    center: { lat: 46.600825, lng: -120.503357 }, // Yakima Finds: 111 S. 2nd St
                     zoom: 12,
                     styles: [] // Can add custom map styles
                 }

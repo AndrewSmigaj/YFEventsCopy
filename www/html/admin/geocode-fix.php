@@ -522,7 +522,7 @@ function fixAllGeocoding($db, $type, $geocoder) {
         function initMap() {
             if (!map && typeof google !== 'undefined') {
                 map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: 46.6021, lng: -120.5059},
+                    center: {lat: 46.600825, lng: -120.503357}, // Yakima Finds: 111 S. 2nd St
                     zoom: 11
                 });
                 

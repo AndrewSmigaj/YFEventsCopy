@@ -112,4 +112,42 @@ class SellerModel extends BaseModel {
         
         return $this->create($data);
     }
+    
+    /**
+     * Get all sellers with pagination
+     */
+    public function getAllSellers($limit = 50, $offset = 0, $orderBy = 'company_name ASC') {
+        $sql = "SELECT * FROM {$this->table} ORDER BY {$orderBy} LIMIT ? OFFSET ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Update seller (wrapper for consistency)
+     */
+    public function updateSeller($id, $data) {
+        if (isset($data['password'])) {
+            $data['password_hash'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            unset($data['password']);
+        }
+        
+        return $this->update($id, $data);
+    }
+    
+    /**
+     * Get seller by ID (wrapper for consistency)
+     */
+    public function getSellerById($id) {
+        return $this->find($id);
+    }
+    
+    /**
+     * Delete seller (wrapper for consistency)
+     */
+    public function deleteSeller($id) {
+        return $this->delete($id);
+    }
 }

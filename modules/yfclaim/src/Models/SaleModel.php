@@ -7,9 +7,9 @@ class SaleModel extends BaseModel {
     protected $table = 'yfc_sales';
     protected $fillable = [
         'seller_id', 'title', 'description', 'address', 'city', 'state', 'zip',
-        'latitude', 'longitude', 'preview_start', 'preview_end', 
+        'latitude', 'longitude', 'start_date', 'end_date',
         'claim_start', 'claim_end', 'pickup_start', 'pickup_end',
-        'qr_code', 'access_code', 'status', 'show_price_ranges'
+        'qr_code', 'access_code', 'status', 'featured'
     ];
     
     /**
@@ -124,7 +124,10 @@ class SaleModel extends BaseModel {
     public function generateAccessCode() {
         do {
             $code = strtoupper(substr(md5(uniqid(rand(), true)), 0, 8));
-        } while ($this->exists(['access_code' => $code]));
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE access_code = ?");
+            $stmt->execute([$code]);
+            $exists = $stmt->fetchColumn() > 0;
+        } while ($exists);
         
         return $code;
     }
@@ -135,7 +138,10 @@ class SaleModel extends BaseModel {
     public function generateQrCode() {
         do {
             $code = 'QR' . strtoupper(substr(md5(uniqid(rand(), true)), 0, 10));
-        } while ($this->exists(['qr_code' => $code]));
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE qr_code = ?");
+            $stmt->execute([$code]);
+            $exists = $stmt->fetchColumn() > 0;
+        } while ($exists);
         
         return $code;
     }
@@ -193,5 +199,67 @@ class SaleModel extends BaseModel {
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$now, $now]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Create new sale with generated codes
+     */
+    public function createSale($data) {
+        // Generate codes if not provided
+        if (!isset($data['access_code'])) {
+            $data['access_code'] = $this->generateAccessCode();
+        }
+        if (!isset($data['qr_code'])) {
+            $data['qr_code'] = $this->generateQrCode();
+        }
+        
+        return $this->create($data);
+    }
+    
+    /**
+     * Get all sales with pagination
+     */
+    public function getAllSales($limit = 50, $offset = 0, $orderBy = 'created_at DESC') {
+        $sql = "
+            SELECT s.*, sel.company_name, sel.contact_name
+            FROM {$this->table} s
+            LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
+            ORDER BY {$orderBy}
+            LIMIT ? OFFSET ?
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Update sale (wrapper for consistency)
+     */
+    public function updateSale($id, $data) {
+        return $this->update($id, $data);
+    }
+    
+    /**
+     * Get sale by ID (wrapper for consistency)
+     */
+    public function getSaleById($id) {
+        return $this->find($id);
+    }
+    
+    /**
+     * Delete sale (wrapper for consistency)
+     */
+    public function deleteSale($id) {
+        return $this->delete($id);
+    }
+    
+    /**
+     * Get sales by seller ID (wrapper for consistency)
+     */
+    public function getSalesBySeller($sellerId) {
+        return $this->getBySeller($sellerId);
     }
 }

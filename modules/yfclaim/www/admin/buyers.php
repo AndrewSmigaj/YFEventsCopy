@@ -3,6 +3,8 @@
 require_once '../../../../config/database.php';
 require_once '../../src/Models/BuyerModel.php';
 
+use YFEvents\Modules\YFClaim\Models\BuyerModel;
+
 // Authentication check
 session_start();
 
@@ -14,7 +16,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 $isAdmin = true;
 
 // Initialize models
-$buyerModel = new BuyerModel($pdo);
+$buyerModel = new BuyerModel($db);
 
 // Handle actions
 $message = '';
@@ -26,39 +28,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             switch ($_POST['action']) {
                 case 'create_buyer':
                     $data = [
+                        'sale_id' => $_POST['sale_id'],
                         'name' => $_POST['name'],
-                        'email' => $_POST['email'],
+                        'email' => $_POST['email'] ?? null,
                         'phone' => $_POST['phone'] ?? null,
-                        'fb_name' => $_POST['fb_name'] ?? null,
-                        'fb_profile_url' => $_POST['fb_profile_url'] ?? null,
-                        'status' => 'active'
+                        'auth_method' => $_POST['auth_method'] ?? 'email',
+                        'auth_verified' => isset($_POST['auth_verified']) ? 1 : 0
                     ];
-                    $buyerId = $buyerModel->create($data);
+                    $buyerId = $buyerModel->createBuyer($data);
                     $message = "Buyer created successfully!";
                     break;
                     
                 case 'update_buyer':
                     $data = [
                         'name' => $_POST['name'],
-                        'email' => $_POST['email'],
+                        'email' => $_POST['email'] ?? null,
                         'phone' => $_POST['phone'] ?? null,
-                        'fb_name' => $_POST['fb_name'] ?? null,
-                        'fb_profile_url' => $_POST['fb_profile_url'] ?? null,
-                        'status' => $_POST['status']
+                        'auth_method' => $_POST['auth_method'] ?? 'email',
+                        'auth_verified' => isset($_POST['auth_verified']) ? 1 : 0
                     ];
-                    $buyerModel->update($_POST['buyer_id'], $data);
+                    $buyerModel->updateBuyer($_POST['buyer_id'], $data);
                     $message = "Buyer updated successfully!";
                     break;
                     
                 case 'delete_buyer':
-                    // Check if buyer has offers
-                    $hasOffers = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_offers WHERE buyer_id = ?");
-                    $hasOffers->execute([$_POST['buyer_id']]);
-                    if ($hasOffers->fetchColumn() > 0) {
-                        $error = "Cannot delete buyer with existing offers!";
-                    } else {
-                        $pdo->prepare("DELETE FROM yfclaim_buyers WHERE id = ?")->execute([$_POST['buyer_id']]);
+                    try {
+                        $buyerModel->deleteBuyer($_POST['buyer_id']);
                         $message = "Buyer deleted successfully!";
+                    } catch (Exception $e) {
+                        $error = "Cannot delete buyer: " . $e->getMessage();
                     }
                     break;
             }
@@ -69,24 +67,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Get filter parameters
-$status = $_GET['status'] ?? '';
+$authVerified = $_GET['auth_verified'] ?? '';
 $search = $_GET['search'] ?? '';
+$saleId = $_GET['sale_id'] ?? '';
 
-// Build query
+// Build query with proper statistics
 $query = "SELECT b.*, 
-          (SELECT COUNT(*) FROM yfclaim_offers WHERE buyer_id = b.id) as total_offers,
-          (SELECT COUNT(*) FROM yfclaim_offers WHERE buyer_id = b.id AND status = 'pending') as pending_offers,
-          (SELECT COUNT(*) FROM yfclaim_offers WHERE buyer_id = b.id AND status = 'accepted') as accepted_offers
-          FROM yfclaim_buyers b WHERE 1=1";
+          s.title as sale_title,
+          sel.company_name,
+          (SELECT COUNT(*) FROM yfc_offers WHERE buyer_id = b.id) as total_offers,
+          (SELECT COUNT(*) FROM yfc_offers WHERE buyer_id = b.id AND status = 'active') as active_offers,
+          (SELECT COUNT(*) FROM yfc_offers WHERE buyer_id = b.id AND status = 'winning') as winning_offers,
+          b.session_token,
+          b.session_expires
+          FROM yfc_buyers b 
+          LEFT JOIN yfc_sales s ON b.sale_id = s.id
+          LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
+          WHERE 1=1";
 $params = [];
 
-if ($status) {
-    $query .= " AND b.status = ?";
-    $params[] = $status;
+if ($authVerified !== '') {
+    $query .= " AND b.auth_verified = ?";
+    $params[] = $authVerified;
+}
+
+if ($saleId) {
+    $query .= " AND b.sale_id = ?";
+    $params[] = $saleId;
 }
 
 if ($search) {
-    $query .= " AND (b.name LIKE ? OR b.email LIKE ? OR b.fb_name LIKE ?)";
+    $query .= " AND (b.name LIKE ? OR b.email LIKE ? OR b.phone LIKE ?)";
     $params[] = "%$search%";
     $params[] = "%$search%";
     $params[] = "%$search%";
@@ -101,15 +112,25 @@ $buyers = $stmt->fetchAll();
 // Get buyer for edit modal
 $editBuyer = null;
 if (isset($_GET['edit'])) {
-    $editBuyer = $buyerModel->findById($_GET['edit']);
+    $editBuyer = $buyerModel->getBuyerById($_GET['edit']);
+    if ($editBuyer) {
+        // Get buyer statistics
+        $editBuyer['stats'] = $buyerModel->getStats($_GET['edit']);
+    }
 }
+
+// Get sales for dropdown
+$salesQuery = "SELECT id, title FROM yfc_sales WHERE status = 'active' ORDER BY created_at DESC";
+$salesStmt = $pdo->query($salesQuery);
+$sales = $salesStmt->fetchAll();
 
 // Get statistics
 $stats = [];
 $stats['total_buyers'] = count($buyers);
-$stats['active_buyers'] = count(array_filter($buyers, fn($b) => $b['status'] === 'active'));
+$stats['verified_buyers'] = count(array_filter($buyers, fn($b) => $b['auth_verified'] == 1));
 $stats['total_offers'] = array_sum(array_column($buyers, 'total_offers'));
-$stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
+$stats['active_offers'] = array_sum(array_column($buyers, 'active_offers'));
+$stats['winning_offers'] = array_sum(array_column($buyers, 'winning_offers'));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -374,6 +395,18 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
         .badge.accepted {
             background: #28a745;
         }
+        .buyer-contact {
+            font-size: 0.875rem;
+        }
+        .sale-info {
+            line-height: 1.3;
+        }
+        .auth-icon {
+            margin-right: 0.25rem;
+        }
+        input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -410,16 +443,20 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
                 <div class="stat-label">Total Buyers</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number"><?= $stats['active_buyers'] ?></div>
-                <div class="stat-label">Active Buyers</div>
+                <div class="stat-number"><?= $stats['verified_buyers'] ?></div>
+                <div class="stat-label">Verified Buyers</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number"><?= $stats['total_offers'] ?></div>
                 <div class="stat-label">Total Offers</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number"><?= $stats['pending_offers'] ?></div>
-                <div class="stat-label">Pending Offers</div>
+                <div class="stat-number"><?= $stats['active_offers'] ?></div>
+                <div class="stat-label">Active Offers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number"><?= $stats['winning_offers'] ?></div>
+                <div class="stat-label">Winning Offers</div>
             </div>
         </div>
         
@@ -431,10 +468,18 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
             
             <form method="get" class="filters">
                 <input type="text" name="search" placeholder="Search buyers..." value="<?= htmlspecialchars($search) ?>">
-                <select name="status">
-                    <option value="">All Status</option>
-                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                    <option value="suspended" <?= $status === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                <select name="auth_verified">
+                    <option value="">All Buyers</option>
+                    <option value="1" <?= $authVerified === '1' ? 'selected' : '' ?>>Verified</option>
+                    <option value="0" <?= $authVerified === '0' ? 'selected' : '' ?>>Unverified</option>
+                </select>
+                <select name="sale_id">
+                    <option value="">All Sales</option>
+                    <?php foreach ($sales as $sale): ?>
+                        <option value="<?= $sale['id'] ?>" <?= $saleId == $sale['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($sale['title']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
                 <button type="submit" class="btn btn-primary">Filter</button>
                 <a href="/modules/yfclaim/www/admin/buyers.php" class="btn">Clear</a>
@@ -445,11 +490,11 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>FB Name</th>
+                        <th>Contact</th>
+                        <th>Sale</th>
+                        <th>Auth</th>
                         <th>Offers</th>
-                        <th>Status</th>
+                        <th>Last Activity</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -459,32 +504,43 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
                     <tr>
                         <td><?= $buyer['id'] ?></td>
                         <td>
-                            <?= htmlspecialchars($buyer['name']) ?>
-                            <?php if ($buyer['pending_offers'] > 0): ?>
-                                <span class="badge pending"><?= $buyer['pending_offers'] ?> pending</span>
+                            <a href="/modules/yfclaim/www/admin/offers.php?buyer_id=<?= $buyer['id'] ?>" style="color: #007bff; text-decoration: none;">
+                                <?= htmlspecialchars($buyer['name']) ?>
+                            </a>
+                            <?php if ($buyer['active_offers'] > 0): ?>
+                                <span class="badge pending"><?= $buyer['active_offers'] ?> active</span>
                             <?php endif; ?>
-                            <?php if ($buyer['accepted_offers'] > 0): ?>
-                                <span class="badge accepted"><?= $buyer['accepted_offers'] ?> accepted</span>
+                            <?php if ($buyer['winning_offers'] > 0): ?>
+                                <span class="badge accepted"><?= $buyer['winning_offers'] ?> winning</span>
                             <?php endif; ?>
                         </td>
-                        <td><?= htmlspecialchars($buyer['email']) ?></td>
-                        <td><?= htmlspecialchars($buyer['phone'] ?? '-') ?></td>
                         <td>
-                            <?php if ($buyer['fb_name']): ?>
-                                <?= htmlspecialchars($buyer['fb_name']) ?>
-                                <?php if ($buyer['fb_profile_url']): ?>
-                                    <a href="<?= htmlspecialchars($buyer['fb_profile_url']) ?>" target="_blank" style="color: #007bff; text-decoration: none;">↗</a>
-                                <?php endif; ?>
+                            <?php if ($buyer['auth_method'] === 'email'): ?>
+                                📧 <?= htmlspecialchars($buyer['email'] ?? '-') ?>
+                            <?php else: ?>
+                                📱 <?= htmlspecialchars($buyer['phone'] ?? '-') ?>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($buyer['sale_title']): ?>
+                                <small><?= htmlspecialchars($buyer['sale_title']) ?></small><br>
+                                <small style="color: #666;"><?= htmlspecialchars($buyer['company_name'] ?? '') ?></small>
                             <?php else: ?>
                                 -
                             <?php endif; ?>
                         </td>
-                        <td><?= $buyer['total_offers'] ?></td>
                         <td>
-                            <span class="status <?= $buyer['status'] ?>">
-                                <?= ucfirst($buyer['status']) ?>
-                            </span>
+                            <?php if ($buyer['auth_verified']): ?>
+                                <span class="status active">Verified</span>
+                                <?php if ($buyer['session_token'] && strtotime($buyer['session_expires']) > time()): ?>
+                                    <br><small style="color: #28a745;">Session Active</small>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="status suspended">Unverified</span>
+                            <?php endif; ?>
                         </td>
+                        <td><?= $buyer['total_offers'] ?></td>
+                        <td><?= date('M d, g:i a', strtotime($buyer['last_activity'])) ?></td>
                         <td><?= date('M d, Y', strtotime($buyer['created_at'])) ?></td>
                         <td>
                             <div class="actions">
@@ -493,7 +549,7 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
                                     <input type="hidden" name="buyer_id" value="<?= $buyer['id'] ?>">
                                     <button type="submit" name="action" value="delete_buyer" class="btn btn-danger" 
                                             style="padding: 0.25rem 0.75rem; font-size: 0.875rem;"
-                                            onclick="return confirm('Delete this buyer? This cannot be undone.')">Delete</button>
+                                            onclick="return confirm('Delete this buyer and all their offers? This cannot be undone.')">Delete</button>
                                 </form>
                             </div>
                         </td>
@@ -515,38 +571,55 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
                 <input type="hidden" name="action" value="<?= $editBuyer ? 'update_buyer' : 'create_buyer' ?>">
                 <input type="hidden" name="buyer_id" value="<?= $editBuyer['id'] ?? '' ?>">
                 
+                <?php if (!$editBuyer): ?>
+                <div class="form-group">
+                    <label>Sale *</label>
+                    <select name="sale_id" required>
+                        <option value="">Select a sale...</option>
+                        <?php foreach ($sales as $sale): ?>
+                            <option value="<?= $sale['id'] ?>"><?= htmlspecialchars($sale['title']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
+                
                 <div class="form-group">
                     <label>Name *</label>
                     <input type="text" name="name" value="<?= htmlspecialchars($editBuyer['name'] ?? '') ?>" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Email *</label>
-                    <input type="email" name="email" value="<?= htmlspecialchars($editBuyer['email'] ?? '') ?>" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" name="phone" value="<?= htmlspecialchars($editBuyer['phone'] ?? '') ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label>Facebook Name</label>
-                    <input type="text" name="fb_name" value="<?= htmlspecialchars($editBuyer['fb_name'] ?? '') ?>">
-                </div>
-                
-                <div class="form-group">
-                    <label>Facebook Profile URL</label>
-                    <input type="url" name="fb_profile_url" value="<?= htmlspecialchars($editBuyer['fb_profile_url'] ?? '') ?>">
-                </div>
-                
-                <?php if ($editBuyer): ?>
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="status">
-                        <option value="active" <?= $editBuyer['status'] === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="suspended" <?= $editBuyer['status'] === 'suspended' ? 'selected' : '' ?>>Suspended</option>
+                    <label>Authentication Method *</label>
+                    <select name="auth_method" id="authMethod" required>
+                        <option value="email" <?= ($editBuyer['auth_method'] ?? 'email') === 'email' ? 'selected' : '' ?>>Email</option>
+                        <option value="sms" <?= ($editBuyer['auth_method'] ?? '') === 'sms' ? 'selected' : '' ?>>SMS</option>
                     </select>
+                </div>
+                
+                <div class="form-group" id="emailGroup">
+                    <label>Email <span id="emailRequired">*</span></label>
+                    <input type="email" name="email" value="<?= htmlspecialchars($editBuyer['email'] ?? '') ?>" id="emailInput">
+                </div>
+                
+                <div class="form-group" id="phoneGroup">
+                    <label>Phone <span id="phoneRequired"></span></label>
+                    <input type="tel" name="phone" value="<?= htmlspecialchars($editBuyer['phone'] ?? '') ?>" id="phoneInput">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="auth_verified" <?= ($editBuyer['auth_verified'] ?? 0) ? 'checked' : '' ?>>
+                        Mark as Verified
+                    </label>
+                </div>
+                
+                <?php if ($editBuyer && isset($editBuyer['stats'])): ?>
+                <div class="form-group" style="background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                    <strong>Buyer Statistics:</strong><br>
+                    Total Offers: <?= $editBuyer['stats']['total_offers'] ?><br>
+                    Active Offers: <?= $editBuyer['stats']['active_offers'] ?><br>
+                    Winning Offers: <?= $editBuyer['stats']['winning_offers'] ?><br>
+                    Last Activity: <?= date('M d, Y g:i a', strtotime($editBuyer['last_activity'])) ?>
                 </div>
                 <?php endif; ?>
                 
@@ -586,6 +659,30 @@ $stats['pending_offers'] = array_sum(array_column($buyers, 'pending_offers'));
                 closeModal();
             }
         });
+        
+        // Toggle email/phone requirement based on auth method
+        function updateAuthFields() {
+            const authMethod = document.getElementById('authMethod').value;
+            const emailRequired = document.getElementById('emailRequired');
+            const phoneRequired = document.getElementById('phoneRequired');
+            const emailInput = document.getElementById('emailInput');
+            const phoneInput = document.getElementById('phoneInput');
+            
+            if (authMethod === 'email') {
+                emailRequired.textContent = '*';
+                phoneRequired.textContent = '';
+                emailInput.required = true;
+                phoneInput.required = false;
+            } else {
+                emailRequired.textContent = '';
+                phoneRequired.textContent = '*';
+                emailInput.required = false;
+                phoneInput.required = true;
+            }
+        }
+        
+        document.getElementById('authMethod').addEventListener('change', updateAuthFields);
+        updateAuthFields();
     </script>
 </body>
 </html>

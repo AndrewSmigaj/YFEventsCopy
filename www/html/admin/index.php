@@ -45,6 +45,19 @@ $stats['pending_events'] = $pdo->query("SELECT COUNT(*) FROM events WHERE status
 $stats['approved_events'] = $pdo->query("SELECT COUNT(*) FROM events WHERE status = 'approved'")->fetchColumn();
 $stats['total_shops'] = $pdo->query("SELECT COUNT(*) FROM local_shops")->fetchColumn();
 
+// Get YFClaim statistics
+$stats['yfc_sales'] = 0;
+$stats['yfc_items'] = 0;
+$stats['yfc_offers'] = 0;
+
+try {
+    $stats['yfc_sales'] = $pdo->query("SELECT COUNT(*) FROM yfc_sales")->fetchColumn();
+    $stats['yfc_items'] = $pdo->query("SELECT COUNT(*) FROM yfc_items")->fetchColumn();
+    $stats['yfc_offers'] = $pdo->query("SELECT COUNT(*) FROM yfc_offers")->fetchColumn();
+} catch (Exception $e) {
+    // YFClaim tables might not exist yet
+}
+
 // Get recent events
 $events = $pdo->query("SELECT * FROM events ORDER BY created_at DESC LIMIT 20")->fetchAll();
 
@@ -203,6 +216,30 @@ $shops = $pdo->query("SELECT * FROM local_shops ORDER BY created_at DESC LIMIT 2
             <div class="stat-box">
                 <div class="stat-number"><?= $stats['total_shops'] ?></div>
                 <div>Local Shops</div>
+            </div>
+        </div>
+        
+        <div class="stats" style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: #333;">YFClaim Estate Sales</h3>
+            <div style="display: flex; gap: 2rem;">
+                <div class="stat-box">
+                    <div class="stat-number"><?= $stats['yfc_sales'] ?></div>
+                    <div>Estate Sales</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number"><?= $stats['yfc_items'] ?></div>
+                    <div>Items Listed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number"><?= $stats['yfc_offers'] ?></div>
+                    <div>Offers Made</div>
+                </div>
+                <div class="stat-box">
+                    <a href="/modules/yfclaim/www/admin/" style="text-decoration: none; color: inherit;">
+                        <div class="stat-number">→</div>
+                        <div>Manage Sales</div>
+                    </a>
+                </div>
             </div>
         </div>
         

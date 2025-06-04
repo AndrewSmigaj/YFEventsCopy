@@ -1,6 +1,14 @@
 <?php
 // YFClaim Sales Management
 require_once '../../../../config/database.php';
+
+// Use proper namespace imports
+use YFEvents\Modules\YFClaim\Models\SaleModel;
+use YFEvents\Modules\YFClaim\Models\SellerModel;
+use YFEvents\Modules\YFClaim\Models\ItemModel;
+use YFEvents\Modules\YFClaim\Models\OfferModel;
+
+require_once '../../src/Models/BaseModel.php';
 require_once '../../src/Models/SaleModel.php';
 require_once '../../src/Models/SellerModel.php';
 require_once '../../src/Models/ItemModel.php';
@@ -35,12 +43,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'seller_id' => $_POST['seller_id'],
                         'title' => $_POST['title'],
                         'description' => $_POST['description'],
-                        'pickup_location' => $_POST['pickup_location'],
-                        'pickup_times' => $_POST['pickup_times'],
-                        'contact_method' => $_POST['contact_method'],
+                        'address' => $_POST['address'],
+                        'city' => $_POST['city'],
+                        'state' => $_POST['state'],
+                        'zip' => $_POST['zip'],
+                        'latitude' => $_POST['latitude'] ?? null,
+                        'longitude' => $_POST['longitude'] ?? null,
+                        'preview_start' => $_POST['preview_start'] ?? null,
+                        'preview_end' => $_POST['preview_end'] ?? null,
+                        'claim_start' => $_POST['claim_start'],
+                        'claim_end' => $_POST['claim_end'],
+                        'pickup_start' => $_POST['pickup_start'],
+                        'pickup_end' => $_POST['pickup_end'],
+                        'show_price_ranges' => isset($_POST['show_price_ranges']) ? 1 : 0,
                         'status' => 'active'
                     ];
-                    $saleId = $saleModel->create($data);
+                    $saleId = $saleModel->createSale($data);
                     $message = "Sale created successfully! Sale ID: $saleId";
                     header("Location: /modules/yfclaim/www/admin/sales.php?id=$saleId");
                     exit;
@@ -50,12 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $data = [
                         'title' => $_POST['title'],
                         'description' => $_POST['description'],
-                        'pickup_location' => $_POST['pickup_location'],
-                        'pickup_times' => $_POST['pickup_times'],
-                        'contact_method' => $_POST['contact_method'],
+                        'address' => $_POST['address'],
+                        'city' => $_POST['city'],
+                        'state' => $_POST['state'],
+                        'zip' => $_POST['zip'],
+                        'latitude' => $_POST['latitude'] ?? null,
+                        'longitude' => $_POST['longitude'] ?? null,
+                        'preview_start' => $_POST['preview_start'] ?? null,
+                        'preview_end' => $_POST['preview_end'] ?? null,
+                        'claim_start' => $_POST['claim_start'],
+                        'claim_end' => $_POST['claim_end'],
+                        'pickup_start' => $_POST['pickup_start'],
+                        'pickup_end' => $_POST['pickup_end'],
+                        'show_price_ranges' => isset($_POST['show_price_ranges']) ? 1 : 0,
                         'status' => $_POST['status']
                     ];
-                    $saleModel->update($_POST['sale_id'], $data);
+                    $saleModel->updateSale($_POST['sale_id'], $data);
                     $message = "Sale updated successfully!";
                     break;
                     
@@ -64,12 +92,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'sale_id' => $_POST['sale_id'],
                         'title' => $_POST['title'],
                         'description' => $_POST['description'],
-                        'price' => $_POST['price'],
-                        'quantity' => $_POST['quantity'] ?? 1,
-                        'condition' => $_POST['condition'] ?? 'good',
+                        'starting_price' => $_POST['starting_price'],
+                        'offer_increment' => $_POST['offer_increment'] ?? 5,
+                        'buy_now_price' => $_POST['buy_now_price'] ?? null,
+                        'category' => $_POST['category'] ?? 'general',
+                        'condition_rating' => $_POST['condition_rating'] ?? 3,
+                        'dimensions' => $_POST['dimensions'] ?? null,
+                        'weight' => $_POST['weight'] ?? null,
                         'status' => 'available'
                     ];
-                    $itemModel->create($data);
+                    $itemModel->createItem($data);
                     $message = "Item added successfully!";
                     break;
                     
@@ -77,25 +109,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $data = [
                         'title' => $_POST['title'],
                         'description' => $_POST['description'],
-                        'price' => $_POST['price'],
-                        'quantity' => $_POST['quantity'],
-                        'condition' => $_POST['condition'],
+                        'starting_price' => $_POST['starting_price'],
+                        'offer_increment' => $_POST['offer_increment'],
+                        'buy_now_price' => $_POST['buy_now_price'] ?? null,
+                        'category' => $_POST['category'],
+                        'condition_rating' => $_POST['condition_rating'],
+                        'dimensions' => $_POST['dimensions'] ?? null,
+                        'weight' => $_POST['weight'] ?? null,
                         'status' => $_POST['item_status']
                     ];
-                    $itemModel->update($_POST['item_id'], $data);
+                    $itemModel->updateItem($_POST['item_id'], $data);
                     $message = "Item updated successfully!";
                     break;
                     
                 case 'delete_item':
-                    $pdo->prepare("DELETE FROM yfclaim_items WHERE id = ?")->execute([$_POST['item_id']]);
+                    $itemModel->deleteItem($_POST['item_id']);
                     $message = "Item deleted successfully!";
                     break;
                     
                 case 'delete_sale':
-                    // Delete all items and offers first
-                    $pdo->prepare("DELETE FROM yfclaim_offers WHERE item_id IN (SELECT id FROM yfclaim_items WHERE sale_id = ?)")->execute([$_POST['sale_id']]);
-                    $pdo->prepare("DELETE FROM yfclaim_items WHERE sale_id = ?")->execute([$_POST['sale_id']]);
-                    $pdo->prepare("DELETE FROM yfclaim_sales WHERE id = ?")->execute([$_POST['sale_id']]);
+                    // Delete all items first (which will cascade delete offers)
+                    $items = $itemModel->getItemsBySale($_POST['sale_id']);
+                    foreach ($items as $item) {
+                        $itemModel->deleteItem($item['id']);
+                    }
+                    // Delete the sale
+                    $saleModel->deleteSale($_POST['sale_id']);
                     $message = "Sale deleted successfully!";
                     header("Location: /modules/yfclaim/www/admin/sales.php");
                     exit;
@@ -112,63 +151,61 @@ $sale = null;
 $items = [];
 $offers = [];
 if (isset($_GET['id'])) {
-    $sale = $saleModel->findById($_GET['id']);
+    $sale = $saleModel->getSaleById($_GET['id']);
     if ($sale) {
         // Get seller info
-        $sale['seller'] = $sellerModel->findById($sale['seller_id']);
+        $sale['seller'] = $sellerModel->getSellerById($sale['seller_id']);
         
         // Get items
-        $stmt = $pdo->prepare("SELECT * FROM yfclaim_items WHERE sale_id = ? ORDER BY created_at DESC");
-        $stmt->execute([$sale['id']]);
-        $items = $stmt->fetchAll();
+        $items = $itemModel->getItemsBySale($sale['id']);
         
         // Get offers for each item
         foreach ($items as &$item) {
-            $stmt = $pdo->prepare("
-                SELECT o.*, b.name as buyer_name, b.email as buyer_email 
-                FROM yfclaim_offers o 
-                LEFT JOIN yfclaim_buyers b ON o.buyer_id = b.id 
-                WHERE o.item_id = ? 
-                ORDER BY o.created_at DESC
-            ");
-            $stmt->execute([$item['id']]);
-            $item['offers'] = $stmt->fetchAll();
+            $item['offers'] = $itemModel->getOffers($item['id']);
+            // Get highest offer
+            $item['highest_offer'] = $itemModel->getHighestOffer($item['id']);
+            // Get price range for display
+            $item['price_range'] = $itemModel->getPriceRange($item['id']);
         }
+        
+        // Get sale statistics
+        $sale['stats'] = $saleModel->getStats($sale['id']);
     }
 } else {
     // Get list of sales
     $status = $_GET['status'] ?? '';
     $search = $_GET['search'] ?? '';
     
-    $query = "SELECT s.*, sel.name as seller_name, sel.fb_name,
-              (SELECT COUNT(*) FROM yfclaim_items WHERE sale_id = s.id) as item_count,
-              (SELECT COUNT(*) FROM yfclaim_offers o JOIN yfclaim_items i ON o.item_id = i.id WHERE i.sale_id = s.id) as offer_count
-              FROM yfclaim_sales s 
-              LEFT JOIN yfclaim_sellers sel ON s.seller_id = sel.id 
-              WHERE 1=1";
-    $params = [];
+    // Get all sales with seller info
+    $sales = $saleModel->getAllSales(100, 0);
     
-    if ($status) {
-        $query .= " AND s.status = ?";
-        $params[] = $status;
+    // Filter by status and search if needed
+    if ($status || $search) {
+        $sales = array_filter($sales, function($sale) use ($status, $search) {
+            if ($status && $sale['status'] !== $status) {
+                return false;
+            }
+            if ($search) {
+                $searchLower = strtolower($search);
+                return stripos($sale['title'], $searchLower) !== false ||
+                       stripos($sale['description'] ?? '', $searchLower) !== false ||
+                       stripos($sale['company_name'] ?? '', $searchLower) !== false ||
+                       stripos($sale['contact_name'] ?? '', $searchLower) !== false;
+            }
+            return true;
+        });
     }
     
-    if ($search) {
-        $query .= " AND (s.title LIKE ? OR s.description LIKE ? OR sel.name LIKE ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
+    // Add statistics to each sale
+    foreach ($sales as &$sale) {
+        $stats = $saleModel->getStats($sale['id']);
+        $sale['item_count'] = $stats['total_items'];
+        $sale['offer_count'] = $stats['total_offers'];
     }
-    
-    $query .= " ORDER BY s.created_at DESC";
-    
-    $stmt = $pdo->prepare($query);
-    $stmt->execute($params);
-    $sales = $stmt->fetchAll();
 }
 
 // Get active sellers for dropdown
-$activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE status = 'active' ORDER BY name")->fetchAll();
+$activeSellers = $sellerModel->getActive();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -521,6 +558,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                     <h2><?= htmlspecialchars($sale['title']) ?></h2>
                     <div class="actions">
                         <button onclick="showEditSaleModal()" class="btn btn-primary">Edit Sale</button>
+                        <a href="qr-codes.php?sale_id=<?= $sale['id'] ?>" class="btn btn-success">QR Codes</a>
                         <form method="post" style="margin: 0;">
                             <input type="hidden" name="sale_id" value="<?= $sale['id'] ?>">
                             <button type="submit" name="action" value="delete_sale" class="btn btn-danger" 
@@ -536,7 +574,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                     </div>
                     <div class="info-item">
                         <div class="info-label">Seller</div>
-                        <div class="info-value"><?= htmlspecialchars($sale['seller']['name']) ?></div>
+                        <div class="info-value"><?= htmlspecialchars($sale['seller']['company_name'] ?? $sale['seller']['contact_name'] ?? 'Unknown') ?></div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Status</div>
@@ -549,20 +587,49 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                         <div class="info-value"><?= date('M d, Y g:i A', strtotime($sale['created_at'])) ?></div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Pickup Location</div>
-                        <div class="info-value"><?= htmlspecialchars($sale['pickup_location']) ?></div>
+                        <div class="info-label">Location</div>
+                        <div class="info-value">
+                            <?= htmlspecialchars($sale['address']) ?><br>
+                            <?= htmlspecialchars($sale['city']) ?>, <?= htmlspecialchars($sale['state']) ?> <?= htmlspecialchars($sale['zip']) ?>
+                        </div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Pickup Times</div>
-                        <div class="info-value"><?= htmlspecialchars($sale['pickup_times']) ?></div>
+                        <div class="info-label">Preview Period</div>
+                        <div class="info-value">
+                            <?= $sale['preview_start'] ? date('M d, Y g:i A', strtotime($sale['preview_start'])) : 'Not set' ?> -<br>
+                            <?= $sale['preview_end'] ? date('M d, Y g:i A', strtotime($sale['preview_end'])) : 'Not set' ?>
+                        </div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Contact Method</div>
-                        <div class="info-value"><?= htmlspecialchars($sale['contact_method']) ?></div>
+                        <div class="info-label">Claim Period</div>
+                        <div class="info-value">
+                            <?= date('M d, Y g:i A', strtotime($sale['claim_start'])) ?> -<br>
+                            <?= date('M d, Y g:i A', strtotime($sale['claim_end'])) ?>
+                        </div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Total Items</div>
-                        <div class="info-value"><?= count($items) ?></div>
+                        <div class="info-label">Pickup Period</div>
+                        <div class="info-value">
+                            <?= date('M d, Y g:i A', strtotime($sale['pickup_start'])) ?> -<br>
+                            <?= date('M d, Y g:i A', strtotime($sale['pickup_end'])) ?>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Access Code</div>
+                        <div class="info-value"><?= htmlspecialchars($sale['access_code']) ?></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">QR Code</div>
+                        <div class="info-value"><?= htmlspecialchars($sale['qr_code']) ?></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Statistics</div>
+                        <div class="info-value">
+                            Items: <?= $sale['stats']['total_items'] ?><br>
+                            Offers: <?= $sale['stats']['total_offers'] ?><br>
+                            Claimed: <?= $sale['stats']['claimed_items'] ?><br>
+                            Buyers: <?= $sale['stats']['unique_buyers'] ?>
+                        </div>
                     </div>
                 </div>
                 
@@ -584,12 +651,22 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                         <div class="item-card">
                             <div class="item-header">
                                 <div>
-                                    <h3 style="margin: 0 0 0.5rem 0;"><?= htmlspecialchars($item['title']) ?></h3>
-                                    <div class="price">$<?= number_format($item['price'], 2) ?></div>
+                                    <h3 style="margin: 0 0 0.5rem 0;">
+                                        #<?= htmlspecialchars($item['item_number']) ?> - <?= htmlspecialchars($item['title']) ?>
+                                    </h3>
+                                    <div class="price">
+                                        Starting: $<?= number_format($item['starting_price'], 2) ?>
+                                        <?php if ($item['buy_now_price']): ?>
+                                            | Buy Now: $<?= number_format($item['buy_now_price'], 2) ?>
+                                        <?php endif; ?>
+                                    </div>
                                     <div style="margin-top: 0.5rem;">
                                         <span class="status <?= $item['status'] ?>"><?= ucfirst($item['status']) ?></span>
-                                        <span class="badge">Qty: <?= $item['quantity'] ?></span>
-                                        <span class="badge">Condition: <?= ucfirst($item['condition']) ?></span>
+                                        <span class="badge">Category: <?= ucfirst($item['category']) ?></span>
+                                        <span class="badge">Condition: <?= $item['condition_rating'] ?>/5</span>
+                                        <?php if ($item['highest_offer']): ?>
+                                            <span class="badge" style="background: #28a745;">High: $<?= number_format($item['highest_offer']['offer_amount'], 2) ?></span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="actions">
@@ -620,7 +697,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                                                 </span>
                                             </div>
                                             <div>
-                                                <span class="price">$<?= number_format($offer['amount'], 2) ?></span>
+                                                <span class="price">$<?= number_format($offer['offer_amount'], 2) ?></span>
                                                 <span class="status <?= $offer['status'] ?>" style="margin-left: 0.5rem;">
                                                     <?= ucfirst($offer['status']) ?>
                                                 </span>
@@ -665,7 +742,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                             <th>Seller</th>
                             <th>Items</th>
                             <th>Offers</th>
-                            <th>Pickup Location</th>
+                            <th>Location</th>
                             <th>Status</th>
                             <th>Created</th>
                             <th>Actions</th>
@@ -676,7 +753,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                         <tr>
                             <td><?= $sale['id'] ?></td>
                             <td><?= htmlspecialchars($sale['title']) ?></td>
-                            <td><?= htmlspecialchars($sale['seller_name'] ?? $sale['fb_name'] ?? 'Unknown') ?></td>
+                            <td><?= htmlspecialchars($sale['company_name'] ?? $sale['contact_name'] ?? 'Unknown') ?></td>
                             <td>
                                 <?= $sale['item_count'] ?>
                                 <?php if ($sale['item_count'] > 0): ?>
@@ -689,7 +766,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                                     <span class="badge">offers</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= htmlspecialchars($sale['pickup_location']) ?></td>
+                            <td><?= htmlspecialchars($sale['city'] . ', ' . $sale['state']) ?></td>
                             <td>
                                 <span class="status <?= $sale['status'] ?>">
                                     <?= ucfirst($sale['status']) ?>
@@ -700,6 +777,8 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                                 <div class="actions">
                                     <a href="?id=<?= $sale['id'] ?>" class="btn btn-primary" 
                                        style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">View</a>
+                                    <a href="qr-codes.php?sale_id=<?= $sale['id'] ?>" class="btn btn-success" 
+                                       style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">QR Codes</a>
                                     <form method="post" style="margin: 0;">
                                         <input type="hidden" name="sale_id" value="<?= $sale['id'] ?>">
                                         <button type="submit" name="action" value="delete_sale" class="btn btn-danger" 
@@ -733,7 +812,7 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                     <select name="seller_id" required>
                         <option value="">Select a seller...</option>
                         <?php foreach ($activeSellers as $seller): ?>
-                            <option value="<?= $seller['id'] ?>"><?= htmlspecialchars($seller['name']) ?> (<?= htmlspecialchars($seller['email']) ?>)</option>
+                            <option value="<?= $seller['id'] ?>"><?= htmlspecialchars($seller['company_name'] ?? $seller['contact_name']) ?> (<?= htmlspecialchars($seller['email']) ?>)</option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -750,24 +829,64 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                 </div>
                 
                 <div class="form-group">
-                    <label>Pickup Location *</label>
-                    <input type="text" name="pickup_location" id="salePickupLocation" required>
+                    <label>Address *</label>
+                    <input type="text" name="address" id="saleAddress" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Pickup Times *</label>
-                    <input type="text" name="pickup_times" id="salePickupTimes" placeholder="e.g., Weekdays 5-7pm, Weekends anytime" required>
+                    <label>City *</label>
+                    <input type="text" name="city" id="saleCity" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Contact Method *</label>
-                    <select name="contact_method" id="saleContactMethod" required>
-                        <option value="messenger">Facebook Messenger</option>
-                        <option value="email">Email</option>
-                        <option value="phone">Phone</option>
-                        <option value="text">Text Message</option>
-                    </select>
+                    <label>State *</label>
+                    <input type="text" name="state" id="saleState" maxlength="2" required>
                 </div>
+                
+                <div class="form-group">
+                    <label>ZIP Code *</label>
+                    <input type="text" name="zip" id="saleZip" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Preview Start</label>
+                    <input type="datetime-local" name="preview_start" id="salePreviewStart">
+                </div>
+                
+                <div class="form-group">
+                    <label>Preview End</label>
+                    <input type="datetime-local" name="preview_end" id="salePreviewEnd">
+                </div>
+                
+                <div class="form-group">
+                    <label>Claim Start *</label>
+                    <input type="datetime-local" name="claim_start" id="saleClaimStart" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Claim End *</label>
+                    <input type="datetime-local" name="claim_end" id="saleClaimEnd" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pickup Start *</label>
+                    <input type="datetime-local" name="pickup_start" id="salePickupStart" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pickup End *</label>
+                    <input type="datetime-local" name="pickup_end" id="salePickupEnd" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="show_price_ranges" id="saleShowPriceRanges" value="1">
+                        Show price ranges on items
+                    </label>
+                </div>
+                
+                <input type="hidden" name="latitude" id="saleLatitude">
+                <input type="hidden" name="longitude" id="saleLongitude">
                 
                 <?php if ($sale): ?>
                 <div class="form-group">
@@ -812,24 +931,54 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
                 </div>
                 
                 <div class="form-group">
-                    <label>Price *</label>
-                    <input type="number" name="price" id="itemPrice" step="0.01" min="0" required>
+                    <label>Starting Price *</label>
+                    <input type="number" name="starting_price" id="itemStartingPrice" step="0.01" min="0" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" name="quantity" id="itemQuantity" min="1" value="1">
+                    <label>Offer Increment</label>
+                    <input type="number" name="offer_increment" id="itemOfferIncrement" step="0.01" min="1" value="5">
                 </div>
                 
                 <div class="form-group">
-                    <label>Condition</label>
-                    <select name="condition" id="itemCondition">
-                        <option value="new">New</option>
-                        <option value="like_new">Like New</option>
-                        <option value="good" selected>Good</option>
-                        <option value="fair">Fair</option>
-                        <option value="poor">Poor</option>
+                    <label>Buy Now Price (optional)</label>
+                    <input type="number" name="buy_now_price" id="itemBuyNowPrice" step="0.01" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="itemCategory">
+                        <option value="general">General</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="books">Books</option>
+                        <option value="toys">Toys</option>
+                        <option value="household">Household</option>
+                        <option value="outdoor">Outdoor</option>
+                        <option value="other">Other</option>
                     </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Condition Rating</label>
+                    <select name="condition_rating" id="itemConditionRating">
+                        <option value="5">5 - Excellent/New</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3" selected>3 - Good</option>
+                        <option value="2">2 - Fair</option>
+                        <option value="1">1 - Poor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dimensions (optional)</label>
+                    <input type="text" name="dimensions" id="itemDimensions" placeholder="e.g., 24" x 36" x 12"">
+                </div>
+                
+                <div class="form-group">
+                    <label>Weight (optional)</label>
+                    <input type="text" name="weight" id="itemWeight" placeholder="e.g., 25 lbs">
                 </div>
                 
                 <div class="form-group" id="itemStatusGroup" style="display: none;">
@@ -860,9 +1009,26 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
             document.getElementById('saleId').value = saleData.id;
             document.getElementById('saleTitle').value = saleData.title;
             document.getElementById('saleDescription').value = saleData.description || '';
-            document.getElementById('salePickupLocation').value = saleData.pickup_location;
-            document.getElementById('salePickupTimes').value = saleData.pickup_times;
-            document.getElementById('saleContactMethod').value = saleData.contact_method;
+            document.getElementById('saleAddress').value = saleData.address;
+            document.getElementById('saleCity').value = saleData.city;
+            document.getElementById('saleState').value = saleData.state;
+            document.getElementById('saleZip').value = saleData.zip;
+            document.getElementById('saleLatitude').value = saleData.latitude || '';
+            document.getElementById('saleLongitude').value = saleData.longitude || '';
+            
+            // Format datetime-local inputs
+            if (saleData.preview_start) {
+                document.getElementById('salePreviewStart').value = saleData.preview_start.slice(0, 16);
+            }
+            if (saleData.preview_end) {
+                document.getElementById('salePreviewEnd').value = saleData.preview_end.slice(0, 16);
+            }
+            document.getElementById('saleClaimStart').value = saleData.claim_start.slice(0, 16);
+            document.getElementById('saleClaimEnd').value = saleData.claim_end.slice(0, 16);
+            document.getElementById('salePickupStart').value = saleData.pickup_start.slice(0, 16);
+            document.getElementById('salePickupEnd').value = saleData.pickup_end.slice(0, 16);
+            
+            document.getElementById('saleShowPriceRanges').checked = saleData.show_price_ranges == 1;
             document.getElementById('saleStatus').value = saleData.status;
             document.getElementById('saleSubmitText').textContent = 'Update Sale';
             document.getElementById('saleModal').classList.add('active');
@@ -884,9 +1050,13 @@ $activeSellers = $pdo->query("SELECT id, name, email FROM yfclaim_sellers WHERE 
             document.getElementById('itemId').value = item.id;
             document.getElementById('itemTitle').value = item.title;
             document.getElementById('itemDescription').value = item.description || '';
-            document.getElementById('itemPrice').value = item.price;
-            document.getElementById('itemQuantity').value = item.quantity;
-            document.getElementById('itemCondition').value = item.condition;
+            document.getElementById('itemStartingPrice').value = item.starting_price;
+            document.getElementById('itemOfferIncrement').value = item.offer_increment || 5;
+            document.getElementById('itemBuyNowPrice').value = item.buy_now_price || '';
+            document.getElementById('itemCategory').value = item.category || 'general';
+            document.getElementById('itemConditionRating').value = item.condition_rating || 3;
+            document.getElementById('itemDimensions').value = item.dimensions || '';
+            document.getElementById('itemWeight').value = item.weight || '';
             document.getElementById('itemStatus').value = item.status;
             document.getElementById('itemStatusGroup').style.display = 'block';
             document.getElementById('itemSubmitText').textContent = 'Update Item';

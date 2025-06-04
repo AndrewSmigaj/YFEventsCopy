@@ -2,15 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 📊 Current Development Status (December 2025)
+## 📊 Current Development Status (June 2025) - Updated by Testing
 
-### ✅ YFEvents Core - COMPLETED
+### ✅ YFEvents Core - TESTING COMPLETE
 - Event calendar with map integration ✅
-- Event scraping from multiple sources ✅ 
+- Event scraping from multiple sources ✅ (needs URL update for visityakima.com)
 - Local business directory with geocoding ✅
 - Advanced admin interface ✅ (fixed 500 errors)
 - Shop management with proper JSON handling ✅
 - Geocoding verification and repair tools ✅
+- Map center fixed to Yakima Finds location (111 S. 2nd St) ✅
+  - Updated coordinates to precise location: 46.600825, -120.503357
+- YFClaim Buyers page 500 error fixed (changed $pdo to $db) ✅
+- Event scraper SQL issues fixed ✅
+  - Fixed column names: completed_at → end_time, started_at → start_time
+  - Fixed status enum: 'error' → 'failed'
+  - Fixed GROUP BY clause for MySQL strict mode
 
 ### 🚧 YFClaim Module - IN PROGRESS (40% complete)
 - **Database Schema**: ✅ Installed (6 tables, sample data)
@@ -19,9 +26,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Business Logic**: 📅 Planned (offer management, notifications)
 - **Public Interface**: 📅 Planned (buyer/seller portals)
 
-### 🎯 Immediate Next Task
-**Implement YFClaim SellerModel CRUD methods** to make admin interface fully functional:
-- `createSeller()`, `getAllSellers()`, `updateSeller()`, `getSellerById()`
+### 🎯 Immediate Next Tasks
+1. **Find correct Visit Yakima events URL** - Current URL returns 404
+2. **Implement YFClaim SellerModel CRUD methods** to make admin interface fully functional:
+   - `createSeller()`, `getAllSellers()`, `updateSeller()`, `getSellerById()`
+3. **Complete Event Parser Testing Framework** - Build comprehensive test suite for different calendar formats
 
 ### 🔗 Quick Links
 - **Main Admin**: `http://137.184.245.149/admin/`

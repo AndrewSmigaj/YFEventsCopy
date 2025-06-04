@@ -13,7 +13,7 @@ class YakimaCalendar {
             userLocation: null,
             categories: [],
             mapOptions: {
-                center: { lat: 46.6021, lng: -120.5059 },
+                center: { lat: 46.600825, lng: -120.503357 }, // Yakima Finds: 111 S. 2nd St
                 zoom: 12
             },
             ...options

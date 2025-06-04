@@ -100,7 +100,7 @@ class EventScraper
             $errorMessage = $e->getMessage();
             
             // Log error
-            $this->sourceModel->logScrapingComplete($logId, $eventsFound, $eventsAdded, 'error', $errorMessage);
+            $this->sourceModel->logScrapingComplete($logId, $eventsFound, $eventsAdded, 'failed', $errorMessage);
             
             // Check if source should be deactivated
             $this->sourceModel->deactivateFailedSource($source['id']);

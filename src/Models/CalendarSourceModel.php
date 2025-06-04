@@ -15,14 +15,14 @@ class CalendarSourceModel extends BaseModel
     {
         $sql = "SELECT cs.*, 
                        COUNT(e.id) as event_count,
-                       MAX(sl.completed_at) as last_successful_scrape,
+                       MAX(sl.end_time) as last_successful_scrape,
                        sl_latest.status as last_scrape_status
                 FROM calendar_sources cs
                 LEFT JOIN events e ON cs.id = e.source_id
                 LEFT JOIN scraping_logs sl ON cs.id = sl.source_id AND sl.status = 'success'
                 LEFT JOIN (
-                    SELECT source_id, status, completed_at,
-                           ROW_NUMBER() OVER (PARTITION BY source_id ORDER BY started_at DESC) as rn
+                    SELECT source_id, status, end_time,
+                           ROW_NUMBER() OVER (PARTITION BY source_id ORDER BY start_time DESC) as rn
                     FROM scraping_logs
                 ) sl_latest ON cs.id = sl_latest.source_id AND sl_latest.rn = 1";
         
@@ -30,7 +30,10 @@ class CalendarSourceModel extends BaseModel
             $sql .= " WHERE cs.active = 1";
         }
         
-        $sql .= " GROUP BY cs.id ORDER BY cs.name";
+        $sql .= " GROUP BY cs.id, cs.name, cs.url, cs.scrape_type, cs.scrape_config, 
+                         cs.intelligent_method_id, cs.last_scraped, cs.active, 
+                         cs.created_by, cs.created_at, cs.updated_at, sl_latest.status 
+                  ORDER BY cs.name";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -153,7 +156,7 @@ class CalendarSourceModel extends BaseModel
     public function logScrapingComplete($logId, $eventsFound, $eventsAdded, $status = 'success', $errorMessage = null)
     {
         $sql = "UPDATE scraping_logs SET 
-                completed_at = NOW(),
+                end_time = NOW(),
                 status = :status,
                 events_found = :events_found,
                 events_added = :events_added,
@@ -177,7 +180,7 @@ class CalendarSourceModel extends BaseModel
     {
         $sql = "SELECT * FROM scraping_logs 
                 WHERE source_id = :source_id 
-                ORDER BY started_at DESC 
+                ORDER BY start_time DESC 
                 LIMIT :limit";
         
         $stmt = $this->db->prepare($sql);
@@ -197,7 +200,7 @@ class CalendarSourceModel extends BaseModel
         $sql = "SELECT sl.*, cs.name as source_name
                 FROM scraping_logs sl
                 JOIN calendar_sources cs ON sl.source_id = cs.id
-                ORDER BY sl.started_at DESC
+                ORDER BY sl.start_time DESC
                 LIMIT :limit";
         
         $stmt = $this->db->prepare($sql);
@@ -320,7 +323,7 @@ class CalendarSourceModel extends BaseModel
                 FROM scraping_logs 
                 WHERE source_id = :source_id 
                 AND status = 'error' 
-                AND started_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                AND start_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['source_id' => $sourceId]);

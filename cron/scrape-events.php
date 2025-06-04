@@ -17,10 +17,8 @@ ini_set('memory_limit', '512M');
 date_default_timezone_set('America/Los_Angeles'); // Pacific Time for Yakima
 
 // Include necessary files
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../src/Models/EventModel.php';
-require_once __DIR__ . '/../src/Models/CalendarSourceModel.php';
-require_once __DIR__ . '/../src/Scrapers/EventScraper.php';
 
 use YakimaFinds\Models\EventModel;
 use YakimaFinds\Models\CalendarSourceModel;

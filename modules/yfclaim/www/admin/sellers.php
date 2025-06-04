@@ -1,8 +1,10 @@
 <?php
 // YFClaim Sellers Management
 require_once '../../../../config/database.php';
-require_once '../../src/Models/SellerModel.php';
-require_once '../../src/Models/SaleModel.php';
+require_once '../../../../vendor/autoload.php';
+
+use YFEvents\Modules\YFClaim\Models\SellerModel;
+use YFEvents\Modules\YFClaim\Models\SaleModel;
 
 // Authentication check
 session_start();
@@ -28,42 +30,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             switch ($_POST['action']) {
                 case 'create_seller':
                     $data = [
-                        'name' => $_POST['name'],
+                        'company_name' => $_POST['company_name'],
+                        'contact_name' => $_POST['contact_name'],
                         'email' => $_POST['email'],
                         'phone' => $_POST['phone'] ?? null,
-                        'fb_name' => $_POST['fb_name'] ?? null,
-                        'fb_profile_url' => $_POST['fb_profile_url'] ?? null,
-                        'password_hash' => password_hash($_POST['password'], PASSWORD_DEFAULT),
+                        'password' => $_POST['password'],
+                        'address' => $_POST['address'] ?? null,
+                        'city' => $_POST['city'] ?? null,
+                        'state' => $_POST['state'] ?? null,
+                        'zip' => $_POST['zip'] ?? null,
                         'status' => 'active'
                     ];
-                    $sellerId = $sellerModel->create($data);
+                    $sellerId = $sellerModel->createSeller($data);
                     $message = "Seller created successfully!";
                     break;
                     
                 case 'update_seller':
                     $data = [
-                        'name' => $_POST['name'],
+                        'company_name' => $_POST['company_name'],
+                        'contact_name' => $_POST['contact_name'],
                         'email' => $_POST['email'],
                         'phone' => $_POST['phone'] ?? null,
-                        'fb_name' => $_POST['fb_name'] ?? null,
-                        'fb_profile_url' => $_POST['fb_profile_url'] ?? null,
+                        'address' => $_POST['address'] ?? null,
+                        'city' => $_POST['city'] ?? null,
+                        'state' => $_POST['state'] ?? null,
+                        'zip' => $_POST['zip'] ?? null,
                         'status' => $_POST['status']
                     ];
                     if (!empty($_POST['password'])) {
-                        $data['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                        $data['password'] = $_POST['password'];
                     }
-                    $sellerModel->update($_POST['seller_id'], $data);
+                    $sellerModel->updateSeller($_POST['seller_id'], $data);
                     $message = "Seller updated successfully!";
                     break;
                     
                 case 'delete_seller':
                     // Check if seller has active sales
-                    $activeSales = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_sales WHERE seller_id = ? AND status = 'active'");
-                    $activeSales->execute([$_POST['seller_id']]);
-                    if ($activeSales->fetchColumn() > 0) {
+                    $sellerStats = $sellerModel->getStats($_POST['seller_id']);
+                    if ($sellerStats['active_sales'] > 0) {
                         $error = "Cannot delete seller with active sales!";
                     } else {
-                        $pdo->prepare("DELETE FROM yfclaim_sellers WHERE id = ?")->execute([$_POST['seller_id']]);
+                        $sellerModel->deleteSeller($_POST['seller_id']);
                         $message = "Seller deleted successfully!";
                     }
                     break;
@@ -78,35 +85,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $status = $_GET['status'] ?? '';
 $search = $_GET['search'] ?? '';
 
-// Build query
-$query = "SELECT s.*, 
-          (SELECT COUNT(*) FROM yfclaim_sales WHERE seller_id = s.id) as total_sales,
-          (SELECT COUNT(*) FROM yfclaim_sales WHERE seller_id = s.id AND status = 'active') as active_sales
-          FROM yfclaim_sellers s WHERE 1=1";
-$params = [];
+// Get sellers
+$sellers = $sellerModel->getAllSellers(100, 0);
 
-if ($status) {
-    $query .= " AND s.status = ?";
-    $params[] = $status;
+// Add statistics to each seller
+foreach ($sellers as &$seller) {
+    $stats = $sellerModel->getStats($seller['id']);
+    $seller['total_sales'] = $stats['total_sales'];
+    $seller['active_sales'] = $stats['active_sales'];
 }
 
-if ($search) {
-    $query .= " AND (s.name LIKE ? OR s.email LIKE ? OR s.fb_name LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
+// Apply filters
+if ($status || $search) {
+    $sellers = array_filter($sellers, function($seller) use ($status, $search) {
+        if ($status && $seller['status'] !== $status) {
+            return false;
+        }
+        if ($search) {
+            $searchLower = strtolower($search);
+            return stripos($seller['company_name'], $searchLower) !== false ||
+                   stripos($seller['contact_name'], $searchLower) !== false ||
+                   stripos($seller['email'], $searchLower) !== false;
+        }
+        return true;
+    });
 }
-
-$query .= " ORDER BY s.created_at DESC";
-
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$sellers = $stmt->fetchAll();
 
 // Get seller for edit modal
 $editSeller = null;
 if (isset($_GET['edit'])) {
-    $editSeller = $sellerModel->findById($_GET['edit']);
+    $editSeller = $sellerModel->getSellerById($_GET['edit']);
 }
 ?>
 <!DOCTYPE html>
@@ -405,10 +413,10 @@ if (isset($_GET['edit'])) {
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
+                        <th>Company Name</th>
+                        <th>Contact Name</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>FB Name</th>
                         <th>Sales</th>
                         <th>Status</th>
                         <th>Created</th>
@@ -420,23 +428,14 @@ if (isset($_GET['edit'])) {
                     <tr>
                         <td><?= $seller['id'] ?></td>
                         <td>
-                            <?= htmlspecialchars($seller['name']) ?>
+                            <?= htmlspecialchars($seller['company_name']) ?>
                             <?php if ($seller['active_sales'] > 0): ?>
                                 <span class="badge"><?= $seller['active_sales'] ?> active</span>
                             <?php endif; ?>
                         </td>
+                        <td><?= htmlspecialchars($seller['contact_name']) ?></td>
                         <td><?= htmlspecialchars($seller['email']) ?></td>
                         <td><?= htmlspecialchars($seller['phone'] ?? '-') ?></td>
-                        <td>
-                            <?php if ($seller['fb_name']): ?>
-                                <?= htmlspecialchars($seller['fb_name']) ?>
-                                <?php if ($seller['fb_profile_url']): ?>
-                                    <a href="<?= htmlspecialchars($seller['fb_profile_url']) ?>" target="_blank" style="color: #007bff; text-decoration: none;">↗</a>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                -
-                            <?php endif; ?>
-                        </td>
                         <td><?= $seller['total_sales'] ?></td>
                         <td>
                             <span class="status <?= $seller['status'] ?>">
@@ -474,8 +473,13 @@ if (isset($_GET['edit'])) {
                 <input type="hidden" name="seller_id" value="<?= $editSeller['id'] ?? '' ?>">
                 
                 <div class="form-group">
-                    <label>Name *</label>
-                    <input type="text" name="name" value="<?= htmlspecialchars($editSeller['name'] ?? '') ?>" required>
+                    <label>Company Name *</label>
+                    <input type="text" name="company_name" value="<?= htmlspecialchars($editSeller['company_name'] ?? '') ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Contact Name *</label>
+                    <input type="text" name="contact_name" value="<?= htmlspecialchars($editSeller['contact_name'] ?? '') ?>" required>
                 </div>
                 
                 <div class="form-group">
@@ -494,13 +498,23 @@ if (isset($_GET['edit'])) {
                 </div>
                 
                 <div class="form-group">
-                    <label>Facebook Name</label>
-                    <input type="text" name="fb_name" value="<?= htmlspecialchars($editSeller['fb_name'] ?? '') ?>">
+                    <label>Address</label>
+                    <input type="text" name="address" value="<?= htmlspecialchars($editSeller['address'] ?? '') ?>">
                 </div>
                 
                 <div class="form-group">
-                    <label>Facebook Profile URL</label>
-                    <input type="url" name="fb_profile_url" value="<?= htmlspecialchars($editSeller['fb_profile_url'] ?? '') ?>">
+                    <label>City</label>
+                    <input type="text" name="city" value="<?= htmlspecialchars($editSeller['city'] ?? '') ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" name="state" value="<?= htmlspecialchars($editSeller['state'] ?? '') ?>" maxlength="2">
+                </div>
+                
+                <div class="form-group">
+                    <label>ZIP Code</label>
+                    <input type="text" name="zip" value="<?= htmlspecialchars($editSeller['zip'] ?? '') ?>" maxlength="10">
                 </div>
                 
                 <?php if ($editSeller): ?>
