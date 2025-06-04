@@ -11,6 +11,11 @@
 // Get your key from: https://segmind.com/
 define('SEGMIND_API_KEY', 'YOUR_SEGMIND_API_KEY_HERE');
 
+// Firecrawl API Key for enhanced web scraping
+// Get your key from: https://www.firecrawl.dev/
+// REMOVAL NOTE: Delete this line when removing Firecrawl integration
+define('FIRECRAWL_API_KEY', 'fc-40b11a6885f4431ba2ff5b7ce771ceb5');
+
 // Google Maps API Key (if not using .env)
 // define('GOOGLE_MAPS_API_KEY', 'YOUR_GOOGLE_MAPS_API_KEY_HERE');
 

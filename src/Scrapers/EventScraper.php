@@ -71,6 +71,9 @@ class EventScraper
                 case 'intelligent':
                     $events = $this->scrapeIntelligentSource($source);
                     break;
+                case 'firecrawl_enhanced':
+                    $events = $this->scrapeFirecrawlEnhancedSource($source);
+                    break;
                 default:
                     throw new \Exception("Unsupported scrape type: {$source['scrape_type']}");
             }
@@ -431,6 +434,19 @@ class EventScraper
         }
         
         return $result['events'];
+    }
+    
+    /**
+     * Scrape Firecrawl Enhanced source with fallback
+     */
+    private function scrapeFirecrawlEnhancedSource($source)
+    {
+        require_once __DIR__ . '/FirecrawlEnhancedScraper.php';
+        
+        $config = json_decode($source['scrape_config'], true) ?: [];
+        $scraper = new FirecrawlEnhancedScraper($config);
+        
+        return $scraper->scrapeEvents($source['url']);
     }
     
     /**

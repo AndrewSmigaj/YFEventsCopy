@@ -27,6 +27,9 @@ class ScraperFactory
             case 'intelligent':
                 return new IntelligentScraper($config);
                 
+            case 'firecrawl_enhanced':
+                return new FirecrawlEnhancedScraper($config);
+                
             default:
                 return null;
         }
@@ -42,7 +45,8 @@ class ScraperFactory
             'html' => 'HTML Web Scraping',
             'json' => 'JSON API',
             'yakima_valley' => 'Yakima Valley Events',
-            'intelligent' => 'AI-Powered Scraping'
+            'intelligent' => 'AI-Powered Scraping',
+            'firecrawl_enhanced' => 'Firecrawl Enhanced (with fallback)'
         ];
     }
     
@@ -90,6 +94,20 @@ class ScraperFactory
                     'api_key' => '',
                     'model' => 'gpt-4o-mini',
                     'prompt_template' => null
+                ];
+                
+            case 'firecrawl_enhanced':
+                return [
+                    'firecrawl_method' => 'structured', // structured, search, basic
+                    'fallback_type' => 'html', // html, yakima_valley, ical, json
+                    'search_query' => '', // For search method
+                    'selectors' => [ // For HTML fallback
+                        'event_container' => '.event-item',
+                        'title' => '.event-title',
+                        'datetime' => '.event-date',
+                        'location' => '.event-location',
+                        'description' => '.event-description'
+                    ]
                 ];
                 
             default:
