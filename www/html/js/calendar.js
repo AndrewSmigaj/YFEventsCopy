@@ -913,12 +913,28 @@ class YakimaCalendar {
                     minute: '2-digit' 
                 })}${endDate ? ` - ${endDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : ''}</p>
                 ${eventData.location ? `<p><i class="fas fa-map-marker-alt"></i> ${eventData.location}</p>` : ''}
-                ${eventData.source_name ? `<p><i class="fas fa-source"></i> Source: ${eventData.source_name}</p>` : ''}
             </div>
+            
+            ${eventData.is_unapproved ? `
+                <div class="event-disclaimer">
+                    <i class="fas fa-exclamation-triangle"></i> ${eventData.disclaimer}
+                </div>
+            ` : ''}
             
             ${eventData.description ? `
                 <div class="event-detail-description">
                     ${eventData.description}
+                </div>
+            ` : ''}
+            
+            ${eventData.source_name ? `
+                <div class="event-source-attribution">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Source:</strong> 
+                    ${eventData.external_url ? 
+                        `<a href="${eventData.external_url}" target="_blank" rel="noopener">${eventData.source_name} <i class="fas fa-external-link-alt"></i></a>` :
+                        `<a href="${eventData.source_url || '#'}" target="_blank" rel="noopener">${eventData.source_name} <i class="fas fa-external-link-alt"></i></a>`
+                    }
                 </div>
             ` : ''}
             
@@ -1088,7 +1104,7 @@ class YakimaCalendar {
     createEventListItem(event) {
         const eventDate = new Date(event.start_datetime);
         const eventEl = document.createElement('div');
-        eventEl.className = 'event-item';
+        eventEl.className = `event-item ${event.is_unapproved ? 'event-unapproved' : ''}`;
         
         eventEl.innerHTML = `
             <div class="event-date">
@@ -1096,18 +1112,34 @@ class YakimaCalendar {
                 <div class="event-day">${eventDate.getDate()}</div>
             </div>
             <div class="event-content">
-                <h3 class="event-title">${event.title}</h3>
+                <h3 class="event-title">
+                    ${event.title}
+                    ${event.is_unapproved ? '<span class="unapproved-badge">Unverified</span>' : ''}
+                </h3>
                 <div class="event-meta">
                     <span><i class="fas fa-clock"></i> ${eventDate.toLocaleTimeString('en-US', { 
                         hour: 'numeric', 
                         minute: '2-digit' 
                     })}</span>
                     ${event.location ? `<span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>` : ''}
+                    ${event.source_name ? `<span class="event-source"><i class="fas fa-external-link-alt"></i> ${event.source_name}</span>` : ''}
                 </div>
+                ${event.is_unapproved ? `<div class="event-disclaimer">
+                    <i class="fas fa-exclamation-triangle"></i> ${event.disclaimer}
+                </div>` : ''}
                 ${event.description ? `<div class="event-description">${this.truncateText(event.description, 150)}</div>` : ''}
                 ${event.categories ? `
                     <div class="event-categories">
                         ${event.categories.split(',').map(cat => `<span class="category-tag">${cat.trim()}</span>`).join('')}
+                    </div>
+                ` : ''}
+                ${event.source_name && event.source_id ? `
+                    <div class="event-source-attribution">
+                        <i class="fas fa-info-circle"></i> 
+                        Source: ${event.external_url ? 
+                            `<a href="${event.external_url}" target="_blank" rel="noopener">${event.source_name} <i class="fas fa-external-link-alt"></i></a>` :
+                            `<a href="${event.source_url || '#'}" target="_blank" rel="noopener">${event.source_name} <i class="fas fa-external-link-alt"></i></a>`
+                        }
                     </div>
                 ` : ''}
             </div>

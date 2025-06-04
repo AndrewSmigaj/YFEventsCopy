@@ -847,3 +847,114 @@ body {
         --dark-gray: #333;
     }
 }
+
+/* Unapproved Events Styling */
+.event-unapproved {
+    border-left: 4px solid var(--warning-color) !important;
+    background-color: #fff9e6;
+    position: relative;
+}
+
+.event-unapproved::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(243, 156, 18, 0.1) 10px,
+        rgba(243, 156, 18, 0.1) 20px
+    );
+    pointer-events: none;
+}
+
+.unapproved-badge {
+    display: inline-block;
+    background-color: var(--warning-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.event-disclaimer {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    font-size: 0.8rem;
+    color: #856404;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.event-disclaimer i {
+    color: var(--warning-color);
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+/* Map marker styling for unapproved events */
+.marker-unapproved {
+    filter: hue-rotate(30deg) saturate(0.8);
+}
+
+/* Event details modal disclaimer */
+.event-details .event-disclaimer {
+    background-color: #fff3cd;
+    border-left: 4px solid var(--warning-color);
+    margin-bottom: 1rem;
+}
+
+/* Source Attribution Styling */
+.event-source-attribution {
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.event-source-attribution i.fa-info-circle {
+    color: var(--secondary-color);
+}
+
+.event-source-attribution a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.event-source-attribution a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.event-source-attribution a i {
+    font-size: 0.7rem;
+    margin-left: 0.25rem;
+}
+
+.event-source {
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+}
+
+.event-source i {
+    font-size: 0.7rem;
+    margin-right: 0.25rem;
+}

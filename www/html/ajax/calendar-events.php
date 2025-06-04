@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../config/database.php';
 
 use YakimaFinds\Models\EventModel;
 use YakimaFinds\Models\ShopModel;
+use YakimaFinds\Utils\SystemSettings;
 
 // Set JSON header
 header('Content-Type: application/json');
@@ -129,8 +130,12 @@ function getEvents($eventModel) {
         $filters['featured'] = $_GET['featured'] === 'true' ? 1 : 0;
     }
     
-    // Status filter (default to approved for public API)
-    $filters['status'] = 'approved';
+    // Status filter - check system setting for unapproved events
+    if (SystemSettings::showUnapprovedEvents($db)) {
+        $filters['include_unapproved'] = true;
+    } else {
+        $filters['status'] = 'approved';
+    }
     
     // Pagination
     if (isset($_GET['limit'])) {
@@ -150,7 +155,7 @@ function getEvents($eventModel) {
     $events = $eventModel->getEvents($filters);
     
     // Process events for API response
-    $processedEvents = array_map(function($event) {
+    $processedEvents = array_map(function($event) use ($db) {
         // Parse JSON fields
         $event['contact_info'] = $event['contact_info'] ? json_decode($event['contact_info'], true) : null;
         
@@ -163,6 +168,14 @@ function getEvents($eventModel) {
         // Add image URL if available
         if ($event['primary_image']) {
             $event['image_url'] = '/uploads/events/' . $event['primary_image'];
+        }
+        
+        // Add unapproved event indicator and disclaimer
+        if ($event['status'] === 'pending') {
+            $event['is_unapproved'] = true;
+            $event['disclaimer'] = SystemSettings::getUnapprovedEventsDisclaimer($db);
+        } else {
+            $event['is_unapproved'] = false;
         }
         
         return $event;

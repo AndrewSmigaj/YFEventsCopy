@@ -14,22 +14,31 @@ class EventModel extends BaseModel
     public function getEvents($filters = [])
     {
         $sql = "SELECT e.*, 
-                       GROUP_CONCAT(ec.name) as categories,
+                       GROUP_CONCAT(DISTINCT ec.name) as categories,
                        cs.name as source_name,
-                       ei.filename as primary_image
+                       cs.url as source_url,
+                       (SELECT filename FROM event_images WHERE event_id = e.id AND is_primary = 1 LIMIT 1) as primary_image
                 FROM events e
-                LEFT JOIN event_category_relations ecr ON e.id = ecr.event_id
+                LEFT JOIN event_category_mapping ecr ON e.id = ecr.event_id
                 LEFT JOIN event_categories ec ON ecr.category_id = ec.id
                 LEFT JOIN calendar_sources cs ON e.source_id = cs.id
-                LEFT JOIN event_images ei ON e.id = ei.event_id AND ei.is_primary = 1
                 WHERE 1=1";
         
         $params = [];
         
-        // Status filter
+        // Status filter - handle unapproved events display
         if (isset($filters['status'])) {
             $sql .= " AND e.status = :status";
             $params['status'] = $filters['status'];
+        } else {
+            // Check if we should show unapproved events
+            if (isset($filters['include_unapproved']) && $filters['include_unapproved']) {
+                // Show both approved and pending events
+                $sql .= " AND e.status IN ('approved', 'pending')";
+            } else {
+                // Default behavior - only approved events
+                $sql .= " AND e.status = 'approved'";
+            }
         }
         
         // Date range filter
@@ -235,7 +244,7 @@ class EventModel extends BaseModel
                        GROUP_CONCAT(DISTINCT ei.filename) as images
                 FROM events e
                 LEFT JOIN calendar_sources cs ON e.source_id = cs.id
-                LEFT JOIN event_category_relations ecr ON e.id = ecr.event_id
+                LEFT JOIN event_category_mapping ecr ON e.id = ecr.event_id
                 LEFT JOIN event_categories ec ON ecr.category_id = ec.id
                 LEFT JOIN event_images ei ON e.id = ei.event_id
                 WHERE e.id = :id
@@ -339,13 +348,13 @@ class EventModel extends BaseModel
     public function addEventCategories($eventId, $categoryIds)
     {
         // First remove existing categories
-        $sql = "DELETE FROM event_category_relations WHERE event_id = :event_id";
+        $sql = "DELETE FROM event_category_mapping WHERE event_id = :event_id";
         $stmt = $this->db->prepare($sql);
         $stmt->execute(['event_id' => $eventId]);
         
         // Add new categories
         if (!empty($categoryIds)) {
-            $sql = "INSERT INTO event_category_relations (event_id, category_id) VALUES ";
+            $sql = "INSERT INTO event_category_mapping (event_id, category_id) VALUES ";
             $values = [];
             $params = ['event_id' => $eventId];
             
