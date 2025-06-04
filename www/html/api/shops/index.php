@@ -6,8 +6,8 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 try {
-    $query = "SELECT * FROM local_shops WHERE active = 1";
-    $stmt = $pdo->prepare($query);
+    $query = "SELECT * FROM local_shops WHERE status = 'active'";
+    $stmt = $db->prepare($query);
     $stmt->execute();
     
     $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);

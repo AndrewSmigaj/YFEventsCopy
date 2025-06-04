@@ -126,7 +126,7 @@
                                 <span>Show Events</span>
                             </label>
                             <label class="checkbox-label">
-                                <input type="checkbox" id="show-shops">
+                                <input type="checkbox" id="show-shops" checked>
                                 <span>Show Local Shops</span>
                             </label>
                             <label class="checkbox-label">
