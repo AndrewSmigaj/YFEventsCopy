@@ -13,7 +13,8 @@
         "psr-4": {
             "YFEvents\\": "src/",
             "YakimaFinds\\": "src/",
-            "YFEvents\\Modules\\YFClaim\\": "modules/yfclaim/src/"
+            "YFEvents\\Modules\\YFClaim\\": "modules/yfclaim/src/",
+            "YFEvents\\Modules\\YFAuth\\": "modules/yfauth/src/"
         }
     },
     "scripts": {

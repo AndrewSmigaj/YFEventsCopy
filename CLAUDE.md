@@ -2,228 +2,156 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 📊 Current Development Status (June 2025) - Updated by Testing
+## Project Overview
 
-### ✅ YFEvents Core - TESTING COMPLETE
-- Event calendar with map integration ✅
-- Event scraping from multiple sources ✅ (needs URL update for visityakima.com)
-- Local business directory with geocoding ✅
-- Advanced admin interface ✅ (fixed 500 errors)
-- Shop management with proper JSON handling ✅
-- Geocoding verification and repair tools ✅
-- Map center fixed to Yakima Finds location (111 S. 2nd St) ✅
-  - Updated coordinates to precise location: 46.600825, -120.503357
-- YFClaim Buyers page 500 error fixed (changed $pdo to $db) ✅
-- Event scraper SQL issues fixed ✅
-  - Fixed column names: completed_at → end_time, started_at → start_time
-  - Fixed status enum: 'error' → 'failed'
-  - Fixed GROUP BY clause for MySQL strict mode
+YFEvents is a comprehensive PHP-based event calendar and local business directory system for yakimafinds.com with a modular architecture featuring:
 
-### 🚧 YFClaim Module - IN PROGRESS (40% complete)
-- **Database Schema**: ✅ Installed (6 tables, sample data)
-- **Admin Interface**: ✅ Templates functional, shows stats
-- **Model Classes**: 🚧 Structure created, CRUD methods needed
-- **Business Logic**: 📅 Planned (offer management, notifications)
+- **Core System**: Event scraping, calendar interface, shop directory with Google Maps integration
+- **YFClaim Module**: Estate sale claim platform (40% complete - models need implementation)
+- **YFAuth Module**: Authentication and authorization system
+
+**Technology Stack**: PHP 8.2+, MySQL, vanilla JavaScript, Google Maps API, Composer (PSR-4)
+
+## Current Status (June 2025)
+
+### ✅ YFEvents Core - FULLY FUNCTIONAL
+- Event calendar with map integration, multi-source scraping (97.1% success rate)
+- Local business directory with geocoding, advanced admin interface
+- Shop management with JSON operating hours, geocoding verification tools
+
+### 🚧 YFClaim Module - 40% COMPLETE
+- **Database**: ✅ Installed (6 tables, sample data)
+- **Admin Interface**: ✅ Templates functional, shows stats  
+- **Models**: 🚧 Structure created, CRUD methods needed
 - **Public Interface**: 📅 Planned (buyer/seller portals)
 
-### 🎯 Immediate Next Tasks
-1. **Find correct Visit Yakima events URL** - Current URL returns 404
-2. **Implement YFClaim SellerModel CRUD methods** to make admin interface fully functional:
-   - `createSeller()`, `getAllSellers()`, `updateSeller()`, `getSellerById()`
-3. **Complete Event Parser Testing Framework** - Build comprehensive test suite for different calendar formats
+### 🎯 Priority Tasks
+1. **Implement YFClaim SellerModel CRUD methods**: `createSeller()`, `getAllSellers()`, `updateSeller()`, `getSellerById()`
+2. **Find correct Visit Yakima events URL** - Current URL returns 404
 
-### 🔗 Quick Links
-- **Main Admin**: `http://137.184.245.149/admin/`
+### 🔗 Live Access
+- **Main Calendar**: `http://137.184.245.149/`
 - **Advanced Admin**: `http://137.184.245.149/admin/calendar/`
 - **YFClaim Admin**: `http://137.184.245.149/modules/yfclaim/www/admin/`
-- **YFClaim Progress**: `modules/yfclaim/PROGRESS.md`
 
-## Common Development Commands
+## Development Commands
 
-### Database Setup and Management
+### Testing
 ```bash
-# Create database
-mysql -u root -p -e "CREATE DATABASE yakima_finds;"
+# Run complete test suite
+php tests/run_all_tests.php
 
-# Apply core schema
-mysql -u root -p yakima_finds < database/calendar_schema.sql
-mysql -u root -p yakima_finds < database/batch_processing_schema.sql
-mysql -u root -p yakima_finds < database/intelligent_scraper_schema.sql
+# Run specific test modules
+php tests/test_core_functionality.php
+php tests/test_web_interfaces.php
+php tests/test_yfclaim.php
 
-# Install YFClaim module (✅ ALREADY DONE)
-mysql -u yfevents -p yakima_finds < modules/yfclaim/database/schema.sql
-
-# Apply migrations
-php database/apply_migrations.php
+# Test individual scrapers
+php test_scraper.php
+php scripts/test_all_sources.php
 ```
 
-### Dependency Management
+### Database Management
+```bash
+# Apply core schema
+mysql -u root -p yakima_finds < database/calendar_schema.sql
+
+# Install YFClaim module (if needed)
+mysql -u yfevents -p yakima_finds < modules/yfclaim/database/schema.sql
+
+# Check YFClaim tables
+mysql -u yfevents -p yakima_finds -e "SHOW TABLES LIKE 'yfc_%';"
+```
+
+### Dependencies & Setup
 ```bash
 # Install PHP dependencies
 composer install
 
-# Update autoloader after adding new classes
+# Update autoloader after adding classes
 composer dump-autoload
-```
 
-### Environment Configuration
-```bash
-# Copy environment template
+# Set up environment
 cp .env.example .env
-
-# Copy API keys template
-cp config/api_keys.example.php config/api_keys.php
-```
-
-### Manual Event Scraping
-```bash
-# Run scraper manually
-php cron/scrape-events.php
-
-# Run for specific source ID
-php cron/scrape-events.php --source-id=1
-```
-
-### Permissions Setup
-```bash
-# Create required directories
 mkdir -p cache/geocode logs
-
-# Set permissions
 chmod 755 cache logs
 chmod +x cron/scrape-events.php
 ```
 
-## Architecture Overview
+### Event Scraping
+```bash
+# Manual scraping
+php cron/scrape-events.php
 
-This is a PHP-based event calendar and local business directory system for yakimafinds.com. It follows an MVC-like pattern without using a framework.
+# Test specific source
+php cron/scrape-events.php --source-id=1
+```
 
-### Key Architectural Patterns
+## Architecture
 
-1. **PSR-4 Autoloading**: Classes in `src/` use namespace `YakimaFinds\` or `YFEvents\`
-2. **Model Pattern**: All models extend `BaseModel` which provides CRUD operations
-3. **Direct Database Access**: Uses PDO with prepared statements, no ORM
-4. **Template System**: PHP templates in `www/html/templates/` for HTML rendering
-5. **AJAX Endpoints**: Located in `www/html/ajax/` for asynchronous operations
-6. **Admin System**: Separate admin interface in `www/html/admin/` with session-based auth
+### Core Patterns
+- **PSR-4 Autoloading**: `YFEvents\` and `YakimaFinds\` namespaces
+- **BaseModel Pattern**: All models extend BaseModel with CRUD operations
+- **Direct PDO**: No ORM, prepared statements for security
+- **Template System**: PHP templates in `www/html/templates/`
+- **Session-based Admin**: Simple authentication in `admin/` directory
 
-### Database Architecture
-
-The system uses MySQL with these core tables:
-- `events`: Main event storage with geocoded locations, categories, and source tracking
-- `local_shops`: Business directory with full profiles and amenities
-- `calendar_sources`: Configuration for various scraper types (iCal, HTML, JSON, Yakima Valley)
-- `event_categories`: Hierarchical event categorization
-- `scraping_logs`: Monitoring scraper performance
+### Database Structure
+- `events`: Main event storage with geocoding and source tracking
+- `local_shops`: Business directory with full profiles and amenities  
+- `calendar_sources`: Scraper configurations (iCal, HTML, JSON formats)
+- `event_categories`: Hierarchical categorization
+- `yfc_*` tables: YFClaim module (sellers, sales, items, offers, buyers)
 
 ### Scraping System
+- **EventScraper**: Base interface for all scrapers
+- **YakimaValleyEventScraper**: Specialized for yakimavalley.org
+- **Intelligent Scraper**: LLM-powered using Segmind API
+- Configuration stored as JSON in `calendar_sources.configuration`
 
-The scraping system supports multiple source types:
-1. **EventScraper**: Base class defining the scraper interface
-2. **YakimaValleyEventScraper**: Specialized for yakimavalley.org format
-3. **Intelligent Scraper**: LLM-powered scraping using Segmind API for automatic pattern detection
+### API Endpoints
+- **Public**: `/api/events`, `/api/shops` - No auth required
+- **Admin**: `/admin/api/` - Session-protected management functions
+- **AJAX**: `/ajax/` - Frontend interactions
 
-Configuration is stored as JSON in `calendar_sources.configuration` field.
+### Frontend
+- **Vanilla JavaScript**: No build process, direct file serving
+- **Google Maps**: Heavy integration for interactive maps
+- **Mobile-first**: Responsive design with touch support
 
-### API Structure
+## Module System
 
-**Public API** (`/www/html/api/`):
-- RESTful endpoints for events and shops
-- Returns JSON responses
-- No authentication required
-
-**Admin API** (`/www/html/admin/api/`):
-- Protected by session authentication
-- Handles event approval, source management, manual scraping
-
-### Frontend Architecture
-
-- **No Build Process**: Uses vanilla JavaScript, no bundling or transpilation
-- **Google Maps Integration**: Heavy use of Maps JavaScript API for interactive features
-- **Calendar View**: Custom JavaScript calendar implementation in `js/calendar.js`
-- **Mobile Support**: Responsive CSS with touch events for mobile devices
-
-### Session Management
-
-Admin authentication uses PHP sessions with these key files:
-- `admin/login.php`: Handles authentication
-- `admin/logout.php`: Destroys session
-- All admin pages check session at the top of each file
-
-### Geocoding Strategy
-
-1. Checks local cache first (`cache/geocode/`)
-2. Falls back to Google Maps Geocoding API or OpenStreetMap Nominatim
-3. Caches results to minimize API calls
-4. Handles rate limiting and errors gracefully
-
-## Modular Architecture
-
-YFEvents supports optional modules that extend functionality. Modules are self-contained packages that can be installed/uninstalled without affecting the core system.
-
-### Module Management
-```bash
-# Install a module
-php modules/install.php module-name
-
-# Apply modules database schema
-mysql -u root -p yakima_finds < database/modules_schema.sql
-
-# List available modules
-php modules/install.php
-```
+Self-contained packages that extend functionality without affecting core system.
 
 ### Module Structure
 ```
-modules/
-└── module-name/
-    ├── module.json      # Module manifest with requirements
-    ├── database/        # SQL schemas
-    ├── src/             # PHP source (PSR-4: YFEvents\Modules\ModuleName)
-    ├── www/             # Public files (admin, api, assets, templates)
-    └── README.md        # Module documentation
+modules/module-name/
+├── module.json          # Manifest with requirements  
+├── database/           # SQL schemas
+├── src/               # PHP source (PSR-4: YFEvents\Modules\ModuleName)
+└── www/               # Public files (admin, api, templates)
 ```
 
 ### Current Modules
-- **yfclaim**: Facebook-style claim sale platform for estate sales (database ready, models need implementation)
+- **yfclaim**: Estate sale claim platform (database ready, models need implementation)
+- **yfauth**: Authentication and authorization system
 
-## YFClaim Development Commands
-
-### Database Verification
-```bash
-# Check YFClaim tables
-mysql -u yfevents -p yakima_finds -e "SHOW TABLES LIKE 'yfc_%';"
-
-# Verify data
-mysql -u yfevents -p yakima_finds -e "SELECT COUNT(*) FROM yfc_categories;"
-```
-
-### Model Development
+### YFClaim Development
 ```bash
 # Test model autoloading
 php -r "require 'vendor/autoload.php'; require 'config/database.php'; 
 use YFEvents\Modules\YFClaim\Models\SellerModel; 
 echo class_exists('YFEvents\Modules\YFClaim\Models\SellerModel') ? 'OK' : 'FAIL';"
 
-# Test model instantiation
-php -r "require 'vendor/autoload.php'; require 'config/database.php'; 
-\$model = new YFEvents\Modules\YFClaim\Models\SellerModel(\$db); 
-echo 'SellerModel loaded successfully\n';"
-```
-
-### Testing YFClaim Admin
-```bash
-# Test admin interface functionality
+# Test admin interface
 curl -I http://137.184.245.149/modules/yfclaim/www/admin/
 ```
 
-## Important Notes
+## Key Notes
 
-- **No Testing Framework**: The project has test files but no formal testing setup
-- **No Linting**: No PHP linting configuration exists
-- **Direct File Access**: Admin pages are accessed directly, not through a router
-- **Environment Variables**: Configuration uses both `.env` and `config/` files
-- **Error Handling**: Errors are logged to `logs/` directory
-- **No CI/CD**: Deployment is manual, no automated pipelines
-- **Module System**: Optional modules extend functionality without modifying core
-- **Security**: See `SECURITY.md` for API key and deployment guidelines
+- **No formal testing framework** - Custom test scripts in `tests/`
+- **No build process** - Direct file serving, no bundling/transpilation
+- **Direct page access** - Admin pages accessed directly, not through router
+- **Manual deployment** - No CI/CD pipelines
+- **Environment config** - Uses both `.env` and `config/` files
+- **Error logging** - Logs stored in `logs/` directory

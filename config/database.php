@@ -18,6 +18,12 @@ $dbname = $_ENV['DB_NAME'] ?? 'yakima_finds';
 $username = $_ENV['DB_USER'] ?? 'root';
 $password = $_ENV['DB_PASS'] ?? '';
 
+// Define constants for backward compatibility
+define('DB_HOST', $host);
+define('DB_NAME', $dbname);
+define('DB_USER', $username);
+define('DB_PASS', $password);
+
 // Create PDO connection
 try {
     $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
