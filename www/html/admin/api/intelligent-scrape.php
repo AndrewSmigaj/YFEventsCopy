@@ -306,6 +306,36 @@ function handleCSVUpload($file, $db) {
         throw new Exception('No valid URLs found in CSV file');
     }
     
+    // Check for duplicates against existing calendar sources
+    $existingUrls = [];
+    $stmt = $db->query("SELECT url FROM calendar_sources");
+    while ($row = $stmt->fetch()) {
+        $existingUrls[] = strtolower(trim($row['url']));
+    }
+    
+    // Filter out duplicates and track them
+    $duplicates = [];
+    $uniqueUrls = [];
+    
+    foreach ($urls as $item) {
+        $normalizedUrl = strtolower(trim($item['url']));
+        
+        if (in_array($normalizedUrl, $existingUrls)) {
+            $duplicates[] = $item;
+        } else {
+            $uniqueUrls[] = $item;
+        }
+    }
+    
+    // If all URLs are duplicates, inform the user
+    if (empty($uniqueUrls)) {
+        $duplicateList = array_map(function($item) { return $item['title'] . ' (' . $item['url'] . ')'; }, $duplicates);
+        throw new Exception('All URLs already exist in the system. Duplicates: ' . implode(', ', array_slice($duplicateList, 0, 5)) . (count($duplicateList) > 5 ? '...' : ''));
+    }
+    
+    // Use only unique URLs for processing
+    $urls = $uniqueUrls;
+    
     // Create batch record
     $stmt = $db->prepare("
         INSERT INTO intelligent_scraper_batches (filename, total_urls, created_by) 
@@ -324,17 +354,28 @@ function handleCSVUpload($file, $db) {
         $stmt->execute([$batchId, $item['title'], $item['url']]);
     }
     
-    // Log batch creation
-    logBatchActivity($db, $batchId, null, 'info', "Batch created with {count($urls)} URLs", json_encode(['filename' => $filename]));
+    // Log batch creation with duplicate info
+    $duplicateCount = count($duplicates);
+    $logMessage = "Batch created with " . count($urls) . " unique URLs";
+    if ($duplicateCount > 0) {
+        $logMessage .= " ({$duplicateCount} duplicates skipped)";
+    }
+    logBatchActivity($db, $batchId, null, 'info', $logMessage, json_encode(['filename' => $filename, 'duplicates_skipped' => $duplicateCount]));
     
     // Start background processing
     startBatchProcessing($batchId, $db);
+    
+    $message = "Uploaded " . count($urls) . " unique URLs for processing";
+    if ($duplicateCount > 0) {
+        $message .= " ({$duplicateCount} duplicates skipped)";
+    }
     
     return [
         'success' => true,
         'batch_id' => $batchId,
         'total_urls' => count($urls),
-        'message' => "Uploaded {count($urls)} URLs for processing"
+        'duplicates_skipped' => $duplicateCount,
+        'message' => $message
     ];
 }
 
