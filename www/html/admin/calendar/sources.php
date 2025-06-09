@@ -168,6 +168,11 @@ foreach ($sources as $source) {
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
+                        <a href="/admin/system-checkup.php" style="color: white; text-decoration: none;">
+                            <i class="fas fa-heartbeat"></i> System Checkup
+                        </a>
+                    </li>
+                    <li style="margin-bottom: 10px;">
                         <a href="/admin/" style="color: white; text-decoration: none;">
                             <i class="fas fa-arrow-left"></i> Back to Main
                         </a>

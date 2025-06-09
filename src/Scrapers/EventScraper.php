@@ -5,6 +5,7 @@ namespace YakimaFinds\Scrapers;
 use YakimaFinds\Models\EventModel;
 use YakimaFinds\Models\CalendarSourceModel;
 use YakimaFinds\Utils\GeocodeService;
+use YakimaFinds\Utils\SystemLogger;
 
 class EventScraper
 {
@@ -12,6 +13,7 @@ class EventScraper
     private $eventModel;
     private $sourceModel;
     private $geocodeService;
+    private $logger;
     
     public function __construct($db)
     {
@@ -19,6 +21,7 @@ class EventScraper
         $this->eventModel = new EventModel($db);
         $this->sourceModel = new CalendarSourceModel($db);
         $this->geocodeService = new GeocodeService();
+        $this->logger = new SystemLogger($db, 'event_scraper');
     }
     
     /**
@@ -41,11 +44,17 @@ class EventScraper
      */
     public function scrapeSource($source)
     {
-        error_log("[EventScraper] Starting scrape for source: {$source['name']} (ID: {$source['id']}, Type: {$source['scrape_type']})");
+        $startTime = microtime(true);
+        $this->logger->scraping($source['name'], 'start', 'initiated', [
+            'source_id' => $source['id'],
+            'source_type' => $source['scrape_type'],
+            'url' => $source['url']
+        ]);
         
         $logId = $this->sourceModel->logScrapingStart($source['id']);
         $eventsFound = 0;
         $eventsAdded = 0;
+        $duplicatesSkipped = 0;
         $errorMessage = null;
         
         try {
@@ -97,11 +106,21 @@ class EventScraper
             $this->sourceModel->updateLastScraped($source['id']);
             
             // Log success with duplicate info
+            $duration = round((microtime(true) - $startTime) * 1000);
             $this->sourceModel->logScrapingComplete($logId, $eventsFound, $eventsAdded, 'success');
             
-            if ($duplicatesSkipped > 0) {
-                error_log("[EventScraper] Source {$source['name']}: Found {$eventsFound} events, added {$eventsAdded} new, skipped {$duplicatesSkipped} duplicates");
-            }
+            $this->logger->scraping($source['name'], 'complete', 'success', [
+                'events_found' => $eventsFound,
+                'events_added' => $eventsAdded,
+                'duplicates_skipped' => $duplicatesSkipped,
+                'duration_ms' => $duration,
+                'success_rate' => $eventsFound > 0 ? round(($eventsAdded / $eventsFound) * 100, 2) : 0
+            ]);
+            
+            $this->logger->performance('source_scrape', $duration, [
+                'source_name' => $source['name'],
+                'source_type' => $source['scrape_type']
+            ]);
             
             return [
                 'success' => true,
@@ -112,12 +131,31 @@ class EventScraper
             
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
+            $duration = round((microtime(true) - $startTime) * 1000);
             
-            // Log error
+            // Log error with detailed context
+            $this->logger->error("Scraping failed for source: {$source['name']}", [
+                'source_id' => $source['id'],
+                'source_type' => $source['scrape_type'],
+                'url' => $source['url'],
+                'error' => $errorMessage,
+                'trace' => $e->getTraceAsString(),
+                'duration_ms' => $duration,
+                'events_found' => $eventsFound,
+                'events_added' => $eventsAdded
+            ]);
+            
+            // Log error to scraping logs
             $this->sourceModel->logScrapingComplete($logId, $eventsFound, $eventsAdded, 'failed', $errorMessage);
             
             // Check if source should be deactivated
-            $this->sourceModel->deactivateFailedSource($source['id']);
+            $deactivated = $this->sourceModel->deactivateFailedSource($source['id']);
+            if ($deactivated) {
+                $this->logger->warning("Source deactivated due to repeated failures", [
+                    'source_id' => $source['id'],
+                    'source_name' => $source['name']
+                ]);
+            }
             
             return [
                 'success' => false,
