@@ -689,4 +689,58 @@ class EventScraper
         
         return $xpath;
     }
+    
+    /**
+     * Run intelligent optimization on a source
+     */
+    public function optimizeSource($sourceId, $debugMode = false)
+    {
+        $intelligentScraper = new IntelligentScraper($this->db, $debugMode);
+        return $intelligentScraper->analyzeAndOptimizeSource($sourceId);
+    }
+    
+    /**
+     * Test a source with intelligent optimization if needed
+     */
+    public function testAndOptimizeSource($sourceId, $debugMode = false)
+    {
+        try {
+            // First try normal scraping
+            $source = $this->sourceModel->getSourceById($sourceId);
+            if (!$source) {
+                throw new \Exception("Source not found");
+            }
+            
+            $events = $this->scrapeSource($source);
+            
+            // If we get few or no events, try intelligent optimization
+            if (count($events) < 3) {
+                error_log("[EventScraper] Low event count (" . count($events) . "), attempting intelligent optimization");
+                $optimizationResult = $this->optimizeSource($sourceId, $debugMode);
+                
+                // Try scraping again with new configuration
+                $source = $this->sourceModel->getSourceById($sourceId); // Reload with new config
+                $events = $this->scrapeSource($source);
+                
+                return [
+                    'success' => true,
+                    'events' => $events,
+                    'optimization' => $optimizationResult,
+                    'message' => "Source optimized and found " . count($events) . " events"
+                ];
+            }
+            
+            return [
+                'success' => true,
+                'events' => $events,
+                'message' => "Source working well, found " . count($events) . " events"
+            ];
+            
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }

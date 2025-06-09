@@ -27,7 +27,7 @@ $sourceId = intval($_POST['source_id']);
 
 try {
     $sourceModel = new CalendarSourceModel($db);
-    $source = $sourceModel->getById($sourceId);
+    $source = $sourceModel->getSourceById($sourceId);
     
     if (!$source) {
         throw new Exception('Source not found');
@@ -36,9 +36,25 @@ try {
     // Create scraper instance
     $scraper = new EventScraper($db);
     
-    // Test the source by fetching a small sample
-    $events = $scraper->scrapeSource($source);
-    $eventCount = count($events);
+    // Test the source with intelligent optimization
+    $testResult = $scraper->testAndOptimizeSource($sourceId, true);
+    
+    if (!$testResult['success']) {
+        throw new Exception($testResult['error']);
+    }
+    
+    $eventCount = count($testResult['events']);
+    $message = $testResult['message'];
+    
+    // Add optimization info if it was performed
+    $optimizationInfo = [];
+    if (isset($testResult['optimization'])) {
+        $optimizationInfo = [
+            'strategy' => $testResult['optimization']['strategy'] ?? 'unknown',
+            'optimized' => true
+        ];
+        $message .= " (Automatically optimized using {$optimizationInfo['strategy']} strategy)";
+    }
     
     // Return test results
     echo json_encode([
@@ -46,15 +62,16 @@ try {
         'source' => [
             'id' => $source['id'],
             'name' => $source['name'],
-            'type' => $source['type'],
-            'url' => $source['source_url']
+            'type' => $source['scrape_type'],
+            'url' => $source['url']
         ],
         'results' => [
             'event_count' => $eventCount,
-            'sample_events' => array_slice($events, 0, 3), // Show first 3 events as sample
+            'sample_events' => array_slice($testResult['events'], 0, 3), // Show first 3 events as sample
+            'optimization' => $optimizationInfo,
             'test_time' => date('Y-m-d H:i:s')
         ],
-        'message' => "Successfully retrieved {$eventCount} events from source"
+        'message' => $message
     ]);
     
 } catch (Exception $e) {

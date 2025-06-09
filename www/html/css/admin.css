@@ -1,0 +1,256 @@
+/* Admin Interface Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f8f9fa;
+    color: #333;
+}
+
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 250px;
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+}
+
+.admin-sidebar h2 {
+    margin-top: 0;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.admin-sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-sidebar nav li {
+    margin-bottom: 10px;
+}
+
+.admin-sidebar nav a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.admin-sidebar nav a:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.admin-sidebar nav a.active {
+    background: #3498db;
+}
+
+.admin-content {
+    flex: 1;
+    padding: 20px;
+    overflow-x: auto;
+}
+
+.admin-content h1 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+/* Table styles */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.admin-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.admin-table tr:hover {
+    background: #f8f9fa;
+}
+
+/* Button styles */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
+}
+
+.btn-success {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #229954;
+}
+
+.btn-warning {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e67e22;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-active {
+    color: #27ae60;
+}
+
+.status-inactive {
+    color: #e74c3c;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Alert styles */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #b8daff;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        order: 2;
+    }
+    
+    .admin-content {
+        order: 1;
+    }
+    
+    .admin-table {
+        font-size: 12px;
+    }
+}

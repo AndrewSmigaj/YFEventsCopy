@@ -163,6 +163,11 @@ foreach ($sources as $source) {
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
+                        <a href="/admin/scraper-info.php" style="color: white; text-decoration: none;">
+                            <i class="fas fa-info-circle"></i> Scraper Info
+                        </a>
+                    </li>
+                    <li style="margin-bottom: 10px;">
                         <a href="/admin/" style="color: white; text-decoration: none;">
                             <i class="fas fa-arrow-left"></i> Back to Main
                         </a>
@@ -184,13 +189,13 @@ foreach ($sources as $source) {
                     <div class="source-header">
                         <div class="source-title"><?= htmlspecialchars($source['name']) ?></div>
                         <div>
-                            <span class="source-type"><?= strtoupper($source['type']) ?></span>
-                            <i class="fas fa-circle status-<?= $source['is_active'] ? 'active' : 'inactive' ?>" 
-                               title="<?= $source['is_active'] ? 'Active' : 'Inactive' ?>"></i>
+                            <span class="source-type"><?= strtoupper($source['scrape_type']) ?></span>
+                            <i class="fas fa-circle status-<?= $source['active'] ? 'active' : 'inactive' ?>" 
+                               title="<?= $source['active'] ? 'Active' : 'Inactive' ?>"></i>
                         </div>
                     </div>
                     
-                    <div class="source-url"><?= htmlspecialchars($source['source_url']) ?></div>
+                    <div class="source-url"><?= htmlspecialchars($source['url']) ?></div>
                     
                     <div class="source-stats">
                         <div class="stat-item">
