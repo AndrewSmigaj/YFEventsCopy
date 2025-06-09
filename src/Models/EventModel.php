@@ -261,13 +261,62 @@ class EventModel extends BaseModel
      */
     public function findDuplicates($title, $start_datetime, $latitude = null, $longitude = null)
     {
+        // Enhanced duplicate detection with multiple strategies
+        
+        // Strategy 1: Exact title and date match (strict duplicates)
+        $exactMatches = $this->findExactDuplicates($title, $start_datetime);
+        if (!empty($exactMatches)) {
+            return $exactMatches;
+        }
+        
+        // Strategy 2: Similar title with close time proximity (likely duplicates)
+        $similarMatches = $this->findSimilarDuplicates($title, $start_datetime, $latitude, $longitude);
+        if (!empty($similarMatches)) {
+            return $similarMatches;
+        }
+        
+        // Strategy 3: Check for recent identical events (prevent rapid re-scraping)
+        $recentMatches = $this->findRecentDuplicates($title, $start_datetime);
+        return $recentMatches;
+    }
+    
+    private function findExactDuplicates($title, $start_datetime)
+    {
         $sql = "SELECT id, title, start_datetime, latitude, longitude
                 FROM events 
-                WHERE title LIKE :title 
-                AND ABS(TIMESTAMPDIFF(MINUTE, start_datetime, :start_datetime)) <= 60";
+                WHERE title = :title 
+                AND start_datetime = :start_datetime";
         
         $params = [
-            'title' => '%' . $title . '%',
+            'title' => $title,
+            'start_datetime' => $start_datetime
+        ];
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    private function findSimilarDuplicates($title, $start_datetime, $latitude = null, $longitude = null)
+    {
+        // Use similarity function for title matching
+        $sql = "SELECT id, title, start_datetime, latitude, longitude,
+                       (CASE 
+                        WHEN title = :exact_title THEN 100
+                        WHEN SOUNDEX(title) = SOUNDEX(:exact_title) THEN 80
+                        WHEN title LIKE :fuzzy_title THEN 60
+                        ELSE 0
+                       END) as similarity_score
+                FROM events 
+                WHERE (title = :exact_title 
+                       OR SOUNDEX(title) = SOUNDEX(:exact_title)
+                       OR title LIKE :fuzzy_title)
+                AND ABS(TIMESTAMPDIFF(MINUTE, start_datetime, :start_datetime)) <= 30";
+        
+        $params = [
+            'exact_title' => $title,
+            'fuzzy_title' => '%' . $title . '%',
             'start_datetime' => $start_datetime
         ];
         
@@ -281,10 +330,78 @@ class EventModel extends BaseModel
             $params['lng'] = $longitude;
         }
         
+        $sql .= " ORDER BY similarity_score DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Only return high-confidence matches (similarity >= 80)
+        return array_filter($results, function($row) {
+            return $row['similarity_score'] >= 80;
+        });
+    }
+    
+    private function findRecentDuplicates($title, $start_datetime)
+    {
+        // Check for events with same title scraped recently (within 24 hours)
+        $sql = "SELECT id, title, start_datetime, latitude, longitude
+                FROM events 
+                WHERE title = :title 
+                AND DATE(start_datetime) = DATE(:start_datetime)
+                AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+        
+        $params = [
+            'title' => $title,
+            'start_datetime' => $start_datetime
+        ];
+        
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Clean up obvious duplicate events
+     */
+    public function cleanupDuplicates($dryRun = true)
+    {
+        // Find groups of events with exact same title and datetime
+        $sql = "SELECT title, start_datetime, COUNT(*) as count, GROUP_CONCAT(id) as ids
+                FROM events 
+                GROUP BY title, start_datetime 
+                HAVING count > 1
+                ORDER BY count DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $duplicateGroups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $cleanupResults = [
+            'groups_found' => count($duplicateGroups),
+            'events_to_remove' => 0,
+            'removed_ids' => []
+        ];
+        
+        foreach ($duplicateGroups as $group) {
+            $ids = explode(',', $group['ids']);
+            // Keep the first event, remove the rest
+            $keepId = array_shift($ids);
+            $removeIds = $ids;
+            
+            $cleanupResults['events_to_remove'] += count($removeIds);
+            
+            if (!$dryRun) {
+                foreach ($removeIds as $removeId) {
+                    $this->deleteEvent($removeId);
+                    $cleanupResults['removed_ids'][] = $removeId;
+                }
+            }
+        }
+        
+        return $cleanupResults;
     }
     
     /**

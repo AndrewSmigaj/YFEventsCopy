@@ -81,24 +81,33 @@ class EventScraper
             }
             
             $eventsFound = count($events);
+            $duplicatesSkipped = 0;
             
             // Process each event
             foreach ($events as $eventData) {
-                if ($this->processEvent($eventData, $source['id'])) {
+                $result = $this->processEvent($eventData, $source['id']);
+                if ($result === true) {
                     $eventsAdded++;
+                } elseif ($result === 'duplicate') {
+                    $duplicatesSkipped++;
                 }
             }
             
             // Update source last scraped time
             $this->sourceModel->updateLastScraped($source['id']);
             
-            // Log success
+            // Log success with duplicate info
             $this->sourceModel->logScrapingComplete($logId, $eventsFound, $eventsAdded, 'success');
+            
+            if ($duplicatesSkipped > 0) {
+                error_log("[EventScraper] Source {$source['name']}: Found {$eventsFound} events, added {$eventsAdded} new, skipped {$duplicatesSkipped} duplicates");
+            }
             
             return [
                 'success' => true,
                 'events_found' => $eventsFound,
-                'events_added' => $eventsAdded
+                'events_added' => $eventsAdded,
+                'duplicates_skipped' => $duplicatesSkipped
             ];
             
         } catch (\Exception $e) {
@@ -542,7 +551,8 @@ class EventScraper
         );
         
         if (!empty($duplicates)) {
-            return false; // Skip duplicate
+            error_log("[EventScraper] Skipping duplicate event: {$eventData['title']} at {$eventData['start_datetime']}");
+            return 'duplicate'; // Skip duplicate
         }
         
         // Geocode address if needed
