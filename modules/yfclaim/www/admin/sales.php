@@ -1,6 +1,7 @@
 <?php
 // YFClaim Sales Management
-require_once '../../../../config/database.php';
+require_once dirname(__DIR__, 4) . '/config/database.php';
+require_once dirname(__DIR__, 4) . '/vendor/autoload.php';
 
 // Use proper namespace imports
 use YFEvents\Modules\YFClaim\Models\SaleModel;
@@ -8,17 +9,39 @@ use YFEvents\Modules\YFClaim\Models\SellerModel;
 use YFEvents\Modules\YFClaim\Models\ItemModel;
 use YFEvents\Modules\YFClaim\Models\OfferModel;
 
-require_once '../../src/Models/BaseModel.php';
-require_once '../../src/Models/SaleModel.php';
-require_once '../../src/Models/SellerModel.php';
-require_once '../../src/Models/ItemModel.php';
-require_once '../../src/Models/OfferModel.php';
-
 // Authentication check
 session_start();
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    // Instead of redirecting to a potentially wrong path, show a helpful message
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Access Denied - YFClaim Admin</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .error-container { background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .error-title { color: #dc3545; font-size: 24px; margin-bottom: 20px; }
+            .error-message { color: #666; line-height: 1.6; margin-bottom: 20px; }
+            .login-button { background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; }
+            .login-button:hover { background: #0056b3; }
+        </style>
+    </head>
+    <body>
+        <div class="error-container">
+            <div class="error-title">🔒 Admin Access Required</div>
+            <div class="error-message">
+                <p>You need to be logged in as an administrator to access the YFClaim Sales admin panel.</p>
+                <p>Please log in to the main admin system first, then return to this page.</p>
+            </div>
+            <a href="/admin/login.php" class="login-button">Go to Admin Login</a>
+        </div>
+    </body>
+    </html>
+    <?php
     exit;
 }
 

@@ -1,6 +1,6 @@
 <?php
 // Simple Admin Dashboard
-require_once '../../../config/database.php';
+require_once dirname(__DIR__, 3) . '/config/database.php';
 
 // Authentication check
 session_start();

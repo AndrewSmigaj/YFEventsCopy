@@ -1,12 +1,57 @@
 <?php
 // YFClaim Reports
-require_once '../../../../config/database.php';
+require_once dirname(__DIR__, 4) . '/config/database.php';
 
 // Authentication check
 session_start();
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    // Instead of redirecting to a potentially wrong path, show a helpful message
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Access Denied - YFClaim Admin</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .error-container { background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .error-title { color: #dc3545; font-size: 24px; margin-bottom: 20px; }
+            .error-message { color: #666; line-height: 1.6; margin-bottom: 20px; }
+            .login-button { background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; }
+            .login-button:hover { background: #0056b3; }
+            .help-text { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="error-container">
+            <div class="error-title">🔒 Admin Access Required</div>
+            <div class="error-message">
+                <p>You need to be logged in as an administrator to access the YFClaim admin panel.</p>
+                <p>Please log in to the main admin system first, then return to this page.</p>
+            </div>
+            
+            <a href="../../../www/html/admin/login.php" class="login-button">Go to Main Admin Login</a>
+            
+            <div class="help-text">
+                <strong>Login Credentials:</strong><br>
+                Username: <code>YakFind</code><br>
+                Password: <code>MapTime</code>
+            </div>
+            
+            <div class="help-text">
+                <strong>Troubleshooting:</strong><br>
+                If the login link above doesn't work, try these alternatives:
+                <ul>
+                    <li><a href="/admin/login.php">Alternative login path 1</a></li>
+                    <li><a href="/www/html/admin/login.php">Alternative login path 2</a></li>
+                </ul>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
     exit;
 }
 
@@ -20,41 +65,41 @@ $endDate = $_GET['end_date'] ?? date('Y-m-d');
 $stats = [];
 
 // Total counts
-$stats['total_sellers'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_sellers")->fetchColumn();
-$stats['active_sellers'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_sellers WHERE status = 'active'")->fetchColumn();
-$stats['total_buyers'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_buyers")->fetchColumn();
-$stats['total_sales'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_sales")->fetchColumn();
-$stats['active_sales'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_sales WHERE status = 'active'")->fetchColumn();
-$stats['total_items'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_items")->fetchColumn();
-$stats['available_items'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_items WHERE status = 'available'")->fetchColumn();
-$stats['sold_items'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_items WHERE status = 'sold'")->fetchColumn();
-$stats['total_offers'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_offers")->fetchColumn();
-$stats['pending_offers'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_offers WHERE status = 'pending'")->fetchColumn();
-$stats['accepted_offers'] = $pdo->query("SELECT COUNT(*) FROM yfclaim_offers WHERE status = 'accepted'")->fetchColumn();
+$stats['total_sellers'] = $pdo->query("SELECT COUNT(*) FROM yfc_sellers")->fetchColumn();
+$stats['active_sellers'] = $pdo->query("SELECT COUNT(*) FROM yfc_sellers WHERE status = 'active'")->fetchColumn();
+$stats['total_buyers'] = $pdo->query("SELECT COUNT(*) FROM yfc_buyers")->fetchColumn();
+$stats['total_sales'] = $pdo->query("SELECT COUNT(*) FROM yfc_sales")->fetchColumn();
+$stats['active_sales'] = $pdo->query("SELECT COUNT(*) FROM yfc_sales WHERE status = 'active'")->fetchColumn();
+$stats['total_items'] = $pdo->query("SELECT COUNT(*) FROM yfc_items")->fetchColumn();
+$stats['available_items'] = $pdo->query("SELECT COUNT(*) FROM yfc_items WHERE status = 'available'")->fetchColumn();
+$stats['sold_items'] = $pdo->query("SELECT COUNT(*) FROM yfc_items WHERE status = 'sold'")->fetchColumn();
+$stats['total_offers'] = $pdo->query("SELECT COUNT(*) FROM yfc_offers")->fetchColumn();
+$stats['pending_offers'] = $pdo->query("SELECT COUNT(*) FROM yfc_offers WHERE status = 'pending'")->fetchColumn();
+$stats['accepted_offers'] = $pdo->query("SELECT COUNT(*) FROM yfc_offers WHERE status = 'accepted'")->fetchColumn();
 
 // Date range statistics
 $dateStats = [];
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_sales WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_sales WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
 $stmt->execute([$startDate, $endDate]);
 $dateStats['new_sales'] = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_sellers WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_sellers WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
 $stmt->execute([$startDate, $endDate]);
 $dateStats['new_sellers'] = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_buyers WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_buyers WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
 $stmt->execute([$startDate, $endDate]);
 $dateStats['new_buyers'] = $stmt->fetchColumn();
 
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfclaim_offers WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_offers WHERE created_at BETWEEN ? AND ? + INTERVAL 1 DAY");
 $stmt->execute([$startDate, $endDate]);
 $dateStats['new_offers'] = $stmt->fetchColumn();
 
 // Top sellers by sales count
 $topSellers = $pdo->query("
-    SELECT s.name, s.fb_name, COUNT(sa.id) as sale_count
-    FROM yfclaim_sellers s
-    LEFT JOIN yfclaim_sales sa ON s.id = sa.seller_id
+    SELECT s.company_name as name, s.contact_name as fb_name, COUNT(sa.id) as sale_count
+    FROM yfc_sellers s
+    LEFT JOIN yfc_sales sa ON s.id = sa.seller_id
     GROUP BY s.id
     ORDER BY sale_count DESC
     LIMIT 10
@@ -62,12 +107,12 @@ $topSellers = $pdo->query("
 
 // Top items by offer count
 $topItems = $pdo->query("
-    SELECT i.title, i.price, COUNT(o.id) as offer_count,
-           s.title as sale_title, sel.name as seller_name
-    FROM yfclaim_items i
-    LEFT JOIN yfclaim_offers o ON i.id = o.item_id
-    LEFT JOIN yfclaim_sales s ON i.sale_id = s.id
-    LEFT JOIN yfclaim_sellers sel ON s.seller_id = sel.id
+    SELECT i.title, i.starting_price as price, COUNT(o.id) as offer_count,
+           s.title as sale_title, sel.company_name as seller_name
+    FROM yfc_items i
+    LEFT JOIN yfc_offers o ON i.id = o.item_id
+    LEFT JOIN yfc_sales s ON i.sale_id = s.id
+    LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
     GROUP BY i.id
     HAVING offer_count > 0
     ORDER BY offer_count DESC
@@ -76,17 +121,17 @@ $topItems = $pdo->query("
 
 // Recent activity
 $recentActivity = $pdo->query("
-    SELECT 'offer' as type, o.created_at, i.title as item_title, b.name as buyer_name, o.amount
-    FROM yfclaim_offers o
-    LEFT JOIN yfclaim_items i ON o.item_id = i.id
-    LEFT JOIN yfclaim_buyers b ON o.buyer_id = b.id
+    SELECT 'offer' as type, o.created_at, i.title as item_title, b.name as buyer_name, o.offer_amount as amount
+    FROM yfc_offers o
+    LEFT JOIN yfc_items i ON o.item_id = i.id
+    LEFT JOIN yfc_buyers b ON o.buyer_id = b.id
     UNION ALL
-    SELECT 'sale' as type, s.created_at, s.title as item_title, sel.name as buyer_name, NULL as amount
-    FROM yfclaim_sales s
-    LEFT JOIN yfclaim_sellers sel ON s.seller_id = sel.id
+    SELECT 'sale' as type, s.created_at, s.title as item_title, sel.company_name as buyer_name, NULL as amount
+    FROM yfc_sales s
+    LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
     UNION ALL
-    SELECT 'seller' as type, s.created_at, CONCAT('New seller: ', s.name) as item_title, NULL as buyer_name, NULL as amount
-    FROM yfclaim_sellers s
+    SELECT 'seller' as type, s.created_at, CONCAT('New seller: ', s.company_name) as item_title, NULL as buyer_name, NULL as amount
+    FROM yfc_sellers s
     ORDER BY created_at DESC
     LIMIT 20
 ")->fetchAll();
@@ -94,20 +139,20 @@ $recentActivity = $pdo->query("
 // Price analytics
 $priceStats = $pdo->query("
     SELECT 
-        AVG(price) as avg_price,
-        MIN(price) as min_price,
-        MAX(price) as max_price,
+        AVG(starting_price) as avg_price,
+        MIN(starting_price) as min_price,
+        MAX(starting_price) as max_price,
         COUNT(*) as total_items
-    FROM yfclaim_items
+    FROM yfc_items
 ")->fetch();
 
 $offerStats = $pdo->query("
     SELECT 
-        AVG(amount) as avg_offer,
-        MIN(amount) as min_offer,
-        MAX(amount) as max_offer,
+        AVG(offer_amount) as avg_offer,
+        MIN(offer_amount) as min_offer,
+        MAX(offer_amount) as max_offer,
         COUNT(*) as total_offers
-    FROM yfclaim_offers
+    FROM yfc_offers
 ")->fetch();
 ?>
 <!DOCTYPE html>

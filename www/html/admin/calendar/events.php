@@ -52,11 +52,15 @@ $totalEvents = $stmt->fetchColumn();
 $totalPages = ceil($totalEvents / $perPage);
 
 // Get events
-$query = "SELECT e.*, c.name as category_name, cs.name as source_name 
+$query = "SELECT e.*, 
+          GROUP_CONCAT(ec.name SEPARATOR ', ') as category_names,
+          cs.name as source_name 
           FROM events e 
-          LEFT JOIN event_categories c ON e.category_id = c.id
+          LEFT JOIN event_category_relations ecr ON e.id = ecr.event_id
+          LEFT JOIN event_categories ec ON ecr.category_id = ec.id
           LEFT JOIN calendar_sources cs ON e.source_id = cs.id
           $whereClause 
+          GROUP BY e.id
           ORDER BY e.$sortBy $sortOrder 
           LIMIT $perPage OFFSET $offset";
 
@@ -111,6 +115,15 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .back-link { color: #007bff; text-decoration: none; }
         .event-row.past-event { opacity: 0.6; }
         .selected-count { font-weight: bold; color: #007bff; }
+        .edit-form-container { margin: 10px 0; }
+        .edit-form-container h4 { margin-bottom: 15px; color: #333; }
+        .edit-form-container label { color: #555; }
+        .edit-form-container input[type="text"],
+        .edit-form-container input[type="datetime-local"],
+        .edit-form-container select,
+        .edit-form-container textarea { font-size: 14px; }
+        .edit-form-container button { transition: opacity 0.2s; }
+        .edit-form-container button:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -210,9 +223,72 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <i class="fas fa-times"></i> Reject
                                 </button>
                             <?php endif; ?>
-                            <button class="btn-edit" onclick="window.location.href='/admin/events.php?action=edit&id=<?= $event['id'] ?>'">
+                            <button class="btn-edit" onclick="toggleEditForm(<?= $event['id'] ?>)">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
+                        </td>
+                    </tr>
+                    <tr id="edit-form-<?= $event['id'] ?>" style="display: none;">
+                        <td colspan="8">
+                            <div class="edit-form-container" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                                <h4>Edit Event</h4>
+                                <form method="post" action="/admin/calendar/ajax/update-event.php" onsubmit="return updateEvent(event, <?= $event['id'] ?>)">
+                                    <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                                        <div>
+                                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Title *</label>
+                                            <input type="text" name="title" value="<?= htmlspecialchars($event['title']) ?>" required
+                                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        
+                                        <div>
+                                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Status</label>
+                                            <select name="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                                <option value="pending" <?= $event['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                                <option value="approved" <?= $event['status'] === 'approved' ? 'selected' : '' ?>>Approved</option>
+                                                <option value="rejected" <?= $event['status'] === 'rejected' ? 'selected' : '' ?>>Rejected</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Start Date/Time *</label>
+                                            <input type="datetime-local" name="start_datetime" 
+                                                   value="<?= date('Y-m-d\TH:i', strtotime($event['start_datetime'])) ?>" required
+                                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        
+                                        <div>
+                                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">End Date/Time</label>
+                                            <input type="datetime-local" name="end_datetime" 
+                                                   value="<?= $event['end_datetime'] ? date('Y-m-d\TH:i', strtotime($event['end_datetime'])) : '' ?>"
+                                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        
+                                        <div style="grid-column: 1 / -1;">
+                                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Location</label>
+                                            <input type="text" name="location" value="<?= htmlspecialchars($event['location'] ?? '') ?>"
+                                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                        </div>
+                                        
+                                        <div style="grid-column: 1 / -1;">
+                                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description</label>
+                                            <textarea name="description" rows="4"
+                                                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"><?= htmlspecialchars($event['description'] ?? '') ?></textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <button type="submit" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">
+                                            <i class="fas fa-save"></i> Save Changes
+                                        </button>
+                                        <button type="button" onclick="toggleEditForm(<?= $event['id'] ?>)" 
+                                                style="background: #6c757d; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -348,6 +424,46 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             alert('Network error occurred. Please try again.');
             location.reload();
         });
+    }
+    
+    // Toggle edit form visibility
+    function toggleEditForm(eventId) {
+        const editRow = document.getElementById('edit-form-' + eventId);
+        if (editRow.style.display === 'none') {
+            // Hide all other edit forms first
+            document.querySelectorAll('[id^="edit-form-"]').forEach(row => {
+                row.style.display = 'none';
+            });
+            editRow.style.display = 'table-row';
+        } else {
+            editRow.style.display = 'none';
+        }
+    }
+    
+    // Update event via AJAX
+    function updateEvent(e, eventId) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const formData = new FormData(form);
+        
+        fetch('/admin/calendar/ajax/update-event.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            alert('Network error occurred. Please try again.');
+        });
+        
+        return false;
     }
     
     // Initialize page

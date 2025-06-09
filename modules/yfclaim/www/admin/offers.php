@@ -1,6 +1,7 @@
 <?php
 // YFClaim Offers Management
-require_once '../../../../config/database.php';
+require_once dirname(__DIR__, 4) . '/config/database.php';
+require_once dirname(__DIR__, 4) . '/vendor/autoload.php';
 
 // Use proper namespaces
 use YFEvents\Modules\YFClaim\Models\OfferModel;
@@ -9,19 +10,56 @@ use YFEvents\Modules\YFClaim\Models\BuyerModel;
 use YFEvents\Modules\YFClaim\Models\SaleModel;
 use YFEvents\Modules\YFClaim\Models\SellerModel;
 
-// Include model files with proper paths
-require_once __DIR__ . '/../../src/Models/BaseModel.php';
-require_once __DIR__ . '/../../src/Models/OfferModel.php';
-require_once __DIR__ . '/../../src/Models/ItemModel.php';
-require_once __DIR__ . '/../../src/Models/BuyerModel.php';
-require_once __DIR__ . '/../../src/Models/SaleModel.php';
-require_once __DIR__ . '/../../src/Models/SellerModel.php';
-
 // Authentication check
 session_start();
 
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    // Instead of redirecting to a potentially wrong path, show a helpful message
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Access Denied - YFClaim Admin</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .error-container { background: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .error-title { color: #dc3545; font-size: 24px; margin-bottom: 20px; }
+            .error-message { color: #666; line-height: 1.6; margin-bottom: 20px; }
+            .login-button { background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; }
+            .login-button:hover { background: #0056b3; }
+            .help-text { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="error-container">
+            <div class="error-title">🔒 Admin Access Required</div>
+            <div class="error-message">
+                <p>You need to be logged in as an administrator to access the YFClaim admin panel.</p>
+                <p>Please log in to the main admin system first, then return to this page.</p>
+            </div>
+            
+            <a href="../../../www/html/admin/login.php" class="login-button">Go to Main Admin Login</a>
+            
+            <div class="help-text">
+                <strong>Login Credentials:</strong><br>
+                Username: <code>YakFind</code><br>
+                Password: <code>MapTime</code>
+            </div>
+            
+            <div class="help-text">
+                <strong>Troubleshooting:</strong><br>
+                If the login link above doesn't work, try these alternatives:
+                <ul>
+                    <li><a href="/admin/login.php">Alternative login path 1</a></li>
+                    <li><a href="/www/html/admin/login.php">Alternative login path 2</a></li>
+                </ul>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
     exit;
 }
 
