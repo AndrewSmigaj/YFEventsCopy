@@ -258,14 +258,23 @@ function handleCSVUpload($file, $db) {
         // Skip header row if it looks like headers
         if ($isFirstLine) {
             $isFirstLine = false;
-            if (strtolower($data[0]) === 'title' && strtolower($data[1]) === 'url') {
+            $firstColumn = strtolower(trim($data[0]));
+            $secondColumn = strtolower(trim($data[1]));
+            
+            // Check for common header patterns
+            $headerPatterns = ['title', 'name', 'source', 'organization', 'venue'];
+            $urlPatterns = ['url', 'link', 'website', 'address'];
+            
+            $isHeader = (in_array($firstColumn, $headerPatterns) && in_array($secondColumn, $urlPatterns));
+            
+            if ($isHeader) {
                 continue; // Skip header row
             }
         }
         
         if (count($data) < 2) {
             fclose($handle);
-            throw new Exception("Invalid CSV format at line {$lineNumber}. Expected: Title,URL");
+            throw new Exception("Invalid CSV format at line {$lineNumber}. Expected: Name,URL (found " . count($data) . " columns)");
         }
         
         $title = trim($data[0]);
@@ -273,6 +282,14 @@ function handleCSVUpload($file, $db) {
         
         if (empty($title) || empty($url)) {
             continue; // Skip empty lines
+        }
+        
+        // Clean and validate URL
+        $url = trim($url);
+        
+        // Add protocol if missing
+        if (!preg_match('/^https?:\/\//', $url)) {
+            $url = 'https://' . $url;
         }
         
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
