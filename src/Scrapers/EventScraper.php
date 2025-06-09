@@ -41,6 +41,8 @@ class EventScraper
      */
     public function scrapeSource($source)
     {
+        error_log("[EventScraper] Starting scrape for source: {$source['name']} (ID: {$source['id']}, Type: {$source['scrape_type']})");
+        
         $logId = $this->sourceModel->logScrapingStart($source['id']);
         $eventsFound = 0;
         $eventsAdded = 0;
@@ -224,13 +226,13 @@ class EventScraper
             throw new \Exception('Invalid HTML scrape configuration');
         }
         
-        return $this->parseHtmlContent($content, $config);
+        return $this->parseHtmlContent($content, $config, $source['url']);
     }
     
     /**
      * Parse HTML content using CSS selectors
      */
-    private function parseHtmlContent($content, $config)
+    private function parseHtmlContent($content, $config, $sourceUrl = '')
     {
         $dom = new \DOMDocument();
         @$dom->loadHTML($content);
@@ -240,40 +242,100 @@ class EventScraper
         $selectors = $config['selectors'];
         
         // Find event containers
-        $eventNodes = $xpath->query($selectors['event_container']);
+        $cssSelector = $selectors['event_container'];
+        $xpathSelector = $this->cssToXPath($cssSelector);
+        error_log("[EventScraper] Converting CSS '$cssSelector' to XPath '$xpathSelector'");
+        $eventNodes = @$xpath->query($xpathSelector);
+        
+        if ($eventNodes === false) {
+            error_log("[EventScraper] XPath query failed for selector: $xpathSelector");
+            throw new \Exception("Invalid XPath expression: $xpathSelector");
+        }
+        
+        error_log("[EventScraper] Found " . $eventNodes->length . " event containers");
         
         foreach ($eventNodes as $node) {
             $event = [];
             
             // Extract title
-            if (isset($selectors['title'])) {
-                $titleNode = $xpath->query($selectors['title'], $node)->item(0);
-                $event['title'] = $titleNode ? trim($titleNode->textContent) : '';
+            if (isset($selectors['title']) && !empty($selectors['title'])) {
+                $titleQuery = @$xpath->query($this->cssToXPath($selectors['title']), $node);
+                if ($titleQuery !== false) {
+                    $titleNode = $titleQuery->item(0);
+                    if ($titleNode) {
+                        // Try alt attribute first (for images), then text content
+                        $event['title'] = trim($titleNode->getAttribute('alt') ?: $titleNode->textContent);
+                    } else {
+                        $event['title'] = '';
+                    }
+                } else {
+                    $event['title'] = '';
+                }
             }
             
             // Extract description
-            if (isset($selectors['description'])) {
-                $descNode = $xpath->query($selectors['description'], $node)->item(0);
-                $event['description'] = $descNode ? trim($descNode->textContent) : '';
+            if (isset($selectors['description']) && !empty($selectors['description'])) {
+                $descQuery = @$xpath->query($this->cssToXPath($selectors['description']), $node);
+                if ($descQuery !== false) {
+                    $descNode = $descQuery->item(0);
+                    $event['description'] = $descNode ? trim($descNode->textContent) : '';
+                } else {
+                    $event['description'] = '';
+                }
             }
             
             // Extract datetime
-            if (isset($selectors['datetime'])) {
-                $dateNode = $xpath->query($selectors['datetime'], $node)->item(0);
-                $dateText = $dateNode ? trim($dateNode->textContent) : '';
-                $event['start_datetime'] = $this->parseDateTime($dateText);
+            if (isset($selectors['datetime']) && !empty($selectors['datetime'])) {
+                $dateQuery = @$xpath->query($this->cssToXPath($selectors['datetime']), $node);
+                if ($dateQuery !== false) {
+                    $dateNode = $dateQuery->item(0);
+                    $dateText = $dateNode ? trim($dateNode->textContent) : '';
+                    $event['start_datetime'] = $this->parseDateTime($dateText);
+                } else {
+                    $event['start_datetime'] = null;
+                }
             }
             
             // Extract location
-            if (isset($selectors['location'])) {
-                $locationNode = $xpath->query($selectors['location'], $node)->item(0);
-                $event['location'] = $locationNode ? trim($locationNode->textContent) : '';
+            if (isset($selectors['location']) && !empty($selectors['location'])) {
+                $locationQuery = @$xpath->query($this->cssToXPath($selectors['location']), $node);
+                if ($locationQuery !== false) {
+                    $locationNode = $locationQuery->item(0);
+                    $event['location'] = $locationNode ? trim($locationNode->textContent) : '';
+                } else {
+                    $event['location'] = '';
+                }
             }
             
             // Extract URL
-            if (isset($selectors['url'])) {
-                $urlNode = $xpath->query($selectors['url'], $node)->item(0);
-                $event['external_url'] = $urlNode ? $urlNode->getAttribute('href') : '';
+            if (isset($selectors['url']) && !empty($selectors['url'])) {
+                $urlQuery = @$xpath->query($this->cssToXPath($selectors['url']), $node);
+                if ($urlQuery !== false) {
+                    $urlNode = $urlQuery->item(0);
+                    if ($urlNode) {
+                        $href = $urlNode->getAttribute('href');
+                        // Convert relative URLs to absolute
+                        if ($href && !filter_var($href, FILTER_VALIDATE_URL)) {
+                            $parsedBaseUrl = parse_url($sourceUrl);
+                            if ($parsedBaseUrl && isset($parsedBaseUrl['scheme']) && isset($parsedBaseUrl['host'])) {
+                                $baseUrl = $parsedBaseUrl['scheme'] . '://' . $parsedBaseUrl['host'];
+                                if (strpos($href, '/') === 0) {
+                                    $event['external_url'] = $baseUrl . $href;
+                                } else {
+                                    $event['external_url'] = $baseUrl . '/' . $href;
+                                }
+                            } else {
+                                $event['external_url'] = $href;
+                            }
+                        } else {
+                            $event['external_url'] = $href;
+                        }
+                    } else {
+                        $event['external_url'] = '';
+                    }
+                } else {
+                    $event['external_url'] = '';
+                }
             }
             
             if (!empty($event['title'])) {
@@ -291,16 +353,26 @@ class EventScraper
     {
         require_once __DIR__ . '/YakimaValleyEventScraper.php';
         
+        error_log("[EventScraper] Starting Yakima Valley scraper for source ID: {$source['id']}");
+        
         $content = $this->fetchContent($source['url']);
         if (!$content) {
             throw new \Exception('Failed to fetch content from Yakima Valley source');
         }
         
+        // Log content characteristics for debugging
+        error_log("[EventScraper] Content length: " . strlen($content));
+        error_log("[EventScraper] Content preview: " . substr(strip_tags($content), 0, 200) . "...");
+        
         $config = json_decode($source['scrape_config'], true) ?: [];
         $baseUrl = $config['base_url'] ?? $source['url'];
         $currentYear = $config['year'] ?? date('Y');
         
+        error_log("[EventScraper] Using baseUrl: $baseUrl, currentYear: $currentYear");
+        
         $rawEvents = YakimaValleyEventScraper::parseEvents($content, $baseUrl, $currentYear);
+        
+        error_log("[EventScraper] YakimaValleyEventScraper found " . count($rawEvents) . " raw events");
         
         // Convert to our event format
         $events = [];
@@ -323,6 +395,8 @@ class EventScraper
             
             $events[] = $event;
         }
+        
+        error_log("[EventScraper] Converted to " . count($events) . " formatted events");
         
         return $events;
     }
@@ -494,14 +568,40 @@ class EventScraper
      */
     private function fetchContent($url)
     {
-        $context = stream_context_create([
-            'http' => [
-                'timeout' => 30,
-                'user_agent' => 'Yakima Finds Calendar Bot 1.0'
-            ]
-        ]);
+        // Log the fetch attempt
+        error_log("[EventScraper] Attempting to fetch URL: $url");
         
-        return @file_get_contents($url, false, $context);
+        // Use cURL for better error handling and debugging
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        
+        $content = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        
+        curl_close($ch);
+        
+        if ($error) {
+            error_log("[EventScraper] cURL error for URL $url: $error");
+            return false;
+        }
+        
+        if ($httpCode !== 200) {
+            error_log("[EventScraper] HTTP $httpCode for URL $url (redirected to: $finalUrl)");
+            if ($httpCode >= 300 && $httpCode < 400) {
+                // For redirects, log but still return false as content is likely empty
+                return false;
+            }
+        }
+        
+        error_log("[EventScraper] Successfully fetched " . strlen($content) . " bytes from $url");
+        return $content;
     }
     
     /**
@@ -538,5 +638,55 @@ class EventScraper
         }
         
         return $value;
+    }
+    
+    /**
+     * Convert CSS selector to XPath expression
+     */
+    private function cssToXPath($cssSelector)
+    {
+        // Handle multiple selectors separated by commas
+        if (strpos($cssSelector, ',') !== false) {
+            $selectors = array_map('trim', explode(',', $cssSelector));
+            $xpathSelectors = array_map([$this, 'cssToXPath'], $selectors);
+            return implode(' | ', $xpathSelectors);
+        }
+        
+        $cssSelector = trim($cssSelector);
+        
+        // Simple conversions for basic selectors
+        if (preg_match('/^\.([a-zA-Z0-9_-]+)$/', $cssSelector, $matches)) {
+            // Simple class selector like .gallery-pic
+            return "//*[contains(concat(' ', normalize-space(@class), ' '), ' {$matches[1]} ')]";
+        }
+        
+        if (preg_match('/^#([a-zA-Z0-9_-]+)$/', $cssSelector, $matches)) {
+            // Simple ID selector like #main-content
+            return "//*[@id='{$matches[1]}']";
+        }
+        
+        if (preg_match('/^([a-zA-Z][a-zA-Z0-9]*)$/', $cssSelector, $matches)) {
+            // Simple tag selector like div, img, h1
+            return "//" . strtolower($matches[1]);
+        }
+        
+        // For more complex selectors, fall back to a basic conversion
+        $xpath = $cssSelector;
+        
+        // Handle class selectors (.class-name)
+        $xpath = preg_replace('/\.([a-zA-Z0-9_-]+)/', "*[contains(@class, '$1')]", $xpath);
+        
+        // Handle ID selectors (#id-name)
+        $xpath = preg_replace('/#([a-zA-Z0-9_-]+)/', "*[@id='$1']", $xpath);
+        
+        // Handle tag names
+        $xpath = preg_replace('/^([a-zA-Z][a-zA-Z0-9]*)/i', strtolower('$1'), $xpath);
+        
+        // If it doesn't start with //, add it
+        if (strpos($xpath, '//') !== 0) {
+            $xpath = '//' . $xpath;
+        }
+        
+        return $xpath;
     }
 }

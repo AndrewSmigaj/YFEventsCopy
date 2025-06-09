@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yakima Events Calendar</title>
     <link rel="stylesheet" href="/css/calendar.css">
+    <link rel="stylesheet" href="/css/daily-view.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($googleMapsApiKey) ?>&libraries=places" async defer></script>
 </head>
@@ -36,11 +37,14 @@
             <div class="nav-content">
                 <!-- View Toggle -->
                 <div class="view-toggle">
-                    <button data-view="month" class="view-btn active">
-                        <i class="fas fa-calendar"></i> Month
+                    <button data-view="day" class="view-btn active">
+                        <i class="fas fa-calendar-day"></i> Today
                     </button>
                     <button data-view="week" class="view-btn">
                         <i class="fas fa-calendar-week"></i> Week
+                    </button>
+                    <button data-view="month" class="view-btn">
+                        <i class="fas fa-calendar"></i> Month
                     </button>
                     <button data-view="list" class="view-btn">
                         <i class="fas fa-list"></i> List
@@ -87,7 +91,43 @@
             </div>
 
             <!-- Calendar Views -->
-            <div id="month-view" class="calendar-view active">
+            <div id="day-view" class="calendar-view active">
+                <div class="day-container">
+                    <!-- Date Slider -->
+                    <div class="date-slider-container">
+                        <input type="date" id="date-picker" class="date-picker" value="">
+                        <div class="date-slider-nav">
+                            <button id="prev-day" class="date-nav-btn">
+                                <i class="fas fa-chevron-left"></i> Previous Day
+                            </button>
+                            <button id="next-day" class="date-nav-btn">
+                                Next Day <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Daily Events Display -->
+                    <div class="daily-events-section">
+                        <div class="daily-events-header">
+                            <h3 id="daily-events-title">Today's Events</h3>
+                            <span id="daily-events-count" class="events-count">0 events</span>
+                        </div>
+                        <div id="daily-events-list" class="daily-events-list">
+                            <!-- Daily events will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Daily Map -->
+                    <div class="daily-map-section">
+                        <h4>Event Locations</h4>
+                        <div id="daily-map" class="daily-map">
+                            <!-- Map will be initialized by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="month-view" class="calendar-view">
                 <div class="month-grid">
                     <div class="month-header">
                         <div class="day-header">Sun</div>

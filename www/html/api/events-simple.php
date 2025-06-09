@@ -10,23 +10,27 @@ try {
     $startDate = $_GET['start_date'] ?? $_GET['start'] ?? date('Y-m-01'); // Default to start of current month
     $endDate = $_GET['end_date'] ?? $_GET['end'] ?? date('Y-m-t'); // Default to end of current month
     
-    // Simple query to get approved events
+    // Simple query to get approved events with source information
     $sql = "SELECT 
-                id,
-                title,
-                description,
-                start_datetime,
-                end_datetime,
-                location,
-                address,
-                latitude,
-                longitude,
-                status
-            FROM events 
-            WHERE status = 'approved' 
-            AND start_datetime >= :start_date 
-            AND start_datetime <= :end_date
-            ORDER BY start_datetime ASC";
+                e.id,
+                e.title,
+                e.description,
+                e.start_datetime,
+                e.end_datetime,
+                e.location,
+                e.address,
+                e.latitude,
+                e.longitude,
+                e.status,
+                e.external_url,
+                cs.name as source_name,
+                cs.url as source_url
+            FROM events e
+            LEFT JOIN calendar_sources cs ON e.source_id = cs.id
+            WHERE e.status = 'approved' 
+            AND e.start_datetime >= :start_date 
+            AND e.start_datetime <= :end_date
+            ORDER BY e.start_datetime ASC";
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute([

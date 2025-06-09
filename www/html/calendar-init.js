@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
         apiEndpoint: '/api/events-simple.php',
         shopsEndpoint: '/api/shops/',
         currentDate: new Date(),
-        defaultView: 'month'
+        defaultView: 'day'
     });
     
     window.calendar.init();

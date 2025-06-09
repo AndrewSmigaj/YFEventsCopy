@@ -9,7 +9,7 @@ class YakimaCalendar {
             apiEndpoint: '/api/events',
             shopsEndpoint: '/api/shops',
             currentDate: new Date(),
-            defaultView: 'month',
+            defaultView: 'day',
             userLocation: null,
             categories: [],
             mapOptions: {
@@ -24,8 +24,11 @@ class YakimaCalendar {
         this.events = [];
         this.shops = [];
         this.map = null;
+        this.dailyMap = null;
         this.markers = [];
+        this.dailyMarkers = [];
         this.infoWindow = null;
+        this.dailyInfoWindow = null;
         this.markerClusterer = null;
         
         // Bind methods
@@ -111,6 +114,27 @@ class YakimaCalendar {
             });
         }
         
+        // Daily view controls
+        document.getElementById('date-picker')?.addEventListener('change', (e) => {
+            this.currentDate = new Date(e.target.value);
+            this.loadEvents();
+            this.renderCurrentView();
+        });
+        
+        document.getElementById('prev-day')?.addEventListener('click', () => {
+            this.currentDate.setDate(this.currentDate.getDate() - 1);
+            this.updateDatePicker();
+            this.loadEvents();
+            this.renderCurrentView();
+        });
+        
+        document.getElementById('next-day')?.addEventListener('click', () => {
+            this.currentDate.setDate(this.currentDate.getDate() + 1);
+            this.updateDatePicker();
+            this.loadEvents();
+            this.renderCurrentView();
+        });
+
         // Dismiss error/success messages
         document.getElementById('dismiss-error')?.addEventListener('click', () => {
             this.hideMessage('error');
@@ -153,6 +177,16 @@ class YakimaCalendar {
             this.initializeMap();
         }
         
+        // Initialize daily map if switching to day view
+        if (view === 'day' && !this.dailyMap) {
+            this.initializeDailyMap();
+        }
+        
+        // Update date picker for daily view
+        if (view === 'day') {
+            this.updateDatePicker();
+        }
+        
         this.renderCurrentView();
     }
     
@@ -163,11 +197,14 @@ class YakimaCalendar {
         const currentDate = new Date(this.currentDate);
         
         switch (this.currentView) {
-            case 'month':
-                currentDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
+            case 'day':
+                currentDate.setDate(currentDate.getDate() + (direction === 'next' ? 1 : -1));
                 break;
             case 'week':
                 currentDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
+                break;
+            case 'month':
+                currentDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
                 break;
             case 'list':
                 currentDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
@@ -188,9 +225,11 @@ class YakimaCalendar {
         let periodText = '';
         
         switch (this.currentView) {
-            case 'month':
+            case 'day':
                 periodText = this.currentDate.toLocaleDateString('en-US', { 
+                    weekday: 'long',
                     month: 'long', 
+                    day: 'numeric',
                     year: 'numeric' 
                 });
                 break;
@@ -923,7 +962,7 @@ class YakimaCalendar {
             
             ${eventData.description ? `
                 <div class="event-detail-description">
-                    ${eventData.description}
+                    ${eventData.description.replace(/\n/g, '<br>')}
                 </div>
             ` : ''}
             
@@ -1160,6 +1199,267 @@ class YakimaCalendar {
     showDayEvents(date, events) {
         // Could implement a day-specific modal or switch to list view filtered by day
         console.log('Show day events:', date, events);
+    }
+    
+    /**
+     * Update date picker value
+     */
+    updateDatePicker() {
+        const datePicker = document.getElementById('date-picker');
+        if (datePicker) {
+            datePicker.value = this.currentDate.toISOString().split('T')[0];
+        }
+    }
+    
+    /**
+     * Initialize daily map
+     */
+    initializeDailyMap() {
+        const mapElement = document.getElementById('daily-map');
+        if (!mapElement || !window.google) return;
+        
+        this.dailyMap = new google.maps.Map(mapElement, {
+            center: this.options.mapOptions.center,
+            zoom: this.options.mapOptions.zoom,
+            styles: [
+                {
+                    featureType: 'poi',
+                    elementType: 'labels',
+                    stylers: [{ visibility: 'off' }]
+                }
+            ]
+        });
+        
+        this.dailyInfoWindow = new google.maps.InfoWindow();
+    }
+    
+    /**
+     * Render current view
+     */
+    renderCurrentView() {
+        switch (this.currentView) {
+            case 'day':
+                this.renderDayView();
+                break;
+            case 'week':
+                this.renderWeekView();
+                break;
+            case 'month':
+                this.renderMonthView();
+                break;
+            case 'list':
+                this.renderListView();
+                break;
+            case 'map':
+                this.renderMapView();
+                break;
+        }
+    }
+    
+    /**
+     * Render daily view
+     */
+    renderDayView() {
+        // Get today's events
+        const today = this.currentDate.toISOString().split('T')[0];
+        const todayEvents = this.events.filter(event => {
+            const eventDate = new Date(event.start_datetime).toISOString().split('T')[0];
+            return eventDate === today;
+        });
+        
+        // Update title and count
+        const titleEl = document.getElementById('daily-events-title');
+        const countEl = document.getElementById('daily-events-count');
+        
+        if (titleEl) {
+            const isToday = today === new Date().toISOString().split('T')[0];
+            titleEl.textContent = isToday ? "Today's Events" : `Events for ${this.currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+        }
+        
+        if (countEl) {
+            countEl.textContent = `${todayEvents.length} event${todayEvents.length !== 1 ? 's' : ''}`;
+        }
+        
+        // Render events list
+        this.renderDailyEventsList(todayEvents);
+        
+        // Update daily map
+        this.updateDailyMap(todayEvents);
+    }
+    
+    /**
+     * Render daily events list
+     */
+    renderDailyEventsList(events) {
+        const listEl = document.getElementById('daily-events-list');
+        if (!listEl) return;
+        
+        if (events.length === 0) {
+            listEl.innerHTML = `
+                <div class="no-daily-events">
+                    <i class="fas fa-calendar-times"></i>
+                    <h4>No Events Today</h4>
+                    <p>Check out other days or explore our local shops and venues for upcoming events.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        listEl.innerHTML = events.map(event => {
+            const startTime = new Date(event.start_datetime);
+            const endTime = event.end_datetime ? new Date(event.end_datetime) : null;
+            const categories = event.categories ? event.categories.split(',').filter(cat => cat.trim()) : [];
+            
+            return `
+                <div class="daily-event-item ${event.featured ? 'daily-event-featured' : ''}" data-event-id="${event.id}">
+                    <div class="daily-event-time">
+                        <i class="fas fa-clock"></i>
+                        ${startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        ${endTime ? ` - ${endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : ''}
+                    </div>
+                    <div class="daily-event-title">${event.title}</div>
+                    ${event.location ? `
+                        <div class="daily-event-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${event.location}
+                        </div>
+                    ` : ''}
+                    ${categories.length > 0 ? `
+                        <div class="daily-event-categories">
+                            ${categories.map(cat => `<span class="daily-event-category">${cat.trim()}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+        
+        // Add click listeners
+        listEl.querySelectorAll('.daily-event-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const eventId = item.dataset.eventId;
+                const event = events.find(e => e.id == eventId);
+                if (event) {
+                    this.showEventDetails(event);
+                }
+            });
+        });
+    }
+    
+    /**
+     * Update daily map with events
+     */
+    updateDailyMap(events) {
+        if (!this.dailyMap) return;
+        
+        // Clear existing markers
+        this.dailyMarkers.forEach(marker => marker.setMap(null));
+        this.dailyMarkers = [];
+        
+        // Add markers for events with coordinates
+        const bounds = new google.maps.LatLngBounds();
+        let hasMarkers = false;
+        
+        events.forEach(event => {
+            if (event.latitude && event.longitude) {
+                const position = { lat: parseFloat(event.latitude), lng: parseFloat(event.longitude) };
+                
+                const marker = new google.maps.Marker({
+                    position: position,
+                    map: this.dailyMap,
+                    title: event.title,
+                    icon: {
+                        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="16" cy="16" r="12" fill="#e74c3c" stroke="white" stroke-width="3"/>
+                                <text x="16" y="20" font-family="Arial" font-size="14" font-weight="bold" 
+                                      text-anchor="middle" fill="white">📅</text>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(32, 32),
+                        anchor: new google.maps.Point(16, 16)
+                    }
+                });
+                
+                // Create info window content
+                const startTime = new Date(event.start_datetime);
+                const endTime = event.end_datetime ? new Date(event.end_datetime) : null;
+                
+                const infoContent = `
+                    <div class="daily-map-info-window">
+                        <div class="daily-map-info-content">
+                            <div class="daily-map-info-title">${event.title}</div>
+                            <div class="daily-map-info-time">
+                                <i class="fas fa-clock"></i>
+                                ${startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                                ${endTime ? ` - ${endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : ''}
+                            </div>
+                            ${event.location ? `
+                                <div class="daily-map-info-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    ${event.location}
+                                </div>
+                            ` : ''}
+                            <div class="daily-map-info-actions">
+                                <button class="daily-map-info-btn primary" onclick="calendar.showEventDetails(${event.id})">
+                                    View Details
+                                </button>
+                                ${event.latitude && event.longitude ? `
+                                    <button class="daily-map-info-btn secondary" onclick="calendar.getDirections(${event.latitude}, ${event.longitude})">
+                                        Directions
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                marker.addListener('click', () => {
+                    this.dailyInfoWindow.setContent(infoContent);
+                    this.dailyInfoWindow.open(this.dailyMap, marker);
+                });
+                
+                this.dailyMarkers.push(marker);
+                bounds.extend(position);
+                hasMarkers = true;
+            }
+        });
+        
+        // Fit map to markers or center on default location
+        if (hasMarkers) {
+            this.dailyMap.fitBounds(bounds);
+            // Don't zoom too close if there's only one marker
+            google.maps.event.addListenerOnce(this.dailyMap, 'bounds_changed', () => {
+                if (this.dailyMap.getZoom() > 15) {
+                    this.dailyMap.setZoom(15);
+                }
+            });
+        } else {
+            this.dailyMap.setCenter(this.options.mapOptions.center);
+            this.dailyMap.setZoom(this.options.mapOptions.zoom);
+        }
+    }
+    
+    /**
+     * Placeholder render methods for other views
+     */
+    renderWeekView() {
+        // Existing week view implementation
+        console.log('Rendering week view');
+    }
+    
+    renderMonthView() {
+        // Existing month view implementation
+        console.log('Rendering month view');
+    }
+    
+    renderListView() {
+        // Existing list view implementation
+        console.log('Rendering list view');
+    }
+    
+    renderMapView() {
+        // Existing map view implementation
+        console.log('Rendering map view');
     }
 }
 

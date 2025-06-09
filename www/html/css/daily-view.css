@@ -1,0 +1,368 @@
+/* Daily View Styles */
+
+/* Day View Container */
+.day-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas: 
+        "date-slider date-slider"
+        "events map";
+    gap: 20px;
+    min-height: 600px;
+}
+
+/* Date Slider Section */
+.date-slider-container {
+    grid-area: date-slider;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.date-picker {
+    padding: 12px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    background: white;
+    color: var(--primary-color);
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 200px;
+}
+
+.date-picker:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.date-slider-nav {
+    display: flex;
+    gap: 10px;
+}
+
+.date-nav-btn {
+    padding: 12px 20px;
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-nav-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.date-nav-btn:active {
+    transform: translateY(0);
+}
+
+/* Daily Events Section */
+.daily-events-section {
+    grid-area: events;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.daily-events-header {
+    background: var(--light-gray);
+    padding: 20px;
+    border-bottom: 1px solid var(--medium-gray);
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.daily-events-header h3 {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin: 0;
+    flex: 1;
+}
+
+.events-count {
+    background: var(--secondary-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.daily-events-list {
+    padding: 0;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.daily-event-item {
+    padding: 20px;
+    border-bottom: 1px solid var(--light-gray);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.daily-event-item:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.daily-event-item:last-child {
+    border-bottom: none;
+}
+
+.daily-event-time {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.daily-event-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.daily-event-location {
+    color: var(--dark-gray);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.daily-event-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.daily-event-category {
+    background: var(--light-gray);
+    color: var(--primary-color);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.daily-event-featured {
+    border-left: 4px solid var(--warning-color);
+}
+
+.daily-event-featured::before {
+    content: "⭐";
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.2rem;
+}
+
+/* No Events State */
+.no-daily-events {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--dark-gray);
+}
+
+.no-daily-events i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: var(--medium-gray);
+}
+
+.no-daily-events h4 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: var(--dark-gray);
+}
+
+.no-daily-events p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Daily Map Section */
+.daily-map-section {
+    grid-area: map;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.daily-map-section h4 {
+    background: var(--light-gray);
+    padding: 20px;
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.daily-map {
+    flex: 1;
+    min-height: 400px;
+    position: relative;
+}
+
+/* Map Marker Info Window Styles */
+.daily-map-info-window {
+    max-width: 300px;
+    padding: 0;
+}
+
+.daily-map-info-content {
+    padding: 15px;
+}
+
+.daily-map-info-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.daily-map-info-time {
+    color: var(--secondary-color);
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.daily-map-info-location {
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.daily-map-info-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.daily-map-info-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.daily-map-info-btn.primary {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.daily-map-info-btn.primary:hover {
+    background: #2980b9;
+}
+
+.daily-map-info-btn.secondary {
+    background: var(--light-gray);
+    color: var(--primary-color);
+}
+
+.daily-map-info-btn.secondary:hover {
+    background: var(--medium-gray);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .day-container {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "date-slider"
+            "events"
+            "map";
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .date-slider-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .date-slider-nav {
+        justify-content: space-between;
+    }
+    
+    .date-nav-btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .daily-map {
+        min-height: 300px;
+    }
+    
+    .daily-events-list {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .date-nav-btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .date-nav-btn span {
+        display: none;
+    }
+    
+    .daily-event-item {
+        padding: 15px;
+    }
+    
+    .daily-events-header {
+        padding: 15px;
+    }
+    
+    .daily-map-section h4 {
+        padding: 15px;
+    }
+}
