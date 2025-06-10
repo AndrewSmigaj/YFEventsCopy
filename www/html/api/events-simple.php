@@ -34,8 +34,8 @@ try {
             AND e.start_datetime >= :start_date 
             AND e.start_datetime <= :end_date";
     
-    // Filter out past events for non-admin requests
-    if (!$isAdmin) {
+    // Only filter past events if explicitly requested
+    if (isset($_GET['future_only']) && $_GET['future_only'] === 'true') {
         $sql .= " AND e.start_datetime >= :current_date";
     }
     
@@ -47,8 +47,8 @@ try {
         'end_date' => $endDate . ' 23:59:59'
     ];
     
-    // Add current date filter for non-admin requests
-    if (!$isAdmin) {
+    // Add current date filter if future_only is requested
+    if (isset($_GET['future_only']) && $_GET['future_only'] === 'true') {
         $params['current_date'] = date('Y-m-d H:i:s');
     }
     
