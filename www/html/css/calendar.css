@@ -492,6 +492,106 @@ body {
     color: var(--primary-color);
 }
 
+.map-controls h4 {
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* Map Date Navigation */
+.map-date-nav {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.map-date-nav label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.map-date-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.map-nav-btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.map-nav-btn:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.map-date-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    height: 40px;
+}
+
+.map-date-input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.map-today-btn {
+    background: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    width: 100%;
+}
+
+.map-today-btn:hover {
+    background: #229954;
+    transform: translateY(-1px);
+}
+
+.selected-date-display {
+    background: var(--light-gray);
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.selected-date-display span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.map-options-divider {
+    border-top: 2px solid var(--light-gray);
+    margin: 1.5rem 0;
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -782,6 +882,44 @@ body {
     .map-controls h3 {
         grid-column: 1 / -1;
         margin-bottom: 0.5rem;
+    }
+    
+    .map-controls h4 {
+        grid-column: 1 / -1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .map-date-nav {
+        grid-column: 1 / -1;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    
+    .map-date-controls {
+        gap: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .map-nav-btn {
+        min-width: 44px;
+        height: 44px;
+        padding: 0.5rem;
+    }
+    
+    .map-date-input {
+        height: 44px;
+        font-size: 1rem;
+    }
+    
+    .map-today-btn {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .map-options-divider {
+        margin: 1rem 0;
     }
     
     .checkbox-label {

@@ -45,9 +45,21 @@ class YakimaCalendar {
      */
     init() {
         this.setupEventListeners();
+        this.initializeMapDateControls();
         this.updatePeriodDisplay();
         this.loadEvents();
         this.showView(this.currentView);
+    }
+    
+    /**
+     * Initialize map date controls
+     */
+    initializeMapDateControls() {
+        const mapDatePicker = document.getElementById('map-date-picker');
+        if (mapDatePicker) {
+            mapDatePicker.value = this.currentDate.toISOString().split('T')[0];
+        }
+        this.updateMapDateDisplay();
     }
     
     /**
@@ -111,6 +123,43 @@ class YakimaCalendar {
             document.getElementById('radius-slider').addEventListener('input', (e) => {
                 document.getElementById('radius-value').textContent = e.target.value;
                 this.updateNearbyEvents();
+            });
+        }
+        
+        // Map date navigation controls
+        if (document.getElementById('map-date-picker')) {
+            document.getElementById('map-date-picker').addEventListener('change', (e) => {
+                this.currentDate = new Date(e.target.value);
+                this.updateMapDateDisplay();
+                this.loadEvents();
+                this.renderCurrentView();
+            });
+        }
+        
+        if (document.getElementById('map-prev-day')) {
+            document.getElementById('map-prev-day').addEventListener('click', () => {
+                this.currentDate.setDate(this.currentDate.getDate() - 1);
+                this.updateMapDateControls();
+                this.loadEvents();
+                this.renderCurrentView();
+            });
+        }
+        
+        if (document.getElementById('map-next-day')) {
+            document.getElementById('map-next-day').addEventListener('click', () => {
+                this.currentDate.setDate(this.currentDate.getDate() + 1);
+                this.updateMapDateControls();
+                this.loadEvents();
+                this.renderCurrentView();
+            });
+        }
+        
+        if (document.getElementById('map-today-btn')) {
+            document.getElementById('map-today-btn').addEventListener('click', () => {
+                this.currentDate = new Date();
+                this.updateMapDateControls();
+                this.loadEvents();
+                this.renderCurrentView();
             });
         }
         
@@ -257,6 +306,40 @@ class YakimaCalendar {
         }
         
         periodEl.textContent = periodText;
+    }
+    
+    /**
+     * Update map date controls
+     */
+    updateMapDateControls() {
+        const mapDatePicker = document.getElementById('map-date-picker');
+        if (mapDatePicker) {
+            mapDatePicker.value = this.currentDate.toISOString().split('T')[0];
+        }
+        this.updateMapDateDisplay();
+        this.updatePeriodDisplay();
+    }
+    
+    /**
+     * Update map date display
+     */
+    updateMapDateDisplay() {
+        const mapCurrentDate = document.getElementById('map-current-date');
+        if (mapCurrentDate) {
+            const today = new Date();
+            const isToday = this.isSameDate(this.currentDate, today);
+            
+            if (isToday) {
+                mapCurrentDate.textContent = 'Today';
+            } else {
+                mapCurrentDate.textContent = this.currentDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: this.currentDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
+                });
+            }
+        }
     }
     
     /**
@@ -629,11 +712,19 @@ class YakimaCalendar {
         const showShops = document.getElementById('show-shops')?.checked === true;
         const clusterMarkers = document.getElementById('cluster-markers')?.checked !== false;
         
-        // Add event markers
+        // Add event markers - filter by current date in map view
         if (showEvents) {
             this.events.forEach(event => {
                 if (event.latitude && event.longitude) {
-                    this.addEventMarker(event);
+                    // In map view, only show events for the current date
+                    if (this.currentView === 'map') {
+                        const eventDate = new Date(event.start_datetime);
+                        if (this.isSameDate(eventDate, this.currentDate)) {
+                            this.addEventMarker(event);
+                        }
+                    } else {
+                        this.addEventMarker(event);
+                    }
                 }
             });
         }
@@ -774,7 +865,7 @@ class YakimaCalendar {
         
         nearbyEventsList.innerHTML = '';
         
-        // Filter events within map bounds
+        // Filter events within map bounds and by current date
         const visibleEvents = this.events.filter(event => {
             if (!event.latitude || !event.longitude) return false;
             
@@ -783,11 +874,22 @@ class YakimaCalendar {
                 parseFloat(event.longitude)
             );
             
-            return bounds.contains(position);
+            if (!bounds.contains(position)) return false;
+            
+            // In map view, only show events for the current date
+            if (this.currentView === 'map') {
+                const eventDate = new Date(event.start_datetime);
+                return this.isSameDate(eventDate, this.currentDate);
+            }
+            
+            return true;
         });
         
         if (visibleEvents.length === 0) {
-            nearbyEventsList.innerHTML = '<p>No events in current map area.</p>';
+            const message = this.currentView === 'map' 
+                ? 'No events for selected date in current map area.'
+                : 'No events in current map area.';
+            nearbyEventsList.innerHTML = `<p>${message}</p>`;
             return;
         }
         

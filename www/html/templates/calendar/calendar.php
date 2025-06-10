@@ -160,7 +160,29 @@
                 <div class="map-container">
                     <div class="map-sidebar">
                         <div class="map-controls">
-                            <h3>Map Options</h3>
+                            <h3>Date & Options</h3>
+                            
+                            <!-- Day Navigation for Map View -->
+                            <div class="map-date-nav">
+                                <label for="map-date-picker">Select Date:</label>
+                                <div class="map-date-controls">
+                                    <button id="map-prev-day" class="map-nav-btn" title="Previous Day">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <input type="date" id="map-date-picker" class="map-date-input">
+                                    <button id="map-next-day" class="map-nav-btn" title="Next Day">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <button id="map-today-btn" class="map-today-btn">Today</button>
+                                <div class="selected-date-display">
+                                    <span id="map-current-date">Today</span>
+                                </div>
+                            </div>
+                            
+                            <div class="map-options-divider"></div>
+                            
+                            <h4>Map Options</h4>
                             <label class="checkbox-label">
                                 <input type="checkbox" id="show-events" checked>
                                 <span>Show Events</span>
