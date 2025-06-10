@@ -99,7 +99,97 @@ if (isset($_SESSION['buyer_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($sale['title']) ?> - YFClaim</title>
+    <title><?= htmlspecialchars($sale['title']) ?> - Estate Sale in <?= htmlspecialchars($sale['city']) ?>, <?= htmlspecialchars($sale['state']) ?> | YFClaim</title>
+    
+    <?php 
+    $currentUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $saleImage = 'https://' . $_SERVER['HTTP_HOST'] . '/modules/yfclaim/www/assets/estate-sale-default.jpg';
+    $saleDescription = $sale['description'] ? strip_tags($sale['description']) : 'Estate sale featuring ' . count($items) . ' items including furniture, antiques, and collectibles.';
+    $saleLocation = $sale['address'] . ', ' . $sale['city'] . ', ' . $sale['state'];
+    $claimDates = date('M j, Y', strtotime($sale['claim_start'])) . ' - ' . date('M j, Y', strtotime($sale['claim_end']));
+    ?>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="<?= htmlspecialchars($saleDescription) ?> | Claim period: <?= $claimDates ?> | <?= count($items) ?> items available | <?= htmlspecialchars($sale['company_name']) ?>">
+    <meta name="keywords" content="estate sale, <?= htmlspecialchars($sale['city']) ?> estate sale, <?= htmlspecialchars($sale['state']) ?> estate sales, antiques, furniture, collectibles, auction, <?= implode(', ', array_unique($categories)) ?>">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="<?= htmlspecialchars($sale['company_name']) ?>">
+    <meta name="geo.region" content="US-<?= htmlspecialchars($sale['state']) ?>">
+    <meta name="geo.placename" content="<?= htmlspecialchars($sale['city']) ?>, <?= htmlspecialchars($sale['state']) ?>">
+    
+    <!-- Open Graph Meta Tags for Facebook -->
+    <meta property="og:title" content="<?= htmlspecialchars($sale['title']) ?> - Estate Sale">
+    <meta property="og:description" content="<?= htmlspecialchars($saleDescription) ?> Claim period: <?= $claimDates ?>">
+    <meta property="og:image" content="<?= $saleImage ?>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="<?= $currentUrl ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="YFClaim Estate Sales">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Event-specific Open Graph -->
+    <meta property="event:start_time" content="<?= date('c', strtotime($sale['claim_start'])) ?>">
+    <meta property="event:end_time" content="<?= date('c', strtotime($sale['claim_end'])) ?>">
+    <meta property="place:location:latitude" content="<?= $sale['latitude'] ?>">
+    <meta property="place:location:longitude" content="<?= $sale['longitude'] ?>">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= htmlspecialchars($sale['title']) ?> - Estate Sale">
+    <meta name="twitter:description" content="<?= htmlspecialchars($saleDescription) ?>">
+    <meta name="twitter:image" content="<?= $saleImage ?>">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org/",
+        "@type": "Event",
+        "name": "<?= htmlspecialchars($sale['title']) ?>",
+        "description": "<?= htmlspecialchars($saleDescription) ?>",
+        "image": "<?= $saleImage ?>",
+        "startDate": "<?= date('c', strtotime($sale['claim_start'])) ?>",
+        "endDate": "<?= date('c', strtotime($sale['claim_end'])) ?>",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+            "@type": "Place",
+            "name": "<?= htmlspecialchars($sale['title']) ?>",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "<?= htmlspecialchars($sale['address']) ?>",
+                "addressLocality": "<?= htmlspecialchars($sale['city']) ?>",
+                "addressRegion": "<?= htmlspecialchars($sale['state']) ?>",
+                "postalCode": "<?= htmlspecialchars($sale['zip']) ?>"
+            },
+            "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "<?= $sale['latitude'] ?>",
+                "longitude": "<?= $sale['longitude'] ?>"
+            }
+        },
+        "organizer": {
+            "@type": "Organization",
+            "name": "<?= htmlspecialchars($sale['company_name']) ?>",
+            "url": "<?= htmlspecialchars($sale['website'] ?: 'https://' . $_SERVER['HTTP_HOST']) ?>"
+        },
+        "offers": [
+            <?php foreach (array_slice($items, 0, 5) as $index => $item): ?>
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Product",
+                    "name": "<?= htmlspecialchars($item['title']) ?>",
+                    "category": "<?= htmlspecialchars($item['category']) ?>"
+                },
+                "price": "<?= $item['starting_price'] ?>",
+                "priceCurrency": "USD",
+                "availability": "<?= $item['status'] === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' ?>"
+            }<?= $index < min(4, count($items) - 1) ? ',' : '' ?>
+            <?php endforeach; ?>
+        ]
+    }
+    </script>
     <style>
         * {
             margin: 0;

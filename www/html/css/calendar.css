@@ -753,15 +753,66 @@ body {
     .map-container {
         flex-direction: column;
         height: auto;
+        padding: 0;
     }
     
     .map-sidebar {
         width: 100%;
-        max-height: 200px;
+        max-height: none;
+        height: auto;
+        padding: 1rem;
+        order: 2;
+        border-top: 1px solid var(--light-gray);
     }
     
     .map-display {
-        height: 400px;
+        height: 60vh;
+        min-height: 400px;
+        order: 1;
+        width: 100%;
+    }
+    
+    .map-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .map-controls h3 {
+        grid-column: 1 / -1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .checkbox-label {
+        padding: 0.75rem;
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .checkbox-label input[type="checkbox"] {
+        transform: scale(1.2);
+    }
+    
+    .distance-filter {
+        grid-column: 1 / -1;
+        margin-top: 1rem;
+    }
+    
+    .slider {
+        width: 100%;
+        height: 8px;
+        margin-top: 0.5rem;
+    }
+    
+    .nearby-events {
+        max-height: 200px;
+        overflow-y: auto;
     }
     
     .modal-content {
@@ -783,8 +834,63 @@ body {
 }
 
 @media (max-width: 480px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
     .header-content h1 {
         font-size: 1.5rem;
+    }
+    
+    .header-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .nav-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .view-toggle {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+    }
+    
+    .view-btn {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+        min-height: 44px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .view-btn i {
+        margin-right: 0;
+        font-size: 1.1rem;
+    }
+    
+    .date-nav {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .filters {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-select, .search-input {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
     }
     
     .calendar-main {

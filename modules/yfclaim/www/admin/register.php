@@ -12,7 +12,7 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Login - YFClaim</title>
+    <title>Seller Registration - YFClaim</title>
     <style>
         * {
             margin: 0;
@@ -30,13 +30,13 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             padding: 20px;
         }
         
-        .login-container {
+        .register-container {
             background: white;
             padding: 2.5rem;
             border-radius: 16px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
         }
         
         .logo {
@@ -80,6 +80,15 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             margin-bottom: 1.5rem;
         }
         
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
         label {
             display: block;
             margin-bottom: 0.5rem;
@@ -87,7 +96,7 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             font-weight: 600;
         }
         
-        input {
+        input, textarea {
             width: 100%;
             padding: 1rem;
             border: 2px solid #e1e8ed;
@@ -96,7 +105,12 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             transition: all 0.3s;
         }
         
-        input:focus {
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+        
+        input:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -113,6 +127,7 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            margin-top: 1rem;
         }
         
         button:hover {
@@ -190,7 +205,7 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             100% { transform: rotate(360deg); }
         }
         
-        .register-link {
+        .login-link {
             background: #f8f9ff;
             padding: 1rem;
             border-radius: 8px;
@@ -198,79 +213,131 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
             margin-top: 1rem;
         }
         
-        .register-link a {
+        .login-link a {
             color: #667eea;
             text-decoration: none;
             font-weight: 600;
         }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .register-container {
+                padding: 2rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="register-container">
         <div class="logo">
             <h1>YFClaim</h1>
-            <p>Seller Portal</p>
+            <p>Seller Registration</p>
         </div>
         
         <div class="welcome-text">
-            <h3>Welcome back!</h3>
-            <p>Sign in to manage your claim sales, upload items, and review offers from buyers.</p>
+            <h3>Join YFClaim</h3>
+            <p>Create your seller account to start managing estate sales, uploading items, and connecting with buyers.</p>
         </div>
         
         <div id="alerts"></div>
         
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Email or Username</label>
-                <input type="text" id="username" name="username" required autofocus>
+        <form id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contact_name">Contact Name</label>
+                    <input type="text" id="contact_name" name="contact_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" id="company_name" name="company_name" required>
+                </div>
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
             </div>
             
-            <button type="submit" id="loginBtn">Sign In</button>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="website">Website (Optional)</label>
+                    <input type="url" id="website" name="website">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Business Address</label>
+                <textarea id="address" name="address" placeholder="Street address, city, state, zip"></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            
+            <button type="submit" id="registerBtn">Create Account</button>
             
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Signing you in...</p>
+                <p>Creating your account...</p>
             </div>
         </form>
         
-        <div class="register-link">
-            <p>New seller? <a href="register.php">Register for an account</a></p>
+        <div class="login-link">
+            <p>Already have an account? <a href="login.php">Sign in here</a></p>
         </div>
         
         <div class="links">
             <a href="/">← Back to Calendar</a>
-            <a href="#" onclick="alert('Password reset feature coming soon!')">Forgot Password?</a>
+            <a href="/modules/yfclaim/www/">Browse Sales</a>
         </div>
     </div>
     
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
+            const formData = new FormData(e.target);
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirm_password');
+            
+            const registerBtn = document.getElementById('registerBtn');
             const loading = document.getElementById('loading');
             const alerts = document.getElementById('alerts');
             
             // Clear previous alerts
             alerts.innerHTML = '';
             
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alerts.innerHTML = '<div class="alert alert-error">Passwords do not match</div>';
+                return;
+            }
+            
             // Show loading
-            loginBtn.disabled = true;
+            registerBtn.disabled = true;
             loading.style.display = 'block';
             
             try {
-                const formData = new FormData();
-                formData.append('username', username);
-                formData.append('password', password);
-                
-                const response = await fetch('../api/seller-auth.php', {
+                const response = await fetch('../api/seller-register.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -278,17 +345,17 @@ if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged
                 const data = await response.json();
                 
                 if (data.success) {
-                    alerts.innerHTML = '<div class="alert alert-success">Login successful! Redirecting to dashboard...</div>';
+                    alerts.innerHTML = '<div class="alert alert-success">Registration successful! Redirecting to login...</div>';
                     setTimeout(() => {
-                        window.location.href = '/modules/yfclaim/www/dashboard/';
-                    }, 1500);
+                        window.location.href = 'login.php';
+                    }, 2000);
                 } else {
-                    alerts.innerHTML = `<div class="alert alert-error">${data.error || 'Login failed'}</div>`;
-                    loginBtn.disabled = false;
+                    alerts.innerHTML = `<div class="alert alert-error">${data.error || 'Registration failed'}</div>`;
+                    registerBtn.disabled = false;
                 }
             } catch (error) {
                 alerts.innerHTML = '<div class="alert alert-error">An error occurred. Please try again.</div>';
-                loginBtn.disabled = false;
+                registerBtn.disabled = false;
             } finally {
                 loading.style.display = 'none';
             }

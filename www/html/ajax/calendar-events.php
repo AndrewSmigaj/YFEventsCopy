@@ -137,6 +137,11 @@ function getEvents($eventModel) {
         $filters['status'] = 'approved';
     }
     
+    // Filter out past events for public requests (unless admin parameter is set)
+    if (!isset($_GET['admin']) || $_GET['admin'] !== 'true') {
+        $filters['future_only'] = true;
+    }
+    
     // Pagination
     if (isset($_GET['limit'])) {
         $filters['limit'] = (int)$_GET['limit'];

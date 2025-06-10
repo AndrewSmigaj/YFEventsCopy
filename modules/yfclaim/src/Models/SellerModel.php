@@ -7,8 +7,8 @@ class SellerModel extends BaseModel {
     protected $table = 'yfc_sellers';
     protected $fillable = [
         'company_name', 'contact_name', 'email', 'phone', 
-        'password_hash', 'address', 'city', 'state', 'zip',
-        'latitude', 'longitude', 'status'
+        'password', 'password_hash', 'username', 'website', 'address', 'city', 'state', 'zip',
+        'latitude', 'longitude', 'status', 'email_verified', 'created_at', 'updated_at', 'last_login'
     ];
     
     /**
@@ -16,6 +16,13 @@ class SellerModel extends BaseModel {
      */
     public function findByEmail($email) {
         return $this->findBy('email', $email);
+    }
+    
+    /**
+     * Get seller by username
+     */
+    public function findByUsername($username) {
+        return $this->findBy('username', $username);
     }
     
     /**
@@ -85,8 +92,12 @@ class SellerModel extends BaseModel {
     /**
      * Authenticate seller
      */
-    public function authenticate($email, $password) {
-        $seller = $this->findByEmail($email);
+    public function authenticate($emailOrUsername, $password) {
+        // Try to find by email first, then by username
+        $seller = $this->findByEmail($emailOrUsername);
+        if (!$seller) {
+            $seller = $this->findByUsername($emailOrUsername);
+        }
         
         if (!$seller || $seller['status'] !== 'active') {
             return false;
@@ -150,4 +161,5 @@ class SellerModel extends BaseModel {
     public function deleteSeller($id) {
         return $this->delete($id);
     }
+    
 }

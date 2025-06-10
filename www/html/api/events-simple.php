@@ -10,6 +10,9 @@ try {
     $startDate = $_GET['start_date'] ?? $_GET['start'] ?? date('Y-m-01'); // Default to start of current month
     $endDate = $_GET['end_date'] ?? $_GET['end'] ?? date('Y-m-t'); // Default to end of current month
     
+    // Check if this is an admin request (keep past events for admin)
+    $isAdmin = isset($_GET['admin']) && $_GET['admin'] === 'true';
+    
     // Simple query to get approved events with source information
     $sql = "SELECT 
                 e.id,
@@ -29,14 +32,27 @@ try {
             LEFT JOIN calendar_sources cs ON e.source_id = cs.id
             WHERE e.status = 'approved' 
             AND e.start_datetime >= :start_date 
-            AND e.start_datetime <= :end_date
-            ORDER BY e.start_datetime ASC";
+            AND e.start_datetime <= :end_date";
+    
+    // Filter out past events for non-admin requests
+    if (!$isAdmin) {
+        $sql .= " AND e.start_datetime >= :current_date";
+    }
+    
+    $sql .= " ORDER BY e.start_datetime ASC";
     
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([
+    $params = [
         'start_date' => $startDate . ' 00:00:00',
         'end_date' => $endDate . ' 23:59:59'
-    ]);
+    ];
+    
+    // Add current date filter for non-admin requests
+    if (!$isAdmin) {
+        $params['current_date'] = date('Y-m-d H:i:s');
+    }
+    
+    $stmt->execute($params);
     
     $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     

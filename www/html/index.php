@@ -369,7 +369,7 @@ if ($isConfigured) {
                     <a href="/modules/yfclaim/www/" class="btn btn-primary">
                         <i class="fas fa-shopping-cart"></i> Browse Sales
                     </a>
-                    <a href="/modules/yfclaim/www/dashboard/" class="btn btn-secondary">
+                    <a href="/modules/yfclaim/www/admin/login.php" class="btn btn-secondary">
                         <i class="fas fa-user-tie"></i> Seller Portal
                     </a>
                 </div>

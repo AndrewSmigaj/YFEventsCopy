@@ -22,7 +22,88 @@ $upcomingSales = $saleModel->getUpcoming();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YFClaim - Estate Sale Claiming Platform</title>
+    <title>YFClaim - Estate Sale Claiming Platform | Browse & Claim Estate Sale Items</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Browse and claim items from estate sales across the Yakima Valley. Fair claiming system for antiques, furniture, and collectibles. Current sales: <?= count($currentSales) ?> active, <?= count($upcomingSales) ?> upcoming.">
+    <meta name="keywords" content="estate sales, Yakima Valley estate sales, claim estate sale items, antiques, furniture, collectibles, Washington estate sales, online estate sales">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="YFClaim Estate Sales">
+    <meta name="geo.region" content="US-WA">
+    <meta name="geo.placename" content="Yakima Valley, Washington">
+    
+    <!-- Open Graph Meta Tags for Facebook -->
+    <meta property="og:title" content="YFClaim Estate Sales - Browse & Claim Items">
+    <meta property="og:description" content="Fair claiming system for estate sale items. Browse antiques, furniture, and collectibles from estate sales across the Yakima Valley.">
+    <meta property="og:image" content="https://<?= $_SERVER['HTTP_HOST'] ?>/modules/yfclaim/www/assets/yfclaim-banner.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://<?= $_SERVER['HTTP_HOST'] ?><?= $_SERVER['REQUEST_URI'] ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="YFClaim Estate Sales">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="YFClaim Estate Sales - Browse & Claim Items">
+    <meta name="twitter:description" content="Fair claiming system for estate sale items across the Yakima Valley.">
+    <meta name="twitter:image" content="https://<?= $_SERVER['HTTP_HOST'] ?>/modules/yfclaim/www/assets/yfclaim-banner.jpg">
+    
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org/",
+        "@type": "WebSite",
+        "name": "YFClaim Estate Sales",
+        "description": "Estate sale claiming platform for the Yakima Valley",
+        "url": "https://<?= $_SERVER['HTTP_HOST'] ?>/modules/yfclaim/www/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://<?= $_SERVER['HTTP_HOST'] ?>/modules/yfclaim/www/?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "YFClaim",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://<?= $_SERVER['HTTP_HOST'] ?>/modules/yfclaim/www/assets/logo.png"
+            }
+        }
+    }
+    </script>
+    
+    <?php if (!empty($currentSales)): ?>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org/",
+        "@type": "ItemList",
+        "name": "Current Estate Sales",
+        "description": "Currently active estate sales available for claiming",
+        "numberOfItems": <?= count($currentSales) ?>,
+        "itemListElement": [
+            <?php foreach ($currentSales as $index => $sale): ?>
+            {
+                "@type": "Event",
+                "position": <?= $index + 1 ?>,
+                "name": "<?= htmlspecialchars($sale['title']) ?>",
+                "url": "https://<?= $_SERVER['HTTP_HOST'] ?>/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>",
+                "startDate": "<?= date('c', strtotime($sale['claim_start'])) ?>",
+                "endDate": "<?= date('c', strtotime($sale['claim_end'])) ?>",
+                "location": {
+                    "@type": "Place",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "addressLocality": "<?= htmlspecialchars($sale['city']) ?>",
+                        "addressRegion": "<?= htmlspecialchars($sale['state']) ?>"
+                    }
+                }
+            }<?= $index < count($currentSales) - 1 ? ',' : '' ?>
+            <?php endforeach; ?>
+        ]
+    }
+    </script>
+    <?php endif; ?>
     <style>
         * {
             margin: 0;
@@ -303,7 +384,7 @@ $upcomingSales = $saleModel->getUpcoming();
             <nav class="nav-links">
                 <a href="#current">Current Sales</a>
                 <a href="#upcoming">Upcoming Sales</a>
-                <a href="/modules/yfclaim/www/seller-login.php">Seller Login</a>
+                <a href="/modules/yfclaim/www/admin/login.php">Seller Login</a>
             </nav>
         </div>
     </header>

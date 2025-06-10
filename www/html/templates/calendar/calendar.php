@@ -243,7 +243,7 @@
                 apiEndpoint: '/api/events-simple.php',
                 shopsEndpoint: '/api/shops',
                 currentDate: new Date(),
-                defaultView: 'month',
+                defaultView: 'day',
                 userLocation: null,
                 categories: <?= json_encode($categories ?? []) ?>,
                 mapOptions: {

@@ -110,8 +110,12 @@ class SaleModel extends BaseModel {
         $stmt->execute([$saleId]);
         $stats['claimed_items'] = $stmt->fetchColumn();
         
-        // Unique buyers
-        $stmt = $this->db->prepare("SELECT COUNT(DISTINCT buyer_id) FROM yfc_buyers WHERE sale_id = ?");
+        // Unique buyers (through offers)
+        $stmt = $this->db->prepare("
+            SELECT COUNT(DISTINCT o.buyer_id) FROM yfc_offers o
+            JOIN yfc_items i ON o.item_id = i.id
+            WHERE i.sale_id = ?
+        ");
         $stmt->execute([$saleId]);
         $stats['unique_buyers'] = $stmt->fetchColumn();
         
@@ -160,7 +164,7 @@ class SaleModel extends BaseModel {
     }
     
     /**
-     * Get upcoming sales (preview period)
+     * Get upcoming sales (not yet started)
      */
     public function getUpcoming() {
         $now = date('Y-m-d H:i:s');
@@ -171,12 +175,11 @@ class SaleModel extends BaseModel {
             JOIN yfc_sellers sel ON s.seller_id = sel.id
             WHERE s.status = 'active' 
             AND s.claim_start > ?
-            AND (s.preview_start IS NULL OR s.preview_start <= ?)
             ORDER BY s.claim_start ASC
         ";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([$now, $now]);
+        $stmt->execute([$now]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     

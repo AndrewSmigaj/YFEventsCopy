@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode([
                 'success' => true,
                 'seller' => $result['seller'],
-                'redirect' => '/modules/yfclaim/dashboard/'
+                'redirect' => '/modules/yfclaim/www/dashboard/'
             ]);
         } else {
             echo json_encode($result);
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE' || (isset($_GET['action']) && $_GET[
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);
     } else {
-        header('Location: /modules/yfclaim/admin/login.php');
+        header('Location: /modules/yfclaim/www/admin/login.php');
     }
     exit;
 }

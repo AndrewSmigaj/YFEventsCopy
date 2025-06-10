@@ -337,6 +337,10 @@ class YakimaCalendar {
         let startDate, endDate;
         
         switch (this.currentView) {
+            case 'day':
+                startDate = new Date(this.currentDate);
+                endDate = new Date(this.currentDate);
+                break;
             case 'month':
                 startDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
                 endDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
@@ -364,6 +368,9 @@ class YakimaCalendar {
      */
     renderCurrentView() {
         switch (this.currentView) {
+            case 'day':
+                this.renderDayView();
+                break;
             case 'month':
                 this.renderMonthView();
                 break;

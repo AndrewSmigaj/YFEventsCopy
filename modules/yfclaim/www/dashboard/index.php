@@ -3,7 +3,7 @@ session_start();
 
 // Check if seller is logged in
 if (!isset($_SESSION['claim_seller_logged_in']) || $_SESSION['claim_seller_logged_in'] !== true) {
-    header('Location: /modules/yfclaim/admin/login.php');
+    header('Location: /modules/yfclaim/www/admin/login.php');
     exit;
 }
 
@@ -319,7 +319,7 @@ $activeSales = array_filter($recentSales, function($sale) {
             <div class="logo">YFClaim Seller Portal</div>
             <div class="user-info">
                 <span class="user-name"><?= htmlspecialchars($seller['contact_name']) ?></span>
-                <a href="/modules/yfclaim/api/seller-auth.php?action=logout" class="logout-btn">Logout</a>
+                <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout" class="logout-btn">Logout</a>
             </div>
         </div>
     </div>
@@ -435,7 +435,7 @@ $activeSales = array_filter($recentSales, function($sale) {
     <script>
         // Auto-refresh stats every 30 seconds
         setInterval(() => {
-            fetch('/modules/yfclaim/api/seller-stats.php')
+            fetch('/modules/yfclaim/www/api/seller-stats.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

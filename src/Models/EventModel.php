@@ -52,6 +52,11 @@ class EventModel extends BaseModel
             $params['end_date'] = $filters['end_date'];
         }
         
+        // Filter out past events for public requests
+        if (isset($filters['future_only']) && $filters['future_only']) {
+            $sql .= " AND e.start_datetime >= NOW()";
+        }
+        
         // Location-based filter (radius in miles)
         if (isset($filters['latitude']) && isset($filters['longitude']) && isset($filters['radius'])) {
             $sql .= " AND (6371 * acos(cos(radians(:lat)) * cos(radians(e.latitude)) * 
