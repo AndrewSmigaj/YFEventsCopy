@@ -3,7 +3,8 @@ session_start();
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    // Redirect to parent admin login with proper path
+    header('Location: ../login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
@@ -32,7 +33,7 @@ foreach ($sources as $source) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Sources - Advanced Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="../../css/admin.css">
     <style>
         .admin-container {
             display: flex;
@@ -143,37 +144,37 @@ foreach ($sources as $source) {
             <nav>
                 <ul style="list-style: none; padding: 0;">
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/" style="color: white; text-decoration: none;">
+                        <a href="./" style="color: white; text-decoration: none;">
                             <i class="fas fa-dashboard"></i> Dashboard
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/events.php" style="color: white; text-decoration: none;">
+                        <a href="events.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-calendar"></i> Events
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/sources.php" style="color: white; text-decoration: none;">
+                        <a href="sources.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-rss"></i> Sources
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/shops.php" style="color: white; text-decoration: none;">
+                        <a href="shops.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-store"></i> Shops
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/scraper-info.php" style="color: white; text-decoration: none;">
+                        <a href="../scraper-info.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-info-circle"></i> Scraper Info
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/system-checkup.php" style="color: white; text-decoration: none;">
+                        <a href="../system-checkup.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-heartbeat"></i> System Checkup
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/" style="color: white; text-decoration: none;">
+                        <a href="../" style="color: white; text-decoration: none;">
                             <i class="fas fa-arrow-left"></i> Back to Main
                         </a>
                     </li>
@@ -184,7 +185,7 @@ foreach ($sources as $source) {
         <div class="admin-content">
             <h1>Event Sources</h1>
             
-            <button class="add-source-btn" onclick="window.location.href='/admin/scrapers.php'">
+            <button class="add-source-btn" onclick="window.location.href='../scrapers.php'">
                 <i class="fas fa-plus"></i> Add New Source
             </button>
             
@@ -256,7 +257,7 @@ foreach ($sources as $source) {
             testBtn.disabled = true;
             testBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
             
-            fetch('/admin/calendar/ajax/test-source.php', {
+            fetch('ajax/test-source.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: `source_id=${sourceId}`

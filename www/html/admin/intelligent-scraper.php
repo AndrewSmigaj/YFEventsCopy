@@ -177,28 +177,28 @@ $pageTitle = 'Intelligent Event Scraper';
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/admin/">YFEvents Admin</a>
+            <a class="navbar-brand" href="./">YFEvents Admin</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/">Dashboard</a>
+                        <a class="nav-link" href="./">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/calendar/">Calendar</a>
+                        <a class="nav-link" href="calendar/">Calendar</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/scrapers.php">Scrapers</a>
+                        <a class="nav-link" href="scrapers.php">Scrapers</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/admin/intelligent-scraper.php">AI Scraper</a>
+                        <a class="nav-link active" href="intelligent-scraper.php">AI Scraper</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/logout.php">
+                        <a class="nav-link" href="logout.php">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>
                     </li>
@@ -404,7 +404,7 @@ $pageTitle = 'Intelligent Event Scraper';
                 
                 console.log('Uploading file:', selectedCSVFile.name, 'Size:', selectedCSVFile.size);
                 
-                const response = await fetch('/admin/api/intelligent-scrape.php', {
+                const response = await fetch('api/intelligent-scrape.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -525,7 +525,7 @@ $pageTitle = 'Intelligent Event Scraper';
             setStepActive('step-fetch');
 
             try {
-                const response = await fetch('/admin/api/intelligent-scrape.php', {
+                const response = await fetch('api/intelligent-scrape.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -696,7 +696,7 @@ $pageTitle = 'Intelligent Event Scraper';
             if (!currentSessionId) return;
 
             try {
-                const response = await fetch('/admin/api/intelligent-scrape.php', {
+                const response = await fetch('api/intelligent-scrape.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -723,7 +723,7 @@ $pageTitle = 'Intelligent Event Scraper';
         // Load stats and recent sessions
         async function loadStats() {
             try {
-                const response = await fetch('/admin/api/intelligent-scrape.php?action=stats');
+                const response = await fetch('api/intelligent-scrape.php?action=stats');
                 const data = await response.json();
 
                 if (data.success) {

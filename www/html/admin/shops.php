@@ -220,7 +220,7 @@ $shopTypes = [];
                         <button class="btn btn-success" onclick="toggleAddForm()">
                             <i class="fas fa-plus"></i> Add New Shop
                         </button>
-                        <a href="/admin/" class="btn btn-secondary">← Back to Dashboard</a>
+                        <a href="./" class="btn btn-secondary">← Back to Dashboard</a>
                     </div>
                 </div>
                 
@@ -336,7 +336,7 @@ $shopTypes = [];
                             <div class="col-md-3">
                                 <label class="form-label">&nbsp;</label>
                                 <div>
-                                    <a href="/admin/shops.php" class="btn btn-secondary">
+                                    <a href="shops.php" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Clear Filters
                                     </a>
                                 </div>
@@ -604,7 +604,7 @@ $shopTypes = [];
             }
             
             try {
-                const response = await fetch('/admin/shops.php', {
+                const response = await fetch('shops.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

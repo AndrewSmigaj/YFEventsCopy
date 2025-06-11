@@ -20,8 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['admin_username'] = $username;
         $_SESSION['login_time'] = time();
         
-        // Redirect to admin panel
-        header('Location: /admin/');
+        // Redirect to requested page or admin panel
+        $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? './';
+        // Ensure redirect is safe (relative path only)
+        if (strpos($redirect, '://') !== false || strpos($redirect, '//') === 0) {
+            $redirect = './';
+        }
+        header('Location: ' . $redirect);
         exit;
     } else {
         $error = 'Invalid username or password';
@@ -120,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
         
-        <form method="post" action="/admin/login.php">
+        <form method="post" action="login.php<?= isset($_GET['redirect']) ? '?redirect=' . urlencode($_GET['redirect']) : '' ?>">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" required autofocus>
@@ -130,6 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            
+            <?php if (isset($_GET['redirect'])): ?>
+                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET['redirect']) ?>">
+            <?php endif; ?>
             
             <button type="submit">Login</button>
         </form>

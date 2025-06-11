@@ -95,7 +95,7 @@ function validateUrl($url) {
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1><i class="fas fa-check-circle"></i> URL Validator</h1>
-                    <a href="/admin/" class="btn btn-secondary">← Back to Admin</a>
+                    <a href="./" class="btn btn-secondary">← Back to Admin</a>
                 </div>
                 
                 <div class="card">

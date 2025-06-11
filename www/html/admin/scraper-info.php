@@ -192,7 +192,7 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="container">
-        <a href="/admin/calendar/" class="back-link">
+        <a href="calendar/" class="back-link">
             <i class="fas fa-arrow-left"></i> Back to Advanced Admin
         </a>
         

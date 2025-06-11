@@ -3,7 +3,8 @@ session_start();
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    // Redirect to parent admin login with proper path
+    header('Location: ../login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
@@ -129,7 +130,7 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="container">
         <div class="header">
-            <a href="/admin/calendar/" class="back-link">← Back to Advanced Admin</a>
+            <a href="./" class="back-link">← Back to Advanced Admin</a>
             <h1>Event Management</h1>
         </div>
         
@@ -232,7 +233,7 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td colspan="8">
                             <div class="edit-form-container" style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
                                 <h4>Edit Event</h4>
-                                <form method="post" action="/admin/calendar/ajax/update-event.php" onsubmit="return updateEvent(event, <?= $event['id'] ?>)">
+                                <form method="post" action="ajax/update-event.php" onsubmit="return updateEvent(event, <?= $event['id'] ?>)">
                                     <input type="hidden" name="event_id" value="<?= $event['id'] ?>">
                                     
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -311,7 +312,7 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function updateStatus(eventId, action) {
         if (!confirm('Are you sure?')) return;
         
-        fetch('/admin/calendar/ajax/approve-event.php', {
+        fetch('ajax/approve-event.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: `event_id=${eventId}&action=${action}`
@@ -403,7 +404,7 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
         const bulkActions = document.getElementById('bulk-actions');
         bulkActions.innerHTML = '<span>Processing...</span>';
         
-        fetch('/admin/calendar/ajax/bulk-approve-events.php', {
+        fetch('ajax/bulk-approve-events.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -447,7 +448,7 @@ $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
         const form = e.target;
         const formData = new FormData(form);
         
-        fetch('/admin/calendar/ajax/update-event.php', {
+        fetch('ajax/update-event.php', {
             method: 'POST',
             body: formData
         })

@@ -60,7 +60,7 @@ if ($sessionStarted && isset($_SESSION['admin_logged_in']) && $_SESSION['admin_l
         <?php if (!$isAdmin): ?>
             <div class="warning">
                 <strong>Not Logged In:</strong> You are not logged in as admin. 
-                <a href="/admin/login.php">Login here</a> or continue with limited access.
+                <a href="../login.php">Login here</a> or continue with limited access.
             </div>
         <?php endif; ?>
         
@@ -70,11 +70,11 @@ if ($sessionStarted && isset($_SESSION['admin_logged_in']) && $_SESSION['admin_l
         </div>
         
         <div class="menu">
-            <a href="/admin/calendar/events.php"><i class="fas fa-calendar"></i> Manage Events</a>
-            <a href="/admin/calendar/sources.php"><i class="fas fa-rss"></i> Event Sources</a>
-            <a href="/admin/calendar/shops.php"><i class="fas fa-store"></i> Local Shops</a>
-            <a href="/admin/geocode-fix.php"><i class="fas fa-map-marker-alt"></i> Fix Geocoding</a>
-            <a href="/admin/"><i class="fas fa-arrow-left"></i> Back to Main Admin</a>
+            <a href="events.php"><i class="fas fa-calendar"></i> Manage Events</a>
+            <a href="sources.php"><i class="fas fa-rss"></i> Event Sources</a>
+            <a href="shops.php"><i class="fas fa-store"></i> Local Shops</a>
+            <a href="../geocode-fix.php"><i class="fas fa-map-marker-alt"></i> Fix Geocoding</a>
+            <a href="../"><i class="fas fa-arrow-left"></i> Back to Main Admin</a>
         </div>
         
         <div class="info">

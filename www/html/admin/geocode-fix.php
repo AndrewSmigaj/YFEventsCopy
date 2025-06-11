@@ -329,7 +329,7 @@ function fixAllGeocoding($db, $type, $geocoder) {
 </head>
 <body>
     <div class="container">
-        <a href="/admin/" class="back-link">← Back to Admin</a>
+        <a href="./" class="back-link">← Back to Admin</a>
         
         <h1>Geocoding Verification & Fix Tool</h1>
         <p class="description">

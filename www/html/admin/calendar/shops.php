@@ -3,7 +3,8 @@ session_start();
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
+    // Redirect to parent admin login with proper path
+    header('Location: ../login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
@@ -211,27 +212,27 @@ $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <nav>
                 <ul style="list-style: none; padding: 0;">
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/" style="color: white; text-decoration: none;">
+                        <a href="./" style="color: white; text-decoration: none;">
                             <i class="fas fa-dashboard"></i> Dashboard
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/events.php" style="color: white; text-decoration: none;">
+                        <a href="events.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-calendar"></i> Events
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/sources.php" style="color: white; text-decoration: none;">
+                        <a href="sources.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-rss"></i> Sources
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/calendar/shops.php" style="color: white; text-decoration: none;">
+                        <a href="shops.php" style="color: white; text-decoration: none;">
                             <i class="fas fa-store"></i> Shops
                         </a>
                     </li>
                     <li style="margin-bottom: 10px;">
-                        <a href="/admin/" style="color: white; text-decoration: none;">
+                        <a href="../" style="color: white; text-decoration: none;">
                             <i class="fas fa-arrow-left"></i> Back to Main
                         </a>
                     </li>
@@ -243,7 +244,7 @@ $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h1>Shop Management</h1>
             
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button class="add-shop-btn" onclick="window.location.href='/admin/shops.php?action=add'">
+                <button class="add-shop-btn" onclick="window.location.href='../shops.php?action=add'">
                     <i class="fas fa-plus"></i> Add New Shop
                 </button>
                 <button class="add-shop-btn" onclick="openImportModal()" style="background: #007bff;">
@@ -507,7 +508,7 @@ $shops = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('importBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
             document.getElementById('importBtn').disabled = true;
             
-            fetch('/admin/ajax/import_shops.php', {
+            fetch('../ajax/import_shops.php', {
                 method: 'POST',
                 body: formData
             })

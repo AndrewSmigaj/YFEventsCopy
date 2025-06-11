@@ -330,7 +330,7 @@ if (!empty($checkups)) {
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-heartbeat"></i> System Checkup</h1>
-            <a href="/admin/calendar/" class="back-link">
+            <a href="calendar/" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Admin
             </a>
         </div>

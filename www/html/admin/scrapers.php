@@ -195,12 +195,12 @@ $logs = $pdo->query("
     
     <div class="container">
         <div class="nav">
-            <a href="/admin/">← Back to Dashboard</a>
+            <a href="./">← Back to Dashboard</a>
             <a href="#sources">Sources</a>
-            <a href="/admin/intelligent-scraper.php">AI Scraper</a>
+            <a href="intelligent-scraper.php">AI Scraper</a>
             <a href="#add-source">Add Source</a>
             <a href="#logs">Recent Logs</a>
-            <a href="/admin/logout.php" style="margin-left: auto; color: #dc3545;">Logout</a>
+            <a href="logout.php" style="margin-left: auto; color: #dc3545;">Logout</a>
         </div>
         
         <?php if ($message): ?>

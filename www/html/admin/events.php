@@ -182,7 +182,7 @@ $events = $stmt->fetchAll();
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1><i class="fas fa-calendar-alt"></i> Event Management</h1>
-                    <a href="/admin/" class="btn btn-secondary">← Back to Dashboard</a>
+                    <a href="./" class="btn btn-secondary">← Back to Dashboard</a>
                 </div>
                 
                 <?php if ($message): ?>
@@ -225,7 +225,7 @@ $events = $stmt->fetchAll();
                             <div class="col-md-3">
                                 <label class="form-label">&nbsp;</label>
                                 <div>
-                                    <a href="/admin/events.php" class="btn btn-secondary">
+                                    <a href="events.php" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Clear Filters
                                     </a>
                                 </div>

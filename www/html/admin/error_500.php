@@ -109,7 +109,7 @@
         </div>
         <?php endif; ?>
         
-        <a href="/admin/" class="back-button">Back to Admin Dashboard</a>
+        <a href="./" class="back-button">Back to Admin Dashboard</a>
     </div>
 </body>
 </html>

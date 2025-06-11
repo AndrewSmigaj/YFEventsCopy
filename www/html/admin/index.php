@@ -322,16 +322,16 @@ $shops = $pdo->query("SELECT * FROM local_shops ORDER BY created_at DESC LIMIT 2
         <?php endif; ?>
         
         <div class="nav">
-            <a href="/">← Back to Calendar</a>
-            <a href="/admin/calendar/">Advanced Admin</a>
-            <a href="/modules/yfclaim/www/admin/">YFClaim Sales</a>
-            <a href="/admin/scrapers.php">Manage Scrapers</a>
-            <a href="/admin/intelligent-scraper.php">AI Scraper</a>
-            <a href="/admin/validate-urls.php">URL Validator</a>
-            <a href="/admin/events.php">Manage Events</a>
-            <a href="/admin/shops.php">Manage Shops</a>
-            <a href="/admin/geocode-fix.php">Fix Geocoding</a>
-            <a href="/admin/logout.php" style="float: right; color: #dc3545;">Logout</a>
+            <a href="../">← Back to Calendar</a>
+            <a href="calendar/">Advanced Admin</a>
+            <a href="../modules/yfclaim/www/admin/">YFClaim Sales</a>
+            <a href="scrapers.php">Manage Scrapers</a>
+            <a href="intelligent-scraper.php">AI Scraper</a>
+            <a href="validate-urls.php">URL Validator</a>
+            <a href="events.php">Manage Events</a>
+            <a href="shops.php">Manage Shops</a>
+            <a href="geocode-fix.php">Fix Geocoding</a>
+            <a href="logout.php" style="float: right; color: #dc3545;">Logout</a>
         </div>
         
         <div class="stats">
@@ -369,7 +369,7 @@ $shops = $pdo->query("SELECT * FROM local_shops ORDER BY created_at DESC LIMIT 2
                     <div>Offers Made</div>
                 </div>
                 <div class="stat-box">
-                    <a href="/modules/yfclaim/www/admin/" style="text-decoration: none; color: inherit;">
+                    <a href="../modules/yfclaim/www/admin/" style="text-decoration: none; color: inherit;">
                         <div class="stat-number">→</div>
                         <div>Manage Sales</div>
                     </a>
@@ -420,7 +420,7 @@ $shops = $pdo->query("SELECT * FROM local_shops ORDER BY created_at DESC LIMIT 2
 
         <div class="section" id="events">
             <h2>Recent Events 
-                <a href="/admin/calendar/events.php" style="font-size: 14px; float: right;">View All →</a>
+                <a href="calendar/events.php" style="font-size: 14px; float: right;">View All →</a>
             </h2>
             <table>
                 <thead>
