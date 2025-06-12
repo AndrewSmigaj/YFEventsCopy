@@ -1,50 +1,17 @@
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# API Keys - NEVER COMMIT THESE
-/config/api_keys.php
-config/api_keys.php
-api_keys.php
-
-# Dependencies
 /vendor/
-composer.lock
-
-# Cache and logs
-/cache/
-/logs/
-*.log
-
-# System files
+/node_modules/
+/storage/logs/*
+/storage/cache/*
+/storage/sessions/*
+/.env
+/.env.backup
+/.phpunit.result.cache
+/.php-cs-fixer.cache
+/public/hot
+/public/storage
+npm-debug.log
+yarn-error.log
 .DS_Store
 Thumbs.db
-*.swp
-*.swo
-*~
-
-# IDE files
-.idea/
-.vscode/
-*.sublime-*
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-
-# Local test scripts
-/test_*.php
-/get_coordinates.php
-/add_test_data.php
-/import_schema_ordered.php
-
-# Installation scripts (contain passwords)
-/install_*.sh
-/reset_mysql_root.sh
-/fix_apache_permissions.sh
-/check_environment.sh
-
-# Local changelog (for tracking only)
-/CHANGELOG_LOCAL.md
+*.log
+!.gitkeep
