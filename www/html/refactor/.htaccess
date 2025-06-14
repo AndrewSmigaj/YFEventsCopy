@@ -1,8 +1,13 @@
 RewriteEngine On
 
+# Allow direct access to admin files
+RewriteCond %{REQUEST_URI} ^/admin/
+RewriteRule ^admin/(.*)$ admin/$1 [L]
+
 # Handle Angular and other front-end routes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/admin/
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Ensure index.php is executed for all requests

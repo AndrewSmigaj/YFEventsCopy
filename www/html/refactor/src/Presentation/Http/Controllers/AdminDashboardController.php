@@ -423,7 +423,9 @@ class AdminDashboardController extends BaseController
 
     private function renderDashboardPage(string $basePath): string
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $username = $_SESSION['admin_username'] ?? 'admin';
 
         return <<<HTML
@@ -645,9 +647,9 @@ class AdminDashboardController extends BaseController
             <div class="action-section">
                 <div class="action-title">📅 Event Management</div>
                 <ul class="action-list">
-                    <li><a href="#" class="action-link" onclick="loadEvents()">📋 View All Events</a></li>
-                    <li><a href="#" class="action-link" onclick="loadPendingEvents()">⏳ Review Pending Events</a></li>
-                    <li><a href="#" class="action-link" onclick="manageFeatured()">⭐ Manage Featured Events</a></li>
+                    <li><a href="{$basePath}/admin/events.php" class="action-link">📋 View All Events</a></li>
+                    <li><a href="{$basePath}/admin/events.php#pending" class="action-link">⏳ Review Pending Events</a></li>
+                    <li><a href="{$basePath}/admin/events.php#featured" class="action-link">⭐ Manage Featured Events</a></li>
                     <li><a href="{$basePath}/admin/events/statistics" class="action-link">📊 Event Statistics</a></li>
                 </ul>
             </div>
@@ -655,9 +657,9 @@ class AdminDashboardController extends BaseController
             <div class="action-section">
                 <div class="action-title">🏪 Shop Management</div>
                 <ul class="action-list">
-                    <li><a href="#" class="action-link" onclick="loadShops()">🏪 View All Shops</a></li>
-                    <li><a href="#" class="action-link" onclick="loadPendingShops()">⏳ Review Pending Shops</a></li>
-                    <li><a href="#" class="action-link" onclick="verifyShops()">✅ Verify Shop Information</a></li>
+                    <li><a href="{$basePath}/admin/shops.php" class="action-link">🏪 View All Shops</a></li>
+                    <li><a href="{$basePath}/admin/shops.php#pending" class="action-link">⏳ Review Pending Shops</a></li>
+                    <li><a href="{$basePath}/admin/shops.php#verify" class="action-link">✅ Verify Shop Information</a></li>
                     <li><a href="{$basePath}/admin/shops/statistics" class="action-link">📊 Shop Statistics</a></li>
                 </ul>
             </div>
@@ -678,7 +680,7 @@ class AdminDashboardController extends BaseController
                     <li><a href="{$basePath}/" class="action-link">🏠 View Public Site</a></li>
                     <li><a href="{$basePath}/events" class="action-link">📅 Public Events</a></li>
                     <li><a href="{$basePath}/shops" class="action-link">🏪 Public Shops</a></li>
-                    <li><a href="{$basePath}/claims" class="action-link">🏛️ Estate Sales</a></li>
+                    <li><a href="{$basePath}/admin/scrapers.php" class="action-link">🔧 Event Scrapers</a></li>
                 </ul>
             </div>
         </div>
@@ -752,30 +754,6 @@ class AdminDashboardController extends BaseController
             }
         }
         
-        function loadEvents() {
-            // For now, just show a simple alert - could be replaced with modal or redirect
-            alert('Event management interface coming soon! For now, use the API endpoints.');
-        }
-        
-        function loadPendingEvents() {
-            alert('Pending events review interface coming soon!');
-        }
-        
-        function manageFeatured() {
-            alert('Featured events management interface coming soon!');
-        }
-        
-        function loadShops() {
-            alert('Shop management interface coming soon!');
-        }
-        
-        function loadPendingShops() {
-            alert('Pending shops review interface coming soon!');
-        }
-        
-        function verifyShops() {
-            alert('Shop verification interface coming soon!');
-        }
         
         // Load dashboard data on page load
         document.addEventListener('DOMContentLoaded', loadDashboardStats);

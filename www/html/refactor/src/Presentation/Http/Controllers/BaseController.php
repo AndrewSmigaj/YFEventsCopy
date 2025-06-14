@@ -115,7 +115,9 @@ abstract class BaseController
      */
     protected function requireAdmin(): bool
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
             $this->errorResponse('Admin authentication required', 401);
             return false;
