@@ -6,6 +6,8 @@ use YakimaFinds\Infrastructure\Http\Router;
 use YakimaFinds\Presentation\Api\Controllers\EventApiController;
 use YakimaFinds\Presentation\Api\Controllers\ShopApiController;
 use YakimaFinds\Presentation\Http\Controllers\HomeController;
+use YakimaFinds\Presentation\Http\Controllers\AdminEventController;
+use YakimaFinds\Presentation\Http\Controllers\AdminShopController;
 
 /**
  * API routes for the application
@@ -33,3 +35,10 @@ $router->get('/api/shops/map', ShopApiController::class, 'map');
 $router->get('/api/shops/nearby', ShopApiController::class, 'nearby');
 $router->get('/api/shops/categories/{category_id}', ShopApiController::class, 'byCategory');
 $router->post('/api/shops', ShopApiController::class, 'store');
+
+// Admin API routes
+$router->get('/api/scrapers', AdminEventController::class, 'getScrapers');
+$router->post('/api/scrapers/run', AdminEventController::class, 'runScraper');
+$router->post('/api/scrapers/run-all', AdminEventController::class, 'runAllScrapers');
+$router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');
+$router->get('/api/admin/shops', AdminShopController::class, 'getAllShops');

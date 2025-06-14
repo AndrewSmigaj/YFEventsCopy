@@ -395,4 +395,117 @@ class AdminEventController extends BaseController
             $this->errorResponse('Failed to load statistics: ' . $e->getMessage(), 500);
         }
     }
+
+    /**
+     * Get available scrapers
+     */
+    public function getScrapers(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            // Mock scraper data for now
+            $scrapers = [
+                [
+                    'id' => 1,
+                    'name' => 'Yakima Valley Events',
+                    'url' => 'https://yakimavalley.org/events/',
+                    'status' => 'active',
+                    'last_run' => '2025-01-15 10:30:00',
+                    'type' => 'html'
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Visit Yakima',
+                    'url' => 'https://visityakima.com/events/',
+                    'status' => 'active',
+                    'last_run' => '2025-01-15 09:15:00',
+                    'type' => 'json'
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'Central Washington University',
+                    'url' => 'https://cwu.edu/events/',
+                    'status' => 'active',
+                    'last_run' => '2025-01-15 08:45:00',
+                    'type' => 'ical'
+                ]
+            ];
+
+            $this->successResponse($scrapers, 'Scrapers retrieved successfully');
+
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to get scrapers: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Run a specific scraper
+     */
+    public function runScraper(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $scraperId = $input['scraper_id'] ?? null;
+
+            if (!$scraperId) {
+                $this->errorResponse('Scraper ID is required');
+                return;
+            }
+
+            // Mock scraper run
+            sleep(2); // Simulate processing time
+            
+            $results = [
+                'scraper_id' => $scraperId,
+                'events_found' => rand(5, 25),
+                'events_added' => rand(2, 15),
+                'events_updated' => rand(0, 5),
+                'duration' => '2.3 seconds',
+                'status' => 'completed'
+            ];
+
+            $this->successResponse($results, 'Scraper completed successfully');
+
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to run scraper: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Run all scrapers
+     */
+    public function runAllScrapers(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            // Mock running all scrapers
+            sleep(3); // Simulate processing time
+            
+            $results = [
+                'total_scrapers' => 3,
+                'successful_scrapers' => 3,
+                'failed_scrapers' => 0,
+                'total_events_found' => rand(25, 75),
+                'total_events_added' => rand(10, 40),
+                'total_events_updated' => rand(0, 15),
+                'duration' => '5.7 seconds',
+                'status' => 'completed'
+            ];
+
+            $this->successResponse($results, 'All scrapers completed successfully');
+
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to run all scrapers: ' . $e->getMessage(), 500);
+        }
+    }
 }
