@@ -1,0 +1,756 @@
+{
+    "summary": {
+        "total": 71,
+        "passed": 47,
+        "failed": 24,
+        "success_rate": 66.2
+    },
+    "results": [
+        {
+            "description": "404 for non-existent route: \/nonexistent",
+            "route": "\/nonexistent",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/nonexistent\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/events\/nonexistent",
+            "route": "\/events\/nonexistent",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/events\\\/nonexistent\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/shops\/nonexistent",
+            "route": "\/shops\/nonexistent",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<h1>Shop not found<\/h1>"
+        },
+        {
+            "description": "404 for non-existent route: \/admin\/nonexistent",
+            "route": "\/admin\/nonexistent",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/admin\\\/nonexistent\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/api\/nonexistent",
+            "route": "\/api\/nonexistent",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/nonexistent\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/events\/123\/details",
+            "route": "\/events\/123\/details",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/events\\\/123\\\/details\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/shops\/456\/reviews",
+            "route": "\/shops\/456\/reviews",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/shops\\\/456\\\/reviews\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/admin\/events\/789\/publish",
+            "route": "\/admin\/events\/789\/publish",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "404 for non-existent route: \/api\/v2\/events",
+            "route": "\/api\/v2\/events",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/v2\\\/events\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/random\/path\/here",
+            "route": "\/random\/path\/here",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/random\\\/path\\\/here\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "404 for non-existent route: \/..%2F..%2Fetc%2Fpasswd",
+            "route": "\/..%2F..%2Fetc%2Fpasswd",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "404 for non-existent route: \/\\..\\..\\windows\\system32",
+            "route": "\/\\..\\..\\windows\\system32",
+            "method": "GET",
+            "expected": [
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/\\\\..\\\\..\\\\windows\\\\system32\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/events\/abc",
+            "route": "\/api\/events\/abc",
+            "method": "GET",
+            "expected": [
+                400,
+                404,
+                500
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Event not found\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/shops\/xyz",
+            "route": "\/api\/shops\/xyz",
+            "method": "GET",
+            "expected": [
+                400,
+                404,
+                500
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Shop not found\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Invalid parameter test: GET \/shops\/999999999",
+            "route": "\/shops\/999999999",
+            "method": "GET",
+            "expected": [
+                404,
+                500
+            ],
+            "actual": 200,
+            "success": false,
+            "response": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>YFEvents V2 - Shop Details<\/title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        \n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n            background: #f8f9fa;\n            min-height: 100vh;\n        }\n        \n        .header {\n            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);\n            color: white;\n            padding: 40px 20px;\n            text-align: center;\n        }\n        \n        .header h1 {\n            font-size: 3rem;\n            margin-bottom: 10px;\n        }\n        \n        .container {\n            max-width: 800px;\n            margin: 0 auto;\n            padding: 40px 20px;\n        }\n        \n        .shop-details {\n            background: white;\n            border-radius: 15px;\n            padding: 40px;\n            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);\n        }\n        \n        .back-link {\n            display: inline-block;\n            margin-bottom: 20px;\n            color: #28a745;\n            text-decoration: none;\n            font-weight: 500;\n        }\n        \n        .back-link:hover {\n            text-decoration: underline;\n        }\n        \n        .loading {\n            text-align: center;\n            padding: 40px;\n            color: #6c757d;\n        }\n        \n        .shop-name {\n            font-size: 2rem;\n            color: #343a40;\n            margin-bottom: 20px;\n        }\n        \n        .shop-info {\n            margin-bottom: 20px;\n            line-height: 1.6;\n        }\n        \n        .shop-info strong {\n            color: #495057;\n        }\n        \n        .contact-info {\n            background: #e8f5e8;\n            padding: 20px;\n            border-radius: 10px;\n            margin: 20px 0;\n        }\n        \n        .features {\n            display: flex;\n            flex-wrap: wrap;\n            gap: 10px;\n            margin: 20px 0;\n        }\n        \n        .feature-tag {\n            background: #28a745;\n            color: white;\n            padding: 6px 12px;\n            border-radius: 6px;\n            font-size: 0.9rem;\n        }\n    <\/style>\n<\/head>\n<body>\n    <div class=\"header\">\n        <h1>\ud83c\udfea Shop Details<\/h1>\n    <\/div>\n    \n    <div class=\"container\">\n        <a href=\"\/refactor\/shops\" class=\"back-link\">\u2190 Back to Shops<\/a>\n        \n        <div class=\"shop-details\" id=\"shop-details\">\n            <div class=\"loading\">Loading shop details...<\/div>\n        <\/div>\n    <\/div>\n\n    <script>\n        async function loadShopDetails() {\n            try {\n                const response = await fetch('\/refactor\/api\/shops\/999999999');\n                const data = await response.json();\n                \n                if (data.success && data.data.shop) {\n                    const shop = data.data.shop;\n                    const container = document.getElementById('shop-details');\n                    \n                    container.innerHTML = `\n                        <div class=\"shop-name\">${shop.name || 'Unnamed Shop'}<\/div>\n                        <div class=\"shop-info\">\n                            <strong>Address:<\/strong> ${shop.address || 'Not provided'}<br>\n                            ${shop.description ? `<strong>About:<\/strong> ${shop.description}<br><br>` : ''}\n                        <\/div>\n                        \n                        <div class=\"contact-info\">\n                            <h3>Contact Information<\/h3>\n                            ${shop.phone ? `<p><strong>Phone:<\/strong> ${shop.phone}<\/p>` : ''}\n                            ${shop.email ? `<p><strong>Email:<\/strong> ${shop.email}<\/p>` : ''}\n                            ${shop.website ? `<p><strong>Website:<\/strong> <a href=\"${shop.website}\" target=\"_blank\">${shop.website}<\/a><\/p>` : ''}\n                        <\/div>\n                        \n                        ${shop.hours && Object.keys(shop.hours).length ? `\n                            <div class=\"contact-info\">\n                                <h3>Operating Hours<\/h3>\n                                ${Object.entries(shop.hours).map(([day, hours]) => \n                                    `<p><strong>${day}:<\/strong> ${hours === 'closed' ? 'Closed' : hours}<\/p>`\n                                ).join('')}\n                            <\/div>\n                        ` : ''}\n                        \n                        <div class=\"features\">\n                            ${shop.featured ? '<span class=\"feature-tag\">\u2b50 Featured<\/span>' : ''}\n                            ${shop.verified ? '<span class=\"feature-tag\">\u2713 Verified<\/span>' : ''}\n                            ${shop.payment_methods ? shop.payment_methods.map(method => \n                                `<span class=\"feature-tag\">\ud83d\udcb3 ${method}<\/span>`\n                            ).join('') : ''}\n                            ${shop.amenities ? shop.amenities.map(amenity => \n                                `<span class=\"feature-tag\">\ud83c\udfea ${amenity}<\/span>`\n                            ).join('') : ''}\n                        <\/div>\n                    `;\n                } else {\n                    document.getElementById('shop-details').innerHTML = '<div class=\"loading\">Shop not found or unavailable.<\/div>';\n                }\n                \n            } catch (error) {\n                console.error('Error loading shop details:', error);\n                document.getElementById('shop-details').innerHTML = '<div class=\"loading\">Error loading shop details.<\/div>';\n            }\n        }\n        \n        document.addEventListener('DOMContentLoaded', loadShopDetails);\n    <\/script>\n<\/body>\n<\/html>"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/events\/-1",
+            "route": "\/api\/events\/-1",
+            "method": "GET",
+            "expected": [
+                400,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Event not found\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/shops\/0",
+            "route": "\/api\/shops\/0",
+            "method": "GET",
+            "expected": [
+                400,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Shop not found\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/events\/1'; DROP TABLE events; --",
+            "route": "\/api\/events\/1'; DROP TABLE events; --",
+            "method": "GET",
+            "expected": [
+                400,
+                404,
+                500
+            ],
+            "actual": 0,
+            "success": false,
+            "response": "cURL Error: URL rejected: Malformed input to a URL function"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/shops\/1 UNION SELECT * FROM users",
+            "route": "\/api\/shops\/1 UNION SELECT * FROM users",
+            "method": "GET",
+            "expected": [
+                400,
+                404,
+                500
+            ],
+            "actual": 0,
+            "success": false,
+            "response": "cURL Error: URL rejected: Malformed input to a URL function"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/events\/<script>alert(1)<\/script>",
+            "route": "\/api\/events\/<script>alert(1)<\/script>",
+            "method": "GET",
+            "expected": [
+                400,
+                404,
+                500
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/events\\\/<script>alert(1)<\\\/script>\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Invalid parameter test: GET \/api\/shops\/..\/..\/admin",
+            "route": "\/api\/shops\/..\/..\/admin",
+            "method": "GET",
+            "expected": [
+                400,
+                404,
+                500
+            ],
+            "actual": 301,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>301 Moved Permanently<\/title>\n<\/head><body>\n<h1>Moved Permanently<\/h1>\n<p>The document has moved <a href=\"http:\/\/localhost\/refactor\/admin\/\">here<\/a>.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Invalid parameter test: POST \/admin\/events\/invalid\/update",
+            "route": "\/admin\/events\/invalid\/update",
+            "method": "POST",
+            "expected": [
+                400,
+                401,
+                404,
+                500
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Invalid parameter test: POST \/admin\/shops\/invalid\/delete",
+            "route": "\/admin\/shops\/invalid\/delete",
+            "method": "POST",
+            "expected": [
+                400,
+                401,
+                404,
+                500
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Method mismatch: POST \/",
+            "route": "\/",
+            "method": "POST",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/\",\"method\":\"POST\"}"
+        },
+        {
+            "description": "Method mismatch: POST \/events",
+            "route": "\/events",
+            "method": "POST",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/events\",\"method\":\"POST\"}"
+        },
+        {
+            "description": "Method mismatch: POST \/shops",
+            "route": "\/shops",
+            "method": "POST",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/shops\",\"method\":\"POST\"}"
+        },
+        {
+            "description": "Method mismatch: DELETE \/api\/events",
+            "route": "\/api\/events",
+            "method": "DELETE",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/events\",\"method\":\"DELETE\"}"
+        },
+        {
+            "description": "Method mismatch: PUT \/api\/shops",
+            "route": "\/api\/shops",
+            "method": "PUT",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/shops\",\"method\":\"PUT\"}"
+        },
+        {
+            "description": "Method mismatch: GET \/admin\/login",
+            "route": "\/admin\/login",
+            "method": "GET",
+            "expected": [
+                200,
+                405
+            ],
+            "actual": 200,
+            "success": true,
+            "response": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>YFEvents V2 - Admin Login<\/title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        \n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            min-height: 100vh;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n        }\n        \n        .login-container {\n            background: white;\n            border-radius: 20px;\n            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);\n            padding: 40px;\n            width: 400px;\n            text-align: center;\n        }\n        \n        .logo {\n            font-size: 2.5rem;\n            font-weight: bold;\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n            background-clip: text;\n            margin-bottom: 10px;\n        }\n        \n        .subtitle {\n            color: #6c757d;\n            font-size: 1.1rem;\n            margin-bottom: 30px;\n        }\n        \n        .form-group {\n            margin-bottom: 20px;\n            text-align: left;\n        }\n        \n        .form-group label {\n            display: block;\n            color: #343a40;\n            font-weight: 500;\n            margin-bottom: 5px;\n        }\n        \n        .form-group input {\n            width: 100%;\n            padding: 12px 15px;\n            border: 2px solid #e9ecef;\n            border-radius: 10px;\n            font-size: 1rem;\n            transition: border-color 0.3s ease;\n        }\n        \n        .form-group input:focus {\n            outline: none;\n            border-color: #667eea;\n        }\n        \n        .login-btn {\n            width: 100%;\n            padding: 12px;\n            background: linear-gradient(135deg, #667eea, #764ba2);\n            color: white;\n            border: none;\n            border-radius: 10px;\n            font-size: 1.1rem;\n            font-weight: 500;\n            cursor: pointer;\n            transition: transform 0.2s ease;\n        }\n        \n        .login-btn:hover {\n            transform: translateY(-2px);\n        }\n        \n        .credentials {\n            background: #f8f9fa;\n            border-radius: 10px;\n            padding: 20px;\n            margin-top: 30px;\n            text-align: left;\n        }\n        \n        .credentials h4 {\n            color: #343a40;\n            margin-bottom: 10px;\n        }\n        \n        .credentials p {\n            color: #6c757d;\n            font-size: 0.9rem;\n            margin-bottom: 5px;\n        }\n        \n        .back-link {\n            display: inline-block;\n            margin-top: 20px;\n            color: #667eea;\n            text-decoration: none;\n            font-weight: 500;\n        }\n        \n        .back-link:hover {\n            text-decoration: underline;\n        }\n        \n        .alert {\n            padding: 10px 15px;\n            border-radius: 5px;\n            margin-bottom: 20px;\n            display: none;\n        }\n        \n        .alert-error {\n            background: #f8d7da;\n            color: #721c24;\n            border: 1px solid #f1aeb5;\n        }\n        \n        .alert-success {\n            background: #d1edff;\n            color: #0c5460;\n            border: 1px solid #b8daff;\n        }\n    <\/style>\n<\/head>\n<body>\n    <div class=\"login-container\">\n        <div class=\"logo\">YFEvents V2<\/div>\n        <div class=\"subtitle\">Admin Login<\/div>\n        \n        <div id=\"alert\" class=\"alert\"><\/div>\n        \n        <form id=\"loginForm\">\n            <div class=\"form-group\">\n                <label for=\"username\">Username<\/label>\n                <input type=\"text\" id=\"username\" name=\"username\" required autocomplete=\"username\">\n            <\/div>\n            \n            <div class=\"form-group\">\n                <label for=\"password\">Password<\/label>\n                <input type=\"password\" id=\"password\" name=\"password\" required autocomplete=\"current-password\">\n            <\/div>\n            \n            <button type=\"submit\" class=\"login-btn\">Login to Admin Panel<\/button>\n        <\/form>\n        \n        <div class=\"credentials\">\n            <h4>\ud83d\udd11 Demo Credentials<\/h4>\n            <p><strong>admin<\/strong> \/ admin123<\/p>\n            <p><strong>yakima<\/strong> \/ yakima2025<\/p>\n            <p><strong>yfevents<\/strong> \/ yfevents_admin<\/p>\n        <\/div>\n        \n        <a href=\"\/refactor\/\" class=\"back-link\">\u2190 Back to Home<\/a>\n    <\/div>\n\n    <script>\n        document.getElementById('loginForm').addEventListener('submit', async function(e) {\n            e.preventDefault();\n            \n            const username = document.getElementById('username').value;\n            const password = document.getElementById('password').value;\n            const alert = document.getElementById('alert');\n            \n            try {\n                const response = await fetch('\/refactor\/admin\/login', {\n                    method: 'POST',\n                    headers: {\n                        'Content-Type': 'application\/json',\n                    },\n                    body: JSON.stringify({ username, password })\n                });\n                \n                const data = await response.json();\n                \n                if (data.success) {\n                    alert.className = 'alert alert-success';\n                    alert.textContent = 'Login successful! Redirecting...';\n                    alert.style.display = 'block';\n                    \n                    setTimeout(() => {\n                        window.location.href = data.data.redirect;\n                    }, 1000);\n                } else {\n                    alert.className = 'alert alert-error';\n                    alert.textContent = data.message || 'Login failed';\n                    alert.style.display = 'block';\n                }\n            } catch (error) {\n                alert.className = 'alert alert-error';\n                alert.textContent = 'Connection error. Please try again.';\n                alert.style.display = 'block';\n            }\n        });\n    <\/script>\n<\/body>\n<\/html>"
+        },
+        {
+            "description": "Method mismatch: GET \/admin\/events\/1\/update",
+            "route": "\/admin\/events\/1\/update",
+            "method": "GET",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Method mismatch: GET \/admin\/shops\/1\/delete",
+            "route": "\/admin\/shops\/1\/delete",
+            "method": "GET",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Method mismatch: GET \/api\/events\/submit",
+            "route": "\/api\/events\/submit",
+            "method": "GET",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Event not found\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Method mismatch: PATCH \/api\/events",
+            "route": "\/api\/events",
+            "method": "PATCH",
+            "expected": [
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/events\",\"method\":\"PATCH\"}"
+        },
+        {
+            "description": "Method mismatch: OPTIONS \/api\/shops",
+            "route": "\/api\/shops",
+            "method": "OPTIONS",
+            "expected": [
+                200,
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/shops\",\"method\":\"OPTIONS\"}"
+        },
+        {
+            "description": "Method mismatch: HEAD \/",
+            "route": "\/",
+            "method": "HEAD",
+            "expected": [
+                200,
+                405
+            ],
+            "actual": 404,
+            "success": false,
+            "response": ""
+        },
+        {
+            "description": "Method mismatch: TRACE \/api\/events\/1",
+            "route": "\/api\/events\/1",
+            "method": "TRACE",
+            "expected": [
+                405
+            ],
+            "actual": 405,
+            "success": true,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>405 Method Not Allowed<\/title>\n<\/head><body>\n<h1>Method Not Allowed<\/h1>\n<p>The requested method TRACE is not allowed for this URL.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Missing fields: POST \/api\/events",
+            "route": "\/api\/events",
+            "method": "POST",
+            "expected": [
+                400,
+                401
+            ],
+            "actual": 400,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Missing required fields: title, start_datetime\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Missing fields: POST \/api\/shops",
+            "route": "\/api\/shops",
+            "method": "POST",
+            "expected": [
+                400,
+                401
+            ],
+            "actual": 400,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Missing required fields: name, address\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Missing fields: POST \/api\/events\/submit",
+            "route": "\/api\/events\/submit",
+            "method": "POST",
+            "expected": [
+                400,
+                401
+            ],
+            "actual": 400,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Missing required fields: start_datetime\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Auth required: GET \/admin\/dashboard",
+            "route": "\/admin\/dashboard",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 401,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Admin authentication required\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Auth required: GET \/admin\/events",
+            "route": "\/admin\/events",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: GET \/admin\/shops",
+            "route": "\/admin\/shops",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: POST \/admin\/events\/create",
+            "route": "\/admin\/events\/create",
+            "method": "POST",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: POST \/admin\/shops\/1\/update",
+            "route": "\/admin\/shops\/1\/update",
+            "method": "POST",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: POST \/admin\/events\/1\/delete",
+            "route": "\/admin\/events\/1\/delete",
+            "method": "POST",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: GET \/admin\/events\/statistics",
+            "route": "\/admin\/events\/statistics",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: GET \/admin\/shops\/statistics",
+            "route": "\/admin\/shops\/statistics",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 404,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Auth required: GET \/api\/admin\/events",
+            "route": "\/api\/admin\/events",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 401,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Admin authentication required\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Auth required: GET \/api\/admin\/shops",
+            "route": "\/api\/admin\/shops",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 401,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Admin authentication required\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Auth required: GET \/api\/scrapers",
+            "route": "\/api\/scrapers",
+            "method": "GET",
+            "expected": [
+                401
+            ],
+            "actual": 401,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Admin authentication required\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Auth required: POST \/api\/scrapers\/run",
+            "route": "\/api\/scrapers\/run",
+            "method": "POST",
+            "expected": [
+                401
+            ],
+            "actual": 401,
+            "success": true,
+            "response": "{\n    \"error\": true,\n    \"message\": \"Admin authentication required\",\n    \"details\": []\n}"
+        },
+        {
+            "description": "Edge case: GET \/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "route": "\/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "method": "GET",
+            "expected": [
+                404,
+                414
+            ],
+            "actual": 403,
+            "success": false,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>403 Forbidden<\/title>\n<\/head><body>\n<h1>Forbidden<\/h1>\n<p>You don't have permission to access this resource.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Edge case: GET \/events\/\ud83d\ude80",
+            "route": "\/events\/\ud83d\ude80",
+            "method": "GET",
+            "expected": [
+                400,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/events\\\/%f0%9f%9a%80\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/shops\/m\u00fcnchen",
+            "route": "\/shops\/m\u00fcnchen",
+            "method": "GET",
+            "expected": [
+                400,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<h1>Shop not found<\/h1>"
+        },
+        {
+            "description": "Edge case: GET \/api\/events\/test%00null",
+            "route": "\/api\/events\/test%00null",
+            "method": "GET",
+            "expected": [
+                400,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "<!DOCTYPE HTML PUBLIC \"-\/\/IETF\/\/DTD HTML 2.0\/\/EN\">\n<html><head>\n<title>404 Not Found<\/title>\n<\/head><body>\n<h1>Not Found<\/h1>\n<p>The requested URL was not found on this server.<\/p>\n<hr>\n<address>Apache\/2.4.62 (Ubuntu) Server at localhost Port 80<\/address>\n<\/body><\/html>\n"
+        },
+        {
+            "description": "Edge case: GET \/\/events",
+            "route": "\/\/events",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/\\\/events\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/events\/\/\/",
+            "route": "\/events\/\/\/",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/events\\\/\\\/\\\/\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/api\/\/\/events",
+            "route": "\/api\/\/\/events",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/\\\/\\\/events\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/API\/events",
+            "route": "\/API\/events",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/API\\\/events\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/Events",
+            "route": "\/Events",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/Events\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/SHOPS",
+            "route": "\/SHOPS",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/SHOPS\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/events\/",
+            "route": "\/events\/",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/events\\\/\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/api\/events\/",
+            "route": "\/api\/events\/",
+            "method": "GET",
+            "expected": [
+                200,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/api\\\/events\\\/\",\"method\":\"GET\"}"
+        },
+        {
+            "description": "Edge case: GET \/admin\/dashboard\/",
+            "route": "\/admin\/dashboard\/",
+            "method": "GET",
+            "expected": [
+                200,
+                401,
+                404
+            ],
+            "actual": 404,
+            "success": true,
+            "response": "{\"error\":true,\"message\":\"Route not found\",\"path\":\"\\\/admin\\\/dashboard\\\/\",\"method\":\"GET\"}"
+        }
+    ],
+    "timestamp": "2025-06-14 07:55:31"
+}

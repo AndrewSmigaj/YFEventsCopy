@@ -77,14 +77,28 @@ class Router
         $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getCurrentPath();
 
+        $pathMatches = [];
+        $allowedMethods = [];
+
         foreach ($this->routes as $route) {
-            if ($route['method'] === $method && preg_match($route['pattern'], $path, $matches)) {
-                $this->executeRoute($route, $matches);
-                return;
+            if (preg_match($route['pattern'], $path, $matches)) {
+                $pathMatches[] = $route;
+                $allowedMethods[] = $route['method'];
+                
+                if ($route['method'] === $method) {
+                    $this->executeRoute($route, $matches);
+                    return;
+                }
             }
         }
 
-        // No route found
+        // Check if path exists but method is wrong
+        if (!empty($pathMatches)) {
+            $this->handleMethodNotAllowed($allowedMethods);
+            return;
+        }
+
+        // No route found at all
         $this->handleNotFound();
     }
 
@@ -185,14 +199,15 @@ class Router
      */
     private function handleNotFound(): void
     {
-        http_response_code(404);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'error' => true,
-            'message' => 'Route not found',
-            'path' => $this->getCurrentPath(),
-            'method' => $_SERVER['REQUEST_METHOD']
-        ]);
+        ErrorHandler::handle404($this->getCurrentPath(), $_SERVER['REQUEST_METHOD']);
+    }
+
+    /**
+     * Handle 405 method not allowed
+     */
+    private function handleMethodNotAllowed(array $allowedMethods): void
+    {
+        ErrorHandler::handle405($this->getCurrentPath(), $_SERVER['REQUEST_METHOD'], $allowedMethods);
     }
 
     /**
@@ -200,26 +215,8 @@ class Router
      */
     private function handleError(\Exception $e): void
     {
-        http_response_code(500);
-        header('Content-Type: application/json');
-        
-        $response = [
-            'error' => true,
-            'message' => 'Internal server error'
-        ];
-
-        // Add debug info if in debug mode
-        if ($this->config->get('app.debug', false)) {
-            $response['debug'] = [
-                'exception' => get_class($e),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ];
-        }
-
-        echo json_encode($response);
+        $debug = $this->config->get('app.debug', false);
+        ErrorHandler::handle500($e, $debug);
     }
 
     /**
