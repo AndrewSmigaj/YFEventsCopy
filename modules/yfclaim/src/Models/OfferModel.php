@@ -335,4 +335,59 @@ class OfferModel extends BaseModel {
     public function getOffersByItem($itemId, $status = null) {
         return $this->getByItem($itemId, $status);
     }
+    
+    /**
+     * Get buyer's offers with full details
+     */
+    public function getBuyerOffersWithDetails($buyerId) {
+        $sql = "
+            SELECT o.*, 
+                   i.title as item_title,
+                   i.item_number,
+                   i.starting_price,
+                   i.status as item_status,
+                   ii.filename as primary_image,
+                   s.title as sale_title,
+                   s.claim_start,
+                   s.claim_end,
+                   s.pickup_start,
+                   s.pickup_end,
+                   sel.company_name as seller_company,
+                   sel.email as seller_email,
+                   sel.phone as seller_phone,
+                   (SELECT MAX(offer_amount) FROM yfc_offers o2 WHERE o2.item_id = o.item_id AND o2.status = 'active') as highest_offer,
+                   (s.claim_start <= NOW() AND s.claim_end >= NOW()) as sale_active
+            FROM yfc_offers o
+            JOIN yfc_items i ON o.item_id = i.id
+            JOIN yfc_sales s ON i.sale_id = s.id
+            JOIN yfc_sellers sel ON s.seller_id = sel.id
+            LEFT JOIN yfc_item_images ii ON i.id = ii.item_id AND ii.is_primary = 1
+            WHERE o.buyer_id = ?
+            ORDER BY o.updated_at DESC, o.created_at DESC
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$buyerId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get buyer's offer by offer ID (for security checking)
+     */
+    public function getBuyerOfferById($offerId, $buyerId) {
+        $sql = "SELECT * FROM yfc_offers WHERE id = ? AND buyer_id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$offerId, $buyerId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Update offer status
+     */
+    public function updateStatus($offerId, $status) {
+        return $this->update($offerId, [
+            'status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+    }
 }

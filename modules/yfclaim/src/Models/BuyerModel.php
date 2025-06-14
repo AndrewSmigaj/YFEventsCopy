@@ -320,4 +320,99 @@ class BuyerModel extends BaseModel {
             throw $e;
         }
     }
+    
+    /**
+     * Find buyer by contact across system (not sale-specific)
+     */
+    public function findByContact($contact, $method = 'email') {
+        $field = $method === 'email' ? 'contact_value' : 'contact_value';
+        $sql = "SELECT * FROM {$this->table} WHERE contact_method = ? AND contact_value = ? ORDER BY created_at DESC LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$method, $contact]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Generate authentication code for existing buyer
+     */
+    public function generateAuthCode($buyerId) {
+        $authCode = sprintf('%06d', mt_rand(100000, 999999));
+        $authExpires = date('Y-m-d H:i:s', time() + 1800); // 30 minutes
+        
+        $this->update($buyerId, [
+            'auth_code' => $authCode,
+            'auth_expires_at' => $authExpires
+        ]);
+        
+        return $authCode;
+    }
+    
+    /**
+     * Verify auth code for buyer
+     */
+    public function verifyAuthCode($buyerId, $code) {
+        $buyer = $this->find($buyerId);
+        
+        if (!$buyer || !$buyer['auth_code']) {
+            return false;
+        }
+        
+        // Check code and expiration
+        if ($buyer['auth_code'] === $code && 
+            $buyer['auth_expires_at'] && 
+            strtotime($buyer['auth_expires_at']) > time()) {
+            
+            // Clear auth code
+            $this->update($buyerId, [
+                'auth_code' => null,
+                'auth_expires_at' => null
+            ]);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Create session for authenticated buyer
+     */
+    public function createSession($buyerId) {
+        $sessionToken = bin2hex(random_bytes(32));
+        $sessionExpires = date('Y-m-d H:i:s', time() + (86400 * 30)); // 30 days
+        
+        $updated = $this->update($buyerId, [
+            'session_token' => $sessionToken,
+            'session_expires_at' => $sessionExpires,
+            'last_login_at' => date('Y-m-d H:i:s')
+        ]);
+        
+        return $updated ? $sessionToken : false;
+    }
+    
+    /**
+     * Validate session token (updated version)
+     */
+    public function validateSession($sessionToken) {
+        $sql = "SELECT * FROM {$this->table} WHERE session_token = ? AND (session_expires_at IS NULL OR session_expires_at > NOW())";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$sessionToken]);
+        $buyer = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($buyer) {
+            // Update last activity
+            $this->update($buyer['id'], ['last_activity_at' => date('Y-m-d H:i:s')]);
+        }
+        
+        return $buyer;
+    }
+    
+    /**
+     * Invalidate session
+     */
+    public function invalidateSession($sessionToken) {
+        $sql = "UPDATE {$this->table} SET session_token = NULL, session_expires_at = NULL WHERE session_token = ?";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([$sessionToken]);
+    }
 }

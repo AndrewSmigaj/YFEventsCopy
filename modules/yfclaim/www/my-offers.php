@@ -23,13 +23,44 @@ if (isset($_SESSION['buyer_token'])) {
 }
 
 if (!$currentBuyer) {
-    header('Location: /modules/yfclaim/www/');
+    header('Location: /modules/yfclaim/www/buyer-login.php?return=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
-// Get buyer's offers
-$offers = $buyerModel->getOffers($currentBuyer['id']);
-$stats = $buyerModel->getStats($currentBuyer['id']);
+// Handle offer actions
+$message = '';
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        if (isset($_POST['action']) && $_POST['action'] === 'withdraw_offer') {
+            $offerId = intval($_POST['offer_id']);
+            $offer = $offerModel->getBuyerOfferById($offerId, $currentBuyer['id']);
+            
+            if ($offer && $offer['status'] === 'active') {
+                $offerModel->updateStatus($offerId, 'withdrawn');
+                $message = 'Offer withdrawn successfully.';
+            } else {
+                $error = 'Unable to withdraw this offer.';
+            }
+        }
+    } catch (Exception $e) {
+        $error = 'An error occurred: ' . $e->getMessage();
+    }
+}
+
+// Get buyer's offers with details
+$offers = $offerModel->getBuyerOffersWithDetails($currentBuyer['id']);
+
+// Calculate statistics
+$totalOffers = count($offers);
+$activeOffers = array_filter($offers, fn($offer) => $offer['status'] === 'active');
+$acceptedOffers = array_filter($offers, fn($offer) => $offer['status'] === 'accepted');
+$stats = [
+    'total_offers' => $totalOffers,
+    'active_offers' => count($activeOffers),
+    'winning_offers' => count($acceptedOffers)
+];
 
 // Group offers by status
 $activeOffers = [];

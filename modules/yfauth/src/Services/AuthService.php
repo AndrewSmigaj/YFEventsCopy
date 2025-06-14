@@ -1,369 +1,305 @@
 <?php
 namespace YFEvents\Modules\YFAuth\Services;
 
+use YFEvents\Modules\YFAuth\Models\UserModel;
+use YFEvents\Modules\YFAuth\Models\SessionModel;
+use YFEvents\Modules\YFAuth\Models\LoginAttemptModel;
 use PDO;
 use Exception;
 
 class AuthService {
-    private $db;
-    private $sessionLifetime;
-    private $maxLoginAttempts;
+    private $userModel;
+    private $sessionModel;
+    private $loginAttemptModel;
+    private $config;
     
-    public function __construct(PDO $db) {
-        $this->db = $db;
-        $this->sessionLifetime = 7200; // 2 hours default
-        $this->maxLoginAttempts = 5;
+    public function __construct(PDO $db, array $config = []) {
+        $this->userModel = new UserModel($db);
+        $this->sessionModel = new SessionModel($db);
+        $this->loginAttemptModel = new LoginAttemptModel($db);
+        
+        $this->config = array_merge([
+            'session_lifetime' => 7200, // 2 hours
+            'max_login_attempts' => 5,
+            'lockout_duration' => 900, // 15 minutes
+            'remember_me_duration' => 2592000, // 30 days
+            'require_email_verification' => true
+        ], $config);
     }
     
     /**
-     * Authenticate user with email/username and password
+     * Authenticate user
      */
-    public function authenticate($username, $password) {
-        // Clean any expired sessions first
-        $this->cleanExpiredSessions();
-        
-        // Find user by email or username
-        $stmt = $this->db->prepare("
-            SELECT * FROM yfa_auth_users 
-            WHERE (email = ? OR username = ?) 
-            AND status != 'inactive'
-        ");
-        $stmt->execute([$username, $username]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$user) {
-            $this->logActivity(null, 'login_failed', "Invalid username: $username");
-            return ['success' => false, 'error' => 'Invalid credentials'];
+    public function authenticate($credential, $password, $rememberMe = false) {
+        // Check login attempts
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
+        if ($this->isLockedOut($credential, $ipAddress)) {
+            throw new Exception('Too many failed login attempts. Please try again later.');
         }
         
-        // Check if account is locked
-        if ($user['status'] === 'locked') {
-            return ['success' => false, 'error' => 'Account is locked. Please contact support.'];
+        // Find user
+        $user = $this->userModel->findByCredentials($credential);
+        
+        if (!$user || !$this->userModel->verifyPassword($user, $password)) {
+            $this->recordFailedAttempt($credential, $ipAddress);
+            throw new Exception('Invalid credentials.');
         }
         
-        // Check failed login attempts
-        if ($user['failed_login_attempts'] >= $this->maxLoginAttempts) {
-            $lastFailed = strtotime($user['last_failed_login']);
-            $lockoutTime = 30 * 60; // 30 minutes
-            
-            if (time() - $lastFailed < $lockoutTime) {
-                return ['success' => false, 'error' => 'Too many failed attempts. Try again later.'];
-            }
+        // Check user status
+        if ($user['status'] !== 'active') {
+            throw new Exception('Your account is ' . $user['status'] . '.');
         }
         
-        // Verify password
-        if (!password_verify($password, $user['password_hash'])) {
-            // Increment failed attempts
-            $stmt = $this->db->prepare("
-                UPDATE yfa_auth_users 
-                SET failed_login_attempts = failed_login_attempts + 1,
-                    last_failed_login = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ");
-            $stmt->execute([$user['id']]);
-            
-            $this->logActivity($user['id'], 'login_failed', 'Invalid password');
-            return ['success' => false, 'error' => 'Invalid credentials'];
+        // Check email verification
+        if ($this->config['require_email_verification'] && !$user['email_verified']) {
+            throw new Exception('Please verify your email address before logging in.');
         }
         
-        // Check if password needs rehashing
-        if (password_needs_rehash($user['password_hash'], PASSWORD_DEFAULT)) {
-            $newHash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $this->db->prepare("UPDATE yfa_auth_users SET password_hash = ? WHERE id = ?");
-            $stmt->execute([$newHash, $user['id']]);
-        }
+        // Record successful attempt
+        $this->recordSuccessfulAttempt($credential, $ipAddress);
         
-        // Success - reset failed attempts and update last login
-        $stmt = $this->db->prepare("
-            UPDATE yfa_auth_users 
-            SET failed_login_attempts = 0,
-                last_login = CURRENT_TIMESTAMP
-            WHERE id = ?
-        ");
-        $stmt->execute([$user['id']]);
+        // Update last login
+        $this->userModel->updateLastLogin($user['id'], $ipAddress);
         
         // Create session
-        $sessionId = $this->createSession($user['id']);
-        
-        // Get user roles and permissions
-        $roles = $this->getUserRoles($user['id']);
-        $permissions = $this->getUserPermissions($user['id']);
-        
-        $this->logActivity($user['id'], 'login_success', 'Successful login');
+        $sessionLifetime = $rememberMe ? $this->config['remember_me_duration'] : $this->config['session_lifetime'];
+        $sessionId = $this->sessionModel->createSession(
+            $user['id'], 
+            $ipAddress, 
+            $_SERVER['HTTP_USER_AGENT'] ?? null,
+            $sessionLifetime
+        );
         
         return [
-            'success' => true,
-            'user' => [
-                'id' => $user['id'],
-                'email' => $user['email'],
-                'username' => $user['username'],
-                'first_name' => $user['first_name'],
-                'last_name' => $user['last_name'],
-                'roles' => $roles,
-                'permissions' => $permissions
-            ],
-            'session_id' => $sessionId
+            'user' => $user,
+            'session_id' => $sessionId,
+            'expires_at' => time() + $sessionLifetime
         ];
     }
     
     /**
-     * Create a new session
+     * Register new user
      */
-    private function createSession($userId) {
-        $sessionId = bin2hex(random_bytes(32));
+    public function register($data) {
+        // Validate required fields
+        $required = ['username', 'email', 'password'];
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                throw new Exception("$field is required.");
+            }
+        }
         
-        $stmt = $this->db->prepare("
-            INSERT INTO yfa_auth_sessions (id, user_id, ip_address, user_agent)
-            VALUES (?, ?, ?, ?)
-        ");
+        // Check if email exists
+        if ($this->userModel->findByEmail($data['email'])) {
+            throw new Exception('Email already registered.');
+        }
         
-        $stmt->execute([
-            $sessionId,
-            $userId,
-            $_SERVER['REMOTE_ADDR'] ?? null,
-            $_SERVER['HTTP_USER_AGENT'] ?? null
-        ]);
+        // Check if username exists
+        if ($this->userModel->findByUsername($data['username'])) {
+            throw new Exception('Username already taken.');
+        }
         
-        return $sessionId;
+        // Validate email
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('Invalid email address.');
+        }
+        
+        // Validate username
+        if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $data['username'])) {
+            throw new Exception('Username must be 3-20 characters and contain only letters, numbers, and underscores.');
+        }
+        
+        // Validate password
+        if (strlen($data['password']) < 8) {
+            throw new Exception('Password must be at least 8 characters long.');
+        }
+        
+        // Create user
+        $userId = $this->userModel->createUser($data);
+        
+        // Assign default role
+        $this->assignDefaultRole($userId);
+        
+        // Get created user
+        $user = $this->userModel->find($userId);
+        
+        return $user;
     }
     
     /**
-     * Validate session and get user
+     * Verify session
      */
-    public function validateSession($sessionId) {
-        $stmt = $this->db->prepare("
-            SELECT s.*, u.* 
-            FROM yfa_auth_sessions s
-            JOIN yfa_auth_users u ON s.user_id = u.id
-            WHERE s.id = ? 
-            AND u.status = 'active'
-            AND TIMESTAMPDIFF(SECOND, s.last_activity, NOW()) < ?
-        ");
-        
-        $stmt->execute([$sessionId, $this->sessionLifetime]);
-        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    public function verifySession($sessionId) {
+        $session = $this->sessionModel->getSession($sessionId);
         
         if (!$session) {
             return null;
         }
         
-        // Update last activity
-        $stmt = $this->db->prepare("
-            UPDATE yfa_auth_sessions 
-            SET last_activity = CURRENT_TIMESTAMP 
-            WHERE id = ?
-        ");
-        $stmt->execute([$sessionId]);
+        // Update activity
+        $this->sessionModel->updateActivity($sessionId);
         
-        // Get roles and permissions
-        $roles = $this->getUserRoles($session['user_id']);
-        $permissions = $this->getUserPermissions($session['user_id']);
+        // Get user with roles and permissions
+        $user = $this->userModel->find($session['user_id']);
+        if ($user) {
+            $user['roles'] = $this->userModel->getRoles($user['id']);
+            $user['permissions'] = $this->userModel->getPermissions($user['id']);
+        }
         
-        return [
-            'id' => $session['user_id'],
-            'email' => $session['email'],
-            'username' => $session['username'],
-            'first_name' => $session['first_name'],
-            'last_name' => $session['last_name'],
-            'roles' => $roles,
-            'permissions' => $permissions
-        ];
+        return $user;
     }
     
     /**
-     * Logout user
+     * Logout
      */
     public function logout($sessionId) {
-        $stmt = $this->db->prepare("DELETE FROM yfa_auth_sessions WHERE id = ?");
-        $stmt->execute([$sessionId]);
+        return $this->sessionModel->deleteSession($sessionId);
+    }
+    
+    /**
+     * Logout all sessions
+     */
+    public function logoutAllSessions($userId, $exceptSessionId = null) {
+        return $this->sessionModel->deleteUserSessions($userId, $exceptSessionId);
+    }
+    
+    /**
+     * Request password reset
+     */
+    public function requestPasswordReset($email) {
+        $user = $this->userModel->findByEmail($email);
+        
+        if (!$user) {
+            // Don't reveal if email exists
+            return true;
+        }
+        
+        $token = $this->userModel->generatePasswordResetToken($user['id']);
+        
+        // TODO: Send password reset email
+        
+        return $token;
+    }
+    
+    /**
+     * Reset password
+     */
+    public function resetPassword($token, $newPassword) {
+        $user = $this->userModel->verifyPasswordResetToken($token);
+        
+        if (!$user) {
+            throw new Exception('Invalid or expired reset token.');
+        }
+        
+        // Validate password
+        if (strlen($newPassword) < 8) {
+            throw new Exception('Password must be at least 8 characters long.');
+        }
+        
+        // Update password
+        $this->userModel->updatePassword($user['id'], $newPassword);
+        
+        // Logout all sessions
+        $this->sessionModel->deleteUserSessions($user['id']);
         
         return true;
     }
     
     /**
-     * Get user roles
+     * Verify email
      */
-    public function getUserRoles($userId) {
-        $stmt = $this->db->prepare("
-            SELECT r.name, r.display_name
-            FROM yfa_auth_roles r
-            JOIN yfa_auth_user_roles ur ON r.id = ur.role_id
-            WHERE ur.user_id = ?
-        ");
+    public function verifyEmail($token) {
+        $user = $this->userModel->verifyEmail($token);
         
-        $stmt->execute([$userId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$user) {
+            throw new Exception('Invalid verification token.');
+        }
+        
+        return $user;
     }
     
     /**
-     * Get user permissions
+     * Check if locked out
      */
-    public function getUserPermissions($userId) {
-        $stmt = $this->db->prepare("
-            SELECT DISTINCT p.name, p.module
-            FROM yfa_auth_permissions p
-            JOIN yfa_auth_role_permissions rp ON p.id = rp.permission_id
-            JOIN yfa_auth_user_roles ur ON rp.role_id = ur.role_id
-            WHERE ur.user_id = ?
-        ");
+    private function isLockedOut($credential, $ipAddress) {
+        $failedCount = $this->loginAttemptModel->getFailedAttemptsCount(
+            $credential, 
+            $ipAddress, 
+            $this->config['lockout_duration']
+        );
         
-        $stmt->execute([$userId]);
-        $permissions = [];
+        return $failedCount >= $this->config['max_login_attempts'];
+    }
+    
+    /**
+     * Record failed login attempt
+     */
+    private function recordFailedAttempt($credential, $ipAddress) {
+        $this->loginAttemptModel->recordAttempt($credential, $ipAddress, false);
+    }
+    
+    /**
+     * Record successful login attempt
+     */
+    private function recordSuccessfulAttempt($credential, $ipAddress) {
+        $this->loginAttemptModel->recordAttempt($credential, $ipAddress, true);
+    }
+    
+    /**
+     * Assign default role to new user
+     */
+    private function assignDefaultRole($userId) {
+        $db = $this->userModel->getDb();
+        $roleModel = new \YFEvents\Modules\YFAuth\Models\RoleModel($db);
         
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $permissions[] = $row['name'];
+        $userRole = $roleModel->findByName('user');
+        if ($userRole) {
+            $this->userModel->assignRole($userId, $userRole['id']);
+        }
+    }
+    
+    /**
+     * Change password
+     */
+    public function changePassword($userId, $currentPassword, $newPassword) {
+        $user = $this->userModel->find($userId);
+        
+        if (!$user) {
+            throw new Exception('User not found.');
         }
         
-        return $permissions;
+        // Verify current password
+        if (!$this->userModel->verifyPassword($user, $currentPassword)) {
+            throw new Exception('Current password is incorrect.');
+        }
+        
+        // Validate new password
+        if (strlen($newPassword) < 8) {
+            throw new Exception('Password must be at least 8 characters long.');
+        }
+        
+        // Update password
+        return $this->userModel->updatePassword($userId, $newPassword);
+    }
+    
+    /**
+     * Get active sessions for user
+     */
+    public function getActiveSessions($userId) {
+        return $this->sessionModel->getUserSessions($userId);
     }
     
     /**
      * Check if user has permission
      */
     public function hasPermission($userId, $permission) {
-        $permissions = $this->getUserPermissions($userId);
-        return in_array($permission, $permissions);
+        return $this->userModel->hasPermission($userId, $permission);
     }
     
     /**
      * Check if user has role
      */
-    public function hasRole($userId, $roleName) {
-        $roles = $this->getUserRoles($userId);
-        
-        foreach ($roles as $role) {
-            if ($role['name'] === $roleName) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Create new user
-     */
-    public function createUser($data) {
-        // Validate required fields
-        if (empty($data['email']) || empty($data['username']) || empty($data['password'])) {
-            throw new Exception('Email, username, and password are required');
-        }
-        
-        // Check if email or username already exists
-        $stmt = $this->db->prepare("
-            SELECT COUNT(*) FROM yfa_auth_users 
-            WHERE email = ? OR username = ?
-        ");
-        $stmt->execute([$data['email'], $data['username']]);
-        
-        if ($stmt->fetchColumn() > 0) {
-            throw new Exception('Email or username already exists');
-        }
-        
-        // Hash password
-        $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
-        
-        // Generate email verification token
-        $verificationToken = bin2hex(random_bytes(32));
-        
-        // Insert user
-        $stmt = $this->db->prepare("
-            INSERT INTO yfa_auth_users 
-            (email, username, password_hash, first_name, last_name, phone, 
-             email_verification_token, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        
-        $stmt->execute([
-            $data['email'],
-            $data['username'],
-            $passwordHash,
-            $data['first_name'] ?? null,
-            $data['last_name'] ?? null,
-            $data['phone'] ?? null,
-            $verificationToken,
-            $data['auto_activate'] ? 'active' : 'pending'
-        ]);
-        
-        $userId = $this->db->lastInsertId();
-        
-        // Assign default role
-        $defaultRole = $data['default_role'] ?? 'registered_user';
-        $this->assignRole($userId, $defaultRole);
-        
-        $this->logActivity($userId, 'user_created', 'New user account created');
-        
-        return [
-            'id' => $userId,
-            'email' => $data['email'],
-            'username' => $data['username'],
-            'verification_token' => $verificationToken
-        ];
-    }
-    
-    /**
-     * Assign role to user
-     */
-    public function assignRole($userId, $roleName, $assignedBy = null) {
-        // Get role ID
-        $stmt = $this->db->prepare("SELECT id FROM yfa_auth_roles WHERE name = ?");
-        $stmt->execute([$roleName]);
-        $roleId = $stmt->fetchColumn();
-        
-        if (!$roleId) {
-            throw new Exception("Role '$roleName' not found");
-        }
-        
-        // Check if already assigned
-        $stmt = $this->db->prepare("
-            SELECT COUNT(*) FROM yfa_auth_user_roles 
-            WHERE user_id = ? AND role_id = ?
-        ");
-        $stmt->execute([$userId, $roleId]);
-        
-        if ($stmt->fetchColumn() > 0) {
-            return true; // Already assigned
-        }
-        
-        // Assign role
-        $stmt = $this->db->prepare("
-            INSERT INTO yfa_auth_user_roles (user_id, role_id, assigned_by)
-            VALUES (?, ?, ?)
-        ");
-        $stmt->execute([$userId, $roleId, $assignedBy]);
-        
-        $this->logActivity($userId, 'role_assigned', "Role '$roleName' assigned");
-        
-        return true;
-    }
-    
-    /**
-     * Log activity
-     */
-    private function logActivity($userId, $action, $details = null) {
-        $stmt = $this->db->prepare("
-            INSERT INTO yfa_auth_activity_log 
-            (user_id, action, details, ip_address, user_agent)
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        
-        $stmt->execute([
-            $userId,
-            $action,
-            $details,
-            $_SERVER['REMOTE_ADDR'] ?? null,
-            $_SERVER['HTTP_USER_AGENT'] ?? null
-        ]);
-    }
-    
-    /**
-     * Clean expired sessions
-     */
-    private function cleanExpiredSessions() {
-        $stmt = $this->db->prepare("
-            DELETE FROM yfa_auth_sessions 
-            WHERE TIMESTAMPDIFF(SECOND, last_activity, NOW()) > ?
-        ");
-        $stmt->execute([$this->sessionLifetime]);
+    public function hasRole($userId, $role) {
+        return $this->userModel->hasRole($userId, $role);
     }
 }
