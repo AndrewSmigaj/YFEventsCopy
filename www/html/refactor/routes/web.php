@@ -77,11 +77,40 @@ $router->get('/api/shops/nearby', ShopController::class, 'getShopsNearLocation')
 $router->get('/api/shops/{id}', ShopController::class, 'getShop');
 $router->post('/api/shops/submit', ShopController::class, 'submitShop');
 
-// YFClaim estate sales routes
+// YFClaim estate sales routes (public)
 $router->get('/claims', ClaimsController::class, 'showClaimsPage');
 $router->get('/claims/upcoming', ClaimsController::class, 'showUpcomingClaimsPage');
+$router->get('/claims/sale', ClaimsController::class, 'showSale');
+$router->get('/claims/item/{id}', ClaimsController::class, 'showItem');
+
+// YFClaim seller routes
 $router->get('/seller/register', ClaimsController::class, 'showSellerRegistration');
+$router->post('/seller/register', ClaimsController::class, 'processSellerRegistration');
+$router->get('/seller/login', ClaimsController::class, 'showSellerLogin');
+$router->post('/seller/login', ClaimsController::class, 'processSellerLogin');
+$router->get('/seller/dashboard', ClaimsController::class, 'showSellerDashboard');
+$router->get('/seller/sale/new', ClaimsController::class, 'showCreateSale');
+$router->post('/seller/sale/create', ClaimsController::class, 'createSale');
+$router->get('/seller/sale/{id}/edit', ClaimsController::class, 'showEditSale');
+$router->post('/seller/sale/{id}/update', ClaimsController::class, 'updateSale');
+$router->get('/seller/sale/{id}/items', ClaimsController::class, 'manageSaleItems');
+$router->post('/seller/logout', ClaimsController::class, 'sellerLogout');
+
+// YFClaim buyer routes
+$router->get('/buyer/auth', ClaimsController::class, 'showBuyerAuth');
+$router->post('/buyer/auth/send', ClaimsController::class, 'sendBuyerAuthCode');
+$router->post('/buyer/auth/verify', ClaimsController::class, 'verifyBuyerAuthCode');
 $router->get('/buyer/offers', ClaimsController::class, 'showBuyerOffers');
+$router->post('/buyer/logout', ClaimsController::class, 'buyerLogout');
+
+// YFClaim API routes
+$router->post('/api/claims/offer', ClaimsController::class, 'submitOffer');
+$router->get('/api/claims/offers/{buyerId}', ClaimsController::class, 'getBuyerOffers');
+$router->post('/api/claims/item/{id}/claim', ClaimsController::class, 'claimItem');
+$router->get('/api/claims/sale/{id}/items', ClaimsController::class, 'getSaleItemsApi');
+$router->post('/api/claims/seller/items/add', ClaimsController::class, 'addSaleItem');
+$router->post('/api/claims/seller/items/{id}/update', ClaimsController::class, 'updateSaleItem');
+$router->post('/api/claims/seller/items/{id}/delete', ClaimsController::class, 'deleteSaleItem');
 
 // Admin shop routes
 $router->get('/admin/shops', AdminShopController::class, 'getAllShops');

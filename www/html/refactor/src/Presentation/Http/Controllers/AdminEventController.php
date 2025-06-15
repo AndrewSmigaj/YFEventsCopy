@@ -531,9 +531,22 @@ class AdminEventController extends BaseController
             }
 
             $results = [];
+            $timeoutSeconds = 120; // 2 minutes per source
             foreach ($sourceIds as $sourceId) {
-                $command = "cd " . dirname($scriptPath) . " && php scrape-events.php --source-id=" . escapeshellarg((string)$sourceId) . " 2>&1";
+                $command = "cd " . dirname($scriptPath) . " && timeout {$timeoutSeconds} php scrape-events.php --source-id=" . escapeshellarg((string)$sourceId) . " 2>&1";
                 $output = shell_exec($command);
+                
+                // Check if command timed out
+                if ($output === null) {
+                    $results[] = [
+                        'source_id' => (int)$sourceId,
+                        'events_found' => 0,
+                        'events_added' => 0,
+                        'output' => "ERROR: Scraper timed out after {$timeoutSeconds} seconds",
+                        'timed_out' => true
+                    ];
+                    continue;
+                }
                 
                 // Parse the output to get results
                 $eventsFound = 0;
@@ -549,7 +562,8 @@ class AdminEventController extends BaseController
                     'source_id' => (int)$sourceId,
                     'events_found' => $eventsFound,
                     'events_added' => $eventsAdded,
-                    'output' => $output
+                    'output' => $output,
+                    'timed_out' => false
                 ];
             }
 
@@ -608,8 +622,16 @@ class AdminEventController extends BaseController
                 return;
             }
 
-            $command = "cd " . dirname($scriptPath) . " && php scrape-events.php 2>&1";
+            // Use timeout command to prevent hanging
+            $timeoutSeconds = 300; // 5 minutes maximum
+            $command = "cd " . dirname($scriptPath) . " && timeout {$timeoutSeconds} php scrape-events.php 2>&1";
             $output = shell_exec($command);
+            
+            // Check if command timed out
+            if ($output === null) {
+                $this->errorResponse('Scraper timed out after ' . $timeoutSeconds . ' seconds', 500);
+                return;
+            }
             
             $endTime = microtime(true);
             $duration = round($endTime - $startTime, 2);

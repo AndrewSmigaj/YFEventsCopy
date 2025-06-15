@@ -10,10 +10,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-$basePath = dirname($_SERVER['SCRIPT_NAME']);
-if ($basePath === '/') {
-    $basePath = '';
-}
+// Set correct base path for refactor admin
+$basePath = '/refactor';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -308,11 +306,13 @@ if ($basePath === '/') {
         <div class="header-content">
             <h1>🛠️ YFEvents Admin</h1>
             <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin" class="active">Dashboard</a>
-                <a href="<?= $basePath ?>/admin/events">Events</a>
-                <a href="<?= $basePath ?>/admin/shops">Shops</a>
-                <a href="<?= $basePath ?>/admin/scrapers">Scrapers</a>
-                <a href="<?= $basePath ?>/admin/users">Users</a>
+                <a href="<?= $basePath ?>/admin/index.php" class="active">Dashboard</a>
+                <a href="<?= $basePath ?>/admin/events.php">Events</a>
+                <a href="<?= $basePath ?>/admin/shops.php">Shops</a>
+                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
+                <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
+                <a href="<?= $basePath ?>/admin/users.php">Users</a>
+                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
                 <a href="#" onclick="logout()">Logout</a>
             </nav>
         </div>
@@ -328,19 +328,19 @@ if ($basePath === '/') {
             <h3 class="welcome-title">Welcome to YFEvents Administration</h3>
             <p class="welcome-text">Manage events, shops, scrapers, and users from this central dashboard. Monitor system health and performance in real-time.</p>
             <div class="quick-actions">
-                <a href="<?= $basePath ?>/admin/events" class="quick-action">
+                <a href="<?= $basePath ?>/admin/events.php" class="quick-action">
                     <span class="quick-action-icon">📅</span>
                     Manage Events
                 </a>
-                <a href="<?= $basePath ?>/admin/shops" class="quick-action">
+                <a href="<?= $basePath ?>/admin/shops.php" class="quick-action">
                     <span class="quick-action-icon">🏪</span>
                     Manage Shops
                 </a>
-                <a href="<?= $basePath ?>/admin/scrapers" class="quick-action">
+                <a href="<?= $basePath ?>/admin/scrapers.php" class="quick-action">
                     <span class="quick-action-icon">🔄</span>
                     Run Scrapers
                 </a>
-                <a href="<?= $basePath ?>/admin/users" class="quick-action">
+                <a href="<?= $basePath ?>/admin/users.php" class="quick-action">
                     <span class="quick-action-icon">👥</span>
                     Manage Users
                 </a>
@@ -352,9 +352,9 @@ if ($basePath === '/') {
                 <div class="activity-card">
                     <h3 class="activity-title">📅 Event Management</h3>
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <a href="<?= $basePath ?>/admin/events" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">📋 View All Events</a>
-                        <a href="<?= $basePath ?>/admin/events?status=pending" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">⏳ Review Pending Events</a>
-                        <a href="<?= $basePath ?>/admin/events?featured=1" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">⭐ Manage Featured Events</a>
+                        <a href="<?= $basePath ?>/admin/events.php" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">📋 View All Events</a>
+                        <a href="<?= $basePath ?>/admin/events.php?status=pending" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">⏳ Review Pending Events</a>
+                        <a href="<?= $basePath ?>/admin/events.php?featured=1" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">⭐ Manage Featured Events</a>
                         <a href="javascript:void(0)" onclick="showEventStats()" style="text-decoration: none; color: #667eea; padding: 0.5rem 0; cursor: pointer;">📊 Event Statistics</a>
                     </div>
                 </div>
@@ -363,9 +363,9 @@ if ($basePath === '/') {
                 <div class="activity-card">
                     <h3 class="activity-title">🏪 Shop Management</h3>
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <a href="<?= $basePath ?>/admin/shops" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🏪 View All Shops</a>
-                        <a href="<?= $basePath ?>/admin/shops?status=pending" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">⏳ Review Pending Shops</a>
-                        <a href="<?= $basePath ?>/admin/shops?verified=1" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">✅ Verify Shop Information</a>
+                        <a href="<?= $basePath ?>/admin/shops.php" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🏪 View All Shops</a>
+                        <a href="<?= $basePath ?>/admin/shops.php?status=pending" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">⏳ Review Pending Shops</a>
+                        <a href="<?= $basePath ?>/admin/shops.php?verified=1" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">✅ Verify Shop Information</a>
                         <a href="javascript:void(0)" onclick="showShopStats()" style="text-decoration: none; color: #667eea; padding: 0.5rem 0; cursor: pointer;">📊 Shop Statistics</a>
                     </div>
                 </div>
@@ -374,7 +374,7 @@ if ($basePath === '/') {
                 <div class="activity-card">
                     <h3 class="activity-title">🔄 Scraper Management</h3>
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <a href="<?= $basePath ?>/admin/scrapers" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🔧 Manage Sources</a>
+                        <a href="<?= $basePath ?>/admin/scrapers.php" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🔧 Manage Sources</a>
                         <a href="javascript:void(0)" onclick="runAllScrapers()" style="text-decoration: none; color: #667eea; padding: 0.5rem 0; cursor: pointer;">🚀 Run All Scrapers</a>
                         <a href="javascript:void(0)" onclick="testScrapers()" style="text-decoration: none; color: #667eea; padding: 0.5rem 0; cursor: pointer;">🧪 Test Scrapers</a>
                         <a href="javascript:void(0)" onclick="showScraperStats()" style="text-decoration: none; color: #667eea; padding: 0.5rem 0; cursor: pointer;">📊 Scraper Statistics</a>
@@ -399,7 +399,8 @@ if ($basePath === '/') {
                         <a href="<?= $basePath ?>/" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🏠 View Public Site</a>
                         <a href="<?= $basePath ?>/events" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">📅 Public Events</a>
                         <a href="<?= $basePath ?>/shops" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🏪 Public Shops</a>
-                        <a href="<?= $basePath ?>/modules/yfclaim/www/" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🏛️ Estate Sales</a>
+                        <a href="<?= $basePath ?>/claims" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🏛️ Estate Sales</a>
+                        <a href="<?= $basePath ?>/admin/claims.php" style="text-decoration: none; color: #667eea; padding: 0.5rem 0;">🔧 Manage Claims</a>
                     </div>
                 </div>
             </div>

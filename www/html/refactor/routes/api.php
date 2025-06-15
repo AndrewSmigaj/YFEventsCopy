@@ -18,21 +18,22 @@ use YakimaFinds\Presentation\Http\Controllers\AdminShopController;
 // Health check
 $router->get('/api/health', HomeController::class, 'health');
 
-// Public API routes
+// Public API routes - specific routes before parameterized ones
 $router->get('/api/events', EventApiController::class, 'index');
-$router->get('/api/events/{id}', EventApiController::class, 'show');
 $router->get('/api/events/calendar', EventApiController::class, 'calendar');
 $router->get('/api/events/featured', EventApiController::class, 'featured');
 $router->get('/api/events/upcoming', EventApiController::class, 'upcoming');
 $router->get('/api/events/nearby', EventApiController::class, 'nearby');
+$router->get('/api/events/{id}', EventApiController::class, 'show');
 $router->post('/api/events', EventApiController::class, 'store');
 
-// Shop API routes
+// Shop API routes - specific routes before parameterized ones
 $router->get('/api/shops', ShopApiController::class, 'index');
-$router->get('/api/shops/{id}', ShopApiController::class, 'show');
+$router->get('/api/shops/statistics', ShopApiController::class, 'getStatistics');
 $router->get('/api/shops/featured', ShopApiController::class, 'featured');
 $router->get('/api/shops/map', ShopApiController::class, 'map');
 $router->get('/api/shops/nearby', ShopApiController::class, 'nearby');
+$router->get('/api/shops/{id}', ShopApiController::class, 'show');
 $router->get('/api/shops/categories/{category_id}', ShopApiController::class, 'byCategory');
 $router->post('/api/shops', ShopApiController::class, 'store');
 
@@ -57,8 +58,7 @@ $router->post('/admin/events/bulk-reject', AdminEventController::class, 'bulkRej
 // Admin Scrapers
 $router->post('/admin/scrapers/run', AdminEventController::class, 'runScraper');
 
-// Shop statistics and admin routes
-$router->get('/api/shops/statistics', ShopApiController::class, 'getStatistics');
+// (Shop statistics route moved up to avoid route conflicts)
 
 // User routes (placeholder - add when UserController exists)
 $router->get('/api/users', AdminEventController::class, 'getUsers');
@@ -67,3 +67,4 @@ $router->get('/api/users/statistics', AdminEventController::class, 'getUserStati
 // Other admin routes
 $router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');
 $router->get('/api/admin/shops', AdminShopController::class, 'getAllShops');
+$router->get('/api/admin/shops/statistics', AdminShopController::class, 'getShopStatistics');

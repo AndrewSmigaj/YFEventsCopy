@@ -10,10 +10,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-$basePath = dirname($_SERVER['SCRIPT_NAME']);
-if ($basePath === '/') {
-    $basePath = '';
-}
+// Set correct base path for refactor admin
+$basePath = '/refactor';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,11 +59,13 @@ if ($basePath === '/') {
         <div class="header-content">
             <h1>🛠️ YFEvents Admin</h1>
             <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin">Dashboard</a>
-                <a href="<?= $basePath ?>/admin/events" class="active">Events</a>
-                <a href="<?= $basePath ?>/admin/shops">Shops</a>
-                <a href="<?= $basePath ?>/admin/scrapers">Scrapers</a>
-                <a href="<?= $basePath ?>/admin/users">Users</a>
+                <a href="<?= $basePath ?>/admin/index.php">Dashboard</a>
+                <a href="<?= $basePath ?>/admin/events.php" class="active">Events</a>
+                <a href="<?= $basePath ?>/admin/shops.php">Shops</a>
+                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
+                <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
+                <a href="<?= $basePath ?>/admin/users.php">Users</a>
+                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
                 <a href="#" onclick="logout()">Logout</a>
             </nav>
         </div>

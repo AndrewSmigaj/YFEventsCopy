@@ -10,10 +10,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-$basePath = dirname($_SERVER['SCRIPT_NAME']);
-if ($basePath === '/') {
-    $basePath = '';
-}
+// Set correct base path for refactor admin
+$basePath = '/refactor';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -97,11 +95,13 @@ if ($basePath === '/') {
         <div class="header-content">
             <h1>🛠️ YFEvents Admin</h1>
             <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin">Dashboard</a>
+                <a href="<?= $basePath ?>/admin/index.php">Dashboard</a>
                 <a href="<?= $basePath ?>/admin/events.php">Events</a>
                 <a href="<?= $basePath ?>/admin/shops.php">Shops</a>
+                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
                 <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
                 <a href="<?= $basePath ?>/admin/users.php" class="active">Users</a>
+                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
                 <a href="#" onclick="logout()">Logout</a>
             </nav>
         </div>
@@ -253,7 +253,7 @@ if ($basePath === '/') {
     
     <script>
         const basePath = '<?= $basePath ?>';
-        const apiBasePath = '<?= dirname($basePath) ?>'; // Remove /admin for API calls
+        const apiBasePath = '<?= $basePath ?>'; // API calls should use same base path
         let usersData = [];
         let filteredUsers = [];
         

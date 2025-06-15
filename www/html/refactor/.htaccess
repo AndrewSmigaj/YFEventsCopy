@@ -8,8 +8,8 @@ RewriteRule ^admin/(.*)$ admin/$1 [L]
 RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Route admin API calls through the router  
-RewriteCond %{REQUEST_URI} ^/admin/(events|shops|scrapers|users)/?$
+# Route admin API calls and authentication through the router  
+RewriteCond %{REQUEST_URI} ^/admin/(events|shops|scrapers|users|login|logout|status|dashboard)/?$
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Handle other routes through router

@@ -403,14 +403,7 @@ class ShopApiController extends BaseController
     public function getStatistics(): void
     {
         try {
-            // Placeholder implementation - could be enhanced with real data
-            $statistics = [
-                'total_shops' => 0,
-                'active_shops' => 0,
-                'pending_shops' => 0,
-                'featured_shops' => 0,
-                'verified_shops' => 0
-            ];
+            $statistics = $this->shopService->getShopStatistics();
 
             $this->successResponse(['statistics' => $statistics], 'Shop statistics retrieved successfully');
 

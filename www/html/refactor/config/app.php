@@ -40,4 +40,56 @@ return [
         'http_only' => true,
         'same_site' => 'lax',
     ],
+
+    'sms' => [
+        'enabled' => false,
+        'provider' => 'twilio', // twilio, aws, nexmo
+        'from_number' => '',
+        
+        // Twilio Configuration
+        'twilio' => [
+            'account_sid' => '',
+            'auth_token' => '',
+            'from_number' => '',
+        ],
+        
+        // AWS SNS Configuration
+        'aws' => [
+            'key' => '',
+            'secret' => '',
+            'region' => 'us-east-1',
+            'from_number' => '',
+        ],
+        
+        // Nexmo/Vonage Configuration
+        'nexmo' => [
+            'api_key' => '',
+            'api_secret' => '',
+            'from_number' => '',
+        ],
+        
+        // Test mode settings
+        'test_mode' => true,
+        'test_numbers' => [], // Numbers that will receive actual SMS in test mode
+    ],
+
+    'email' => [
+        'enabled' => true,
+        'driver' => 'mail', // mail, smtp, sendmail
+        'from_email' => 'noreply@yakimafinds.com',
+        'from_name' => 'YakimaFinds',
+        
+        // SMTP Configuration
+        'smtp' => [
+            'host' => 'smtp.gmail.com',
+            'port' => 587,
+            'username' => '',
+            'password' => '',
+            'encryption' => 'tls', // tls, ssl
+        ],
+        
+        // Test mode settings
+        'test_mode' => false,
+        'test_emails' => [], // Emails that will receive actual emails in test mode
+    ],
 ];

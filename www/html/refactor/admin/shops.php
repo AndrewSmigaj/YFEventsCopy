@@ -10,10 +10,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
-$basePath = dirname($_SERVER['SCRIPT_NAME']);
-if ($basePath === '/') {
-    $basePath = '';
-}
+// Set correct base path for refactor admin
+$basePath = '/refactor';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,11 +101,13 @@ if ($basePath === '/') {
         <div class="header-content">
             <h1>🛠️ YFEvents Admin</h1>
             <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin">Dashboard</a>
+                <a href="<?= $basePath ?>/admin/index.php">Dashboard</a>
                 <a href="<?= $basePath ?>/admin/events.php">Events</a>
                 <a href="<?= $basePath ?>/admin/shops.php" class="active">Shops</a>
+                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
                 <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
                 <a href="<?= $basePath ?>/admin/users.php">Users</a>
+                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
                 <a href="#" onclick="logout()">Logout</a>
             </nav>
         </div>
@@ -275,7 +275,7 @@ if ($basePath === '/') {
     
     <script>
         const basePath = '<?= $basePath ?>';
-        const apiBasePath = '<?= dirname($basePath) ?>'; // Remove /admin for API calls
+        const apiBasePath = '<?= $basePath ?>'; // API calls should use same base path
         let shopsData = [];
         let filteredShops = [];
         
@@ -287,7 +287,7 @@ if ($basePath === '/') {
         
         async function loadStatistics() {
             try {
-                const response = await fetch(`${apiBasePath}/api/shops/statistics`, {
+                const response = await fetch(`${apiBasePath}/api/admin/shops/statistics`, {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -297,23 +297,23 @@ if ($basePath === '/') {
                     const statsRow = document.getElementById('statsRow');
                     statsRow.innerHTML = `
                         <div class="stat-card">
-                            <div class="stat-value">${stats.total_shops || 0}</div>
+                            <div class="stat-value">${stats.total || 0}</div>
                             <div class="stat-label">Total Shops</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">${stats.active_shops || 0}</div>
+                            <div class="stat-value">${stats.active || 0}</div>
                             <div class="stat-label">Active</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">${stats.pending_shops || 0}</div>
+                            <div class="stat-value">${stats.pending || 0}</div>
                             <div class="stat-label">Pending</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">${stats.featured_shops || 0}</div>
+                            <div class="stat-value">${stats.featured || 0}</div>
                             <div class="stat-label">Featured</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-value">${stats.verified_shops || 0}</div>
+                            <div class="stat-value">${stats.verified || 0}</div>
                             <div class="stat-label">Verified</div>
                         </div>
                     `;
@@ -325,13 +325,13 @@ if ($basePath === '/') {
         
         async function loadShops() {
             try {
-                const response = await fetch(`${apiBasePath}/api/shops`, {
+                const response = await fetch(`${apiBasePath}/api/admin/shops`, {
                     credentials: 'include'
                 });
                 const data = await response.json();
                 
                 if (data.success) {
-                    shopsData = data.data;
+                    shopsData = data.data.shops;
                     filteredShops = [...shopsData];
                     renderShops();
                 } else {
