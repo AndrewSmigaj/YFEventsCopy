@@ -944,7 +944,7 @@ HTML;
     
     <!-- Load Google Maps API -->
     <script async defer 
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD0XAoZjfslv7ikTaply_DfoKp9nx_VXyU&libraries=places&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap">
     </script>
 </body>
 </html>
