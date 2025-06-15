@@ -124,4 +124,61 @@ abstract class BaseController
         }
         return true;
     }
+
+    /**
+     * Check if current user has specific permission
+     */
+    protected function requirePermission(string $permission): bool
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Check if user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            $this->errorResponse('Authentication required', 401);
+            return false;
+        }
+        
+        // For now, also check admin session as fallback
+        if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in']) {
+            return true; // Admins have all permissions
+        }
+        
+        // TODO: Implement actual permission checking using PermissionService
+        // This is a placeholder that will be enhanced when sessions are properly integrated
+        $this->errorResponse('Insufficient permissions', 403);
+        return false;
+    }
+
+    /**
+     * Check if current user can manage specific resource (for "own" permissions)
+     */
+    protected function requireResourcePermission(string $basePermission, int $resourceOwnerId = null): bool
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        $userId = $_SESSION['user_id'] ?? null;
+        
+        if (!$userId) {
+            $this->errorResponse('Authentication required', 401);
+            return false;
+        }
+        
+        // Admin override
+        if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in']) {
+            return true;
+        }
+        
+        // TODO: Implement actual permission checking
+        // For now, return true if user owns the resource
+        if ($resourceOwnerId && $userId === $resourceOwnerId) {
+            return true;
+        }
+        
+        $this->errorResponse('Insufficient permissions', 403);
+        return false;
+    }
 }

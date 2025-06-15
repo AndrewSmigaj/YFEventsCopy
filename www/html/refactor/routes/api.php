@@ -8,6 +8,7 @@ use YakimaFinds\Presentation\Api\Controllers\ShopApiController;
 use YakimaFinds\Presentation\Http\Controllers\HomeController;
 use YakimaFinds\Presentation\Http\Controllers\AdminEventController;
 use YakimaFinds\Presentation\Http\Controllers\AdminShopController;
+use YakimaFinds\Presentation\Http\Controllers\UserController;
 
 /**
  * API routes for the application
@@ -60,9 +61,23 @@ $router->post('/admin/scrapers/run', AdminEventController::class, 'runScraper');
 
 // (Shop statistics route moved up to avoid route conflicts)
 
-// User routes (placeholder - add when UserController exists)
-$router->get('/api/users', AdminEventController::class, 'getUsers');
-$router->get('/api/users/statistics', AdminEventController::class, 'getUserStatistics');
+// User management routes
+$router->get('/api/users', UserController::class, 'index');
+$router->get('/api/users/statistics', UserController::class, 'statistics');
+$router->get('/api/users/show', UserController::class, 'show');
+$router->post('/api/users', UserController::class, 'store');
+$router->put('/api/users', UserController::class, 'update');
+$router->delete('/api/users', UserController::class, 'delete');
+$router->post('/api/users/toggle-status', UserController::class, 'toggleStatus');
+$router->post('/api/users/reset-password', UserController::class, 'resetPassword');
+$router->get('/api/users/activity-logs', UserController::class, 'getActivityLogs');
+
+// Role and permission management routes
+$router->get('/api/roles', UserController::class, 'getRoles');
+$router->get('/api/permissions', UserController::class, 'getPermissions');
+$router->get('/api/users/permissions', UserController::class, 'getUserPermissions');
+$router->post('/api/users/roles', UserController::class, 'updateUserRoles');
+$router->get('/api/users/check-permission', UserController::class, 'checkUserPermission');
 
 // Other admin routes
 $router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');
