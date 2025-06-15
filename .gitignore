@@ -4,9 +4,11 @@
 .env.*.local
 
 # API Keys - NEVER COMMIT THESE
-/config/api_keys.php
 config/api_keys.php
+/config/api_keys.php
+**/config/api_keys.php
 api_keys.php
+**/api_keys.php
 
 # Dependencies
 /vendor/
