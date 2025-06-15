@@ -68,6 +68,82 @@ cp -r /home/robug/YFEvents-original-backup/* /home/robug/YFEvents/www/html/
 curl -I https://backoffice.yakimafinds.com/
 ```
 
+## 🔒 **CRITICAL: API KEY SECURITY GUIDELINES** 🔒
+
+### 🚨 **NEVER COMMIT API KEYS TO VERSION CONTROL**
+
+**Protected Files (Auto-ignored by .gitignore):**
+- `config/api_keys.php` - Main API configuration
+- `**/config/api_keys.php` - All nested API configs
+- `.env` - Environment variables
+- `*.key`, `*.pem`, `*.p12` - All certificate files
+
+### 📋 **API Key Security Checklist**
+
+**Before ANY commit:**
+1. ✅ **Verify .gitignore** protects API key files
+2. ✅ **Search for exposed keys** using detection commands below
+3. ✅ **Check git status** - no sensitive files should appear
+4. ✅ **Use placeholders** in code - never hardcode actual keys
+5. ✅ **Review diff** before committing any config files
+
+### 🛡️ **Safe API Key Practices**
+
+**✅ CORRECT:**
+```php
+// Use environment variables or config files
+$apiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? '';
+$apiKey = defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '';
+```
+
+**❌ NEVER DO:**
+```php
+// NEVER hardcode keys in source files
+$apiKey = 'AIzaSyD0XAoZjfslv7ikTaply_DfoKp9nx_VXyU';
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSy..."
+```
+
+### 🚨 **API Key Detection Commands**
+
+**Run before every commit:**
+```bash
+# Check for exposed API keys
+grep -r "AIza\|fc-[a-f0-9]\|sk_\|pk_" . --exclude-dir=.git --exclude-dir=vendor
+
+# Verify gitignore protection
+git check-ignore config/api_keys.php .env
+
+# Search for common API key patterns  
+grep -r "AIza[A-Za-z0-9_-]{35}" . --exclude-dir=.git
+grep -r "fc-[a-f0-9]{32}" . --exclude-dir=.git
+
+# Review staged changes for secrets
+git status
+git diff --cached
+```
+
+### 🚨 **If API Keys Are Accidentally Committed**
+
+**IMMEDIATE ACTIONS:**
+1. **REVOKE the exposed keys** immediately from provider dashboards
+2. **Generate new keys** with proper restrictions
+3. **Update local configuration** with new keys
+4. **Do NOT attempt to remove from Git history** (leaves traces)
+5. **Document the incident** and update security procedures
+
+### 🔐 **API Key Management**
+
+**Local Development:**
+- Store in `.env` files (gitignored)
+- Store in `config/api_keys.php` (gitignored)
+- Use example files with placeholders
+
+**Production Deployment:**
+- Use environment variables
+- Use secure configuration management
+- Never store in version control
+- Restrict keys by domain/IP when possible
+
 ## Current Status (June 2025)
 
 ### ✅ YFEvents Core - FULLY FUNCTIONAL IN PRODUCTION
