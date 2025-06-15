@@ -12,29 +12,81 @@ YFEvents is a comprehensive PHP-based event calendar and local business director
 
 **Technology Stack**: PHP 8.2+, MySQL, vanilla JavaScript, Google Maps API, Composer (PSR-4)
 
+## ⚠️ CRITICAL DEPLOYMENT RULES ⚠️
+
+### 🚨 **NEVER REPLACE THE MAIN SYSTEM** 🚨
+- **PRODUCTION URL**: `https://backoffice.yakimafinds.com/` - **MUST ALWAYS WORK**
+- **DO NOT** deploy experimental/refactored code to the main DocumentRoot (`/home/robug/YFEvents/www/html`)
+- **DO NOT** create symbolic links that replace the working system
+- **ALWAYS** keep the original working system intact
+
+### 📁 **CORRECT DEVELOPMENT STRUCTURE**
+```
+YFEvents/
+├── www/html/                    # ✅ PRODUCTION (working HTML interface)
+│   ├── index.php               # ✅ Main landing page
+│   ├── calendar.php            # ✅ Working calendar interface
+│   ├── admin/                  # ✅ Working admin panel
+│   └── refactor/               # ✅ REFACTORED VERSION (subdirectory)
+│       ├── index.php           # 🔬 Modern architecture
+│       ├── admin/              # 🔬 Refactored admin
+│       └── src/                # 🔬 Domain-driven design
+├── .git/                       # ✅ Git repository
+│   └── refs/heads/refactor     # ✅ Refactor branch exists
+└── YFEvents-refactor/          # ✅ SEPARATE development directory
+```
+
+### 🎯 **LIVE SYSTEM ACCESS**
+- **Production (Original)**: `https://backoffice.yakimafinds.com/` - ✅ **FULLY FUNCTIONAL HTML**
+- **Refactor (Testing)**: `https://backoffice.yakimafinds.com/refactor/` - 🔬 **Modern architecture**
+- **Admin Panel**: `https://backoffice.yakimafinds.com/admin/` - ✅ **Working admin interface**
+
+### 🔄 **GIT WORKFLOW**
+- **Main branch**: Production-ready original system
+- **Refactor branch**: Modern architecture development
+- **NEVER** merge refactor to main without explicit approval
+- **ALWAYS** work in the refactor subdirectory for experimental features
+
+### 🛡️ **DEPLOYMENT SAFETY CHECKLIST**
+Before making ANY changes to production:
+
+1. **✅ Verify current system working**: Test `https://backoffice.yakimafinds.com/`
+2. **✅ Check structure**: Ensure `/www/html/refactor/` exists for development
+3. **✅ Never use symlinks**: Do not replace DocumentRoot with symbolic links
+4. **✅ Test in subdirectory**: Use `/refactor/` for all experimental work
+5. **✅ Create backups**: Always backup before ANY changes
+6. **✅ Get explicit approval**: Never deploy to production without user consent
+
+### 🚨 **ROLLBACK PROCEDURES**
+If production is accidentally broken:
+
+```bash
+# Emergency rollback from backup
+cp -r /home/robug/YFEvents-original-backup/* /home/robug/YFEvents/www/html/
+
+# Check system is working
+curl -I https://backoffice.yakimafinds.com/
+```
+
 ## Current Status (June 2025)
 
-### ✅ YFEvents Core - FULLY FUNCTIONAL
+### ✅ YFEvents Core - FULLY FUNCTIONAL IN PRODUCTION
 - Event calendar with map integration, multi-source scraping (97.1% success rate)
 - Local business directory with geocoding, advanced admin interface
 - Shop management with JSON operating hours, geocoding verification tools
+- **PRODUCTION URL**: `https://backoffice.yakimafinds.com/` - ✅ Working HTML interface
+
+### 🔬 Refactored System - IN DEVELOPMENT SUBDIRECTORY
+- **Modern Architecture**: Domain-Driven Design, PHP 8.1+, dependency injection
+- **Location**: `/www/html/refactor/` subdirectory
+- **Status**: API-first architecture with enterprise patterns
+- **URL**: `https://backoffice.yakimafinds.com/refactor/`
 
 ### 🚧 YFClaim Module - 40% COMPLETE
 - **Database**: ✅ Installed (6 tables, sample data)
 - **Admin Interface**: ✅ Templates functional, shows stats  
 - **Models**: 🚧 Structure created, CRUD methods needed
 - **Public Interface**: 📅 Planned (buyer/seller portals)
-
-### 🎯 Priority Tasks
-1. **Implement YFClaim SellerModel CRUD methods**: `createSeller()`, `getAllSellers()`, `updateSeller()`, `getSellerById()`
-2. **Find correct Visit Yakima events URL** - Current URL returns 404
-
-### 🔗 Live Access
-- **Main Portal**: `http://137.184.245.149/` - Landing page with all modules
-- **Event Calendar**: `http://137.184.245.149/calendar.php`
-- **Local Shops**: `http://137.184.245.149/calendar.php#shops`
-- **Estate Sales**: `http://137.184.245.149/modules/yfclaim/www/`
-- **Advanced Admin**: `http://137.184.245.149/admin/calendar/`
 
 ## Development Commands
 

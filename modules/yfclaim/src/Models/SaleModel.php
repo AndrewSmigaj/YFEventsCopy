@@ -4,6 +4,12 @@ namespace YFEvents\Modules\YFClaim\Models;
 use PDO;
 
 class SaleModel extends BaseModel {
+    // Status constants
+    const STATUS_ACTIVE = 'active';
+    const STATUS_DRAFT = 'draft';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_COMPLETED = 'completed';
+    
     protected $table = 'yfc_sales';
     protected $fillable = [
         'seller_id', 'title', 'description', 'address', 'city', 'state', 'zip',
@@ -16,7 +22,7 @@ class SaleModel extends BaseModel {
      * Get active sales
      */
     public function getActive() {
-        return $this->all(['status' => 'active'], 'claim_start DESC');
+        return $this->all(['status' => self::STATUS_ACTIVE], 'claim_start DESC');
     }
     
     /**
@@ -167,41 +173,51 @@ class SaleModel extends BaseModel {
      * Get upcoming sales (not yet started)
      */
     public function getUpcoming() {
-        $now = date('Y-m-d H:i:s');
-        
-        $sql = "
-            SELECT s.*, sel.company_name
-            FROM yfc_sales s
-            JOIN yfc_sellers sel ON s.seller_id = sel.id
-            WHERE s.status = 'active' 
-            AND s.claim_start > ?
-            ORDER BY s.claim_start ASC
-        ";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$now]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $now = date('Y-m-d H:i:s');
+            
+            $sql = "
+                SELECT s.*, sel.company_name
+                FROM yfc_sales s
+                JOIN yfc_sellers sel ON s.seller_id = sel.id
+                WHERE s.status = ? 
+                AND s.claim_start > ?
+                ORDER BY s.claim_start ASC
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([self::STATUS_ACTIVE, $now]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log("Error in getUpcoming: " . $e->getMessage());
+            return [];
+        }
     }
     
     /**
      * Get current sales (claim period active)
      */
     public function getCurrent() {
-        $now = date('Y-m-d H:i:s');
-        
-        $sql = "
-            SELECT s.*, sel.company_name
-            FROM yfc_sales s
-            JOIN yfc_sellers sel ON s.seller_id = sel.id
-            WHERE s.status = 'active' 
-            AND s.claim_start <= ?
-            AND s.claim_end >= ?
-            ORDER BY s.claim_end ASC
-        ";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$now, $now]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $now = date('Y-m-d H:i:s');
+            
+            $sql = "
+                SELECT s.*, sel.company_name
+                FROM yfc_sales s
+                JOIN yfc_sellers sel ON s.seller_id = sel.id
+                WHERE s.status = ? 
+                AND s.claim_start <= ?
+                AND s.claim_end >= ?
+                ORDER BY s.claim_end ASC
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([self::STATUS_ACTIVE, $now, $now]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log("Error in getCurrent: " . $e->getMessage());
+            return [];
+        }
     }
     
     /**
@@ -265,4 +281,5 @@ class SaleModel extends BaseModel {
     public function getSalesBySeller($sellerId) {
         return $this->getBySeller($sellerId);
     }
+    
 }

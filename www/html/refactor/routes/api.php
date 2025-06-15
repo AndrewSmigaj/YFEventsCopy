@@ -38,7 +38,32 @@ $router->post('/api/shops', ShopApiController::class, 'store');
 
 // Admin API routes
 $router->get('/api/scrapers', AdminEventController::class, 'getScrapers');
+$router->get('/api/scrapers/statistics', AdminEventController::class, 'getScraperStatistics');
 $router->post('/api/scrapers/run', AdminEventController::class, 'runScraper');
 $router->post('/api/scrapers/run-all', AdminEventController::class, 'runAllScrapers');
+$router->post('/api/scrapers/test', AdminEventController::class, 'testScraper');
+$router->post('/api/scrapers/delete', AdminEventController::class, 'deleteScraper');
+
+// Admin Events API
+$router->get('/admin/events', AdminEventController::class, 'getAllEvents');
+$router->get('/admin/events/statistics', AdminEventController::class, 'getEventStatistics');
+$router->post('/admin/events/create', AdminEventController::class, 'createEvent');
+$router->post('/admin/events/update', AdminEventController::class, 'updateEvent');
+$router->post('/admin/events/approve', AdminEventController::class, 'approveEvent');
+$router->post('/admin/events/delete', AdminEventController::class, 'deleteEvent');
+$router->post('/admin/events/bulk-approve', AdminEventController::class, 'bulkApproveEvents');
+$router->post('/admin/events/bulk-reject', AdminEventController::class, 'bulkRejectEvents');
+
+// Admin Scrapers
+$router->post('/admin/scrapers/run', AdminEventController::class, 'runScraper');
+
+// Shop statistics and admin routes
+$router->get('/api/shops/statistics', ShopApiController::class, 'getStatistics');
+
+// User routes (placeholder - add when UserController exists)
+$router->get('/api/users', AdminEventController::class, 'getUsers');
+$router->get('/api/users/statistics', AdminEventController::class, 'getUserStatistics');
+
+// Other admin routes
 $router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');
 $router->get('/api/admin/shops', AdminShopController::class, 'getAllShops');

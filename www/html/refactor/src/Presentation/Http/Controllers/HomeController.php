@@ -6,6 +6,7 @@ namespace YakimaFinds\Presentation\Http\Controllers;
 
 use YakimaFinds\Infrastructure\Container\ContainerInterface;
 use YakimaFinds\Infrastructure\Config\ConfigInterface;
+use YakimaFinds\Infrastructure\Database\ConnectionInterface;
 
 class HomeController
 {
@@ -38,8 +39,8 @@ class HomeController
         
         try {
             // Test database connection
-            $connection = $this->container->resolve(\YakimaFinds\Infrastructure\Database\Connection::class);
-            $pdo = $connection->getPdo();
+            $connection = $this->container->resolve(\YakimaFinds\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
             $pdo->query("SELECT 1");
             
             echo json_encode([

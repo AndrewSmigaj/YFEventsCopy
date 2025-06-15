@@ -1,13 +1,21 @@
 RewriteEngine On
 
-# Allow direct access to admin files
-RewriteCond %{REQUEST_URI} ^/admin/
+# Allow direct access to admin PHP files and assets
+RewriteCond %{REQUEST_URI} ^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
 RewriteRule ^admin/(.*)$ admin/$1 [L]
 
-# Handle Angular and other front-end routes
+# Route API calls through the router
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Route admin API calls through the router  
+RewriteCond %{REQUEST_URI} ^/admin/(events|shops|scrapers|users)/?$
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Handle other routes through router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/admin/
+RewriteCond %{REQUEST_URI} !^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Ensure index.php is executed for all requests

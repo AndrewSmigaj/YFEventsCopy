@@ -44,66 +44,7 @@ class BuyerModel extends BaseModel {
         ];
     }
     
-    /**
-     * Verify authentication code
-     */
-    public function verifyAuthCode($buyerId, $code) {
-        $buyer = $this->find($buyerId);
-        
-        if (!$buyer) {
-            return false;
-        }
-        
-        // Check if code matches and hasn't expired
-        if ($buyer['auth_code'] === $code && 
-            $buyer['auth_code_expires'] && 
-            strtotime($buyer['auth_code_expires']) > time()) {
-            
-            // Generate session token
-            $sessionToken = bin2hex(random_bytes(32));
-            $sessionExpires = date('Y-m-d H:i:s', time() + 3600 * 4); // 4 hours
-            
-            // Update buyer record
-            $this->update($buyerId, [
-                'auth_verified' => true,
-                'session_token' => $sessionToken,
-                'session_expires' => $sessionExpires
-            ]);
-            
-            return [
-                'success' => true,
-                'session_token' => $sessionToken,
-                'buyer' => $this->find($buyerId)
-            ];
-        }
-        
-        return false;
-    }
     
-    /**
-     * Validate session token
-     */
-    public function validateSession($sessionToken) {
-        $sql = "
-            SELECT * FROM yfc_buyers 
-            WHERE session_token = ? 
-            AND session_expires > NOW()
-            AND auth_verified = 1
-        ";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$sessionToken]);
-        $buyer = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($buyer) {
-            // Update last activity
-            $this->update($buyer['id'], [
-                'last_activity' => date('Y-m-d H:i:s')
-            ]);
-        }
-        
-        return $buyer;
-    }
     
     /**
      * Find buyer by contact info for sale
@@ -324,8 +265,8 @@ class BuyerModel extends BaseModel {
     /**
      * Find buyer by contact across system (not sale-specific)
      */
-    public function findByContact($contact, $method = 'email') {
-        $field = $method === 'email' ? 'contact_value' : 'contact_value';
+    public function findByContactGlobal($contact, $method = 'email') {
+        // Fixed: Use proper field selection based on method
         $sql = "SELECT * FROM {$this->table} WHERE contact_method = ? AND contact_value = ? ORDER BY created_at DESC LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$method, $contact]);
