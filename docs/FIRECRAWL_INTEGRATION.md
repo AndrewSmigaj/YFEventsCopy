@@ -48,7 +48,7 @@ The integration follows a **hybrid approach**:
 The Firecrawl API key is already configured in `config/api_keys.php`:
 
 ```php
-define('FIRECRAWL_API_KEY', 'fc-40b11a6885f4431ba2ff5b7ce771ceb5');
+define('FIRECRAWL_API_KEY', 'YOUR_FIRECRAWL_API_KEY_HERE');
 ```
 
 ### Step 2: Composer Dependencies
@@ -132,7 +132,7 @@ The `scrape_config` JSON supports these options:
 ## API Usage & Costs
 
 ### Current Plan
-- **API Key**: fc-40b11a6885f4431ba2ff5b7ce771ceb5
+- **API Key**: YOUR_FIRECRAWL_API_KEY_HERE
 - **Plan**: Standard (100,000 credits/month)
 - **Cost**: ~$83/month
 
