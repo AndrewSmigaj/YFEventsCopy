@@ -458,3 +458,50 @@ curl -I http://137.184.245.149/modules/yfclaim/www/admin/
 - **What**: Update this CLAUDE.md file
 - **How**: Add to Recent Implementations section
 - **Why**: Prevents repeated mistakes and confusion
+
+## 🔒 **MANDATORY PRE-COMMIT SECURITY PROTOCOL** 🔒
+
+### ⚠️ **ALWAYS RUN BEFORE ANY GIT COMMIT**
+
+**Security commands that MUST be executed before every commit:**
+
+```bash
+# 1. Check for exposed API keys and secrets
+grep -r "AIza\|fc-[a-f0-9]\|sk_\|pk_\|password.*=\|secret.*=\|key.*=" . --exclude-dir=.git --exclude-dir=vendor --exclude-dir=node_modules
+
+# 2. Check for hardcoded credentials  
+grep -r "mysql://\|postgresql://\|mongodb://\|redis://.*@" . --exclude-dir=.git
+
+# 3. Check for database credentials in source files
+grep -r "password.*:\|username.*:\|host.*:" . --include="*.php" --include="*.js" --exclude-dir=vendor
+
+# 4. Verify what's being committed
+git status
+git diff --cached
+
+# 5. Check .gitignore protection
+git check-ignore config/api_keys.php .env || echo "⚠️ Sensitive files not protected"
+```
+
+### 🚨 **SECURITY VIOLATIONS - IMMEDIATE ACTIONS**
+
+If any secrets are found:
+1. **STOP** - Do not commit
+2. **Remove secrets** from source code  
+3. **Use config files** or environment variables instead
+4. **Verify .gitignore** protects sensitive files
+5. **Run security check again** before committing
+
+### ✅ **SAFE CODING PRACTICES**
+
+**DO:**
+- Use `$config['database']['password']` from config files
+- Use `$_ENV['API_KEY']` environment variables  
+- Use placeholder values in documentation
+- Store secrets in gitignored config files
+
+**DON'T:**
+- Hardcode `$password = 'actual_password'` 
+- Include real API keys in source code
+- Commit `.env` files with real values
+- Put credentials in comments or docs
