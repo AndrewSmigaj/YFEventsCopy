@@ -1,0 +1,94 @@
+{
+  "sourceName": "Facebook Events",
+  "sourceId": "facebook",
+  "baseUrl": "https://www.facebook.com",
+  "searchUrl": "https://www.facebook.com/events/search/?q={{location}}",
+  "description": "Facebook Events scraper (requires careful handling due to strict anti-bot measures)",
+  
+  "waitSelectors": [
+    "[data-testid='event-card']",
+    ".event-item",
+    "[role='article']"
+  ],
+  
+  "dismissSelectors": [
+    "[data-testid='cookie-policy-manage-dialog-accept-button']",
+    ".cookie-consent-accept",
+    "[aria-label='Close']"
+  ],
+  
+  "selectors": {
+    "eventContainer": "[data-testid='event-card'], .event-item, [role='article']:has(a[href*='/events/'])",
+    
+    "fields": {
+      "title": {
+        "selector": "h3, h2, [data-testid='event-title']",
+        "transform": "clean"
+      },
+      "start_date": {
+        "selector": "time, [datetime]",
+        "attribute": "datetime",
+        "fallbackSelector": ".date-time",
+        "transform": "date"
+      },
+      "end_date": {
+        "selector": "time[datetime]:last-of-type",
+        "attribute": "datetime",
+        "transform": "date"
+      },
+      "venue_name": {
+        "selector": ".venue-name, [data-testid='event-venue']",
+        "transform": "clean"
+      },
+      "venue_location": {
+        "selector": ".location, .venue-address",
+        "transform": "clean"
+      },
+      "organizer": {
+        "selector": ".organizer, .host-name",
+        "transform": "clean"
+      },
+      "description": {
+        "selector": ".event-description, .description",
+        "transform": "clean"
+      },
+      "url": {
+        "selector": "a[href*='/events/']",
+        "attribute": "href",
+        "transform": "url"
+      },
+      "image_url": {
+        "selector": "img",
+        "attribute": "src",
+        "transform": "url"
+      }
+    }
+  },
+  
+  "pagination": {
+    "type": "button",
+    "nextSelector": "[aria-label='See more results'], .more-results",
+    "scrollToLoad": true
+  },
+  
+  "antiDetection": {
+    "randomDelay": {
+      "min": 3000,
+      "max": 6000
+    },
+    "scrollBehavior": true,
+    "mouseMoves": true,
+    "humanTyping": true,
+    "randomClicks": true
+  },
+  
+  "specialHandling": {
+    "requiresLocation": true,
+    "hasGeoBias": false,
+    "needsCookieAcceptance": true,
+    "hasLazyLoading": true,
+    "requiresScrolling": true,
+    "needsLogin": false,
+    "highAntiBot": true
+  }
+}

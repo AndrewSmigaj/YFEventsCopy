@@ -1,0 +1,94 @@
+{
+  "sourceName": "Eventbrite",
+  "sourceId": "eventbrite",
+  "baseUrl": "https://www.eventbrite.com",
+  "searchUrl": "https://www.eventbrite.com/d/{{location}}/events/",
+  "description": "Eventbrite event scraper with browser automation to bypass anti-bot protection",
+  
+  "waitSelectors": [
+    "[data-testid='event-card']",
+    ".search-main-content",
+    ".event-card-wrapper",
+    ".search-results-panel"
+  ],
+  
+  "dismissSelectors": [
+    "[data-testid='dismiss-button']",
+    ".modal-close",
+    "[aria-label='Close']",
+    ".cookie-banner-close",
+    "#onetrust-accept-btn-handler"
+  ],
+  
+  "selectors": {
+    "eventContainer": "[data-testid='event-card'], .event-card-wrapper, .search-event-card-wrapper",
+    
+    "fields": {
+      "title": {
+        "selector": "h3, h2, [data-testid='event-title'], .event-title",
+        "transform": "clean"
+      },
+      "start_date": {
+        "selector": "time, [datetime], .event-date",
+        "attribute": "datetime",
+        "fallbackSelector": ".event-date, .date-display",
+        "transform": "date"
+      },
+      "end_date": {
+        "selector": "time[datetime]:last-of-type",
+        "attribute": "datetime",
+        "transform": "date"
+      },
+      "venue_name": {
+        "selector": ".venue-name, [data-testid='venue-name'], .location-name",
+        "transform": "clean"
+      },
+      "venue_location": {
+        "selector": ".venue-address, [data-testid='venue-address'], .location-info",
+        "transform": "clean"
+      },
+      "organizer": {
+        "selector": ".organizer-name, [data-testid='organizer-name'], .event-organizer",
+        "transform": "clean"
+      },
+      "description": {
+        "selector": ".event-description, .event-summary, .summary",
+        "transform": "clean"
+      },
+      "url": {
+        "selector": "a[href*='/e/']",
+        "attribute": "href",
+        "transform": "url"
+      },
+      "image_url": {
+        "selector": "img",
+        "attribute": "src",
+        "transform": "url"
+      }
+    }
+  },
+  
+  "pagination": {
+    "type": "url",
+    "urlTemplate": "https://www.eventbrite.com/d/{{location}}/events/?page={{page}}",
+    "nextSelector": "[data-testid='pagination-next'], .pagination-next, .eds-btn--next"
+  },
+  
+  "antiDetection": {
+    "randomDelay": {
+      "min": 1000,
+      "max": 3000
+    },
+    "scrollBehavior": true,
+    "mouseMoves": true,
+    "humanTyping": true
+  },
+  
+  "specialHandling": {
+    "requiresLocation": true,
+    "hasGeoBias": true,
+    "needsCookieAcceptance": true,
+    "hasLazyLoading": true,
+    "requiresScrolling": true
+  }
+}
