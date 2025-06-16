@@ -41,6 +41,7 @@ $router->get('/events/featured', EventController::class, 'showFeaturedEventsPage
 $router->get('/events/upcoming', EventController::class, 'showUpcomingEventsPage');
 $router->get('/events/calendar', EventController::class, 'showCalendarPage');
 $router->get('/events/submit', EventController::class, 'showSubmitEventPage');
+$router->get('/events/{id}', EventController::class, 'showEventDetailPage');
 
 // Event API routes
 $router->get('/api/events', EventController::class, 'searchEvents');

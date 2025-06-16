@@ -9,6 +9,7 @@ use YakimaFinds\Presentation\Http\Controllers\HomeController;
 use YakimaFinds\Presentation\Http\Controllers\AdminEventController;
 use YakimaFinds\Presentation\Http\Controllers\AdminShopController;
 use YakimaFinds\Presentation\Http\Controllers\UserController;
+use YakimaFinds\Presentation\Http\Controllers\ThemeController;
 
 /**
  * API routes for the application
@@ -78,6 +79,22 @@ $router->get('/api/permissions', UserController::class, 'getPermissions');
 $router->get('/api/users/permissions', UserController::class, 'getUserPermissions');
 $router->post('/api/users/roles', UserController::class, 'updateUserRoles');
 $router->get('/api/users/check-permission', UserController::class, 'checkUserPermission');
+
+// Theme management routes
+$router->get('/api/theme/settings', ThemeController::class, 'getSettings');
+$router->put('/api/theme/settings', ThemeController::class, 'updateSettings');
+$router->get('/api/theme/presets', ThemeController::class, 'getPresets');
+$router->post('/api/theme/presets/apply', ThemeController::class, 'applyPreset');
+$router->post('/api/theme/presets', ThemeController::class, 'savePreset');
+$router->get('/api/theme/export', ThemeController::class, 'exportSettings');
+
+// SEO management routes
+$router->get('/api/seo/settings', ThemeController::class, 'getSEOSettings');
+$router->put('/api/seo/settings', ThemeController::class, 'updateSEOSettings');
+
+// Social media management routes
+$router->get('/api/social/settings', ThemeController::class, 'getSocialMediaSettings');
+$router->put('/api/social/settings', ThemeController::class, 'updateSocialMediaSettings');
 
 // Other admin routes
 $router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');

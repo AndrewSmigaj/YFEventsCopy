@@ -102,6 +102,7 @@ $basePath = '/refactor';
                 <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
                 <a href="<?= $basePath ?>/admin/users.php" class="active">Users</a>
                 <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
+                <a href="<?= $basePath ?>/admin/theme.php">Theme</a>
                 <a href="#" onclick="logout()">Logout</a>
             </nav>
         </div>

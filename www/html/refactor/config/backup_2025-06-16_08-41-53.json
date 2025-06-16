@@ -1,0 +1,69 @@
+{
+    "email": {
+        "email": {
+            "imap_server": "{imap.gmail.com:993\/imap\/ssl}INBOX",
+            "username": "yakimafinds@gmail.com",
+            "password": "turgcygxyudobvgz",
+            "gmail": {
+                "imap_server": "{imap.gmail.com:993\/imap\/ssl}INBOX",
+                "username": "events@yakimafinds.com",
+                "password": ""
+            },
+            "cpanel": {
+                "imap_server": "{mail.yakimafinds.com:993\/imap\/ssl}INBOX",
+                "username": "events@yakimafinds.com",
+                "password": ""
+            },
+            "smtp": {
+                "host": "smtp.gmail.com",
+                "port": 587,
+                "username": "yakimafinds@gmail.com",
+                "password": "turgcygxyudobvgz",
+                "encryption": "tls"
+            },
+            "processing": {
+                "batch_size": 50,
+                "mark_as_read": true,
+                "delete_processed": false,
+                "retry_failed": true,
+                "max_retries": 3
+            },
+            "submission_addresses": [
+                "events@yakimafinds.com",
+                "calendar@yakimafinds.com",
+                "submit@yakimafinds.com",
+                "yakimafinds@gmail.com"
+            ],
+            "facebook_domains": [
+                "facebook.com",
+                "facebookmail.com",
+                "notification.facebook.com",
+                "facebooknotifications.com"
+            ],
+            "confirmation": {
+                "enabled": true,
+                "from_email": "yakimafinds@gmail.com",
+                "from_name": "YakimaFinds Community Calendar",
+                "reply_to": "yakimafinds@gmail.com",
+                "template_path": "templates\/email\/event_confirmation.php"
+            }
+        }
+    },
+    "database": {
+        "database": {
+            "host": "localhost",
+            "name": "yakima_finds",
+            "username": "yfevents",
+            "password": "yfevents_pass",
+            "charset": "utf8mb4",
+            "options": {
+                "3": 2,
+                "19": 2,
+                "20": false,
+                "1002": "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+            }
+        }
+    },
+    "backup_date": "2025-06-16 08:41:53",
+    "google_maps_key": "AIzaSyDuWYMutN01MWHxayMcpERvofDU6SRrL30"
+}

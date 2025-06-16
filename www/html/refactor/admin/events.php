@@ -59,13 +59,16 @@ $basePath = '/refactor';
         <div class="header-content">
             <h1>🛠️ YFEvents Admin</h1>
             <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin/index.php">Dashboard</a>
+                <a href="<?= $basePath ?>/admin/dashboard">Dashboard</a>
                 <a href="<?= $basePath ?>/admin/events.php" class="active">Events</a>
                 <a href="<?= $basePath ?>/admin/shops.php">Shops</a>
                 <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
                 <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
+                <a href="<?= $basePath ?>/admin/email-events.php">Email Events</a>
+                <a href="<?= $basePath ?>/admin/email-config.php">Email Config</a>
                 <a href="<?= $basePath ?>/admin/users.php">Users</a>
                 <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
+                <a href="<?= $basePath ?>/admin/theme.php">Theme</a>
                 <a href="#" onclick="logout()">Logout</a>
             </nav>
         </div>

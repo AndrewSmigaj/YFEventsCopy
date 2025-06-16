@@ -1142,7 +1142,7 @@ class EventController extends BaseController
     
     <!-- Load Google Maps API -->
     <script async defer 
-        src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMapIfNeeded">
+        src="https://maps.googleapis.com/maps/api/js?key=<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : 'AIzaSyDuWYMutN01MWHxayMcpERvofDU6SRrL30' ?>&libraries=places&callback=initMapIfNeeded">
     </script>
     
     <script>
@@ -1797,6 +1797,483 @@ HTML;
             }
         });
     </script>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Show individual event detail page
+     */
+    public function showEventDetailPage(): void
+    {
+        try {
+            $id = (int) ($_GET['id'] ?? 0);
+            
+            if (!$id) {
+                header('HTTP/1.0 404 Not Found');
+                echo $this->render404Page();
+                return;
+            }
+            
+            $event = $this->eventService->getEventById($id);
+            
+            if (!$event) {
+                header('HTTP/1.0 404 Not Found');
+                echo $this->render404Page();
+                return;
+            }
+
+            $basePath = dirname($_SERVER['SCRIPT_NAME']);
+            if ($basePath === '/') {
+                $basePath = '';
+            }
+
+            // Convert Event object to array
+            $eventArray = $event->toArray();
+
+            header('Content-Type: text/html; charset=utf-8');
+            echo $this->renderEventDetailPage($eventArray, $basePath);
+        } catch (Exception $e) {
+            error_log("Error displaying event $id: " . $e->getMessage());
+            header('HTTP/1.0 500 Internal Server Error');
+            echo $this->render500Page();
+        }
+    }
+
+    /**
+     * Render event detail page
+     */
+    private function renderEventDetailPage(array $event, string $basePath): string
+    {
+        $googleMapsApiKey = $this->config->get('google_maps_api_key', '');
+        
+        // Format dates
+        $startDate = new DateTime($event['start_datetime']);
+        $endDate = $event['end_datetime'] ? new DateTime($event['end_datetime']) : null;
+        
+        $eventDate = $startDate->format('l, F j, Y');
+        $eventTime = $startDate->format('g:i A');
+        if ($endDate) {
+            $eventTime .= ' - ' . $endDate->format('g:i A');
+        }
+        
+        // Escape data for HTML
+        $title = htmlspecialchars($event['title'] ?? 'Untitled Event', ENT_QUOTES, 'UTF-8');
+        $description = nl2br(htmlspecialchars($event['description'] ?? 'No description available.', ENT_QUOTES, 'UTF-8'));
+        $location = htmlspecialchars($event['location'] ?? 'Location TBA', ENT_QUOTES, 'UTF-8');
+        $address = htmlspecialchars($event['address'] ?? '', ENT_QUOTES, 'UTF-8');
+        
+        // Build contact info
+        $contactInfo = '';
+        if (!empty($event['contact_info'])) {
+            $contact = is_string($event['contact_info']) ? json_decode($event['contact_info'], true) : $event['contact_info'];
+            if ($contact) {
+                if (!empty($contact['phone'])) {
+                    $contactInfo .= '<p>📞 Phone: ' . htmlspecialchars($contact['phone']) . '</p>';
+                }
+                if (!empty($contact['email'])) {
+                    $contactInfo .= '<p>📧 Email: <a href="mailto:' . htmlspecialchars($contact['email']) . '">' . 
+                                   htmlspecialchars($contact['email']) . '</a></p>';
+                }
+                if (!empty($contact['website'])) {
+                    $contactInfo .= '<p>🌐 Website: <a href="' . htmlspecialchars($contact['website']) . '" target="_blank">' . 
+                                   htmlspecialchars($contact['website']) . '</a></p>';
+                }
+            }
+        }
+        
+        // Featured badge
+        $featuredBadge = $event['featured'] ? '<span class="event-featured">⭐ Featured Event</span>' : '';
+        
+        // Address line
+        $addressLine = $address ? '<br>' . $address : '';
+        
+        // Contact section
+        $contactSection = $contactInfo ? '<div class="contact-section"><h3>Contact Information</h3>' . $contactInfo . '</div>' : '';
+        
+        // External URL button
+        $externalUrlButton = '';
+        if (!empty($event['external_url'])) {
+            $externalUrl = htmlspecialchars($event['external_url']);
+            $externalUrlButton = '<a href="' . $externalUrl . '" target="_blank" class="action-button">🔗 Visit Event Website</a>';
+        }
+        
+        // Google Calendar URL
+        $calendarUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+            . '&text=' . urlencode($title)
+            . '&dates=' . $startDate->format('Ymd\THis') . '/' . ($endDate ? $endDate->format('Ymd\THis') : $startDate->format('Ymd\THis'))
+            . '&location=' . urlencode($location . ' ' . $address)
+            . '&details=' . urlencode(strip_tags($event['description'] ?? ''));
+        
+        // Map section
+        $mapSection = '';
+        if ($event['latitude'] && $event['longitude']) {
+            $lat = $event['latitude'];
+            $lng = $event['longitude'];
+            $mapSection = <<<HTML
+            <div class="map-container" style="height: 400px; border-radius: 15px; overflow: hidden; margin: 20px 0;">
+                <div id="event-map" style="height: 100%;"></div>
+            </div>
+            <script>
+                function initEventMap() {
+                    const eventLocation = { lat: {$lat}, lng: {$lng} };
+                    const map = new google.maps.Map(document.getElementById('event-map'), {
+                        zoom: 15,
+                        center: eventLocation,
+                        styles: [{
+                            "featureType": "poi",
+                            "elementType": "labels",
+                            "stylers": [{ "visibility": "off" }]
+                        }]
+                    });
+                    
+                    new google.maps.Marker({
+                        position: eventLocation,
+                        map: map,
+                        title: '{$title}'
+                    });
+                }
+            </script>
+            <script async defer src="https://maps.googleapis.com/maps/api/js?key={$googleMapsApiKey}&callback=initEventMap"></script>
+HTML;
+        }
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{$title} - YakimaFinds Events</title>
+    <link rel="icon" type="image/x-icon" href="{$basePath}/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            transition: background 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .event-detail {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .event-header {
+            margin-bottom: 30px;
+        }
+        
+        .event-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .event-featured {
+            display: inline-block;
+            background: #f39c12;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        
+        .event-meta {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: flex-start;
+            color: #555;
+        }
+        
+        .meta-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+            color: #667eea;
+        }
+        
+        .event-description {
+            margin-bottom: 30px;
+            line-height: 1.8;
+            color: #444;
+        }
+        
+        .event-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+        
+        .action-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .action-button.secondary {
+            background: #6c757d;
+        }
+        
+        .action-button.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .contact-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .contact-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .contact-section p {
+            margin-bottom: 10px;
+        }
+        
+        .contact-section a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .contact-section a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .event-detail {
+                padding: 25px;
+            }
+            
+            .event-title {
+                font-size: 1.8rem;
+            }
+            
+            .event-actions {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{$basePath}/events" class="back-link">
+            ← Back to Events
+        </a>
+        
+        <div class="event-detail">
+            <div class="event-header">
+                $featuredBadge
+                <h1 class="event-title">{$title}</h1>
+            </div>
+            
+            <div class="event-meta">
+                <div class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <div>
+                        <strong>{$eventDate}</strong><br>
+                        {$eventTime}
+                    </div>
+                </div>
+                
+                <div class="meta-item">
+                    <span class="meta-icon">📍</span>
+                    <div>
+                        <strong>{$location}</strong>
+                        $addressLine
+                    </div>
+                </div>
+            </div>
+            
+            <div class="event-description">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">About This Event</h3>
+                {$description}
+            </div>
+            
+            {$mapSection}
+            
+            $contactSection
+            
+            <div class="event-actions">
+                $externalUrlButton
+                <a href="{$calendarUrl}" target="_blank" class="action-button secondary">📅 Add to Calendar</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+HTML;
+    }
+    
+    /**
+     * Render 404 error page
+     */
+    private function render404Page(): string
+    {
+        $basePath = dirname($_SERVER['SCRIPT_NAME']);
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Not Found - YakimaFinds</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+        h1 { color: #e74c3c; margin-bottom: 20px; }
+        p { color: #555; margin-bottom: 30px; }
+        a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: background 0.3s;
+        }
+        a:hover { background: #5a67d8; }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>Event Not Found</h1>
+        <p>Sorry, the event you're looking for doesn't exist or may have been removed.</p>
+        <a href="{$basePath}/events">Back to Events</a>
+    </div>
+</body>
+</html>
+HTML;
+    }
+    
+    /**
+     * Render 500 error page
+     */
+    private function render500Page(): string
+    {
+        $basePath = dirname($_SERVER['SCRIPT_NAME']);
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - YakimaFinds</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+        h1 { color: #e74c3c; margin-bottom: 20px; }
+        p { color: #555; margin-bottom: 30px; }
+        a {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: background 0.3s;
+        }
+        a:hover { background: #5a67d8; }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>Oops! Something went wrong</h1>
+        <p>We're sorry, but an error occurred while processing your request. Please try again later.</p>
+        <a href="{$basePath}/events">Back to Events</a>
+    </div>
 </body>
 </html>
 HTML;

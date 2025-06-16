@@ -68,6 +68,63 @@ cp -r /home/robug/YFEvents-original-backup/* /home/robug/YFEvents/www/html/
 curl -I https://backoffice.yakimafinds.com/
 ```
 
+## 📍 **CRITICAL ROUTING & NAVIGATION DOCUMENTATION**
+
+### **Admin Dashboard - SINGLE SOURCE OF TRUTH**
+- **PRIMARY URL**: `/refactor/admin/dashboard` (AdminDashboardController)
+- **Legacy URLs**: `/refactor/admin/` and `/refactor/admin/index.php` → **REDIRECT** to dashboard
+- **NEVER** create duplicate admin interfaces or dashboards
+
+### **Admin Pages & Controllers**
+| Page | URL | File/Controller | Purpose |
+|------|-----|----------------|---------|
+| Dashboard | `/admin/dashboard` | AdminDashboardController | Central admin hub with all stats |
+| Events | `/admin/events.php` | Static PHP file | Event management |
+| Shops | `/admin/shops.php` | Static PHP file | Shop/business management |
+| Email Events | `/admin/email-events.php` | Static PHP file | Facebook email event processing |
+| Email Config | `/admin/email-config.php` | Static PHP file | IMAP/SMTP configuration |
+| Theme | `/admin/theme.php` | Static PHP file | Theme, SEO, social media settings |
+| Claims | `/admin/claims.php` | Static PHP file | Estate sale management |
+| Scrapers | `/admin/scrapers.php` | Static PHP file | Event scraper configuration |
+| Users | `/admin/users.php` | Static PHP file | User management |
+| Settings | `/admin/settings.php` | Static PHP file | System settings |
+
+### **Public Routes & Controllers**
+| Feature | URL Pattern | Controller | Method |
+|---------|-------------|------------|--------|
+| Home | `/` | HomeController | index |
+| Events List | `/events` | EventController | showEventsPage |
+| Event Detail | `/events/{id}` | EventController | showEventDetailPage |
+| Shops List | `/shops` | ShopController | showShopsPage |
+| Shop Detail | `/shops/{id}` | ShopController | showShopDetailsPage |
+| Claims | `/claims` | ClaimsController | showClaimsPage |
+
+### **API Routes**
+| Endpoint | Pattern | Controller | Purpose |
+|----------|---------|------------|---------|
+| Events API | `/api/events` | EventController | Search/list events |
+| Event Detail API | `/api/events/{id}` | EventController | Get single event |
+| Shops API | `/api/shops` | ShopController | List shops |
+| Shop Detail API | `/api/shops/{id}` | ShopController | Get single shop |
+
+### **Recent Implementations**
+1. **Email Event Processing** (June 2025)
+   - EmailEventProcessor service for parsing Facebook event emails
+   - Admin interface at `/admin/email-events.php`
+   - Configuration at `/admin/email-config.php`
+   - Cron job: `scripts/process_event_emails.php`
+
+2. **Theme Editor** (June 2025)
+   - ThemeController with full CRUD operations
+   - Admin interface at `/admin/theme.php`
+   - SEO and social media integration
+   - Dynamic CSS generation
+
+3. **Event Detail Pages** (June 2025)
+   - Fixed 404 errors on "More Info" links
+   - Added `/events/{id}` route
+   - Full event detail display with maps
+
 ## 🔒 **CRITICAL: API KEY SECURITY GUIDELINES** 🔒
 
 ### 🚨 **NEVER COMMIT API KEYS TO VERSION CONTROL**
@@ -146,23 +203,30 @@ git diff --cached
 
 ## Current Status (June 2025)
 
-### ✅ YFEvents Core - FULLY FUNCTIONAL IN PRODUCTION
+### 🎯 **MIGRATION STRATEGY: LEGACY → REFACTOR → PRODUCTION**
+
+**Current Production (Legacy)**: `https://backoffice.yakimafinds.com/` - ✅ Working but will be deprecated
+**New Production (Refactor)**: `https://backoffice.yakimafinds.com/refactor/` - 🚀 **MIGRATION IN PROGRESS**
+
+### 🚀 **PRIMARY DEVELOPMENT TARGET: REFACTOR SYSTEM**
+- **Architecture**: Modern Domain-Driven Design, PHP 8.1+, dependency injection
+- **Location**: `/www/html/refactor/` subdirectory
+- **Status**: **WILL BECOME PRODUCTION** when migration complete
+- **URL**: `https://backoffice.yakimafinds.com/refactor/`
+- **Public Interfaces**: Events ✅, Shops ✅, YFClaim 🚧 (in progress)
+
+### 🔧 Legacy System - TEMPORARY MAINTENANCE MODE
 - Event calendar with map integration, multi-source scraping (97.1% success rate)
 - Local business directory with geocoding, advanced admin interface
-- Shop management with JSON operating hours, geocoding verification tools
-- **PRODUCTION URL**: `https://backoffice.yakimafinds.com/` - ✅ Working HTML interface
+- **Status**: Maintained for stability during migration, **will be deprecated**
+- **URL**: `https://backoffice.yakimafinds.com/` - ✅ Working until refactor complete
 
-### 🔬 Refactored System - IN DEVELOPMENT SUBDIRECTORY
-- **Modern Architecture**: Domain-Driven Design, PHP 8.1+, dependency injection
-- **Location**: `/www/html/refactor/` subdirectory
-- **Status**: API-first architecture with enterprise patterns
-- **URL**: `https://backoffice.yakimafinds.com/refactor/`
-
-### 🚧 YFClaim Module - 40% COMPLETE
-- **Database**: ✅ Installed (6 tables, sample data)
-- **Admin Interface**: ✅ Templates functional, shows stats  
-- **Models**: 🚧 Structure created, CRUD methods needed
-- **Public Interface**: 📅 Planned (buyer/seller portals)
+### 🚧 YFClaim Module Status
+**Legacy YFClaim**: `/modules/yfclaim/www/` - ✅ Functional but limited
+**Refactor YFClaim**: `/refactor/claims/` - 🚧 **ACTIVE DEVELOPMENT** 
+- **Database**: ✅ Installed (6 tables, sample data) 
+- **Refactor Integration**: 🚧 Controllers and views being implemented
+- **Target**: Full estate sale platform in refactor system
 
 ## Development Commands
 
@@ -352,3 +416,45 @@ curl -I http://137.184.245.149/modules/yfclaim/www/admin/
 - **Manual deployment** - No CI/CD pipelines
 - **Environment config** - Uses both `.env` and `config/` files
 - **Error logging** - Logs stored in `logs/` directory
+
+## 📋 **DAILY REVIEW CHECKLIST**
+
+### **Before Starting Work**
+1. **Read this CLAUDE.md file** - Check for updates and critical rules
+2. **Check current location** - Confirm working in `/refactor/` directory
+3. **Review recent changes** - Look at git log for context
+4. **Test current state** - Verify production is still working
+
+### **Common Issues & Solutions**
+
+#### **Routing Problems**
+- **Issue**: "Page shows 404 but route exists"
+- **Solution**: Check if controller method expects parameters from $_GET not method args
+- **Example**: `showEventDetailPage()` gets ID from `$_GET['id']` not method parameter
+
+#### **Duplicate Interfaces**
+- **Issue**: Multiple admin dashboards or pages
+- **Solution**: Always use `/admin/dashboard` as the single admin interface
+- **Prevention**: Check existing routes before creating new pages
+
+#### **Missing Navigation Links**
+- **Issue**: New features not accessible from admin
+- **Solution**: Update AdminDashboardController's renderDashboardPage method
+- **Location**: `src/Presentation/Http/Controllers/AdminDashboardController.php`
+
+#### **Database Column Mismatches**
+- **Issue**: SQL errors about missing columns
+- **Solution**: Check actual database schema with `DESCRIBE table_name`
+- **Example**: Events table uses `start_datetime` not `start_date`
+
+### **Testing Protocol**
+1. **Run route tester**: `php scripts/test_all_routes.php`
+2. **Check for errors**: Look for 404s and 500s
+3. **Test functionality**: Click through admin sections
+4. **Verify data**: Ensure database operations work
+
+### **Documentation Updates**
+- **When**: After ANY significant change
+- **What**: Update this CLAUDE.md file
+- **How**: Add to Recent Implementations section
+- **Why**: Prevents repeated mistakes and confusion

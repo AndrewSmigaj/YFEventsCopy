@@ -812,7 +812,7 @@ HTML;
     
     <!-- Load Google Maps API -->
     <script async defer 
-        src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : 'AIzaSyDuWYMutN01MWHxayMcpERvofDU6SRrL30' ?>&libraries=places&callback=initMap">
     </script>
 </body>
 </html>

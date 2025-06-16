@@ -665,6 +665,26 @@ class AdminDashboardController extends BaseController
             </div>
             
             <div class="action-section">
+                <div class="action-title">📧 Email Management</div>
+                <ul class="action-list">
+                    <li><a href="{$basePath}/admin/email-events.php" class="action-link">📧 Email Events</a></li>
+                    <li><a href="{$basePath}/admin/email-config.php" class="action-link">⚙️ Email Configuration</a></li>
+                    <li><a href="{$basePath}/admin/email-upload.php" class="action-link">📤 Upload Emails</a></li>
+                    <li><a href="{$basePath}/admin/email-config.php#test" class="action-link">🔌 Test Connection</a></li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
+                <div class="action-title">🎨 Theme Management</div>
+                <ul class="action-list">
+                    <li><a href="{$basePath}/admin/theme.php" class="action-link">🎨 Theme Editor</a></li>
+                    <li><a href="{$basePath}/admin/theme.php#seo" class="action-link">🔍 SEO Settings</a></li>
+                    <li><a href="{$basePath}/admin/theme.php#social" class="action-link">📱 Social Media</a></li>
+                    <li><a href="{$basePath}/admin/theme.php#presets" class="action-link">🎯 Theme Presets</a></li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
                 <div class="action-title">🔧 System Management</div>
                 <ul class="action-list">
                     <li><a href="{$basePath}/admin/dashboard/health" class="action-link">💚 System Health</a></li>
