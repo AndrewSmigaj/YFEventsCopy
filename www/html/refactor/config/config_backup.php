@@ -12,7 +12,7 @@ $database_config_backup = <?= var_export(require 'database.php', true) ?>;
 $api_keys_backup = <?= var_export(require 'api_keys.php', true) ?>;
 <?php else: ?>
 $api_keys_backup = [
-    'google_maps' => 'AIzaSyDuWYMutN01MWHxayMcpERvofDU6SRrL30',
+    'google_maps' => 'YOUR_GOOGLE_MAPS_API_KEY',
     'backup_date' => '<?= date('Y-m-d H:i:s') ?>'
 ];
 <?php endif; ?>

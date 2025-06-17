@@ -11,6 +11,7 @@ use YakimaFinds\Presentation\Http\Controllers\AdminDashboardController;
 use YakimaFinds\Presentation\Http\Controllers\HomeController;
 use YakimaFinds\Presentation\Http\Controllers\AuthController;
 use YakimaFinds\Presentation\Http\Controllers\ClaimsController;
+use YakimaFinds\Presentation\Http\Controllers\ClassifiedsController;
 
 /**
  * Web routes for the application
@@ -139,3 +140,8 @@ $router->get('/admin/dashboard/top-content', AdminDashboardController::class, 'g
 $router->get('/admin/dashboard/alerts', AdminDashboardController::class, 'getSystemAlerts');
 $router->get('/admin/dashboard/analytics', AdminDashboardController::class, 'getAnalytics');
 $router->get('/admin/dashboard/export', AdminDashboardController::class, 'exportData');
+
+// Classifieds routes (module-based)
+$router->get('/classifieds', ClassifiedsController::class, 'showClassifiedsPage');
+$router->get('/classifieds/item/{id}', ClassifiedsController::class, 'showItemPage');
+$router->get('/classifieds/category/{slug}', ClassifiedsController::class, 'showCategoryPage');

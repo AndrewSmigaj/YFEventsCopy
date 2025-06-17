@@ -19,7 +19,9 @@ $basePath = '/refactor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scraper Management - YFEvents Admin</title>
-    <link rel="stylesheet" href="<?= $basePath ?>/css/admin-theme.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/admin-styles.css">
     <style>
         /* Page-specific styles for scrapers page */
         .scrapers-grid {
@@ -116,24 +118,23 @@ $basePath = '/refactor';
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <h1>🛠️ YFEvents Admin</h1>
-            <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin/index.php">Dashboard</a>
-                <a href="<?= $basePath ?>/admin/events.php">Events</a>
-                <a href="<?= $basePath ?>/admin/shops.php">Shops</a>
-                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
-                <a href="<?= $basePath ?>/admin/scrapers.php" class="active">Scrapers</a>
-                <a href="<?= $basePath ?>/admin/users.php">Users</a>
-                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
-                <a href="<?= $basePath ?>/admin/theme.php">Theme</a>
-                <a href="#" onclick="logout()">Logout</a>
-            </nav>
-        </div>
-    </header>
-    
-    <div class="container">
+    <div class="admin-layout">
+        <?php include 'includes/admin-navigation.php'; ?>
+        
+        <div class="admin-content">
+            <div class="admin-header">
+                <div class="container-fluid">
+                    <h1><i class="bi bi-palette"></i> Scrapers</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Scrapers</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            
+            <div class="main-content">
         <div class="page-header">
             <h2 class="page-title">Scraper Management</h2>
             <div class="actions-row">

@@ -1,14 +1,7 @@
 <?php
 // Admin Shops Management Page
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check admin authentication
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /refactor/admin/login');
-    exit;
-}
+require_once __DIR__ . '/auth_check.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Set correct base path for refactor admin
 $basePath = '/refactor';
@@ -19,74 +12,76 @@ $basePath = '/refactor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Management - YFEvents Admin</title>
-    <link rel="stylesheet" href="<?= $basePath ?>/css/admin-theme.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/admin-styles.css">
     <style>
         /* Page-specific styles for shops page */
         .shops-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: var(--spacing-lg);
+            gap: 1.5rem;
         }
         
         .shop-card {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius-md);
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-normal);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
         }
         
         .shop-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
         
         .shop-header {
-            padding: var(--spacing-lg);
-            border-bottom: 1px solid var(--gray-100);
+            padding: 1.5rem;
+            border-bottom: 1px solid #f8f9fa;
         }
         
         .shop-title {
-            font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-bold);
-            color: var(--gray-800);
-            margin-bottom: var(--spacing-xs);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
         }
         
         .shop-category {
-            font-size: var(--font-size-sm);
-            color: var(--gray-600);
+            font-size: 0.875rem;
+            color: #6c757d;
         }
         
         .shop-status {
             display: flex;
-            gap: var(--spacing-xs);
-            margin-top: var(--spacing-sm);
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
         
         .shop-info {
-            padding: var(--spacing-lg);
-            font-size: var(--font-size-sm);
-            color: var(--gray-700);
+            padding: 1.5rem;
+            font-size: 0.875rem;
+            color: #495057;
         }
         
         .shop-info p {
-            margin-bottom: var(--spacing-xs);
+            margin-bottom: 0.5rem;
         }
         
         .shop-actions {
-            padding: var(--spacing-lg);
-            border-top: 1px solid var(--gray-100);
+            padding: 1.5rem;
+            border-top: 1px solid #f8f9fa;
             display: flex;
-            gap: var(--spacing-xs);
+            gap: 0.5rem;
             flex-wrap: wrap;
         }
         
         .amenity-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: var(--spacing-xs);
+            gap: 0.5rem;
         }
         
         @media (max-width: 768px) {
@@ -97,102 +92,135 @@ $basePath = '/refactor';
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <h1>🛠️ YFEvents Admin</h1>
-            <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin/index.php">Dashboard</a>
-                <a href="<?= $basePath ?>/admin/events.php">Events</a>
-                <a href="<?= $basePath ?>/admin/shops.php" class="active">Shops</a>
-                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
-                <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
-                <a href="<?= $basePath ?>/admin/email-events.php">Email Events</a>
-                <a href="<?= $basePath ?>/admin/email-config.php">Email Config</a>
-                <a href="<?= $basePath ?>/admin/users.php">Users</a>
-                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
-                <a href="<?= $basePath ?>/admin/theme.php">Theme</a>
-                <a href="#" onclick="logout()">Logout</a>
-            </nav>
-        </div>
-    </header>
-    
-    <div class="container">
-        <div class="page-header">
-            <h2 class="page-title">Shop Management</h2>
-            <button class="btn btn-primary" onclick="showCreateModal()">
-                <span>+</span> Add Shop
-            </button>
-        </div>
+    <div class="admin-layout">
+        <?php include 'includes/admin-navigation.php'; ?>
         
-        <!-- Statistics -->
-        <div class="stats-grid" id="statsRow">
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Total Shops</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Active</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Pending</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Featured</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Verified</div>
-            </div>
-        </div>
-        
-        <!-- Filters -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3>Filter Shops</h3>
-            </div>
-            <div class="filters-grid">
-                <div class="form-group">
-                    <label for="searchShops">Search</label>
-                    <input type="text" id="searchShops" placeholder="Search shops..." onkeyup="filterShops()">
+        <div class="admin-content">
+            <div class="admin-header">
+                <div class="container-fluid">
+                    <h1><i class="bi bi-shop"></i> Shop Management</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Shops</li>
+                        </ol>
+                    </nav>
                 </div>
-                <div class="form-group">
-                    <label for="filterCategory">Category</label>
-                    <select id="filterCategory" onchange="filterShops()">
-                        <option value="">All Categories</option>
-                        <option value="restaurant">Restaurant</option>
-                        <option value="retail">Retail</option>
-                        <option value="service">Service</option>
-                        <option value="entertainment">Entertainment</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="filterStatus">Status</label>
-                    <select id="filterStatus" onchange="filterShops()">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="pending">Pending</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
-                    <button class="btn btn-secondary" onclick="refreshShops()">
-                        <span>🔄</span> Refresh
+            </div>
+            
+            <div class="main-content">
+                <!-- Action Buttons -->
+                <div class="action-buttons mb-4">
+                    <button class="btn-admin btn-admin-primary" onclick="showCreateModal()">
+                        <i class="bi bi-plus-circle"></i> Add Shop
                     </button>
+                    <button class="btn-admin btn-admin-success" onclick="refreshShops()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <a href="..../modules/yfclassifieds/www/admin/simple-index.php" class="btn-admin btn-admin-warning" target="_blank">
+                        <i class="bi bi-grid"></i> View Classifieds
+                    </a>
                 </div>
-            </div>
-        </div>
         
-        <!-- Shops Container -->
-        <div class="table-container">
-            <div class="table-header">
-                <h3>Local Shops</h3>
-            </div>
-            <div id="shopsContainer">
-                <div class="loading">Loading shops...</div>
+                <!-- Statistics -->
+                <div class="stats-grid" id="statsRow">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏪</div>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Total Shops</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Featured</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔒</div>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Verified</div>
+                    </div>
+                </div>
+                
+                <!-- YF Classifieds Integration -->
+                <div class="classifieds-section">
+                    <h6><i class="bi bi-shop"></i> YF Classifieds Integration</h6>
+                    <div class="classifieds-links">
+                        <a href="../modules/yfclassifieds/www/admin/simple-index.php" class="classifieds-link" target="_blank">
+                            <i class="bi bi-grid"></i> Classifieds Dashboard
+                        </a>
+                        <a href="../modules/yfclassifieds/www/admin/create.php" class="classifieds-link" target="_blank">
+                            <i class="bi bi-plus-circle"></i> Add New Item
+                        </a>
+                        <a href="../modules/yfclassifieds/www/admin/items.php" class="classifieds-link" target="_blank">
+                            <i class="bi bi-list"></i> Manage Items
+                        </a>
+                        <a href="../modules/yfclassifieds/www/index.php" class="classifieds-link" target="_blank">
+                            <i class="bi bi-eye"></i> Public Gallery
+                        </a>
+                    </div>
+                </div>
+        
+                <!-- Filters -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h5><i class="bi bi-funnel"></i> Filter Shops</h5>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="searchShops" class="form-label">Search</label>
+                                <input type="text" class="form-control" id="searchShops" placeholder="Search shops..." onkeyup="filterShops()">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filterCategory" class="form-label">Category</label>
+                                <select class="form-control" id="filterCategory" onchange="filterShops()">
+                                    <option value="">All Categories</option>
+                                    <option value="restaurant">Restaurant</option>
+                                    <option value="retail">Retail</option>
+                                    <option value="service">Service</option>
+                                    <option value="entertainment">Entertainment</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filterStatus" class="form-label">Status</label>
+                                <select class="form-control" id="filterStatus" onchange="filterShops()">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end gap-2">
+                                <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+                                <button class="btn btn-primary" onclick="refreshShops()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shops Container -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h5><i class="bi bi-buildings"></i> Local Shops</h5>
+                    </div>
+                    <div class="admin-card-body">
+                        <div id="shopsContainer">
+                            <div class="loading">Loading shops...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

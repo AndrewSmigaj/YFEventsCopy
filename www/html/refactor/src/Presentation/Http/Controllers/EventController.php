@@ -1142,7 +1142,7 @@ class EventController extends BaseController
     
     <!-- Load Google Maps API -->
     <script async defer 
-        src="https://maps.googleapis.com/maps/api/js?key=<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : 'AIzaSyDuWYMutN01MWHxayMcpERvofDU6SRrL30' ?>&libraries=places&callback=initMapIfNeeded">
+        src="https://maps.googleapis.com/maps/api/js?key=<?= defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : 'YOUR_GOOGLE_MAPS_API_KEY' ?>&libraries=places&callback=initMapIfNeeded">
     </script>
     
     <script>

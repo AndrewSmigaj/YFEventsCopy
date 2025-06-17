@@ -4,28 +4,28 @@ return [
     'email' => [
         // IMAP Configuration for receiving emails
         'imap_server' => '{imap.gmail.com:993/imap/ssl}INBOX',
-        'username' => 'yakimafinds@gmail.com',
-        'password' => 'xvencxmrzzzyioou', // Gmail app password
+        'username' => 'your-email@gmail.com',
+        'password' => 'your-app-password', // Gmail app password
         
         // Alternative configurations for different email providers
         'gmail' => [
             'imap_server' => '{imap.gmail.com:993/imap/ssl}INBOX',
-            'username' => 'YOUR_EMAIL@gmail.com',
-            'password' => 'YOUR_APP_PASSWORD', // App-specific password for Gmail
+            'username' => 'your-email@gmail.com',
+            'password' => 'your-app-password', // App-specific password for Gmail
         ],
         
         'cpanel' => [
             'imap_server' => '{mail.yourdomain.com:993/imap/ssl}INBOX',
             'username' => 'events@yourdomain.com', 
-            'password' => 'YOUR_CPANEL_PASSWORD', // cPanel email password
+            'password' => 'your-cpanel-password', // cPanel email password
         ],
         
         // SMTP Configuration for sending confirmation emails
         'smtp' => [
             'host' => 'smtp.gmail.com',
             'port' => 587,
-            'username' => 'yakimafinds@gmail.com',
-            'password' => 'xvencxmrzzzyioou',
+            'username' => 'your-email@gmail.com',
+            'password' => 'your-app-password',
             'encryption' => 'tls'
         ],
         
@@ -40,10 +40,10 @@ return [
         
         // Event submission email addresses (aliases that forward to your main email)
         'submission_addresses' => [
-            'events@yakimafinds.com',
-            'calendar@yakimafinds.com', 
-            'submit@yakimafinds.com',
-            'yakimafinds@gmail.com'  // Main receiving address
+            'events@yourdomain.com',
+            'calendar@yourdomain.com', 
+            'submit@yourdomain.com',
+            'your-email@gmail.com'  // Main receiving address
         ],
         
         // Email validation patterns
@@ -57,9 +57,9 @@ return [
         // Auto-response settings
         'confirmation' => [
             'enabled' => true,
-            'from_email' => 'yakimafinds@gmail.com',
-            'from_name' => 'YakimaFinds Community Calendar',
-            'reply_to' => 'yakimafinds@gmail.com',
+            'from_email' => 'your-email@gmail.com',
+            'from_name' => 'Your Community Calendar',
+            'reply_to' => 'your-email@gmail.com',
             'template_path' => 'templates/email/event_confirmation.php'
         ]
     ]

@@ -685,8 +685,29 @@ class AdminDashboardController extends BaseController
             </div>
             
             <div class="action-section">
+                <div class="action-title">🤖 Event Scrapers</div>
+                <ul class="action-list">
+                    <li><a href="{$basePath}/admin/scrapers.php" class="action-link">🔧 Basic Scrapers</a></li>
+                    <li><a href="{$basePath}/admin/browser-scrapers.php" class="action-link">🤖 Browser Automation</a></li>
+                    <li><a href="{$basePath}/admin/scrapers.php#intelligent" class="action-link">🧠 AI Scraper</a></li>
+                    <li><a href="{$basePath}/admin/scrapers.php#status" class="action-link">📊 Scraper Status</a></li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
+                <div class="action-title">🛍️ YF Classifieds</div>
+                <ul class="action-list">
+                    <li><a href="/modules/yfclassifieds/www/admin/simple-index.php" class="action-link">🛍️ Classifieds Dashboard</a></li>
+                    <li><a href="/modules/yfclassifieds/www/admin/upload.php" class="action-link">📸 Upload Photos</a></li>
+                    <li><a href="/modules/yfclassifieds/www/admin/create.php" class="action-link">➕ Add New Item</a></li>
+                    <li><a href="{$basePath}/classifieds" class="action-link">👀 View Public Gallery</a></li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
                 <div class="action-title">🔧 System Management</div>
                 <ul class="action-list">
+                    <li><a href="{$basePath}/admin/modules.php" class="action-link">🧩 Module Management</a></li>
                     <li><a href="{$basePath}/admin/dashboard/health" class="action-link">💚 System Health</a></li>
                     <li><a href="{$basePath}/admin/dashboard/analytics" class="action-link">📈 Analytics</a></li>
                     <li><a href="{$basePath}/admin/dashboard/performance" class="action-link">⚡ Performance</a></li>
@@ -700,7 +721,7 @@ class AdminDashboardController extends BaseController
                     <li><a href="{$basePath}/" class="action-link">🏠 View Public Site</a></li>
                     <li><a href="{$basePath}/events" class="action-link">📅 Public Events</a></li>
                     <li><a href="{$basePath}/shops" class="action-link">🏪 Public Shops</a></li>
-                    <li><a href="{$basePath}/admin/scrapers.php" class="action-link">🔧 Event Scrapers</a></li>
+                    <li><a href="{$basePath}/admin/settings.php" class="action-link">⚙️ System Settings</a></li>
                 </ul>
             </div>
         </div>

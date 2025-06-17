@@ -1,0 +1,49 @@
+{
+    "name": "YF Classifieds",
+    "version": "1.0.0",
+    "description": "Local classified ads with photos for in-store pickup",
+    "author": "YFEvents Team",
+    "namespace": "YFEvents\\Modules\\YFClassifieds",
+    "requirements": {
+        "php": ">=8.1",
+        "modules": ["yfauth"],
+        "extensions": ["gd", "imagick"]
+    },
+    "routes": {
+        "public": {
+            "/classifieds": "index.php",
+            "/classifieds/item/{id}": "item.php",
+            "/classifieds/category/{slug}": "category.php",
+            "/api/classifieds": "api/index.php"
+        },
+        "admin": {
+            "/admin/classifieds": "admin/index.php",
+            "/admin/classifieds/items": "admin/items.php",
+            "/admin/classifieds/categories": "admin/categories.php",
+            "/admin/classifieds/upload": "admin/upload.php"
+        }
+    },
+    "permissions": {
+        "admin": ["view_classifieds", "manage_classifieds", "upload_photos"],
+        "seller": ["create_listings", "manage_own_listings"],
+        "buyer": ["view_listings", "contact_seller"]
+    },
+    "database": {
+        "tables": [
+            "yfc_items",
+            "yfc_item_photos", 
+            "yfc_categories",
+            "yfc_item_categories",
+            "yfc_item_locations",
+            "yfc_item_shares"
+        ],
+        "shared_with": ["yfclaim"]
+    },
+    "settings": {
+        "max_photos_per_item": 6,
+        "photo_max_size_mb": 5,
+        "allowed_photo_types": ["jpg", "jpeg", "png", "webp"],
+        "default_availability_days": 30,
+        "enable_social_sharing": true
+    }
+}

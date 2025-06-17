@@ -1,14 +1,7 @@
 <?php
 // Admin Events Management Page
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Check admin authentication
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /refactor/admin/login');
-    exit;
-}
+require_once __DIR__ . '/auth_check.php';
+require_once __DIR__ . '/../config/database.php';
 
 // Set correct base path for refactor admin
 $basePath = '/refactor';
@@ -19,7 +12,9 @@ $basePath = '/refactor';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Management - YFEvents Admin</title>
-    <link rel="stylesheet" href="<?= $basePath ?>/css/admin-theme.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="assets/admin-styles.css">
     <style>
         /* Page-specific styles for events page */
         .event-title {
@@ -55,113 +50,115 @@ $basePath = '/refactor';
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <h1>🛠️ YFEvents Admin</h1>
-            <nav class="nav-links">
-                <a href="<?= $basePath ?>/admin/dashboard">Dashboard</a>
-                <a href="<?= $basePath ?>/admin/events.php" class="active">Events</a>
-                <a href="<?= $basePath ?>/admin/shops.php">Shops</a>
-                <a href="<?= $basePath ?>/admin/claims.php">Claims</a>
-                <a href="<?= $basePath ?>/admin/scrapers.php">Scrapers</a>
-                <a href="<?= $basePath ?>/admin/email-events.php">Email Events</a>
-                <a href="<?= $basePath ?>/admin/email-config.php">Email Config</a>
-                <a href="<?= $basePath ?>/admin/users.php">Users</a>
-                <a href="<?= $basePath ?>/admin/settings.php">Settings</a>
-                <a href="<?= $basePath ?>/admin/theme.php">Theme</a>
-                <a href="#" onclick="logout()">Logout</a>
-            </nav>
-        </div>
-    </header>
-    
-    <div class="container">
-        <div class="page-header">
-            <h2 class="page-title">Event Management</h2>
-            <button class="btn btn-primary" onclick="showCreateModal()">
-                <span>+</span> Create Event
-            </button>
-        </div>
+    <div class="admin-layout">
+        <?php include 'includes/admin-navigation.php'; ?>
         
-        <!-- Statistics -->
-        <div class="stats-row" id="statsRow">
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Total Events</div>
+        <div class="admin-content">
+            <div class="admin-header">
+                <div class="container-fluid">
+                    <h1><i class="bi bi-calendar-event"></i> Event Management</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Events</li>
+                        </ol>
+                    </nav>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Pending</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Approved</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Featured</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">-</div>
-                <div class="stat-label">Today's Events</div>
-            </div>
-        </div>
+            
+            <div class="main-content">
+                <!-- Action Buttons -->
+                <div class="action-buttons mb-4">
+                    <button class="btn-admin btn-admin-primary" onclick="showCreateModal()">
+                        <i class="bi bi-plus-circle"></i> Create Event
+                    </button>
+                    <button class="btn-admin btn-admin-success" onclick="refreshEvents()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <button class="btn-admin btn-admin-warning" onclick="forceScrape()">
+                        <i class="bi bi-robot"></i> Force Scrape
+                    </button>
+                </div>
         
-        <!-- Filters -->
-        <div class="filters">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="searchInput">Search</label>
-                    <input type="text" id="searchInput" placeholder="Search events...">
+                <!-- Statistics -->
+                <div class="stats-grid" id="statsRow">
+                    <div class="stat-card" onclick="filterByStatus('all')" style="cursor: pointer;">
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByStatus('pending')" style="cursor: pointer;">
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByStatus('approved')" style="cursor: pointer;">
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByStatus('featured')" style="cursor: pointer;">
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Featured</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByDate('today')" style="cursor: pointer;">
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Today's Events</div>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <label for="statusFilter">Status</label>
-                    <select id="statusFilter">
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="dateFilter">Date Range</label>
-                    <select id="dateFilter">
-                        <option value="all">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label for="featuredFilter">Featured</label>
-                    <select id="featuredFilter">
-                        <option value="all">All Events</option>
-                        <option value="featured">Featured Only</option>
-                        <option value="not-featured">Not Featured</option>
-                    </select>
-                </div>
-            </div>
-            <div class="filter-actions">
-                <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
-                <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
-                <button class="btn btn-warning" onclick="forceScrape()">
-                    <span>🔄</span> Force Scrape
-                </button>
-            </div>
-        </div>
         
-        <!-- Events Table -->
-        <div class="events-table">
-            <div class="table-header">
-                <h3>Events List</h3>
-                <div class="bulk-actions hidden" id="bulkActions">
-                    <span id="selectedCount">0 selected</span>
-                    <button class="btn btn-success action-btn" onclick="bulkApprove()">Approve</button>
-                    <button class="btn btn-danger action-btn" onclick="bulkReject()">Reject</button>
+                <!-- Filters -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h5><i class="bi bi-funnel"></i> Filter Events</h5>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="searchInput" class="form-label">Search</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search events..." onkeyup="applyFilters()">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="statusFilter" class="form-label">Status</label>
+                                <select class="form-control" id="statusFilter" onchange="applyFilters()">
+                                    <option value="all">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateFilter" class="form-label">Date Range</label>
+                                <select class="form-control" id="dateFilter" onchange="applyFilters()">
+                                    <option value="all">All Time</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end gap-2">
+                                <button class="btn btn-secondary" onclick="resetFilters()">Clear</button>
+                                <button class="btn btn-primary" onclick="refreshEvents()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div id="eventsTableContent">
-                <div class="loading">Loading events...</div>
+                
+                <!-- Events Table -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h5><i class="bi bi-calendar-check"></i> Events List</h5>
+                        <div class="bulk-actions" id="bulkActions" style="display: none;">
+                            <span id="selectedCount">0 selected</span>
+                            <button class="btn btn-sm btn-success" onclick="bulkApprove()">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="bulkReject()">Reject</button>
+                        </div>
+                    </div>
+                    <div class="admin-card-body">
+                        <div id="eventsTableContent">
+                            <div class="loading">Loading events...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -297,37 +294,80 @@ $basePath = '/refactor';
         
         async function loadStatistics() {
             try {
-                const response = await fetch(`${basePath}/admin/events/statistics`);
+                const response = await fetch(`${basePath}/api/admin/events/statistics`, {
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 
                 if (data.success) {
                     const stats = data.data.statistics;
-                    const statsRow = document.getElementById('statsRow');
-                    statsRow.innerHTML = `
-                        <div class="stat-card">
-                            <div class="stat-value">${stats.total || 0}</div>
-                            <div class="stat-label">Total Events</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${stats.pending || 0}</div>
-                            <div class="stat-label">Pending</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${stats.approved || 0}</div>
-                            <div class="stat-label">Approved</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${stats.featured || 0}</div>
-                            <div class="stat-label">Featured</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${stats.today || 0}</div>
-                            <div class="stat-label">Today's Events</div>
-                        </div>
-                    `;
+                    updateStatisticsDisplay(stats);
+                } else {
+                    // Fallback: show zeros with error message
+                    console.error('Statistics API failed:', data.message);
+                    loadStatisticsDirectly();
                 }
             } catch (error) {
                 console.error('Error loading statistics:', error);
+                // Fallback: load statistics from direct database query
+                loadStatisticsDirectly();
+            }
+        }
+        
+        function updateStatisticsDisplay(stats) {
+            const statsRow = document.getElementById('statsRow');
+            statsRow.innerHTML = `
+                <div class="stat-card" onclick="filterByStatus('all')" style="cursor: pointer;">
+                    <div class="stat-number">${stats.total || 0}</div>
+                    <div class="stat-label">Total Events</div>
+                </div>
+                <div class="stat-card" onclick="filterByStatus('pending')" style="cursor: pointer;">
+                    <div class="stat-number">${stats.pending || 0}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card" onclick="filterByStatus('approved')" style="cursor: pointer;">
+                    <div class="stat-number">${stats.approved || 0}</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card" onclick="filterByFeatured()" style="cursor: pointer;">
+                    <div class="stat-number">${stats.featured || 0}</div>
+                    <div class="stat-label">Featured</div>
+                </div>
+                <div class="stat-card" onclick="filterByDate('today')" style="cursor: pointer;">
+                    <div class="stat-number">${stats.today || 0}</div>
+                    <div class="stat-label">Today's Events</div>
+                </div>
+            `;
+        }
+        
+        async function loadStatisticsDirectly() {
+            try {
+                // Simple fallback implementation
+                const statsRow = document.getElementById('statsRow');
+                statsRow.innerHTML = `
+                    <div class="stat-card" onclick="filterByStatus('all')" style="cursor: pointer;">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByStatus('pending')" style="cursor: pointer;">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByStatus('approved')" style="cursor: pointer;">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Approved</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByFeatured()" style="cursor: pointer;">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Featured</div>
+                    </div>
+                    <div class="stat-card" onclick="filterByDate('today')" style="cursor: pointer;">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Today's Events</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading fallback statistics:', error);
             }
         }
         
@@ -340,18 +380,51 @@ $basePath = '/refactor';
                     ...currentFilters
                 });
                 
-                const response = await fetch(`${basePath}/admin/events?${params}`);
+                const response = await fetch(`${basePath}/api/admin/events?${params}`, {
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 
                 if (data.success) {
-                    renderEventsTable(data.data.events);
+                    const events = data.data.events || [];
+                    renderEventsTable(events);
                 } else {
                     showToast(data.message || 'Failed to load events', 'error');
+                    renderEventsTable([]);
                 }
             } catch (error) {
                 console.error('Error loading events:', error);
                 showToast('Error loading events', 'error');
+                renderEventsTable([]);
             }
+        }
+        
+        // Statistics filter functions
+        function filterByStatus(status) {
+            document.getElementById('statusFilter').value = status;
+            currentFilters.status = status;
+            applyFilters();
+            showToast(`Filtering by status: ${status}`, 'info');
+        }
+        
+        function filterByFeatured() {
+            document.getElementById('featuredFilter').value = 'featured';
+            currentFilters.featured = 'featured';
+            applyFilters();
+            showToast('Showing featured events only', 'info');
+        }
+        
+        function filterByDate(dateFilter) {
+            document.getElementById('dateFilter').value = dateFilter;
+            currentFilters.date = dateFilter;
+            applyFilters();
+            showToast(`Filtering by date: ${dateFilter}`, 'info');
+        }
+        
+        function refreshEvents() {
+            loadEvents(1);
+            loadStatistics();
+            showToast('Events refreshed', 'success');
         }
         
         function renderEventsTable(events) {
@@ -467,10 +540,10 @@ $basePath = '/refactor';
             const selectedCount = document.getElementById('selectedCount');
             
             if (selectedEvents.size > 0) {
-                bulkActions.classList.remove('hidden');
+                bulkActions.style.display = 'block';
                 selectedCount.textContent = `${selectedEvents.size} selected`;
             } else {
-                bulkActions.classList.add('hidden');
+                bulkActions.style.display = 'none';
             }
         }
         

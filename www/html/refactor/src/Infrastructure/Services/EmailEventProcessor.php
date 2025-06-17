@@ -86,7 +86,7 @@ class EmailEventProcessor
                     }
                     
                     // Mark as read
-                    imap_setflag_full($this->imapConnection, $emailId, "\\Seen");
+                    imap_setflag_full($this->imapConnection, (string)$emailId, "\\Seen");
                     
                 } catch (Exception $e) {
                     error_log("Error processing email {$emailId}: " . $e->getMessage());
@@ -115,7 +115,7 @@ class EmailEventProcessor
             // Multipart email
             foreach ($structure->parts as $partNum => $part) {
                 if ($part->subtype === 'PLAIN' || $part->subtype === 'HTML') {
-                    $body = imap_fetchbody($this->imapConnection, $emailId, $partNum + 1);
+                    $body = imap_fetchbody($this->imapConnection, $emailId, (string)($partNum + 1));
                     
                     if ($part->encoding === 3) {
                         $body = base64_decode($body);
@@ -202,7 +202,11 @@ class EmailEventProcessor
             }
         }
 
-        return $isFromFacebook && ($hasEventSubject || $hasEventContent);
+        // Accept emails from Facebook domains with event content
+        // OR any email that contains a Facebook event URL
+        $hasFacebookEventUrl = stripos($body, 'facebook.com/events/') !== false;
+        
+        return ($isFromFacebook && ($hasEventSubject || $hasEventContent)) || $hasFacebookEventUrl;
     }
 
     /**
