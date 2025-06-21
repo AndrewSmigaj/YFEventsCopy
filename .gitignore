@@ -5,6 +5,7 @@
 /storage/sessions/*
 /.env
 /.env.backup
+/config/api_keys.php
 /.phpunit.result.cache
 /.php-cs-fixer.cache
 /public/hot
