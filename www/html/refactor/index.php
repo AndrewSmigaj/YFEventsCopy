@@ -31,24 +31,6 @@ try {
 
 } catch (\Exception $e) {
     // Handle bootstrap errors
-    http_response_code(500);
-    header('Content-Type: application/json');
-    
-    $response = [
-        'error' => true,
-        'message' => 'Application error'
-    ];
-
-    // Add debug info in development
-    if (defined('APP_ENV') && APP_ENV === 'development') {
-        $response['debug'] = [
-            'exception' => get_class($e),
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTraceAsString()
-        ];
-    }
-
-    echo json_encode($response, JSON_PRETTY_PRINT);
+    $debug = defined('APP_ENV') && APP_ENV === 'development';
+    \YakimaFinds\Infrastructure\Http\ErrorHandler::handle500($e, $debug);
 }

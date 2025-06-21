@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Handle API requests for communication
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/communication/(.*)$ api/communication/index.php/$1 [L,QSA]
+
+# Handle other requests (if needed)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]

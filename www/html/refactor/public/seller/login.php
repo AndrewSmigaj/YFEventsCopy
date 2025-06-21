@@ -199,7 +199,7 @@ $basePath = '/refactor';
     </div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
         
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();

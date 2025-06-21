@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Application Bootstrap
+ * 
+ * This file initializes the application container and registers all services
+ */
+
+// Load environment configuration
+require_once __DIR__ . '/database.php';
+
+use YakimaFinds\Infrastructure\Container\Container;
+use YakimaFinds\Infrastructure\Database\Connection;
+use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+
+// Create the container instance
+$container = Container::getInstance();
+
+// Register database connection
+$container->singleton(ConnectionInterface::class, function() {
+    $config = require __DIR__ . '/database.php';
+    return new Connection(
+        $config['host'],
+        $config['name'],
+        $config['username'],
+        $config['password'],
+        $config['options'] ?? []
+    );
+});
+
+// Register core services
+require_once __DIR__ . '/services/core.php';
+
+// Register communication services
+if (file_exists(__DIR__ . '/services/communication.php')) {
+    $registerCommunication = require __DIR__ . '/services/communication.php';
+    $registerCommunication($container);
+}
+
+// Register other module services here...
+
+return $container;

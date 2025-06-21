@@ -273,7 +273,7 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
         
         // Load initial data
         document.addEventListener('DOMContentLoaded', () => {

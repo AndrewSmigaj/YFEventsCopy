@@ -1,0 +1,5579 @@
+[
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/api/admin/events.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/api/admin/events/statistics.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/modules.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/email-config.php",
+    "js_calls": [
+      {
+        "id": "fieldId",
+        "line": 536,
+        "context": "const field = document.getElementById(fieldId);",
+        "type": "variable"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "imap_server",
+        "line": 235,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"imap_server\" name=\"imap_server\""
+      },
+      {
+        "id": "username",
+        "line": 249,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"username\" name=\"username\""
+      },
+      {
+        "id": "password",
+        "line": 262,
+        "element_type": "input",
+        "context": "<input type=\"password\" class=\"form-control\" id=\"password\" name=\"password\""
+      },
+      {
+        "id": "smtp_host",
+        "line": 286,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"smtp_host\" name=\"smtp_host\""
+      },
+      {
+        "id": "smtp_port",
+        "line": 295,
+        "element_type": "input",
+        "context": "<input type=\"number\" class=\"form-control\" id=\"smtp_port\" name=\"smtp_port\""
+      },
+      {
+        "id": "smtp_encryption",
+        "line": 305,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"smtp_encryption\" name=\"smtp_encryption\">"
+      },
+      {
+        "id": "smtp_username",
+        "line": 318,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"smtp_username\" name=\"smtp_username\""
+      },
+      {
+        "id": "smtp_password",
+        "line": 328,
+        "element_type": "input",
+        "context": "<input type=\"password\" class=\"form-control\" id=\"smtp_password\" name=\"smtp_password\""
+      },
+      {
+        "id": "batch_size",
+        "line": 346,
+        "element_type": "input",
+        "context": "<input type=\"number\" class=\"form-control\" id=\"batch_size\" name=\"batch_size\""
+      },
+      {
+        "id": "mark_as_read",
+        "line": 355,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"mark_as_read\" name=\"mark_as_read\""
+      },
+      {
+        "id": "delete_processed",
+        "line": 365,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"delete_processed\" name=\"delete_processed\""
+      },
+      {
+        "id": "confirmation_enabled",
+        "line": 382,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"confirmation_enabled\" name=\"confirmation_enabled\""
+      },
+      {
+        "id": "from_email",
+        "line": 395,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"from_email\" name=\"from_email\""
+      },
+      {
+        "id": "from_name",
+        "line": 404,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"from_name\" name=\"from_name\""
+      },
+      {
+        "id": "reply_to",
+        "line": 413,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"reply_to\" name=\"reply_to\""
+      }
+    ],
+    "missing_elements": [
+      {
+        "id": "fieldId",
+        "line": 536,
+        "context": "const field = document.getElementById(fieldId);",
+        "type": "variable"
+      }
+    ],
+    "unused_elements": [
+      {
+        "id": "imap_server",
+        "line": 235,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"imap_server\" name=\"imap_server\""
+      },
+      {
+        "id": "username",
+        "line": 249,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"username\" name=\"username\""
+      },
+      {
+        "id": "password",
+        "line": 262,
+        "element_type": "input",
+        "context": "<input type=\"password\" class=\"form-control\" id=\"password\" name=\"password\""
+      },
+      {
+        "id": "smtp_host",
+        "line": 286,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"smtp_host\" name=\"smtp_host\""
+      },
+      {
+        "id": "smtp_port",
+        "line": 295,
+        "element_type": "input",
+        "context": "<input type=\"number\" class=\"form-control\" id=\"smtp_port\" name=\"smtp_port\""
+      },
+      {
+        "id": "smtp_encryption",
+        "line": 305,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"smtp_encryption\" name=\"smtp_encryption\">"
+      },
+      {
+        "id": "smtp_username",
+        "line": 318,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"smtp_username\" name=\"smtp_username\""
+      },
+      {
+        "id": "smtp_password",
+        "line": 328,
+        "element_type": "input",
+        "context": "<input type=\"password\" class=\"form-control\" id=\"smtp_password\" name=\"smtp_password\""
+      },
+      {
+        "id": "batch_size",
+        "line": 346,
+        "element_type": "input",
+        "context": "<input type=\"number\" class=\"form-control\" id=\"batch_size\" name=\"batch_size\""
+      },
+      {
+        "id": "mark_as_read",
+        "line": 355,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"mark_as_read\" name=\"mark_as_read\""
+      },
+      {
+        "id": "delete_processed",
+        "line": 365,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"delete_processed\" name=\"delete_processed\""
+      },
+      {
+        "id": "confirmation_enabled",
+        "line": 382,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"confirmation_enabled\" name=\"confirmation_enabled\""
+      },
+      {
+        "id": "from_email",
+        "line": 395,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"from_email\" name=\"from_email\""
+      },
+      {
+        "id": "from_name",
+        "line": 404,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"from_name\" name=\"from_name\""
+      },
+      {
+        "id": "reply_to",
+        "line": 413,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"reply_to\" name=\"reply_to\""
+      }
+    ],
+    "has_mismatches": true
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/email-events.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/users-original.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 710,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "usersTableContent",
+        "line": 796,
+        "context": "const container = document.getElementById('usersTableContent');",
+        "type": "literal"
+      },
+      {
+        "id": "bulkActions",
+        "line": 904,
+        "context": "const bulkActions = document.getElementById('bulkActions');",
+        "type": "literal"
+      },
+      {
+        "id": "selectedCount",
+        "line": 905,
+        "context": "const selectedCount = document.getElementById('selectedCount');",
+        "type": "literal"
+      },
+      {
+        "id": "searchInput",
+        "line": 917,
+        "context": "search: document.getElementById('searchInput').value,",
+        "type": "literal"
+      },
+      {
+        "id": "roleFilter",
+        "line": 918,
+        "context": "role: document.getElementById('roleFilter').value,",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 919,
+        "context": "status: document.getElementById('statusFilter').value,",
+        "type": "literal"
+      },
+      {
+        "id": "dateFilter",
+        "line": 920,
+        "context": "date: document.getElementById('dateFilter').value",
+        "type": "literal"
+      },
+      {
+        "id": "searchInput",
+        "line": 934,
+        "context": "document.getElementById('searchInput').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "roleFilter",
+        "line": 935,
+        "context": "document.getElementById('roleFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 936,
+        "context": "document.getElementById('statusFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "dateFilter",
+        "line": 937,
+        "context": "document.getElementById('dateFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 943,
+        "context": "document.getElementById('modalTitle').textContent = 'Add User';",
+        "type": "literal"
+      },
+      {
+        "id": "userForm",
+        "line": 944,
+        "context": "document.getElementById('userForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "userId",
+        "line": 945,
+        "context": "document.getElementById('userId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "userModal",
+        "line": 946,
+        "context": "document.getElementById('userModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 953,
+        "context": "document.getElementById('modalTitle').textContent = 'Edit User';",
+        "type": "literal"
+      },
+      {
+        "id": "userId",
+        "line": 954,
+        "context": "document.getElementById('userId').value = user.id;",
+        "type": "literal"
+      },
+      {
+        "id": "userName",
+        "line": 955,
+        "context": "document.getElementById('userName').value = user.username;",
+        "type": "literal"
+      },
+      {
+        "id": "userEmail",
+        "line": 956,
+        "context": "document.getElementById('userEmail').value = user.email;",
+        "type": "literal"
+      },
+      {
+        "id": "userFirstName",
+        "line": 957,
+        "context": "document.getElementById('userFirstName').value = user.first_name || '';",
+        "type": "literal"
+      },
+      {
+        "id": "userLastName",
+        "line": 958,
+        "context": "document.getElementById('userLastName').value = user.last_name || '';",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 959,
+        "context": "document.getElementById('userPassword').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 960,
+        "context": "document.getElementById('userPassword').required = false;",
+        "type": "literal"
+      },
+      {
+        "id": "userRole",
+        "line": 961,
+        "context": "document.getElementById('userRole').value = user.role;",
+        "type": "literal"
+      },
+      {
+        "id": "userStatus",
+        "line": 962,
+        "context": "document.getElementById('userStatus').value = user.status;",
+        "type": "literal"
+      },
+      {
+        "id": "userModal",
+        "line": 964,
+        "context": "document.getElementById('userModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "userModal",
+        "line": 968,
+        "context": "document.getElementById('userModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 969,
+        "context": "document.getElementById('userPassword').required = true;",
+        "type": "literal"
+      },
+      {
+        "id": "userForm",
+        "line": 1019,
+        "context": "document.getElementById('userForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 1040,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 540,
+        "element_type": "div",
+        "context": "<div class=\"stats-row\" id=\"statsRow\">"
+      },
+      {
+        "id": "searchInput",
+        "line": 564,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"searchInput\" placeholder=\"Search users...\">"
+      },
+      {
+        "id": "roleFilter",
+        "line": 568,
+        "element_type": "select",
+        "context": "<select id=\"roleFilter\">"
+      },
+      {
+        "id": "statusFilter",
+        "line": 577,
+        "element_type": "select",
+        "context": "<select id=\"statusFilter\">"
+      },
+      {
+        "id": "dateFilter",
+        "line": 586,
+        "element_type": "select",
+        "context": "<select id=\"dateFilter\">"
+      },
+      {
+        "id": "bulkActions",
+        "line": 607,
+        "element_type": "div",
+        "context": "<div class=\"bulk-actions hidden\" id=\"bulkActions\">"
+      },
+      {
+        "id": "selectedCount",
+        "line": 608,
+        "element_type": "span",
+        "context": "<span id=\"selectedCount\">0 selected</span>"
+      },
+      {
+        "id": "usersTableContent",
+        "line": 614,
+        "element_type": "div",
+        "context": "<div id=\"usersTableContent\">"
+      },
+      {
+        "id": "userModal",
+        "line": 621,
+        "element_type": "div",
+        "context": "<div id=\"userModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 624,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Add User</h2>"
+      },
+      {
+        "id": "userForm",
+        "line": 627,
+        "element_type": "form",
+        "context": "<form id=\"userForm\">"
+      },
+      {
+        "id": "userId",
+        "line": 628,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"userId\" name=\"id\">"
+      },
+      {
+        "id": "userName",
+        "line": 633,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"userName\" name=\"username\" required>"
+      },
+      {
+        "id": "userEmail",
+        "line": 637,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"userEmail\" name=\"email\" required>"
+      },
+      {
+        "id": "userFirstName",
+        "line": 644,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"userFirstName\" name=\"first_name\">"
+      },
+      {
+        "id": "userLastName",
+        "line": 648,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"userLastName\" name=\"last_name\">"
+      },
+      {
+        "id": "userPassword",
+        "line": 654,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"userPassword\" name=\"password\" required>"
+      },
+      {
+        "id": "userRole",
+        "line": 660,
+        "element_type": "select",
+        "context": "<select id=\"userRole\" name=\"role\">"
+      },
+      {
+        "id": "userStatus",
+        "line": 668,
+        "element_type": "select",
+        "context": "<select id=\"userStatus\" name=\"status\">"
+      },
+      {
+        "id": "toast",
+        "line": 685,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/shops.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 330,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "shopsContainer",
+        "line": 380,
+        "context": "const container = document.getElementById('shopsContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "searchShops",
+        "line": 443,
+        "context": "const searchTerm = document.getElementById('searchShops').value.toLowerCase();",
+        "type": "literal"
+      },
+      {
+        "id": "filterCategory",
+        "line": 444,
+        "context": "const categoryFilter = document.getElementById('filterCategory').value;",
+        "type": "literal"
+      },
+      {
+        "id": "filterStatus",
+        "line": 445,
+        "context": "const statusFilter = document.getElementById('filterStatus').value;",
+        "type": "literal"
+      },
+      {
+        "id": "searchShops",
+        "line": 463,
+        "context": "document.getElementById('searchShops').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "filterCategory",
+        "line": 464,
+        "context": "document.getElementById('filterCategory').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "filterStatus",
+        "line": 465,
+        "context": "document.getElementById('filterStatus').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 476,
+        "context": "document.getElementById('modalTitle').textContent = 'Add Shop';",
+        "type": "literal"
+      },
+      {
+        "id": "shopForm",
+        "line": 477,
+        "context": "document.getElementById('shopForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "shopId",
+        "line": 478,
+        "context": "document.getElementById('shopId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopModal",
+        "line": 479,
+        "context": "document.getElementById('shopModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "shopModal",
+        "line": 483,
+        "context": "document.getElementById('shopModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 487,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 128,
+        "element_type": "div",
+        "context": "<div class=\"stats-grid\" id=\"statsRow\">"
+      },
+      {
+        "id": "searchShops",
+        "line": 184,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"searchShops\" placeholder=\"Search shops...\" onkeyup=\"filterShops()\">"
+      },
+      {
+        "id": "filterCategory",
+        "line": 188,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"filterCategory\" onchange=\"filterShops()\">"
+      },
+      {
+        "id": "filterStatus",
+        "line": 198,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"filterStatus\" onchange=\"filterShops()\">"
+      },
+      {
+        "id": "shopsContainer",
+        "line": 221,
+        "element_type": "div",
+        "context": "<div id=\"shopsContainer\">"
+      },
+      {
+        "id": "shopModal",
+        "line": 231,
+        "element_type": "div",
+        "context": "<div id=\"shopModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 234,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Add Shop</h2>"
+      },
+      {
+        "id": "shopForm",
+        "line": 237,
+        "element_type": "form",
+        "context": "<form id=\"shopForm\">"
+      },
+      {
+        "id": "shopId",
+        "line": 238,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"shopId\" name=\"id\">"
+      },
+      {
+        "id": "shopName",
+        "line": 242,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopName\" name=\"name\" required>"
+      },
+      {
+        "id": "shopCategory",
+        "line": 248,
+        "element_type": "select",
+        "context": "<select id=\"shopCategory\" name=\"category\" required>"
+      },
+      {
+        "id": "shopPhone",
+        "line": 258,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"shopPhone\" name=\"phone\">"
+      },
+      {
+        "id": "shopAddress",
+        "line": 264,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopAddress\" name=\"address\" required>"
+      },
+      {
+        "id": "shopWebsite",
+        "line": 270,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"shopWebsite\" name=\"website\">"
+      },
+      {
+        "id": "shopEmail",
+        "line": 274,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"shopEmail\" name=\"email\">"
+      },
+      {
+        "id": "shopDescription",
+        "line": 280,
+        "element_type": "textarea",
+        "context": "<textarea id=\"shopDescription\" name=\"description\" placeholder=\"Brief description of the business...\"></textarea>"
+      },
+      {
+        "id": "shopActive",
+        "line": 286,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"shopActive\" name=\"active\" checked>"
+      },
+      {
+        "id": "shopFeatured",
+        "line": 292,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"shopFeatured\" name=\"featured\">"
+      },
+      {
+        "id": "toast",
+        "line": 307,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "shopName",
+        "line": 242,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopName\" name=\"name\" required>"
+      },
+      {
+        "id": "shopCategory",
+        "line": 248,
+        "element_type": "select",
+        "context": "<select id=\"shopCategory\" name=\"category\" required>"
+      },
+      {
+        "id": "shopPhone",
+        "line": 258,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"shopPhone\" name=\"phone\">"
+      },
+      {
+        "id": "shopAddress",
+        "line": 264,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopAddress\" name=\"address\" required>"
+      },
+      {
+        "id": "shopWebsite",
+        "line": 270,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"shopWebsite\" name=\"website\">"
+      },
+      {
+        "id": "shopEmail",
+        "line": 274,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"shopEmail\" name=\"email\">"
+      },
+      {
+        "id": "shopDescription",
+        "line": 280,
+        "element_type": "textarea",
+        "context": "<textarea id=\"shopDescription\" name=\"description\" placeholder=\"Brief description of the business...\"></textarea>"
+      },
+      {
+        "id": "shopActive",
+        "line": 286,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"shopActive\" name=\"active\" checked>"
+      },
+      {
+        "id": "shopFeatured",
+        "line": 292,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"shopFeatured\" name=\"featured\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/scrapers-old.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 725,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "scrapersContainer",
+        "line": 778,
+        "context": "const container = document.getElementById('scrapersContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 849,
+        "context": "document.getElementById('modalTitle').textContent = 'Add Scraper Source';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperForm",
+        "line": 850,
+        "context": "document.getElementById('scraperForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "scraperId",
+        "line": 851,
+        "context": "document.getElementById('scraperId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperActive",
+        "line": 852,
+        "context": "document.getElementById('scraperActive').checked = true;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 853,
+        "context": "document.getElementById('scraperModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 860,
+        "context": "document.getElementById('modalTitle').textContent = 'Edit Scraper Source';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperId",
+        "line": 861,
+        "context": "document.getElementById('scraperId').value = scraper.id;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperName",
+        "line": 862,
+        "context": "document.getElementById('scraperName').value = scraper.name;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperUrl",
+        "line": 863,
+        "context": "document.getElementById('scraperUrl').value = scraper.url;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperType",
+        "line": 864,
+        "context": "document.getElementById('scraperType').value = scraper.type;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperConfig",
+        "line": 865,
+        "context": "document.getElementById('scraperConfig').value = scraper.configuration || '';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperActive",
+        "line": 866,
+        "context": "document.getElementById('scraperActive').checked = scraper.is_active;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 868,
+        "context": "document.getElementById('scraperModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 872,
+        "context": "document.getElementById('scraperModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperForm",
+        "line": 875,
+        "context": "document.getElementById('scraperForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "scraperActive",
+        "line": 885,
+        "context": "is_active: document.getElementById('scraperActive').checked",
+        "type": "literal"
+      },
+      {
+        "id": "runModal",
+        "line": 1011,
+        "context": "document.getElementById('runModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "runModal",
+        "line": 1015,
+        "context": "document.getElementById('runModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "sourcesList",
+        "line": 1019,
+        "context": "const container = document.getElementById('sourcesList');",
+        "type": "literal"
+      },
+      {
+        "id": "scrapingProgress",
+        "line": 1126,
+        "context": "const progressDiv = document.getElementById('scrapingProgress');",
+        "type": "literal"
+      },
+      {
+        "id": "progressItems",
+        "line": 1127,
+        "context": "const progressItems = document.getElementById('progressItems');",
+        "type": "literal"
+      },
+      {
+        "id": "scrapingProgress",
+        "line": 1182,
+        "context": "document.getElementById('scrapingProgress').style.display = 'none';",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 1193,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 574,
+        "element_type": "div",
+        "context": "<div class=\"stats-row\" id=\"statsRow\">"
+      },
+      {
+        "id": "scrapingProgress",
+        "line": 598,
+        "element_type": "div",
+        "context": "<div id=\"scrapingProgress\" class=\"scraping-progress\" style=\"display: none;\">"
+      },
+      {
+        "id": "progressItems",
+        "line": 603,
+        "element_type": "div",
+        "context": "<div id=\"progressItems\" class=\"progress-items\">"
+      },
+      {
+        "id": "scrapersContainer",
+        "line": 609,
+        "element_type": "div",
+        "context": "<div id=\"scrapersContainer\">"
+      },
+      {
+        "id": "scraperModal",
+        "line": 615,
+        "element_type": "div",
+        "context": "<div id=\"scraperModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 618,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Add Scraper Source</h2>"
+      },
+      {
+        "id": "scraperForm",
+        "line": 621,
+        "element_type": "form",
+        "context": "<form id=\"scraperForm\">"
+      },
+      {
+        "id": "scraperId",
+        "line": 622,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"scraperId\" name=\"id\">"
+      },
+      {
+        "id": "scraperName",
+        "line": 626,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"scraperName\" name=\"name\" required>"
+      },
+      {
+        "id": "scraperUrl",
+        "line": 632,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"scraperUrl\" name=\"url\" required>"
+      },
+      {
+        "id": "scraperType",
+        "line": 638,
+        "element_type": "select",
+        "context": "<select id=\"scraperType\" name=\"type\" required>"
+      },
+      {
+        "id": "scraperConfig",
+        "line": 651,
+        "element_type": "textarea",
+        "context": "<textarea id=\"scraperConfig\" name=\"configuration\" placeholder='{"
+      },
+      {
+        "id": "scraperActive",
+        "line": 662,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"scraperActive\" name=\"is_active\" checked>"
+      },
+      {
+        "id": "runModal",
+        "line": 676,
+        "element_type": "div",
+        "context": "<div id=\"runModal\" class=\"modal\">"
+      },
+      {
+        "id": "sourcesList",
+        "line": 684,
+        "element_type": "div",
+        "context": "<div class=\"sources-list\" id=\"sourcesList\">"
+      },
+      {
+        "id": "selectAllSources",
+        "line": 689,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"selectAllSources\" onchange=\"toggleAllSources(this)\">"
+      },
+      {
+        "id": "toast",
+        "line": 704,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      },
+      {
+        "id": "progress-${id}",
+        "line": 1136,
+        "element_type": "div",
+        "context": "<div class=\"progress-item\" id=\"progress-${id}\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "selectAllSources",
+        "line": 689,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"selectAllSources\" onchange=\"toggleAllSources(this)\">"
+      },
+      {
+        "id": "progress-${id}",
+        "line": 1136,
+        "element_type": "div",
+        "context": "<div class=\"progress-item\" id=\"progress-${id}\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/scrapers.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 296,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "scrapersContainer",
+        "line": 345,
+        "context": "const container = document.getElementById('scrapersContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 476,
+        "context": "document.getElementById('modalTitle').textContent = 'Add Scraper Source';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperForm",
+        "line": 477,
+        "context": "document.getElementById('scraperForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "scraperId",
+        "line": 478,
+        "context": "document.getElementById('scraperId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 479,
+        "context": "document.getElementById('scraperModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperType",
+        "line": 484,
+        "context": "const scraperType = document.getElementById('scraperType').value;",
+        "type": "literal"
+      },
+      {
+        "id": "configHelp",
+        "line": 485,
+        "context": "const configHelp = document.getElementById('configHelp');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperConfig",
+        "line": 486,
+        "context": "const configTextarea = document.getElementById('scraperConfig');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 545,
+        "context": "document.getElementById('scraperModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "runModal",
+        "line": 549,
+        "context": "document.getElementById('runModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "runModal",
+        "line": 553,
+        "context": "document.getElementById('runModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 595,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 149,
+        "element_type": "div",
+        "context": "<div class=\"stats-grid\" id=\"statsRow\">"
+      },
+      {
+        "id": "scrapersContainer",
+        "line": 182,
+        "element_type": "div",
+        "context": "<div id=\"scrapersContainer\">"
+      },
+      {
+        "id": "scraperModal",
+        "line": 189,
+        "element_type": "div",
+        "context": "<div id=\"scraperModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 192,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Add Scraper Source</h2>"
+      },
+      {
+        "id": "scraperForm",
+        "line": 195,
+        "element_type": "form",
+        "context": "<form id=\"scraperForm\">"
+      },
+      {
+        "id": "scraperId",
+        "line": 196,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"scraperId\" name=\"id\">"
+      },
+      {
+        "id": "scraperName",
+        "line": 200,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"scraperName\" name=\"name\" required>"
+      },
+      {
+        "id": "scraperUrl",
+        "line": 205,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"scraperUrl\" name=\"url\" required>"
+      },
+      {
+        "id": "scraperType",
+        "line": 211,
+        "element_type": "select",
+        "context": "<select id=\"scraperType\" name=\"type\" required onchange=\"updateScraperOptions()\">"
+      },
+      {
+        "id": "scraperActive",
+        "line": 224,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"scraperActive\" name=\"active\" checked>"
+      },
+      {
+        "id": "scraperConfig",
+        "line": 232,
+        "element_type": "textarea",
+        "context": "<textarea id=\"scraperConfig\" name=\"config\" placeholder='{\"selectors\": {\"title\": \".event-title\", \"date\": \".event-date\"}}'></textarea>"
+      },
+      {
+        "id": "configHelp",
+        "line": 233,
+        "element_type": "div",
+        "context": "<div id=\"configHelp\" class=\"form-help\" style=\"display:none; margin-top: 10px; font-size: 0.9em; color: #666;\"></div>"
+      },
+      {
+        "id": "runModal",
+        "line": 245,
+        "element_type": "div",
+        "context": "<div id=\"runModal\" class=\"modal\">"
+      },
+      {
+        "id": "runContent",
+        "line": 251,
+        "element_type": "div",
+        "context": "<div id=\"runContent\">"
+      },
+      {
+        "id": "scrapersList",
+        "line": 253,
+        "element_type": "div",
+        "context": "<div id=\"scrapersList\">"
+      },
+      {
+        "id": "runProgress",
+        "line": 261,
+        "element_type": "div",
+        "context": "<div id=\"runProgress\" style=\"display: none;\">"
+      },
+      {
+        "id": "progressContent",
+        "line": 263,
+        "element_type": "div",
+        "context": "<div id=\"progressContent\">"
+      },
+      {
+        "id": "toast",
+        "line": 271,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "scraperName",
+        "line": 200,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"scraperName\" name=\"name\" required>"
+      },
+      {
+        "id": "scraperUrl",
+        "line": 205,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"scraperUrl\" name=\"url\" required>"
+      },
+      {
+        "id": "scraperActive",
+        "line": 224,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"scraperActive\" name=\"active\" checked>"
+      },
+      {
+        "id": "runContent",
+        "line": 251,
+        "element_type": "div",
+        "context": "<div id=\"runContent\">"
+      },
+      {
+        "id": "scrapersList",
+        "line": 253,
+        "element_type": "div",
+        "context": "<div id=\"scrapersList\">"
+      },
+      {
+        "id": "runProgress",
+        "line": 261,
+        "element_type": "div",
+        "context": "<div id=\"runProgress\" style=\"display: none;\">"
+      },
+      {
+        "id": "progressContent",
+        "line": 263,
+        "element_type": "div",
+        "context": "<div id=\"progressContent\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/email-upload.php",
+    "js_calls": [
+      {
+        "id": "fileInput",
+        "line": 234,
+        "context": "<button type=\"button\" class=\"btn btn-outline-primary\" onclick=\"document.getElementById('fileInput').click()\">",
+        "type": "literal"
+      },
+      {
+        "id": "dragDropArea",
+        "line": 369,
+        "context": "const dragDropArea = document.getElementById('dragDropArea');",
+        "type": "literal"
+      },
+      {
+        "id": "fileInput",
+        "line": 370,
+        "context": "const fileInput = document.getElementById('fileInput');",
+        "type": "literal"
+      },
+      {
+        "id": "uploadForm",
+        "line": 389,
+        "context": "document.getElementById('uploadForm').submit();",
+        "type": "literal"
+      },
+      {
+        "id": "uploadForm",
+        "line": 400,
+        "context": "document.getElementById('uploadForm').submit();",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "uploadForm",
+        "line": 227,
+        "element_type": "form",
+        "context": "<form method=\"post\" enctype=\"multipart/form-data\" id=\"uploadForm\">"
+      },
+      {
+        "id": "dragDropArea",
+        "line": 228,
+        "element_type": "div",
+        "context": "<div class=\"drag-drop-area\" id=\"dragDropArea\">"
+      },
+      {
+        "id": "fileInput",
+        "line": 233,
+        "element_type": "input",
+        "context": "<input type=\"file\" class=\"form-control\" name=\"email_file\" accept=\".eml,.txt,.msg\" id=\"fileInput\" style=\"display: none;\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/bootstrap.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/backup-config.php",
+    "js_calls": [],
+    "html_ids": [
+      {
+        "id": "backup_enabled",
+        "line": 363,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"backup_enabled\" name=\"backup_enabled\""
+      },
+      {
+        "id": "backup_email",
+        "line": 372,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"backup_email\" name=\"backup_email\""
+      },
+      {
+        "id": "backup_frequency",
+        "line": 380,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"backup_frequency\" name=\"backup_frequency\">"
+      },
+      {
+        "id": "include_database",
+        "line": 392,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"include_database\" name=\"include_database\""
+      },
+      {
+        "id": "include_config",
+        "line": 397,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"include_config\" name=\"include_config\""
+      },
+      {
+        "id": "include_logs",
+        "line": 402,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"include_logs\" name=\"include_logs\""
+      },
+      {
+        "id": "max_backups",
+        "line": 410,
+        "element_type": "input",
+        "context": "<input type=\"number\" class=\"form-control\" id=\"max_backups\" name=\"max_backups\""
+      },
+      {
+        "id": "compression",
+        "line": 415,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"compression\" name=\"compression\""
+      },
+      {
+        "id": "install_email",
+        "line": 431,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"install_email\" name=\"install_email\""
+      },
+      {
+        "id": "emergency_contacts",
+        "line": 439,
+        "element_type": "textarea",
+        "context": "<textarea class=\"form-control\" id=\"emergency_contacts\" name=\"emergency_contacts\" rows=\"4\""
+      },
+      {
+        "id": "hostname",
+        "line": 448,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"hostname\" name=\"hostname\""
+      },
+      {
+        "id": "document_root",
+        "line": 454,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"document_root\" name=\"document_root\""
+      },
+      {
+        "id": "database_host",
+        "line": 460,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"database_host\" name=\"database_host\""
+      },
+      {
+        "id": "recovery_instructions",
+        "line": 468,
+        "element_type": "textarea",
+        "context": "<textarea class=\"form-control\" id=\"recovery_instructions\" name=\"recovery_instructions\" rows=\"4\""
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "backup_enabled",
+        "line": 363,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"backup_enabled\" name=\"backup_enabled\""
+      },
+      {
+        "id": "backup_email",
+        "line": 372,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"backup_email\" name=\"backup_email\""
+      },
+      {
+        "id": "backup_frequency",
+        "line": 380,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"backup_frequency\" name=\"backup_frequency\">"
+      },
+      {
+        "id": "include_database",
+        "line": 392,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"include_database\" name=\"include_database\""
+      },
+      {
+        "id": "include_config",
+        "line": 397,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"include_config\" name=\"include_config\""
+      },
+      {
+        "id": "include_logs",
+        "line": 402,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"include_logs\" name=\"include_logs\""
+      },
+      {
+        "id": "max_backups",
+        "line": 410,
+        "element_type": "input",
+        "context": "<input type=\"number\" class=\"form-control\" id=\"max_backups\" name=\"max_backups\""
+      },
+      {
+        "id": "compression",
+        "line": 415,
+        "element_type": "input",
+        "context": "<input class=\"form-check-input\" type=\"checkbox\" id=\"compression\" name=\"compression\""
+      },
+      {
+        "id": "install_email",
+        "line": 431,
+        "element_type": "input",
+        "context": "<input type=\"email\" class=\"form-control\" id=\"install_email\" name=\"install_email\""
+      },
+      {
+        "id": "emergency_contacts",
+        "line": 439,
+        "element_type": "textarea",
+        "context": "<textarea class=\"form-control\" id=\"emergency_contacts\" name=\"emergency_contacts\" rows=\"4\""
+      },
+      {
+        "id": "hostname",
+        "line": 448,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"hostname\" name=\"hostname\""
+      },
+      {
+        "id": "document_root",
+        "line": 454,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"document_root\" name=\"document_root\""
+      },
+      {
+        "id": "database_host",
+        "line": 460,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"database_host\" name=\"database_host\""
+      },
+      {
+        "id": "recovery_instructions",
+        "line": 468,
+        "element_type": "textarea",
+        "context": "<textarea class=\"form-control\" id=\"recovery_instructions\" name=\"recovery_instructions\" rows=\"4\""
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/index.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/users.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 285,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "usersContainer",
+        "line": 331,
+        "context": "const container = document.getElementById('usersContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "searchUsers",
+        "line": 404,
+        "context": "const searchTerm = document.getElementById('searchUsers').value.toLowerCase();",
+        "type": "literal"
+      },
+      {
+        "id": "filterRole",
+        "line": 405,
+        "context": "const roleFilter = document.getElementById('filterRole').value;",
+        "type": "literal"
+      },
+      {
+        "id": "filterStatus",
+        "line": 406,
+        "context": "const statusFilter = document.getElementById('filterStatus').value;",
+        "type": "literal"
+      },
+      {
+        "id": "searchUsers",
+        "line": 424,
+        "context": "document.getElementById('searchUsers').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "filterRole",
+        "line": 425,
+        "context": "document.getElementById('filterRole').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "filterStatus",
+        "line": 426,
+        "context": "document.getElementById('filterStatus').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 437,
+        "context": "document.getElementById('modalTitle').textContent = 'Add User';",
+        "type": "literal"
+      },
+      {
+        "id": "userForm",
+        "line": 438,
+        "context": "document.getElementById('userForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "userId",
+        "line": 439,
+        "context": "document.getElementById('userId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 440,
+        "context": "document.getElementById('userPassword').required = true;",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 441,
+        "context": "document.getElementById('userPassword').placeholder = 'Enter password';",
+        "type": "literal"
+      },
+      {
+        "id": "userActive",
+        "line": 442,
+        "context": "document.getElementById('userActive').checked = true;",
+        "type": "literal"
+      },
+      {
+        "id": "userModal",
+        "line": 443,
+        "context": "document.getElementById('userModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "userModal",
+        "line": 447,
+        "context": "document.getElementById('userModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 451,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 493,
+        "context": "document.getElementById('modalTitle').textContent = 'Edit User';",
+        "type": "literal"
+      },
+      {
+        "id": "userId",
+        "line": 494,
+        "context": "document.getElementById('userId').value = user.id;",
+        "type": "literal"
+      },
+      {
+        "id": "userName",
+        "line": 495,
+        "context": "document.getElementById('userName').value = user.username;",
+        "type": "literal"
+      },
+      {
+        "id": "userEmail",
+        "line": 496,
+        "context": "document.getElementById('userEmail').value = user.email;",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 497,
+        "context": "document.getElementById('userPassword').required = false;",
+        "type": "literal"
+      },
+      {
+        "id": "userPassword",
+        "line": 498,
+        "context": "document.getElementById('userPassword').placeholder = 'Leave blank to keep current password';",
+        "type": "literal"
+      },
+      {
+        "id": "userRole",
+        "line": 499,
+        "context": "document.getElementById('userRole').value = user.role;",
+        "type": "literal"
+      },
+      {
+        "id": "userFullName",
+        "line": 500,
+        "context": "document.getElementById('userFullName').value = user.full_name || '';",
+        "type": "literal"
+      },
+      {
+        "id": "userForm",
+        "line": 504,
+        "context": "document.getElementById('userForm').dataset.firstName = user.first_name || '';",
+        "type": "literal"
+      },
+      {
+        "id": "userForm",
+        "line": 505,
+        "context": "document.getElementById('userForm').dataset.lastName = user.last_name || '';",
+        "type": "literal"
+      },
+      {
+        "id": "userActive",
+        "line": 506,
+        "context": "document.getElementById('userActive').checked = user.status === 'active';",
+        "type": "literal"
+      },
+      {
+        "id": "userEmailVerified",
+        "line": 507,
+        "context": "document.getElementById('userEmailVerified').checked = user.email_verified == 1;",
+        "type": "literal"
+      },
+      {
+        "id": "userModal",
+        "line": 509,
+        "context": "document.getElementById('userModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "userForm",
+        "line": 614,
+        "context": "document.getElementById('userForm').addEventListener('submit', async function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "permissionsModal",
+        "line": 729,
+        "context": "document.getElementById('permissionsModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "permissionsContent",
+        "line": 827,
+        "context": "document.getElementById('permissionsContent').innerHTML = html;",
+        "type": "literal"
+      },
+      {
+        "id": "rolesForm",
+        "line": 830,
+        "context": "document.getElementById('rolesForm').addEventListener('submit', async function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "permissionsModal",
+        "line": 866,
+        "context": "document.getElementById('permissionsModal').classList.remove('show');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 116,
+        "element_type": "div",
+        "context": "<div class=\"stats-grid\" id=\"statsRow\">"
+      },
+      {
+        "id": "searchUsers",
+        "line": 143,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"searchUsers\" placeholder=\"Search users...\" onkeyup=\"filterUsers()\">"
+      },
+      {
+        "id": "filterRole",
+        "line": 147,
+        "element_type": "select",
+        "context": "<select id=\"filterRole\" onchange=\"filterUsers()\">"
+      },
+      {
+        "id": "filterStatus",
+        "line": 156,
+        "element_type": "select",
+        "context": "<select id=\"filterStatus\" onchange=\"filterUsers()\">"
+      },
+      {
+        "id": "usersContainer",
+        "line": 177,
+        "element_type": "div",
+        "context": "<div id=\"usersContainer\">"
+      },
+      {
+        "id": "userModal",
+        "line": 184,
+        "element_type": "div",
+        "context": "<div id=\"userModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 187,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Add User</h2>"
+      },
+      {
+        "id": "userForm",
+        "line": 190,
+        "element_type": "form",
+        "context": "<form id=\"userForm\">"
+      },
+      {
+        "id": "userId",
+        "line": 191,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"userId\" name=\"id\">"
+      },
+      {
+        "id": "userName",
+        "line": 196,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"userName\" name=\"username\" required>"
+      },
+      {
+        "id": "userEmail",
+        "line": 200,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"userEmail\" name=\"email\" required>"
+      },
+      {
+        "id": "userPassword",
+        "line": 207,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"userPassword\" name=\"password\" required>"
+      },
+      {
+        "id": "userRole",
+        "line": 211,
+        "element_type": "select",
+        "context": "<select id=\"userRole\" name=\"role\" required>"
+      },
+      {
+        "id": "userFullName",
+        "line": 222,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"userFullName\" name=\"full_name\">"
+      },
+      {
+        "id": "userActive",
+        "line": 228,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"userActive\" name=\"active\" checked>"
+      },
+      {
+        "id": "userEmailVerified",
+        "line": 234,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"userEmailVerified\" name=\"email_verified\">"
+      },
+      {
+        "id": "permissionsModal",
+        "line": 249,
+        "element_type": "div",
+        "context": "<div id=\"permissionsModal\" class=\"modal\">"
+      },
+      {
+        "id": "permissionsContent",
+        "line": 255,
+        "element_type": "div",
+        "context": "<div id=\"permissionsContent\">"
+      },
+      {
+        "id": "toast",
+        "line": 262,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      },
+      {
+        "id": "rolesForm",
+        "line": 757,
+        "element_type": "form",
+        "context": "<form id=\"rolesForm\" style=\"margin-bottom: 2rem;\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/events.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 328,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "statsRow",
+        "line": 356,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 421,
+        "context": "document.getElementById('statusFilter').value = status;",
+        "type": "literal"
+      },
+      {
+        "id": "dateFilter",
+        "line": 435,
+        "context": "document.getElementById('dateFilter').value = dateFilter;",
+        "type": "literal"
+      },
+      {
+        "id": "eventsTableContent",
+        "line": 448,
+        "context": "const container = document.getElementById('eventsTableContent');",
+        "type": "literal"
+      },
+      {
+        "id": "bulkActions",
+        "line": 556,
+        "context": "const bulkActions = document.getElementById('bulkActions');",
+        "type": "literal"
+      },
+      {
+        "id": "selectedCount",
+        "line": 557,
+        "context": "const selectedCount = document.getElementById('selectedCount');",
+        "type": "literal"
+      },
+      {
+        "id": "searchInput",
+        "line": 569,
+        "context": "search: document.getElementById('searchInput').value,",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 570,
+        "context": "status: document.getElementById('statusFilter').value",
+        "type": "literal"
+      },
+      {
+        "id": "dateFilter",
+        "line": 573,
+        "context": "const dateFilter = document.getElementById('dateFilter').value;",
+        "type": "literal"
+      },
+      {
+        "id": "searchInput",
+        "line": 582,
+        "context": "document.getElementById('searchInput').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 583,
+        "context": "document.getElementById('statusFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "dateFilter",
+        "line": 584,
+        "context": "document.getElementById('dateFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 590,
+        "context": "document.getElementById('modalTitle').textContent = 'Create Event';",
+        "type": "literal"
+      },
+      {
+        "id": "eventForm",
+        "line": 591,
+        "context": "document.getElementById('eventForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "eventId",
+        "line": 592,
+        "context": "document.getElementById('eventId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventModal",
+        "line": 593,
+        "context": "document.getElementById('eventModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 603,
+        "context": "document.getElementById('modalTitle').textContent = 'Edit Event';",
+        "type": "literal"
+      },
+      {
+        "id": "eventId",
+        "line": 604,
+        "context": "document.getElementById('eventId').value = event.id;",
+        "type": "literal"
+      },
+      {
+        "id": "eventTitle",
+        "line": 605,
+        "context": "document.getElementById('eventTitle').value = event.title;",
+        "type": "literal"
+      },
+      {
+        "id": "eventDescription",
+        "line": 606,
+        "context": "document.getElementById('eventDescription').value = event.description || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventStartDate",
+        "line": 607,
+        "context": "document.getElementById('eventStartDate').value = event.start_datetime.slice(0, 16);",
+        "type": "literal"
+      },
+      {
+        "id": "eventEndDate",
+        "line": 608,
+        "context": "document.getElementById('eventEndDate').value = event.end_datetime ? event.end_datetime.slice(0, 16) : '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventLocation",
+        "line": 609,
+        "context": "document.getElementById('eventLocation').value = event.location || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventAddress",
+        "line": 610,
+        "context": "document.getElementById('eventAddress').value = event.address || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventLatitude",
+        "line": 611,
+        "context": "document.getElementById('eventLatitude').value = event.latitude || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventLongitude",
+        "line": 612,
+        "context": "document.getElementById('eventLongitude').value = event.longitude || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventContact",
+        "line": 613,
+        "context": "document.getElementById('eventContact').value = event.contact_info || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventUrl",
+        "line": 614,
+        "context": "document.getElementById('eventUrl').value = event.external_url || '';",
+        "type": "literal"
+      },
+      {
+        "id": "eventStatus",
+        "line": 615,
+        "context": "document.getElementById('eventStatus').value = event.status;",
+        "type": "literal"
+      },
+      {
+        "id": "eventFeatured",
+        "line": 616,
+        "context": "document.getElementById('eventFeatured').checked = event.featured;",
+        "type": "literal"
+      },
+      {
+        "id": "eventModal",
+        "line": 618,
+        "context": "document.getElementById('eventModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "eventModal",
+        "line": 627,
+        "context": "document.getElementById('eventModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "eventForm",
+        "line": 630,
+        "context": "document.getElementById('eventForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "eventFeatured",
+        "line": 635,
+        "context": "data.featured = document.getElementById('eventFeatured').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 797,
+        "context": "document.getElementById('scraperModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperSources",
+        "line": 809,
+        "context": "const container = document.getElementById('scraperSources');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperContent",
+        "line": 846,
+        "context": "document.getElementById('scraperContent').style.display = 'none';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperProgress",
+        "line": 847,
+        "context": "document.getElementById('scraperProgress').style.display = 'block';",
+        "type": "literal"
+      },
+      {
+        "id": "progressContent",
+        "line": 849,
+        "context": "const progressContent = document.getElementById('progressContent');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperModal",
+        "line": 899,
+        "context": "document.getElementById('scraperModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "scraperContent",
+        "line": 900,
+        "context": "document.getElementById('scraperContent').style.display = 'block';",
+        "type": "literal"
+      },
+      {
+        "id": "scraperProgress",
+        "line": 901,
+        "context": "document.getElementById('scraperProgress').style.display = 'none';",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 905,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 89,
+        "element_type": "div",
+        "context": "<div class=\"stats-grid\" id=\"statsRow\">"
+      },
+      {
+        "id": "searchInput",
+        "line": 121,
+        "element_type": "input",
+        "context": "<input type=\"text\" class=\"form-control\" id=\"searchInput\" placeholder=\"Search events...\" onkeyup=\"applyFilters()\">"
+      },
+      {
+        "id": "statusFilter",
+        "line": 125,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"statusFilter\" onchange=\"applyFilters()\">"
+      },
+      {
+        "id": "dateFilter",
+        "line": 134,
+        "element_type": "select",
+        "context": "<select class=\"form-control\" id=\"dateFilter\" onchange=\"applyFilters()\">"
+      },
+      {
+        "id": "bulkActions",
+        "line": 155,
+        "element_type": "div",
+        "context": "<div class=\"bulk-actions\" id=\"bulkActions\" style=\"display: none;\">"
+      },
+      {
+        "id": "selectedCount",
+        "line": 156,
+        "element_type": "span",
+        "context": "<span id=\"selectedCount\">0 selected</span>"
+      },
+      {
+        "id": "eventsTableContent",
+        "line": 162,
+        "element_type": "div",
+        "context": "<div id=\"eventsTableContent\">"
+      },
+      {
+        "id": "eventModal",
+        "line": 172,
+        "element_type": "div",
+        "context": "<div id=\"eventModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 175,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Create Event</h2>"
+      },
+      {
+        "id": "eventForm",
+        "line": 178,
+        "element_type": "form",
+        "context": "<form id=\"eventForm\">"
+      },
+      {
+        "id": "eventId",
+        "line": 179,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"eventId\" name=\"id\">"
+      },
+      {
+        "id": "eventTitle",
+        "line": 183,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"eventTitle\" name=\"title\" required>"
+      },
+      {
+        "id": "eventDescription",
+        "line": 188,
+        "element_type": "textarea",
+        "context": "<textarea id=\"eventDescription\" name=\"description\"></textarea>"
+      },
+      {
+        "id": "eventStartDate",
+        "line": 194,
+        "element_type": "input",
+        "context": "<input type=\"datetime-local\" id=\"eventStartDate\" name=\"start_datetime\" required>"
+      },
+      {
+        "id": "eventEndDate",
+        "line": 198,
+        "element_type": "input",
+        "context": "<input type=\"datetime-local\" id=\"eventEndDate\" name=\"end_datetime\">"
+      },
+      {
+        "id": "eventLocation",
+        "line": 204,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"eventLocation\" name=\"location\">"
+      },
+      {
+        "id": "eventAddress",
+        "line": 209,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"eventAddress\" name=\"address\">"
+      },
+      {
+        "id": "eventLatitude",
+        "line": 215,
+        "element_type": "input",
+        "context": "<input type=\"number\" step=\"any\" id=\"eventLatitude\" name=\"latitude\">"
+      },
+      {
+        "id": "eventLongitude",
+        "line": 219,
+        "element_type": "input",
+        "context": "<input type=\"number\" step=\"any\" id=\"eventLongitude\" name=\"longitude\">"
+      },
+      {
+        "id": "eventContact",
+        "line": 225,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"eventContact\" name=\"contact_info\">"
+      },
+      {
+        "id": "eventUrl",
+        "line": 230,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"eventUrl\" name=\"external_url\">"
+      },
+      {
+        "id": "eventStatus",
+        "line": 236,
+        "element_type": "select",
+        "context": "<select id=\"eventStatus\" name=\"status\">"
+      },
+      {
+        "id": "eventFeatured",
+        "line": 244,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"eventFeatured\" name=\"featured\">"
+      },
+      {
+        "id": "scraperModal",
+        "line": 259,
+        "element_type": "div",
+        "context": "<div id=\"scraperModal\" class=\"modal\">"
+      },
+      {
+        "id": "scraperContent",
+        "line": 265,
+        "element_type": "div",
+        "context": "<div id=\"scraperContent\">"
+      },
+      {
+        "id": "scraperSources",
+        "line": 267,
+        "element_type": "div",
+        "context": "<div id=\"scraperSources\">"
+      },
+      {
+        "id": "scraperProgress",
+        "line": 275,
+        "element_type": "div",
+        "context": "<div id=\"scraperProgress\" style=\"display: none;\">"
+      },
+      {
+        "id": "progressContent",
+        "line": 277,
+        "element_type": "div",
+        "context": "<div id=\"progressContent\">"
+      },
+      {
+        "id": "toast",
+        "line": 285,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/claims.php",
+    "js_calls": [
+      {
+        "id": "claimsStatsRow",
+        "line": 300,
+        "context": "const statsRow = document.getElementById('claimsStatsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "activeSalesContainer",
+        "line": 338,
+        "context": "const container = document.getElementById('activeSalesContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "activeSalesContainer",
+        "line": 357,
+        "context": "document.getElementById('activeSalesContainer').innerHTML =",
+        "type": "literal"
+      },
+      {
+        "id": "upcomingSalesContainer",
+        "line": 367,
+        "context": "const container = document.getElementById('upcomingSalesContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "upcomingSalesContainer",
+        "line": 383,
+        "context": "document.getElementById('upcomingSalesContainer').innerHTML =",
+        "type": "literal"
+      },
+      {
+        "id": "completedSalesContainer",
+        "line": 393,
+        "context": "const container = document.getElementById('completedSalesContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "completedSalesContainer",
+        "line": 409,
+        "context": "document.getElementById('completedSalesContainer').innerHTML =",
+        "type": "literal"
+      },
+      {
+        "id": "sellersContainer",
+        "line": 419,
+        "context": "const container = document.getElementById('sellersContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "sellersContainer",
+        "line": 466,
+        "context": "document.getElementById('sellersContainer').innerHTML =",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 551,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "claimsStatsRow",
+        "line": 198,
+        "element_type": "div",
+        "context": "<div class=\"stats-grid\" id=\"claimsStatsRow\">"
+      },
+      {
+        "id": "activeSalesContainer",
+        "line": 233,
+        "element_type": "div",
+        "context": "<div id=\"activeSalesContainer\">"
+      },
+      {
+        "id": "upcomingSalesContainer",
+        "line": 243,
+        "element_type": "div",
+        "context": "<div id=\"upcomingSalesContainer\">"
+      },
+      {
+        "id": "completedSalesContainer",
+        "line": 253,
+        "element_type": "div",
+        "context": "<div id=\"completedSalesContainer\">"
+      },
+      {
+        "id": "sellersContainer",
+        "line": 266,
+        "element_type": "div",
+        "context": "<div id=\"sellersContainer\">"
+      },
+      {
+        "id": "toast",
+        "line": 273,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/theme.php",
+    "js_calls": [
+      {
+        "id": "save-status",
+        "line": 471,
+        "context": "document.getElementById('save-status').textContent = '\u25cf Unsaved changes';",
+        "type": "literal"
+      },
+      {
+        "id": "`${tab}-section`",
+        "line": 489,
+        "context": "document.getElementById(`${tab}-section`).classList.add('active');",
+        "type": "variable"
+      },
+      {
+        "id": "theme-settings-container",
+        "line": 514,
+        "context": "const container = document.getElementById('theme-settings-container');",
+        "type": "literal"
+      },
+      {
+        "id": "key",
+        "line": 617,
+        "context": "if (document.getElementById(key).type === 'color') {",
+        "type": "variable"
+      },
+      {
+        "id": "key",
+        "line": 618,
+        "context": "const colorDisplay = document.getElementById(key).nextElementSibling;",
+        "type": "variable"
+      },
+      {
+        "id": "page-type",
+        "line": 636,
+        "context": "const pageType = document.getElementById('page-type').value;",
+        "type": "literal"
+      },
+      {
+        "id": "seo-settings-container",
+        "line": 656,
+        "context": "const container = document.getElementById('seo-settings-container');",
+        "type": "literal"
+      },
+      {
+        "id": "page-type",
+        "line": 722,
+        "context": "${window.location.hostname} \u203a ${document.getElementById('page-type').value}",
+        "type": "literal"
+      },
+      {
+        "id": "meta-title",
+        "line": 732,
+        "context": "document.getElementById('meta-title').addEventListener('input', function() {",
+        "type": "literal"
+      },
+      {
+        "id": "preview-title",
+        "line": 733,
+        "context": "document.getElementById('preview-title').textContent = this.value || 'Page Title';",
+        "type": "literal"
+      },
+      {
+        "id": "meta-description",
+        "line": 737,
+        "context": "document.getElementById('meta-description').addEventListener('input', function() {",
+        "type": "literal"
+      },
+      {
+        "id": "preview-description",
+        "line": 738,
+        "context": "document.getElementById('preview-description').textContent = this.value || 'Page description will appear here...';",
+        "type": "literal"
+      },
+      {
+        "id": "social-settings-container",
+        "line": 765,
+        "context": "const container = document.getElementById('social-settings-container');",
+        "type": "literal"
+      },
+      {
+        "id": "presets-container",
+        "line": 864,
+        "context": "const container = document.getElementById('presets-container');",
+        "type": "literal"
+      },
+      {
+        "id": "save-status",
+        "line": 938,
+        "context": "document.getElementById('save-status').textContent = '';",
+        "type": "literal"
+      },
+      {
+        "id": "page-type",
+        "line": 978,
+        "context": "page_type: document.getElementById('page-type').value,",
+        "type": "literal"
+      },
+      {
+        "id": "meta-title",
+        "line": 979,
+        "context": "meta_title: document.getElementById('meta-title').value,",
+        "type": "literal"
+      },
+      {
+        "id": "meta-description",
+        "line": 980,
+        "context": "meta_description: document.getElementById('meta-description').value,",
+        "type": "literal"
+      },
+      {
+        "id": "meta-keywords",
+        "line": 981,
+        "context": "meta_keywords: document.getElementById('meta-keywords').value,",
+        "type": "literal"
+      },
+      {
+        "id": "og-title",
+        "line": 982,
+        "context": "og_title: document.getElementById('og-title').value,",
+        "type": "literal"
+      },
+      {
+        "id": "og-description",
+        "line": 983,
+        "context": "og_description: document.getElementById('og-description').value,",
+        "type": "literal"
+      },
+      {
+        "id": "og-image",
+        "line": 984,
+        "context": "og_image: document.getElementById('og-image').value,",
+        "type": "literal"
+      },
+      {
+        "id": "twitter-card",
+        "line": 985,
+        "context": "twitter_card: document.getElementById('twitter-card').value,",
+        "type": "literal"
+      },
+      {
+        "id": "robots",
+        "line": 986,
+        "context": "robots: document.getElementById('robots').value",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 1089,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "appearance-section",
+        "line": 382,
+        "element_type": "div",
+        "context": "<div id=\"appearance-section\" class=\"theme-section active\">"
+      },
+      {
+        "id": "theme-settings-container",
+        "line": 383,
+        "element_type": "div",
+        "context": "<div id=\"theme-settings-container\">"
+      },
+      {
+        "id": "seo-section",
+        "line": 389,
+        "element_type": "div",
+        "context": "<div id=\"seo-section\" class=\"theme-section\">"
+      },
+      {
+        "id": "page-type",
+        "line": 395,
+        "element_type": "select",
+        "context": "<select id=\"page-type\" onchange=\"loadSEOSettings()\">"
+      },
+      {
+        "id": "seo-settings-container",
+        "line": 406,
+        "element_type": "div",
+        "context": "<div id=\"seo-settings-container\">"
+      },
+      {
+        "id": "social-section",
+        "line": 413,
+        "element_type": "div",
+        "context": "<div id=\"social-section\" class=\"theme-section\">"
+      },
+      {
+        "id": "social-settings-container",
+        "line": 414,
+        "element_type": "div",
+        "context": "<div id=\"social-settings-container\">"
+      },
+      {
+        "id": "presets-section",
+        "line": 420,
+        "element_type": "div",
+        "context": "<div id=\"presets-section\" class=\"theme-section\">"
+      },
+      {
+        "id": "presets-container",
+        "line": 425,
+        "element_type": "div",
+        "context": "<div id=\"presets-container\">"
+      },
+      {
+        "id": "save-status",
+        "line": 440,
+        "element_type": "span",
+        "context": "<span id=\"save-status\" style=\"color: var(--success-color); margin-right: 1rem;\"></span>"
+      },
+      {
+        "id": "toast",
+        "line": 450,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 543,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 554,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 565,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 579,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 590,
+        "element_type": "select",
+        "context": "<select id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "meta-title",
+        "line": 661,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"meta-title\" value=\"${escapeHtml(seoSettings.meta_title || '')}\""
+      },
+      {
+        "id": "meta-description",
+        "line": 668,
+        "element_type": "textarea",
+        "context": "<textarea id=\"meta-description\" placeholder=\"Brief description for search results\" maxlength=\"160\">${escapeHtml(seoSettings.meta_description || '')}</textarea>"
+      },
+      {
+        "id": "meta-keywords",
+        "line": 674,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"meta-keywords\" value=\"${escapeHtml(seoSettings.meta_keywords || '')}\""
+      },
+      {
+        "id": "og-title",
+        "line": 682,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"og-title\" value=\"${escapeHtml(seoSettings.og_title || '')}\""
+      },
+      {
+        "id": "og-description",
+        "line": 688,
+        "element_type": "textarea",
+        "context": "<textarea id=\"og-description\" placeholder=\"Description for social media sharing\">${escapeHtml(seoSettings.og_description || '')}</textarea>"
+      },
+      {
+        "id": "og-image",
+        "line": 693,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"og-image\" value=\"${escapeHtml(seoSettings.og_image || '')}\""
+      },
+      {
+        "id": "twitter-card",
+        "line": 699,
+        "element_type": "select",
+        "context": "<select id=\"twitter-card\">"
+      },
+      {
+        "id": "robots",
+        "line": 707,
+        "element_type": "select",
+        "context": "<select id=\"robots\">"
+      },
+      {
+        "id": "search-preview",
+        "line": 717,
+        "element_type": "div",
+        "context": "<div id=\"search-preview\" style=\"font-family: Arial, sans-serif;\">"
+      },
+      {
+        "id": "preview-title",
+        "line": 718,
+        "element_type": "div",
+        "context": "<div style=\"color: #1a0dab; font-size: 18px; margin-bottom: 3px;\" id=\"preview-title\">"
+      },
+      {
+        "id": "preview-description",
+        "line": 724,
+        "element_type": "div",
+        "context": "<div style=\"color: #545454; font-size: 13px; line-height: 1.4;\" id=\"preview-description\">"
+      },
+      {
+        "id": "social-${platform.platform}-enabled",
+        "line": 780,
+        "element_type": "unknown",
+        "context": "id=\"social-${platform.platform}-enabled\""
+      },
+      {
+        "id": "social-${platform.platform}-username",
+        "line": 794,
+        "element_type": "unknown",
+        "context": "id=\"social-${platform.platform}-username\""
+      },
+      {
+        "id": "social-${platform.platform}-url",
+        "line": 807,
+        "element_type": "unknown",
+        "context": "id=\"social-${platform.platform}-url\""
+      },
+      {
+        "id": "social-${platform.platform}-template",
+        "line": 820,
+        "element_type": "textarea",
+        "context": "<textarea id=\"social-${platform.platform}-template\""
+      }
+    ],
+    "missing_elements": [
+      {
+        "id": "`${tab}-section`",
+        "line": 489,
+        "context": "document.getElementById(`${tab}-section`).classList.add('active');",
+        "type": "variable"
+      },
+      {
+        "id": "key",
+        "line": 617,
+        "context": "if (document.getElementById(key).type === 'color') {",
+        "type": "variable"
+      },
+      {
+        "id": "key",
+        "line": 618,
+        "context": "const colorDisplay = document.getElementById(key).nextElementSibling;",
+        "type": "variable"
+      }
+    ],
+    "unused_elements": [
+      {
+        "id": "appearance-section",
+        "line": 382,
+        "element_type": "div",
+        "context": "<div id=\"appearance-section\" class=\"theme-section active\">"
+      },
+      {
+        "id": "seo-section",
+        "line": 389,
+        "element_type": "div",
+        "context": "<div id=\"seo-section\" class=\"theme-section\">"
+      },
+      {
+        "id": "social-section",
+        "line": 413,
+        "element_type": "div",
+        "context": "<div id=\"social-section\" class=\"theme-section\">"
+      },
+      {
+        "id": "presets-section",
+        "line": 420,
+        "element_type": "div",
+        "context": "<div id=\"presets-section\" class=\"theme-section\">"
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 543,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 554,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 565,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 579,
+        "element_type": "unknown",
+        "context": "id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "${setting.setting_key}",
+        "line": 590,
+        "element_type": "select",
+        "context": "<select id=\"${setting.setting_key}\""
+      },
+      {
+        "id": "search-preview",
+        "line": 717,
+        "element_type": "div",
+        "context": "<div id=\"search-preview\" style=\"font-family: Arial, sans-serif;\">"
+      },
+      {
+        "id": "social-${platform.platform}-enabled",
+        "line": 780,
+        "element_type": "unknown",
+        "context": "id=\"social-${platform.platform}-enabled\""
+      },
+      {
+        "id": "social-${platform.platform}-username",
+        "line": 794,
+        "element_type": "unknown",
+        "context": "id=\"social-${platform.platform}-username\""
+      },
+      {
+        "id": "social-${platform.platform}-url",
+        "line": 807,
+        "element_type": "unknown",
+        "context": "id=\"social-${platform.platform}-url\""
+      },
+      {
+        "id": "social-${platform.platform}-template",
+        "line": 820,
+        "element_type": "textarea",
+        "context": "<textarea id=\"social-${platform.platform}-template\""
+      }
+    ],
+    "has_mismatches": true
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/settings.php",
+    "js_calls": [
+      {
+        "id": "tabName + '-tab'",
+        "line": 586,
+        "context": "document.getElementById(tabName + '-tab').classList.add('active');",
+        "type": "variable"
+      },
+      {
+        "id": "provider + '-settings'",
+        "line": 597,
+        "context": "document.getElementById(provider + '-settings').classList.add('active');",
+        "type": "variable"
+      },
+      {
+        "id": "smtp-settings",
+        "line": 602,
+        "context": "document.getElementById('smtp-settings').classList.add('active');",
+        "type": "literal"
+      },
+      {
+        "id": "smtp-settings",
+        "line": 604,
+        "context": "document.getElementById('smtp-settings').classList.remove('active');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "sms-tab",
+        "line": 312,
+        "element_type": "div",
+        "context": "<div id=\"sms-tab\" class=\"tab-content active\">"
+      },
+      {
+        "id": "sms_provider",
+        "line": 332,
+        "element_type": "select",
+        "context": "<select id=\"sms_provider\" name=\"sms_provider\" class=\"form-input\" onchange=\"showProviderSettings(this.value)\">"
+      },
+      {
+        "id": "twilio-settings",
+        "line": 351,
+        "element_type": "div",
+        "context": "<div id=\"twilio-settings\" class=\"provider-settings <?= $config['sms']['provider'] === 'twilio' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "twilio_account_sid",
+        "line": 356,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"twilio_account_sid\" name=\"twilio_account_sid\""
+      },
+      {
+        "id": "twilio_auth_token",
+        "line": 362,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"twilio_auth_token\" name=\"twilio_auth_token\""
+      },
+      {
+        "id": "twilio_from_number",
+        "line": 368,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"twilio_from_number\" name=\"twilio_from_number\""
+      },
+      {
+        "id": "aws-settings",
+        "line": 376,
+        "element_type": "div",
+        "context": "<div id=\"aws-settings\" class=\"provider-settings <?= $config['sms']['provider'] === 'aws' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "aws_key",
+        "line": 381,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"aws_key\" name=\"aws_key\""
+      },
+      {
+        "id": "aws_secret",
+        "line": 387,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"aws_secret\" name=\"aws_secret\""
+      },
+      {
+        "id": "aws_region",
+        "line": 393,
+        "element_type": "select",
+        "context": "<select id=\"aws_region\" name=\"aws_region\" class=\"form-input\">"
+      },
+      {
+        "id": "aws_from_number",
+        "line": 401,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"aws_from_number\" name=\"aws_from_number\""
+      },
+      {
+        "id": "nexmo-settings",
+        "line": 409,
+        "element_type": "div",
+        "context": "<div id=\"nexmo-settings\" class=\"provider-settings <?= $config['sms']['provider'] === 'nexmo' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "nexmo_api_key",
+        "line": 414,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"nexmo_api_key\" name=\"nexmo_api_key\""
+      },
+      {
+        "id": "nexmo_api_secret",
+        "line": 420,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"nexmo_api_secret\" name=\"nexmo_api_secret\""
+      },
+      {
+        "id": "nexmo_from_number",
+        "line": 426,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"nexmo_from_number\" name=\"nexmo_from_number\""
+      },
+      {
+        "id": "test_number",
+        "line": 445,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"test_number\" name=\"test_number\""
+      },
+      {
+        "id": "email-tab",
+        "line": 455,
+        "element_type": "div",
+        "context": "<div id=\"email-tab\" class=\"tab-content\">"
+      },
+      {
+        "id": "email_driver",
+        "line": 475,
+        "element_type": "select",
+        "context": "<select id=\"email_driver\" name=\"email_driver\" class=\"form-input\" onchange=\"showEmailSettings(this.value)\">"
+      },
+      {
+        "id": "email_from_email",
+        "line": 482,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email_from_email\" name=\"email_from_email\""
+      },
+      {
+        "id": "email_from_name",
+        "line": 488,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"email_from_name\" name=\"email_from_name\""
+      },
+      {
+        "id": "smtp-settings",
+        "line": 504,
+        "element_type": "div",
+        "context": "<div id=\"smtp-settings\" class=\"provider-settings <?= $config['email']['driver'] === 'smtp' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "smtp_host",
+        "line": 509,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"smtp_host\" name=\"smtp_host\""
+      },
+      {
+        "id": "smtp_port",
+        "line": 515,
+        "element_type": "input",
+        "context": "<input type=\"number\" id=\"smtp_port\" name=\"smtp_port\""
+      },
+      {
+        "id": "smtp_username",
+        "line": 521,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"smtp_username\" name=\"smtp_username\""
+      },
+      {
+        "id": "smtp_password",
+        "line": 527,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"smtp_password\" name=\"smtp_password\""
+      },
+      {
+        "id": "smtp_encryption",
+        "line": 533,
+        "element_type": "select",
+        "context": "<select id=\"smtp_encryption\" name=\"smtp_encryption\" class=\"form-input\">"
+      },
+      {
+        "id": "test_email",
+        "line": 553,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"test_email\" name=\"test_email\""
+      },
+      {
+        "id": "general-tab",
+        "line": 563,
+        "element_type": "div",
+        "context": "<div id=\"general-tab\" class=\"tab-content\">"
+      }
+    ],
+    "missing_elements": [
+      {
+        "id": "tabName + '-tab'",
+        "line": 586,
+        "context": "document.getElementById(tabName + '-tab').classList.add('active');",
+        "type": "variable"
+      },
+      {
+        "id": "provider + '-settings'",
+        "line": 597,
+        "context": "document.getElementById(provider + '-settings').classList.add('active');",
+        "type": "variable"
+      }
+    ],
+    "unused_elements": [
+      {
+        "id": "sms-tab",
+        "line": 312,
+        "element_type": "div",
+        "context": "<div id=\"sms-tab\" class=\"tab-content active\">"
+      },
+      {
+        "id": "sms_provider",
+        "line": 332,
+        "element_type": "select",
+        "context": "<select id=\"sms_provider\" name=\"sms_provider\" class=\"form-input\" onchange=\"showProviderSettings(this.value)\">"
+      },
+      {
+        "id": "twilio-settings",
+        "line": 351,
+        "element_type": "div",
+        "context": "<div id=\"twilio-settings\" class=\"provider-settings <?= $config['sms']['provider'] === 'twilio' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "twilio_account_sid",
+        "line": 356,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"twilio_account_sid\" name=\"twilio_account_sid\""
+      },
+      {
+        "id": "twilio_auth_token",
+        "line": 362,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"twilio_auth_token\" name=\"twilio_auth_token\""
+      },
+      {
+        "id": "twilio_from_number",
+        "line": 368,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"twilio_from_number\" name=\"twilio_from_number\""
+      },
+      {
+        "id": "aws-settings",
+        "line": 376,
+        "element_type": "div",
+        "context": "<div id=\"aws-settings\" class=\"provider-settings <?= $config['sms']['provider'] === 'aws' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "aws_key",
+        "line": 381,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"aws_key\" name=\"aws_key\""
+      },
+      {
+        "id": "aws_secret",
+        "line": 387,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"aws_secret\" name=\"aws_secret\""
+      },
+      {
+        "id": "aws_region",
+        "line": 393,
+        "element_type": "select",
+        "context": "<select id=\"aws_region\" name=\"aws_region\" class=\"form-input\">"
+      },
+      {
+        "id": "aws_from_number",
+        "line": 401,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"aws_from_number\" name=\"aws_from_number\""
+      },
+      {
+        "id": "nexmo-settings",
+        "line": 409,
+        "element_type": "div",
+        "context": "<div id=\"nexmo-settings\" class=\"provider-settings <?= $config['sms']['provider'] === 'nexmo' ? 'active' : '' ?>\">"
+      },
+      {
+        "id": "nexmo_api_key",
+        "line": 414,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"nexmo_api_key\" name=\"nexmo_api_key\""
+      },
+      {
+        "id": "nexmo_api_secret",
+        "line": 420,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"nexmo_api_secret\" name=\"nexmo_api_secret\""
+      },
+      {
+        "id": "nexmo_from_number",
+        "line": 426,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"nexmo_from_number\" name=\"nexmo_from_number\""
+      },
+      {
+        "id": "test_number",
+        "line": 445,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"test_number\" name=\"test_number\""
+      },
+      {
+        "id": "email-tab",
+        "line": 455,
+        "element_type": "div",
+        "context": "<div id=\"email-tab\" class=\"tab-content\">"
+      },
+      {
+        "id": "email_driver",
+        "line": 475,
+        "element_type": "select",
+        "context": "<select id=\"email_driver\" name=\"email_driver\" class=\"form-input\" onchange=\"showEmailSettings(this.value)\">"
+      },
+      {
+        "id": "email_from_email",
+        "line": 482,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email_from_email\" name=\"email_from_email\""
+      },
+      {
+        "id": "email_from_name",
+        "line": 488,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"email_from_name\" name=\"email_from_name\""
+      },
+      {
+        "id": "smtp_host",
+        "line": 509,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"smtp_host\" name=\"smtp_host\""
+      },
+      {
+        "id": "smtp_port",
+        "line": 515,
+        "element_type": "input",
+        "context": "<input type=\"number\" id=\"smtp_port\" name=\"smtp_port\""
+      },
+      {
+        "id": "smtp_username",
+        "line": 521,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"smtp_username\" name=\"smtp_username\""
+      },
+      {
+        "id": "smtp_password",
+        "line": 527,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"smtp_password\" name=\"smtp_password\""
+      },
+      {
+        "id": "smtp_encryption",
+        "line": 533,
+        "element_type": "select",
+        "context": "<select id=\"smtp_encryption\" name=\"smtp_encryption\" class=\"form-input\">"
+      },
+      {
+        "id": "test_email",
+        "line": 553,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"test_email\" name=\"test_email\""
+      },
+      {
+        "id": "general-tab",
+        "line": 563,
+        "element_type": "div",
+        "context": "<div id=\"general-tab\" class=\"tab-content\">"
+      }
+    ],
+    "has_mismatches": true
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/auth_check.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/browser-scrapers.php",
+    "js_calls": [],
+    "html_ids": [
+      {
+        "id": "csv_<?= $configId ?>",
+        "line": 331,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" name=\"csv_only\" class=\"form-check-input\" id=\"csv_<?= $configId ?>\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "csv_<?= $configId ?>",
+        "line": 331,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" name=\"csv_only\" class=\"form-check-input\" id=\"csv_<?= $configId ?>\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/shops-original.php",
+    "js_calls": [
+      {
+        "id": "statsRow",
+        "line": 728,
+        "context": "const statsRow = document.getElementById('statsRow');",
+        "type": "literal"
+      },
+      {
+        "id": "shopsContainer",
+        "line": 782,
+        "context": "const container = document.getElementById('shopsContainer');",
+        "type": "literal"
+      },
+      {
+        "id": "searchInput",
+        "line": 857,
+        "context": "search: document.getElementById('searchInput').value,",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 858,
+        "context": "status: document.getElementById('statusFilter').value,",
+        "type": "literal"
+      },
+      {
+        "id": "categoryFilter",
+        "line": 859,
+        "context": "category: document.getElementById('categoryFilter').value,",
+        "type": "literal"
+      },
+      {
+        "id": "verifiedFilter",
+        "line": 860,
+        "context": "verified: document.getElementById('verifiedFilter').value",
+        "type": "literal"
+      },
+      {
+        "id": "searchInput",
+        "line": 874,
+        "context": "document.getElementById('searchInput').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "statusFilter",
+        "line": 875,
+        "context": "document.getElementById('statusFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "categoryFilter",
+        "line": 876,
+        "context": "document.getElementById('categoryFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "verifiedFilter",
+        "line": 877,
+        "context": "document.getElementById('verifiedFilter').value = 'all';",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 883,
+        "context": "document.getElementById('modalTitle').textContent = 'Add Shop';",
+        "type": "literal"
+      },
+      {
+        "id": "shopForm",
+        "line": 884,
+        "context": "document.getElementById('shopForm').reset();",
+        "type": "literal"
+      },
+      {
+        "id": "shopId",
+        "line": 885,
+        "context": "document.getElementById('shopId').value = '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopModal",
+        "line": 886,
+        "context": "document.getElementById('shopModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "modalTitle",
+        "line": 893,
+        "context": "document.getElementById('modalTitle').textContent = 'Edit Shop';",
+        "type": "literal"
+      },
+      {
+        "id": "shopId",
+        "line": 894,
+        "context": "document.getElementById('shopId').value = shop.id;",
+        "type": "literal"
+      },
+      {
+        "id": "shopName",
+        "line": 895,
+        "context": "document.getElementById('shopName').value = shop.name;",
+        "type": "literal"
+      },
+      {
+        "id": "shopCategory",
+        "line": 896,
+        "context": "document.getElementById('shopCategory').value = shop.category;",
+        "type": "literal"
+      },
+      {
+        "id": "shopStatus",
+        "line": 897,
+        "context": "document.getElementById('shopStatus').value = shop.status;",
+        "type": "literal"
+      },
+      {
+        "id": "shopDescription",
+        "line": 898,
+        "context": "document.getElementById('shopDescription').value = shop.description || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopAddress",
+        "line": 899,
+        "context": "document.getElementById('shopAddress').value = shop.address;",
+        "type": "literal"
+      },
+      {
+        "id": "shopCity",
+        "line": 900,
+        "context": "document.getElementById('shopCity').value = shop.city;",
+        "type": "literal"
+      },
+      {
+        "id": "shopState",
+        "line": 901,
+        "context": "document.getElementById('shopState').value = shop.state;",
+        "type": "literal"
+      },
+      {
+        "id": "shopZip",
+        "line": 902,
+        "context": "document.getElementById('shopZip').value = shop.zip_code || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopPhone",
+        "line": 903,
+        "context": "document.getElementById('shopPhone').value = shop.phone || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopEmail",
+        "line": 904,
+        "context": "document.getElementById('shopEmail').value = shop.email || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopWebsite",
+        "line": 905,
+        "context": "document.getElementById('shopWebsite').value = shop.website || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopLatitude",
+        "line": 906,
+        "context": "document.getElementById('shopLatitude').value = shop.latitude || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopLongitude",
+        "line": 907,
+        "context": "document.getElementById('shopLongitude').value = shop.longitude || '';",
+        "type": "literal"
+      },
+      {
+        "id": "shopFeatured",
+        "line": 908,
+        "context": "document.getElementById('shopFeatured').checked = shop.featured;",
+        "type": "literal"
+      },
+      {
+        "id": "shopVerified",
+        "line": 909,
+        "context": "document.getElementById('shopVerified').checked = shop.verified;",
+        "type": "literal"
+      },
+      {
+        "id": "shopModal",
+        "line": 917,
+        "context": "document.getElementById('shopModal').classList.add('show');",
+        "type": "literal"
+      },
+      {
+        "id": "shopModal",
+        "line": 921,
+        "context": "document.getElementById('shopModal').classList.remove('show');",
+        "type": "literal"
+      },
+      {
+        "id": "shopForm",
+        "line": 924,
+        "context": "document.getElementById('shopForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "shopFeatured",
+        "line": 931,
+        "context": "data.featured = document.getElementById('shopFeatured').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "shopVerified",
+        "line": 932,
+        "context": "data.verified = document.getElementById('shopVerified').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "toast",
+        "line": 1076,
+        "context": "const toast = document.getElementById('toast');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "statsRow",
+        "line": 479,
+        "element_type": "div",
+        "context": "<div class=\"stats-row\" id=\"statsRow\">"
+      },
+      {
+        "id": "searchInput",
+        "line": 507,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"searchInput\" placeholder=\"Search shops...\">"
+      },
+      {
+        "id": "statusFilter",
+        "line": 511,
+        "element_type": "select",
+        "context": "<select id=\"statusFilter\">"
+      },
+      {
+        "id": "categoryFilter",
+        "line": 520,
+        "element_type": "select",
+        "context": "<select id=\"categoryFilter\">"
+      },
+      {
+        "id": "verifiedFilter",
+        "line": 532,
+        "element_type": "select",
+        "context": "<select id=\"verifiedFilter\">"
+      },
+      {
+        "id": "shopsContainer",
+        "line": 549,
+        "element_type": "div",
+        "context": "<div id=\"shopsContainer\">"
+      },
+      {
+        "id": "shopModal",
+        "line": 555,
+        "element_type": "div",
+        "context": "<div id=\"shopModal\" class=\"modal\">"
+      },
+      {
+        "id": "modalTitle",
+        "line": 558,
+        "element_type": "h2",
+        "context": "<h2 class=\"modal-title\" id=\"modalTitle\">Add Shop</h2>"
+      },
+      {
+        "id": "shopForm",
+        "line": 561,
+        "element_type": "form",
+        "context": "<form id=\"shopForm\">"
+      },
+      {
+        "id": "shopId",
+        "line": 562,
+        "element_type": "input",
+        "context": "<input type=\"hidden\" id=\"shopId\" name=\"id\">"
+      },
+      {
+        "id": "shopName",
+        "line": 566,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopName\" name=\"name\" required>"
+      },
+      {
+        "id": "shopCategory",
+        "line": 572,
+        "element_type": "select",
+        "context": "<select id=\"shopCategory\" name=\"category\" required>"
+      },
+      {
+        "id": "shopStatus",
+        "line": 584,
+        "element_type": "select",
+        "context": "<select id=\"shopStatus\" name=\"status\">"
+      },
+      {
+        "id": "shopDescription",
+        "line": 594,
+        "element_type": "textarea",
+        "context": "<textarea id=\"shopDescription\" name=\"description\"></textarea>"
+      },
+      {
+        "id": "shopAddress",
+        "line": 599,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopAddress\" name=\"address\" required>"
+      },
+      {
+        "id": "shopCity",
+        "line": 605,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopCity\" name=\"city\" value=\"Yakima\" required>"
+      },
+      {
+        "id": "shopState",
+        "line": 609,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopState\" name=\"state\" value=\"WA\" required>"
+      },
+      {
+        "id": "shopZip",
+        "line": 616,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"shopZip\" name=\"zip_code\">"
+      },
+      {
+        "id": "shopPhone",
+        "line": 620,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"shopPhone\" name=\"phone\">"
+      },
+      {
+        "id": "shopEmail",
+        "line": 627,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"shopEmail\" name=\"email\">"
+      },
+      {
+        "id": "shopWebsite",
+        "line": 631,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"shopWebsite\" name=\"website\">"
+      },
+      {
+        "id": "shopLatitude",
+        "line": 638,
+        "element_type": "input",
+        "context": "<input type=\"number\" step=\"any\" id=\"shopLatitude\" name=\"latitude\">"
+      },
+      {
+        "id": "shopLongitude",
+        "line": 642,
+        "element_type": "input",
+        "context": "<input type=\"number\" step=\"any\" id=\"shopLongitude\" name=\"longitude\">"
+      },
+      {
+        "id": "shopFeatured",
+        "line": 650,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" name=\"featured\" id=\"shopFeatured\">"
+      },
+      {
+        "id": "shopVerified",
+        "line": 654,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" name=\"verified\" id=\"shopVerified\">"
+      },
+      {
+        "id": "toast",
+        "line": 707,
+        "element_type": "div",
+        "context": "<div id=\"toast\" class=\"toast\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/admin/includes/admin-navigation.php",
+    "js_calls": [
+      {
+        "id": "adminSidebar",
+        "line": 189,
+        "context": "const sidebar = document.getElementById('adminSidebar');",
+        "type": "literal"
+      },
+      {
+        "id": "sidebarOverlay",
+        "line": 190,
+        "context": "const overlay = document.getElementById('sidebarOverlay');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "adminSidebar",
+        "line": 47,
+        "element_type": "div",
+        "context": "<div class=\"admin-sidebar\" id=\"adminSidebar\">"
+      },
+      {
+        "id": "sidebarOverlay",
+        "line": 180,
+        "element_type": "div",
+        "context": "<div class=\"sidebar-overlay d-lg-none\" id=\"sidebarOverlay\" onclick=\"toggleSidebar()\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/ClassifiedsController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/HomeController.php",
+    "js_calls": [
+      {
+        "id": "map",
+        "line": 619,
+        "context": "map = new google.maps.Map(document.getElementById('map'), {",
+        "type": "literal"
+      },
+      {
+        "id": "info-panel",
+        "line": 661,
+        "context": "document.getElementById('info-panel').innerHTML = '<div style=\"color: #dc3545;\">Error loading data</div>';",
+        "type": "literal"
+      },
+      {
+        "id": "show-events",
+        "line": 668,
+        "context": "const showEvents = document.getElementById('show-events').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "show-shops",
+        "line": 669,
+        "context": "const showShops = document.getElementById('show-shops').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "featured-only",
+        "line": 670,
+        "context": "const featuredOnly = document.getElementById('featured-only').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "events-count",
+        "line": 798,
+        "context": "document.getElementById('events-count').textContent = `\ud83d\udcc5 \\${eventMarkers.length} events`;",
+        "type": "literal"
+      },
+      {
+        "id": "shops-count",
+        "line": 799,
+        "context": "document.getElementById('shops-count').textContent = `\ud83c\udfea \\${shopMarkers.length} shops`;",
+        "type": "literal"
+      },
+      {
+        "id": "show-events",
+        "line": 803,
+        "context": "document.getElementById('show-events').addEventListener('change', renderMap);",
+        "type": "literal"
+      },
+      {
+        "id": "show-shops",
+        "line": 804,
+        "context": "document.getElementById('show-shops').addEventListener('change', renderMap);",
+        "type": "literal"
+      },
+      {
+        "id": "featured-only",
+        "line": 805,
+        "context": "document.getElementById('featured-only').addEventListener('change', renderMap);",
+        "type": "literal"
+      },
+      {
+        "id": "map",
+        "line": 809,
+        "context": "document.getElementById('map').innerHTML = '<div style=\"padding: 40px; text-align: center; color: #dc3545;\">Google Maps failed to load. Please check the API key configuration.</div>';",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "show-events",
+        "line": 560,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"show-events\" checked> Show Events"
+      },
+      {
+        "id": "show-shops",
+        "line": 566,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"show-shops\" checked> Show Shops"
+      },
+      {
+        "id": "featured-only",
+        "line": 572,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"featured-only\"> Featured Only"
+      },
+      {
+        "id": "info-panel",
+        "line": 597,
+        "element_type": "div",
+        "context": "<div class=\"info-panel\" id=\"info-panel\">"
+      },
+      {
+        "id": "events-count",
+        "line": 598,
+        "element_type": "div",
+        "context": "<div class=\"info-count\" id=\"events-count\">Loading...</div>"
+      },
+      {
+        "id": "shops-count",
+        "line": 599,
+        "element_type": "div",
+        "context": "<div class=\"info-count\" id=\"shops-count\">Loading...</div>"
+      },
+      {
+        "id": "map",
+        "line": 601,
+        "element_type": "div",
+        "context": "<div id=\"map\" class=\"loading\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/ShopController.php",
+    "js_calls": [
+      {
+        "id": "shop-details",
+        "line": 551,
+        "context": "const container = document.getElementById('shop-details');",
+        "type": "literal"
+      },
+      {
+        "id": "shop-details",
+        "line": 588,
+        "context": "document.getElementById('shop-details').innerHTML = '<div class=\"loading\">Shop not found or unavailable.</div>';",
+        "type": "literal"
+      },
+      {
+        "id": "shop-details",
+        "line": 593,
+        "context": "document.getElementById('shop-details').innerHTML = '<div class=\"loading\">Error loading shop details.</div>';",
+        "type": "literal"
+      },
+      {
+        "id": "map",
+        "line": 816,
+        "context": "map = new google.maps.Map(document.getElementById('map'), {",
+        "type": "literal"
+      },
+      {
+        "id": "shops-count",
+        "line": 842,
+        "context": "document.getElementById('shops-count').textContent = 'Error loading shops';",
+        "type": "literal"
+      },
+      {
+        "id": "shops-count",
+        "line": 847,
+        "context": "document.getElementById('shops-count').textContent = 'Error loading shops';",
+        "type": "literal"
+      },
+      {
+        "id": "shops-count",
+        "line": 913,
+        "context": "document.getElementById('shops-count').textContent = `\\${count} shops on map`;",
+        "type": "literal"
+      },
+      {
+        "id": "category-filter",
+        "line": 917,
+        "context": "const category = document.getElementById('category-filter').value;",
+        "type": "literal"
+      },
+      {
+        "id": "featured-only",
+        "line": 918,
+        "context": "const featuredOnly = document.getElementById('featured-only').checked;",
+        "type": "literal"
+      },
+      {
+        "id": "category-filter",
+        "line": 936,
+        "context": "document.getElementById('category-filter').addEventListener('change', filterShops);",
+        "type": "literal"
+      },
+      {
+        "id": "featured-only",
+        "line": 937,
+        "context": "document.getElementById('featured-only').addEventListener('change', filterShops);",
+        "type": "literal"
+      },
+      {
+        "id": "map",
+        "line": 941,
+        "context": "document.getElementById('map').innerHTML = '<div style=\"padding: 40px; text-align: center; color: #dc3545;\">Google Maps failed to load. Please check the API key configuration.</div>';",
+        "type": "literal"
+      },
+      {
+        "id": "shop-form",
+        "line": 1168,
+        "context": "document.getElementById('shop-form').addEventListener('submit', async function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "submit-btn",
+        "line": 1171,
+        "context": "const submitBtn = document.getElementById('submit-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "success-message",
+        "line": 1172,
+        "context": "const successMessage = document.getElementById('success-message');",
+        "type": "literal"
+      },
+      {
+        "id": "error-message",
+        "line": 1173,
+        "context": "const errorMessage = document.getElementById('error-message');",
+        "type": "literal"
+      },
+      {
+        "id": "shops-container",
+        "line": 1495,
+        "context": "const container = document.getElementById('shops-container');",
+        "type": "literal"
+      },
+      {
+        "id": "search",
+        "line": 1500,
+        "context": "const search = document.getElementById('search').value;",
+        "type": "literal"
+      },
+      {
+        "id": "category",
+        "line": 1501,
+        "context": "const category = document.getElementById('category').value;",
+        "type": "literal"
+      },
+      {
+        "id": "featured",
+        "line": 1502,
+        "context": "const featured = document.getElementById('featured').value;",
+        "type": "literal"
+      },
+      {
+        "id": "search",
+        "line": 1548,
+        "context": "document.getElementById('search').addEventListener('keypress', function(e) {",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "shop-details",
+        "line": 538,
+        "element_type": "div",
+        "context": "<div class=\"shop-details\" id=\"shop-details\">"
+      },
+      {
+        "id": "category-filter",
+        "line": 767,
+        "element_type": "select",
+        "context": "<select id=\"category-filter\">"
+      },
+      {
+        "id": "featured-only",
+        "line": 778,
+        "element_type": "input",
+        "context": "<input type=\"checkbox\" id=\"featured-only\"> Featured Only"
+      },
+      {
+        "id": "shops-count",
+        "line": 799,
+        "element_type": "div",
+        "context": "<div class=\"shops-count\" id=\"shops-count\">Loading shops...</div>"
+      },
+      {
+        "id": "map",
+        "line": 800,
+        "element_type": "div",
+        "context": "<div id=\"map\" class=\"loading\">"
+      },
+      {
+        "id": "success-message",
+        "line": 1113,
+        "element_type": "div",
+        "context": "<div class=\"success-message\" id=\"success-message\"></div>"
+      },
+      {
+        "id": "error-message",
+        "line": 1114,
+        "element_type": "div",
+        "context": "<div class=\"error-message\" id=\"error-message\"></div>"
+      },
+      {
+        "id": "shop-form",
+        "line": 1116,
+        "element_type": "form",
+        "context": "<form id=\"shop-form\">"
+      },
+      {
+        "id": "name",
+        "line": 1119,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"name\" name=\"name\" required>"
+      },
+      {
+        "id": "description",
+        "line": 1124,
+        "element_type": "textarea",
+        "context": "<textarea id=\"description\" name=\"description\" placeholder=\"Tell us about your business...\"></textarea>"
+      },
+      {
+        "id": "address",
+        "line": 1129,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"address\" name=\"address\" required placeholder=\"Full business address\">"
+      },
+      {
+        "id": "phone",
+        "line": 1135,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"phone\" name=\"phone\" placeholder=\"(xxx) xxx-xxxx\">"
+      },
+      {
+        "id": "email",
+        "line": 1140,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email\" name=\"email\" placeholder=\"contact@business.com\">"
+      },
+      {
+        "id": "website",
+        "line": 1146,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"website\" name=\"website\" placeholder=\"https://yourbusiness.com\">"
+      },
+      {
+        "id": "category",
+        "line": 1151,
+        "element_type": "select",
+        "context": "<select id=\"category\" name=\"category_id\">"
+      },
+      {
+        "id": "submit-btn",
+        "line": 1161,
+        "element_type": "button",
+        "context": "<button type=\"submit\" class=\"submit-btn\" id=\"submit-btn\">Submit Shop for Review</button>"
+      },
+      {
+        "id": "search",
+        "line": 1458,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"search\" placeholder=\"Search by name, description...\">"
+      },
+      {
+        "id": "category",
+        "line": 1463,
+        "element_type": "select",
+        "context": "<select id=\"category\">"
+      },
+      {
+        "id": "featured",
+        "line": 1474,
+        "element_type": "select",
+        "context": "<select id=\"featured\">"
+      },
+      {
+        "id": "shops-container",
+        "line": 1488,
+        "element_type": "div",
+        "context": "<div id=\"shops-container\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "name",
+        "line": 1119,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"name\" name=\"name\" required>"
+      },
+      {
+        "id": "description",
+        "line": 1124,
+        "element_type": "textarea",
+        "context": "<textarea id=\"description\" name=\"description\" placeholder=\"Tell us about your business...\"></textarea>"
+      },
+      {
+        "id": "address",
+        "line": 1129,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"address\" name=\"address\" required placeholder=\"Full business address\">"
+      },
+      {
+        "id": "phone",
+        "line": 1135,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"phone\" name=\"phone\" placeholder=\"(xxx) xxx-xxxx\">"
+      },
+      {
+        "id": "email",
+        "line": 1140,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email\" name=\"email\" placeholder=\"contact@business.com\">"
+      },
+      {
+        "id": "website",
+        "line": 1146,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"website\" name=\"website\" placeholder=\"https://yourbusiness.com\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/ThemeController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/AdminShopController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/UserController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/AuthController.php",
+    "js_calls": [
+      {
+        "id": "loginForm",
+        "line": 288,
+        "context": "document.getElementById('loginForm').addEventListener('submit', async function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "username",
+        "line": 291,
+        "context": "const username = document.getElementById('username').value;",
+        "type": "literal"
+      },
+      {
+        "id": "password",
+        "line": 292,
+        "context": "const password = document.getElementById('password').value;",
+        "type": "literal"
+      },
+      {
+        "id": "alert",
+        "line": 293,
+        "context": "const alert = document.getElementById('alert');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "alert",
+        "line": 261,
+        "element_type": "div",
+        "context": "<div id=\"alert\" class=\"alert\"></div>"
+      },
+      {
+        "id": "loginForm",
+        "line": 263,
+        "element_type": "form",
+        "context": "<form id=\"loginForm\">"
+      },
+      {
+        "id": "username",
+        "line": 266,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"username\" name=\"username\" required autocomplete=\"username\">"
+      },
+      {
+        "id": "password",
+        "line": 271,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"password\" name=\"password\" required autocomplete=\"current-password\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/AdminDashboardController.php",
+    "js_calls": [
+      {
+        "id": "total-events",
+        "line": 745,
+        "context": "document.getElementById('total-events').textContent = eventStats.data.statistics.total || 0;",
+        "type": "literal"
+      },
+      {
+        "id": "pending-events",
+        "line": 746,
+        "context": "document.getElementById('pending-events').textContent = eventStats.data.statistics.pending || 0;",
+        "type": "literal"
+      },
+      {
+        "id": "featured-events",
+        "line": 747,
+        "context": "document.getElementById('featured-events').textContent = eventStats.data.statistics.featured || 0;",
+        "type": "literal"
+      },
+      {
+        "id": "total-shops",
+        "line": 756,
+        "context": "document.getElementById('total-shops').textContent = shopStats.data.statistics.total || 0;",
+        "type": "literal"
+      },
+      {
+        "id": "activity-content",
+        "line": 765,
+        "context": "const activityContent = document.getElementById('activity-content');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "total-events",
+        "line": 623,
+        "element_type": "div",
+        "context": "<div class=\"stat-number\" id=\"total-events\">-</div>"
+      },
+      {
+        "id": "pending-events",
+        "line": 629,
+        "element_type": "div",
+        "context": "<div class=\"stat-number\" id=\"pending-events\">-</div>"
+      },
+      {
+        "id": "total-shops",
+        "line": 635,
+        "element_type": "div",
+        "context": "<div class=\"stat-number\" id=\"total-shops\">-</div>"
+      },
+      {
+        "id": "featured-events",
+        "line": 641,
+        "element_type": "div",
+        "context": "<div class=\"stat-number\" id=\"featured-events\">-</div>"
+      },
+      {
+        "id": "activity-content",
+        "line": 731,
+        "element_type": "div",
+        "context": "<div id=\"activity-content\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/ClaimsController.php",
+    "js_calls": [
+      {
+        "id": "offer-form",
+        "line": 1422,
+        "context": "const offerForm = document.getElementById('offer-form');",
+        "type": "literal"
+      },
+      {
+        "id": "offer-amount",
+        "line": 1423,
+        "context": "const offerInput = document.getElementById('offer-amount');",
+        "type": "literal"
+      },
+      {
+        "id": "submit-offer-btn",
+        "line": 1424,
+        "context": "const submitBtn = document.getElementById('submit-offer-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "loading",
+        "line": 1425,
+        "context": "const loading = document.getElementById('loading');",
+        "type": "literal"
+      },
+      {
+        "id": "alert-container",
+        "line": 1426,
+        "context": "const alertContainer = document.getElementById('alert-container');",
+        "type": "literal"
+      },
+      {
+        "id": "contact-form",
+        "line": 1789,
+        "context": "const contactForm = document.getElementById('contact-form');",
+        "type": "literal"
+      },
+      {
+        "id": "verification-form",
+        "line": 1790,
+        "context": "const verificationForm = document.getElementById('verification-form');",
+        "type": "literal"
+      },
+      {
+        "id": "loading",
+        "line": 1791,
+        "context": "const loading = document.getElementById('loading');",
+        "type": "literal"
+      },
+      {
+        "id": "error-container",
+        "line": 1792,
+        "context": "const errorContainer = document.getElementById('error-container');",
+        "type": "literal"
+      },
+      {
+        "id": "success-container",
+        "line": 1793,
+        "context": "const successContainer = document.getElementById('success-container');",
+        "type": "literal"
+      },
+      {
+        "id": "buyer-name",
+        "line": 1796,
+        "context": "const buyerNameInput = document.getElementById('buyer-name');",
+        "type": "literal"
+      },
+      {
+        "id": "contact-value",
+        "line": 1798,
+        "context": "const contactValueInput = document.getElementById('contact-value');",
+        "type": "literal"
+      },
+      {
+        "id": "contact-label",
+        "line": 1799,
+        "context": "const contactLabel = document.getElementById('contact-label');",
+        "type": "literal"
+      },
+      {
+        "id": "auth-code",
+        "line": 1800,
+        "context": "const authCodeInput = document.getElementById('auth-code');",
+        "type": "literal"
+      },
+      {
+        "id": "send-code-btn",
+        "line": 1803,
+        "context": "const sendCodeBtn = document.getElementById('send-code-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "verify-code-btn",
+        "line": 1804,
+        "context": "const verifyCodeBtn = document.getElementById('verify-code-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "resend-code-btn",
+        "line": 1805,
+        "context": "const resendCodeBtn = document.getElementById('resend-code-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "make-offer-btn",
+        "line": 2162,
+        "context": "const makeOfferBtn = document.getElementById('make-offer-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "offer-modal",
+        "line": 2163,
+        "context": "const offerModal = document.getElementById('offer-modal');",
+        "type": "literal"
+      },
+      {
+        "id": "close-modal",
+        "line": 2164,
+        "context": "const closeModal = document.getElementById('close-modal');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": " . $sale[",
+        "line": 1061,
+        "element_type": "a",
+        "context": "? '<a href=\"' . $basePath . '/claims/sale?id=' . $sale['id'] . '\" class=\"btn btn-primary\">Browse Items</a>'"
+      },
+      {
+        "id": " . $sale[",
+        "line": 1062,
+        "element_type": "a",
+        "context": ": '<a href=\"' . $basePath . '/claims/sale?id=' . $sale['id'] . '&preview=1\" class=\"btn btn-secondary\">Preview Items</a>';"
+      },
+      {
+        "id": "alert-container",
+        "line": 1552,
+        "element_type": "div",
+        "context": "<div id=\"alert-container\"></div>"
+      },
+      {
+        "id": "offer-form",
+        "line": 1554,
+        "element_type": "form",
+        "context": "<form id=\"offer-form\" class=\"offer-form\">"
+      },
+      {
+        "id": "offer-amount",
+        "line": 1559,
+        "element_type": "input",
+        "context": "<input type=\"number\" id=\"offer-amount\" class=\"form-input\" step=\"0.01\" min=\"{$item['starting_price']}\" placeholder=\"Enter your offer amount\" required>"
+      },
+      {
+        "id": "submit-offer-btn",
+        "line": 1568,
+        "element_type": "button",
+        "context": "<button type=\"submit\" id=\"submit-offer-btn\" class=\"btn btn-primary btn-block\">Submit Offer</button>"
+      },
+      {
+        "id": "loading",
+        "line": 1571,
+        "element_type": "div",
+        "context": "<div id=\"loading\" class=\"loading\">"
+      },
+      {
+        "id": "error-container",
+        "line": 1723,
+        "element_type": "div",
+        "context": "<div id=\"error-container\"></div>"
+      },
+      {
+        "id": "success-container",
+        "line": 1724,
+        "element_type": "div",
+        "context": "<div id=\"success-container\"></div>"
+      },
+      {
+        "id": "contact-form",
+        "line": 1727,
+        "element_type": "div",
+        "context": "<div id=\"contact-form\" class=\"auth-form\">"
+      },
+      {
+        "id": "buyer-name",
+        "line": 1732,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"buyer-name\" class=\"form-input\" placeholder=\"Enter your full name\" required>"
+      },
+      {
+        "id": "auth-email",
+        "line": 1739,
+        "element_type": "input",
+        "context": "<input type=\"radio\" id=\"auth-email\" name=\"auth-method\" value=\"email\" class=\"form-radio\" checked>"
+      },
+      {
+        "id": "auth-sms",
+        "line": 1743,
+        "element_type": "input",
+        "context": "<input type=\"radio\" id=\"auth-sms\" name=\"auth-method\" value=\"sms\" class=\"form-radio\">"
+      },
+      {
+        "id": "contact-label",
+        "line": 1750,
+        "element_type": "label",
+        "context": "<label class=\"form-label\" for=\"contact-value\" id=\"contact-label\">Email Address *</label>"
+      },
+      {
+        "id": "contact-value",
+        "line": 1751,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"contact-value\" class=\"form-input\" placeholder=\"Enter your email address\" required>"
+      },
+      {
+        "id": "send-code-btn",
+        "line": 1758,
+        "element_type": "button",
+        "context": "<button type=\"button\" id=\"send-code-btn\" class=\"btn btn-primary\">Send Verification Code</button>"
+      },
+      {
+        "id": "verification-form",
+        "line": 1762,
+        "element_type": "div",
+        "context": "<div id=\"verification-form\" class=\"auth-form auth-code-section\">"
+      },
+      {
+        "id": "code-sent-message",
+        "line": 1766,
+        "element_type": "span",
+        "context": "<span id=\"code-sent-message\">We've sent a 6-digit verification code to your contact method.</span>"
+      },
+      {
+        "id": "auth-code",
+        "line": 1771,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"auth-code\" class=\"form-input\" placeholder=\"Enter 6-digit code\" maxlength=\"6\" required>"
+      },
+      {
+        "id": "verify-code-btn",
+        "line": 1774,
+        "element_type": "button",
+        "context": "<button type=\"button\" id=\"verify-code-btn\" class=\"btn btn-primary\">Verify & Continue</button>"
+      },
+      {
+        "id": "resend-code-btn",
+        "line": 1776,
+        "element_type": "button",
+        "context": "<button type=\"button\" id=\"resend-code-btn\" class=\"btn\" style=\"background: #6c757d; color: white;\">Resend Code</button>"
+      },
+      {
+        "id": "loading",
+        "line": 1780,
+        "element_type": "div",
+        "context": "<div id=\"loading\" class=\"loading\">"
+      },
+      {
+        "id": "make-offer-btn",
+        "line": 2084,
+        "element_type": "button",
+        "context": "<button id=\"make-offer-btn\" class=\"btn btn-secondary\">Make New Offer</button>"
+      },
+      {
+        "id": "offer-modal",
+        "line": 2123,
+        "element_type": "div",
+        "context": "<div id=\"offer-modal\" class=\"offer-modal\">"
+      },
+      {
+        "id": "close-modal",
+        "line": 2127,
+        "element_type": "button",
+        "context": "<button class=\"modal-close\" id=\"close-modal\">&times;</button>"
+      },
+      {
+        "id": "modal-body",
+        "line": 2129,
+        "element_type": "div",
+        "context": "<div id=\"modal-body\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": " . $sale[",
+        "line": 1061,
+        "element_type": "a",
+        "context": "? '<a href=\"' . $basePath . '/claims/sale?id=' . $sale['id'] . '\" class=\"btn btn-primary\">Browse Items</a>'"
+      },
+      {
+        "id": " . $sale[",
+        "line": 1062,
+        "element_type": "a",
+        "context": ": '<a href=\"' . $basePath . '/claims/sale?id=' . $sale['id'] . '&preview=1\" class=\"btn btn-secondary\">Preview Items</a>';"
+      },
+      {
+        "id": "auth-email",
+        "line": 1739,
+        "element_type": "input",
+        "context": "<input type=\"radio\" id=\"auth-email\" name=\"auth-method\" value=\"email\" class=\"form-radio\" checked>"
+      },
+      {
+        "id": "auth-sms",
+        "line": 1743,
+        "element_type": "input",
+        "context": "<input type=\"radio\" id=\"auth-sms\" name=\"auth-method\" value=\"sms\" class=\"form-radio\">"
+      },
+      {
+        "id": "code-sent-message",
+        "line": 1766,
+        "element_type": "span",
+        "context": "<span id=\"code-sent-message\">We've sent a 6-digit verification code to your contact method.</span>"
+      },
+      {
+        "id": "modal-body",
+        "line": 2129,
+        "element_type": "div",
+        "context": "<div id=\"modal-body\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/BaseController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/EventController.php",
+    "js_calls": [
+      {
+        "id": "calendar-container",
+        "line": 857,
+        "context": "document.getElementById('calendar-container').innerHTML = '<div class=\"loading\">Error loading calendar</div>';",
+        "type": "literal"
+      },
+      {
+        "id": "calendar-container",
+        "line": 862,
+        "context": "const container = document.getElementById('calendar-container');",
+        "type": "literal"
+      },
+      {
+        "id": "current-month",
+        "line": 864,
+        "context": "document.getElementById('current-month').textContent = monthYear;",
+        "type": "literal"
+      },
+      {
+        "id": "calendar-container",
+        "line": 982,
+        "context": "document.getElementById('calendar-container').style.display = 'none';",
+        "type": "literal"
+      },
+      {
+        "id": "map-view",
+        "line": 983,
+        "context": "document.getElementById('map-view').style.display = 'block';",
+        "type": "literal"
+      },
+      {
+        "id": "calendar-container",
+        "line": 990,
+        "context": "document.getElementById('calendar-container').style.display = 'block';",
+        "type": "literal"
+      },
+      {
+        "id": "map-view",
+        "line": 991,
+        "context": "document.getElementById('map-view').style.display = 'none';",
+        "type": "literal"
+      },
+      {
+        "id": "map",
+        "line": 1000,
+        "context": "map = new google.maps.Map(document.getElementById('map'), {",
+        "type": "literal"
+      },
+      {
+        "id": "events-count",
+        "line": 1079,
+        "context": "document.getElementById('events-count').textContent = `\\${eventsWithCoords.length} events on map`;",
+        "type": "literal"
+      },
+      {
+        "id": "modal-content",
+        "line": 1100,
+        "context": "const modalContent = document.getElementById('modal-content');",
+        "type": "literal"
+      },
+      {
+        "id": "event-modal",
+        "line": 1120,
+        "context": "document.getElementById('event-modal').style.display = 'block';",
+        "type": "literal"
+      },
+      {
+        "id": "event-modal",
+        "line": 1124,
+        "context": "document.getElementById('event-modal').style.display = 'none';",
+        "type": "literal"
+      },
+      {
+        "id": "event-modal",
+        "line": 1128,
+        "context": "document.getElementById('event-modal').addEventListener('click', function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "map",
+        "line": 1139,
+        "context": "document.getElementById('map').innerHTML = '<div style=\"padding: 40px; text-align: center; color: #dc3545;\">Google Maps failed to load. Please check the API key configuration.</div>';",
+        "type": "literal"
+      },
+      {
+        "id": "events-container",
+        "line": 1421,
+        "context": "const container = document.getElementById('events-container');",
+        "type": "literal"
+      },
+      {
+        "id": "search",
+        "line": 1426,
+        "context": "const search = document.getElementById('search').value;",
+        "type": "literal"
+      },
+      {
+        "id": "date",
+        "line": 1427,
+        "context": "const date = document.getElementById('date').value;",
+        "type": "literal"
+      },
+      {
+        "id": "type",
+        "line": 1428,
+        "context": "const type = document.getElementById('type').value;",
+        "type": "literal"
+      },
+      {
+        "id": "search",
+        "line": 1488,
+        "context": "document.getElementById('search').addEventListener('keypress', function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "start_datetime",
+        "line": 1727,
+        "context": "document.getElementById('start_datetime').min = todayString;",
+        "type": "literal"
+      },
+      {
+        "id": "end_datetime",
+        "line": 1728,
+        "context": "document.getElementById('end_datetime').min = todayString;",
+        "type": "literal"
+      },
+      {
+        "id": "start_datetime",
+        "line": 1731,
+        "context": "document.getElementById('start_datetime').addEventListener('change', function() {",
+        "type": "literal"
+      },
+      {
+        "id": "end_datetime",
+        "line": 1736,
+        "context": "document.getElementById('end_datetime').value = endTime.toISOString().slice(0, 16);",
+        "type": "literal"
+      },
+      {
+        "id": "end_datetime",
+        "line": 1737,
+        "context": "document.getElementById('end_datetime').min = this.value;",
+        "type": "literal"
+      },
+      {
+        "id": "event-form",
+        "line": 1741,
+        "context": "document.getElementById('event-form').addEventListener('submit', async function(e) {",
+        "type": "literal"
+      },
+      {
+        "id": "submit-btn",
+        "line": 1744,
+        "context": "const submitBtn = document.getElementById('submit-btn');",
+        "type": "literal"
+      },
+      {
+        "id": "success-message",
+        "line": 1745,
+        "context": "const successMessage = document.getElementById('success-message');",
+        "type": "literal"
+      },
+      {
+        "id": "error-message",
+        "line": 1746,
+        "context": "const errorMessage = document.getElementById('error-message');",
+        "type": "literal"
+      },
+      {
+        "id": "start_datetime",
+        "line": 1782,
+        "context": "document.getElementById('start_datetime').min = todayString;",
+        "type": "literal"
+      },
+      {
+        "id": "end_datetime",
+        "line": 1783,
+        "context": "document.getElementById('end_datetime').min = todayString;",
+        "type": "literal"
+      },
+      {
+        "id": "event-map",
+        "line": 1921,
+        "context": "const map = new google.maps.Map(document.getElementById('event-map'), {",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "current-month",
+        "line": 770,
+        "element_type": "div",
+        "context": "<div class=\"current-month\" id=\"current-month\">Loading...</div>"
+      },
+      {
+        "id": "calendar-container",
+        "line": 781,
+        "element_type": "div",
+        "context": "<div class=\"calendar-grid\" id=\"calendar-container\">"
+      },
+      {
+        "id": "map-view",
+        "line": 785,
+        "element_type": "div",
+        "context": "<div class=\"map-view\" id=\"map-view\">"
+      },
+      {
+        "id": "events-count",
+        "line": 804,
+        "element_type": "div",
+        "context": "<div class=\"events-count\" id=\"events-count\">Loading events...</div>"
+      },
+      {
+        "id": "map",
+        "line": 805,
+        "element_type": "div",
+        "context": "<div id=\"map\" style=\"border-radius: 15px;\">"
+      },
+      {
+        "id": "event-modal",
+        "line": 813,
+        "element_type": "div",
+        "context": "<div class=\"event-modal\" id=\"event-modal\">"
+      },
+      {
+        "id": "modal-content",
+        "line": 816,
+        "element_type": "div",
+        "context": "<div id=\"modal-content\">"
+      },
+      {
+        "id": "search",
+        "line": 1383,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"search\" placeholder=\"Search by title, location...\">"
+      },
+      {
+        "id": "date",
+        "line": 1388,
+        "element_type": "select",
+        "context": "<select id=\"date\">"
+      },
+      {
+        "id": "type",
+        "line": 1399,
+        "element_type": "select",
+        "context": "<select id=\"type\">"
+      },
+      {
+        "id": "events-container",
+        "line": 1414,
+        "element_type": "div",
+        "context": "<div id=\"events-container\">"
+      },
+      {
+        "id": "success-message",
+        "line": 1669,
+        "element_type": "div",
+        "context": "<div class=\"success-message\" id=\"success-message\"></div>"
+      },
+      {
+        "id": "error-message",
+        "line": 1670,
+        "element_type": "div",
+        "context": "<div class=\"error-message\" id=\"error-message\"></div>"
+      },
+      {
+        "id": "event-form",
+        "line": 1672,
+        "element_type": "form",
+        "context": "<form id=\"event-form\">"
+      },
+      {
+        "id": "title",
+        "line": 1675,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"title\" name=\"title\" required placeholder=\"Enter your event title\">"
+      },
+      {
+        "id": "description",
+        "line": 1680,
+        "element_type": "textarea",
+        "context": "<textarea id=\"description\" name=\"description\" placeholder=\"Describe your event - what will happen, who should attend, special features, etc.\"></textarea>"
+      },
+      {
+        "id": "start_datetime",
+        "line": 1686,
+        "element_type": "input",
+        "context": "<input type=\"datetime-local\" id=\"start_datetime\" name=\"start_datetime\" required>"
+      },
+      {
+        "id": "end_datetime",
+        "line": 1691,
+        "element_type": "input",
+        "context": "<input type=\"datetime-local\" id=\"end_datetime\" name=\"end_datetime\">"
+      },
+      {
+        "id": "location",
+        "line": 1697,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"location\" name=\"location\" placeholder=\"Event venue or location name\">"
+      },
+      {
+        "id": "address",
+        "line": 1702,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"address\" name=\"address\" placeholder=\"Street address, city, state, zip code\">"
+      },
+      {
+        "id": "contact_info",
+        "line": 1708,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"contact_info\" name=\"contact_info\" placeholder=\"Phone, email, or contact person\">"
+      },
+      {
+        "id": "external_url",
+        "line": 1713,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"external_url\" name=\"external_url\" placeholder=\"https://your-event-website.com\">"
+      },
+      {
+        "id": "submit-btn",
+        "line": 1717,
+        "element_type": "button",
+        "context": "<button type=\"submit\" class=\"submit-btn\" id=\"submit-btn\">Submit Event for Review</button>"
+      },
+      {
+        "id": "event-map",
+        "line": 1916,
+        "element_type": "div",
+        "context": "<div id=\"event-map\" style=\"height: 100%;\"></div>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "title",
+        "line": 1675,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"title\" name=\"title\" required placeholder=\"Enter your event title\">"
+      },
+      {
+        "id": "description",
+        "line": 1680,
+        "element_type": "textarea",
+        "context": "<textarea id=\"description\" name=\"description\" placeholder=\"Describe your event - what will happen, who should attend, special features, etc.\"></textarea>"
+      },
+      {
+        "id": "location",
+        "line": 1697,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"location\" name=\"location\" placeholder=\"Event venue or location name\">"
+      },
+      {
+        "id": "address",
+        "line": 1702,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"address\" name=\"address\" placeholder=\"Street address, city, state, zip code\">"
+      },
+      {
+        "id": "contact_info",
+        "line": 1708,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"contact_info\" name=\"contact_info\" placeholder=\"Phone, email, or contact person\">"
+      },
+      {
+        "id": "external_url",
+        "line": 1713,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"external_url\" name=\"external_url\" placeholder=\"https://your-event-website.com\">"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Http/Controllers/AdminEventController.php",
+    "js_calls": [],
+    "html_ids": [
+      {
+        "id": " . escapeshellarg((string)$sourceId) . ",
+        "line": 536,
+        "element_type": "unknown",
+        "context": "$command = \"cd \" . dirname($scriptPath) . \" && timeout {$timeoutSeconds} php scrape-events.php --source-id=\" . escapeshellarg((string)$sourceId) . \" 2>&1\";"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": " . escapeshellarg((string)$sourceId) . ",
+        "line": 536,
+        "element_type": "unknown",
+        "context": "$command = \"cd \" . dirname($scriptPath) . \" && timeout {$timeoutSeconds} php scrape-events.php --source-id=\" . escapeshellarg((string)$sourceId) . \" 2>&1\";"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Api/Controllers/EventApiController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Presentation/Api/Controllers/ShopApiController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Application/Controllers/Admin/UserController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/src/Application/Controllers/Admin/ConfigController.php",
+    "js_calls": [],
+    "html_ids": [],
+    "missing_elements": [],
+    "unused_elements": [],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/public/buyer/auth.php",
+    "js_calls": [
+      {
+        "id": "preferredMethod",
+        "line": 350,
+        "context": "document.getElementById('preferredMethod').addEventListener('change', (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "emailGroup",
+        "line": 352,
+        "context": "const emailGroup = document.getElementById('emailGroup');",
+        "type": "literal"
+      },
+      {
+        "id": "phoneGroup",
+        "line": 353,
+        "context": "const phoneGroup = document.getElementById('phoneGroup');",
+        "type": "literal"
+      },
+      {
+        "id": "email",
+        "line": 358,
+        "context": "document.getElementById('email').required = true;",
+        "type": "literal"
+      },
+      {
+        "id": "phone",
+        "line": 359,
+        "context": "document.getElementById('phone').required = false;",
+        "type": "literal"
+      },
+      {
+        "id": "email",
+        "line": 363,
+        "context": "document.getElementById('email').required = false;",
+        "type": "literal"
+      },
+      {
+        "id": "phone",
+        "line": 364,
+        "context": "document.getElementById('phone').required = true;",
+        "type": "literal"
+      },
+      {
+        "id": "email",
+        "line": 368,
+        "context": "document.getElementById('email').required = false;",
+        "type": "literal"
+      },
+      {
+        "id": "phone",
+        "line": 369,
+        "context": "document.getElementById('phone').required = false;",
+        "type": "literal"
+      },
+      {
+        "id": "contactForm",
+        "line": 374,
+        "context": "document.getElementById('contactForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "sendCodeBtn",
+        "line": 380,
+        "context": "const sendCodeBtn = document.getElementById('sendCodeBtn');",
+        "type": "literal"
+      },
+      {
+        "id": "verificationForm",
+        "line": 411,
+        "context": "document.getElementById('verificationForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "verifyBtn",
+        "line": 422,
+        "context": "const verifyBtn = document.getElementById('verifyBtn');",
+        "type": "literal"
+      },
+      {
+        "id": "contactStep",
+        "line": 461,
+        "context": "document.getElementById('contactStep').classList.remove('active');",
+        "type": "literal"
+      },
+      {
+        "id": "verificationStep",
+        "line": 462,
+        "context": "document.getElementById('verificationStep').classList.add('active');",
+        "type": "literal"
+      },
+      {
+        "id": "step1",
+        "line": 463,
+        "context": "document.getElementById('step1').classList.remove('active');",
+        "type": "literal"
+      },
+      {
+        "id": "step2",
+        "line": 464,
+        "context": "document.getElementById('step2').classList.add('active');",
+        "type": "literal"
+      },
+      {
+        "id": "verificationMessage",
+        "line": 468,
+        "context": "document.getElementById('verificationMessage').textContent =",
+        "type": "literal"
+      },
+      {
+        "id": "resendLink",
+        "line": 494,
+        "context": "document.getElementById('resendLink').addEventListener('click', async () => {",
+        "type": "literal"
+      },
+      {
+        "id": "resendLink",
+        "line": 521,
+        "context": "const resendLink = document.getElementById('resendLink');",
+        "type": "literal"
+      },
+      {
+        "id": "resendTimer",
+        "line": 522,
+        "context": "const resendTimer = document.getElementById('resendTimer');",
+        "type": "literal"
+      },
+      {
+        "id": "alerts",
+        "line": 540,
+        "context": "const alertsContainer = document.getElementById('alerts');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "step1",
+        "line": 260,
+        "element_type": "div",
+        "context": "<div class=\"step active\" id=\"step1\">"
+      },
+      {
+        "id": "step2",
+        "line": 264,
+        "element_type": "div",
+        "context": "<div class=\"step\" id=\"step2\">"
+      },
+      {
+        "id": "alerts",
+        "line": 270,
+        "element_type": "div",
+        "context": "<div id=\"alerts\"></div>"
+      },
+      {
+        "id": "contactStep",
+        "line": 273,
+        "element_type": "div",
+        "context": "<div id=\"contactStep\" class=\"verification-step active\">"
+      },
+      {
+        "id": "contactForm",
+        "line": 274,
+        "element_type": "form",
+        "context": "<form id=\"contactForm\">"
+      },
+      {
+        "id": "fullName",
+        "line": 277,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"fullName\" name=\"full_name\" class=\"form-input\" required"
+      },
+      {
+        "id": "preferredMethod",
+        "line": 283,
+        "element_type": "select",
+        "context": "<select id=\"preferredMethod\" name=\"preferred_method\" class=\"form-select\" required>"
+      },
+      {
+        "id": "emailGroup",
+        "line": 290,
+        "element_type": "div",
+        "context": "<div class=\"form-group\" id=\"emailGroup\">"
+      },
+      {
+        "id": "email",
+        "line": 292,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email\" name=\"email\" class=\"form-input\""
+      },
+      {
+        "id": "phoneGroup",
+        "line": 296,
+        "element_type": "div",
+        "context": "<div class=\"form-group\" id=\"phoneGroup\" style=\"display: none;\">"
+      },
+      {
+        "id": "phone",
+        "line": 298,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"phone\" name=\"phone\" class=\"form-input\""
+      },
+      {
+        "id": "sendCodeBtn",
+        "line": 302,
+        "element_type": "button",
+        "context": "<button type=\"submit\" class=\"btn-primary\" id=\"sendCodeBtn\">"
+      },
+      {
+        "id": "verificationStep",
+        "line": 309,
+        "element_type": "div",
+        "context": "<div id=\"verificationStep\" class=\"verification-step\">"
+      },
+      {
+        "id": "verificationMessage",
+        "line": 311,
+        "element_type": "p",
+        "context": "<p id=\"verificationMessage\">We've sent a verification code to your contact method.</p>"
+      },
+      {
+        "id": "verificationForm",
+        "line": 314,
+        "element_type": "form",
+        "context": "<form id=\"verificationForm\">"
+      },
+      {
+        "id": "verifyBtn",
+        "line": 327,
+        "element_type": "button",
+        "context": "<button type=\"submit\" class=\"btn-primary\" id=\"verifyBtn\">"
+      },
+      {
+        "id": "resendLink",
+        "line": 332,
+        "element_type": "span",
+        "context": "<span class=\"resend-link\" id=\"resendLink\">Resend code</span>"
+      },
+      {
+        "id": "resendTimer",
+        "line": 333,
+        "element_type": "span",
+        "context": "<span id=\"resendTimer\"></span>"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "fullName",
+        "line": 277,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"fullName\" name=\"full_name\" class=\"form-input\" required"
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/public/seller/register.php",
+    "js_calls": [
+      {
+        "id": "registrationForm",
+        "line": 263,
+        "context": "document.getElementById('registrationForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "submitBtn",
+        "line": 284,
+        "context": "const submitBtn = document.getElementById('submitBtn');",
+        "type": "literal"
+      },
+      {
+        "id": "alerts",
+        "line": 320,
+        "context": "const alertsContainer = document.getElementById('alerts');",
+        "type": "literal"
+      },
+      {
+        "id": "confirmPassword",
+        "line": 338,
+        "context": "document.getElementById('confirmPassword').addEventListener('input', (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "password",
+        "line": 339,
+        "context": "const password = document.getElementById('password').value;",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "alerts",
+        "line": 191,
+        "element_type": "div",
+        "context": "<div id=\"alerts\"></div>"
+      },
+      {
+        "id": "registrationForm",
+        "line": 193,
+        "element_type": "form",
+        "context": "<form id=\"registrationForm\">"
+      },
+      {
+        "id": "companyName",
+        "line": 196,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"companyName\" name=\"company_name\" class=\"form-input\" required"
+      },
+      {
+        "id": "contactName",
+        "line": 202,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"contactName\" name=\"contact_name\" class=\"form-input\" required"
+      },
+      {
+        "id": "contactEmail",
+        "line": 208,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"contactEmail\" name=\"contact_email\" class=\"form-input\" required"
+      },
+      {
+        "id": "contactPhone",
+        "line": 214,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"contactPhone\" name=\"contact_phone\" class=\"form-input\" required"
+      },
+      {
+        "id": "address",
+        "line": 220,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"address\" name=\"address\" class=\"form-input\""
+      },
+      {
+        "id": "website",
+        "line": 226,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"website\" name=\"website\" class=\"form-input\""
+      },
+      {
+        "id": "businessDescription",
+        "line": 232,
+        "element_type": "textarea",
+        "context": "<textarea id=\"businessDescription\" name=\"business_description\" class=\"form-textarea\""
+      },
+      {
+        "id": "password",
+        "line": 238,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"password\" name=\"password\" class=\"form-input\" required"
+      },
+      {
+        "id": "confirmPassword",
+        "line": 244,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"confirmPassword\" name=\"confirm_password\" class=\"form-input\" required"
+      },
+      {
+        "id": "submitBtn",
+        "line": 248,
+        "element_type": "button",
+        "context": "<button type=\"submit\" class=\"btn-primary\" id=\"submitBtn\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "companyName",
+        "line": 196,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"companyName\" name=\"company_name\" class=\"form-input\" required"
+      },
+      {
+        "id": "contactName",
+        "line": 202,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"contactName\" name=\"contact_name\" class=\"form-input\" required"
+      },
+      {
+        "id": "contactEmail",
+        "line": 208,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"contactEmail\" name=\"contact_email\" class=\"form-input\" required"
+      },
+      {
+        "id": "contactPhone",
+        "line": 214,
+        "element_type": "input",
+        "context": "<input type=\"tel\" id=\"contactPhone\" name=\"contact_phone\" class=\"form-input\" required"
+      },
+      {
+        "id": "address",
+        "line": 220,
+        "element_type": "input",
+        "context": "<input type=\"text\" id=\"address\" name=\"address\" class=\"form-input\""
+      },
+      {
+        "id": "website",
+        "line": 226,
+        "element_type": "input",
+        "context": "<input type=\"url\" id=\"website\" name=\"website\" class=\"form-input\""
+      },
+      {
+        "id": "businessDescription",
+        "line": 232,
+        "element_type": "textarea",
+        "context": "<textarea id=\"businessDescription\" name=\"business_description\" class=\"form-textarea\""
+      }
+    ],
+    "has_mismatches": false
+  },
+  {
+    "file_path": "/home/robug/YFEvents/www/html/refactor/public/seller/login.php",
+    "js_calls": [
+      {
+        "id": "loginForm",
+        "line": 204,
+        "context": "document.getElementById('loginForm').addEventListener('submit', async (e) => {",
+        "type": "literal"
+      },
+      {
+        "id": "loginBtn",
+        "line": 210,
+        "context": "const loginBtn = document.getElementById('loginBtn');",
+        "type": "literal"
+      },
+      {
+        "id": "alerts",
+        "line": 245,
+        "context": "const alertsContainer = document.getElementById('alerts');",
+        "type": "literal"
+      }
+    ],
+    "html_ids": [
+      {
+        "id": "alerts",
+        "line": 174,
+        "element_type": "div",
+        "context": "<div id=\"alerts\"></div>"
+      },
+      {
+        "id": "loginForm",
+        "line": 176,
+        "element_type": "form",
+        "context": "<form id=\"loginForm\">"
+      },
+      {
+        "id": "email",
+        "line": 179,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email\" name=\"email\" class=\"form-input\" required"
+      },
+      {
+        "id": "password",
+        "line": 185,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"password\" name=\"password\" class=\"form-input\" required"
+      },
+      {
+        "id": "loginBtn",
+        "line": 189,
+        "element_type": "button",
+        "context": "<button type=\"submit\" class=\"btn-primary\" id=\"loginBtn\">"
+      }
+    ],
+    "missing_elements": [],
+    "unused_elements": [
+      {
+        "id": "email",
+        "line": 179,
+        "element_type": "input",
+        "context": "<input type=\"email\" id=\"email\" name=\"email\" class=\"form-input\" required"
+      },
+      {
+        "id": "password",
+        "line": 185,
+        "element_type": "input",
+        "context": "<input type=\"password\" id=\"password\" name=\"password\" class=\"form-input\" required"
+      }
+    ],
+    "has_mismatches": false
+  }
+]

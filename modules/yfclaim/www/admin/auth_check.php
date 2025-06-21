@@ -45,14 +45,14 @@ function requireAdminAuth() {
                 <a href="/www/html/admin/login.php" class="login-button">Alternative Path 2</a>
                 
                 <div class="help-text">
-                    <strong>Login Credentials:</strong><br>
-                    Username: <code>YakFind</code><br>
-                    Password: <code>MapTime</code>
+                    <strong>Login Instructions:</strong><br>
+                    Please use your administrator credentials to log in.<br>
+                    Contact your system administrator if you need access.
                 </div>
                 
                 <div class="help-text">
                     <strong>After logging in:</strong><br>
-                    1. Login to the main admin system with the credentials above<br>
+                    1. Login to the main admin system with your credentials<br>
                     2. Once logged in, you can access all YFClaim admin pages<br>
                     3. Return to this page or navigate using the admin menu
                 </div>

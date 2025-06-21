@@ -12,7 +12,7 @@ $basePath = '';
 
 // Get quick stats for navigation badges
 function getQuickStats() {
-    global $pdo;
+    global $db;
     $stats = [
         'pending_events' => 0,
         'total_classifieds' => 0,
@@ -22,15 +22,15 @@ function getQuickStats() {
     
     try {
         // Get pending events
-        $stmt = $pdo->query("SELECT COUNT(*) FROM events WHERE status = 'pending'");
+        $stmt = $db->query("SELECT COUNT(*) FROM events WHERE status = 'pending'");
         $stats['pending_events'] = $stmt->fetchColumn();
         
         // Get total classifieds
-        $stmt = $pdo->query("SELECT COUNT(*) FROM yfc_items WHERE listing_type = 'classified'");
+        $stmt = $db->query("SELECT COUNT(*) FROM yfc_items WHERE listing_type = 'classified'");
         $stats['total_classifieds'] = $stmt->fetchColumn();
         
         // Get pending shops  
-        $stmt = $pdo->query("SELECT COUNT(*) FROM local_shops WHERE status = 'pending'");
+        $stmt = $db->query("SELECT COUNT(*) FROM local_shops WHERE status = 'pending'");
         $stats['pending_shops'] = $stmt->fetchColumn();
         
     } catch (Exception $e) {

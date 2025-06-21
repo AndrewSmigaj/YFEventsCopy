@@ -4,7 +4,10 @@
  * For production, integrate with proper authentication system
  */
 
-session_start();
+// Only start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // For now, just check if admin session exists
 // In production, this should check proper authentication

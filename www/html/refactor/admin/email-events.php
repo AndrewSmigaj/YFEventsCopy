@@ -1,22 +1,15 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/auth_check.php';
-
-require_once dirname(__DIR__) . '/vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use YakimaFinds\Infrastructure\Services\EmailEventProcessor;
 
-$basePath = '/refactor';
+// Get database connection
+$db = $GLOBALS['db'] ?? null;
+$pdo = $db; // EmailEventProcessor expects a PDO instance
 
-// Setup database connection
-$config = require dirname(__DIR__) . '/config/database.php';
-$dbConfig = $config['database'];
-$dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";
-$pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-]);
+$basePath = '/refactor';
 
 $emailConfig = require dirname(__DIR__) . '/config/email.php';
 $processor = new EmailEventProcessor($pdo, $emailConfig);

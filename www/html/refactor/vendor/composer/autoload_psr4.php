@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'YakimaFinds\\Tests\\' => array($baseDir . '/tests'),
     'YakimaFinds\\' => array($baseDir . '/src'),
+    'YFEvents\\' => array($baseDir . '/src'),
     'Symfony\\Polyfill\\Php81\\' => array($vendorDir . '/symfony/polyfill-php81'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),

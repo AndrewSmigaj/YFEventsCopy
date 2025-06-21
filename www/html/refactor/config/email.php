@@ -1,31 +1,36 @@
 <?php
 
+// Load environment variables
+require_once dirname(__DIR__, 4) . '/src/Utils/EnvLoader.php';
+use YFEvents\Utils\EnvLoader;
+EnvLoader::load();
+
 return [
     'email' => [
         // IMAP Configuration for receiving emails
         'imap_server' => '{imap.gmail.com:993/imap/ssl}INBOX',
-        'username' => 'yakimafinds@gmail.com',
-        'password' => 'xvencxmrzzzyioou', // Gmail app password
+        'username' => EnvLoader::get('SMTP_USERNAME', 'yakimafinds@gmail.com'),
+        'password' => EnvLoader::get('SMTP_PASSWORD', ''), // Gmail app password from .env
         
         // Alternative configurations for different email providers
         'gmail' => [
             'imap_server' => '{imap.gmail.com:993/imap/ssl}INBOX',
-            'username' => 'YOUR_EMAIL@gmail.com',
-            'password' => 'YOUR_APP_PASSWORD', // App-specific password for Gmail
+            'username' => EnvLoader::get('SMTP_USERNAME', ''),
+            'password' => EnvLoader::get('SMTP_PASSWORD', ''), // App-specific password for Gmail
         ],
         
         'cpanel' => [
             'imap_server' => '{mail.yourdomain.com:993/imap/ssl}INBOX',
             'username' => 'events@yourdomain.com', 
-            'password' => 'YOUR_CPANEL_PASSWORD', // cPanel email password
+            'password' => '', // cPanel email password
         ],
         
         // SMTP Configuration for sending confirmation emails
         'smtp' => [
-            'host' => 'smtp.gmail.com',
-            'port' => 587,
-            'username' => 'yakimafinds@gmail.com',
-            'password' => 'xvencxmrzzzyioou',
+            'host' => EnvLoader::get('SMTP_HOST', 'smtp.gmail.com'),
+            'port' => (int)EnvLoader::get('SMTP_PORT', 587),
+            'username' => EnvLoader::get('SMTP_USERNAME', ''),
+            'password' => EnvLoader::get('SMTP_PASSWORD', ''),
             'encryption' => 'tls'
         ],
         

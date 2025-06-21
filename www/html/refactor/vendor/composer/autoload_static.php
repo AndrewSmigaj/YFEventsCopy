@@ -30,6 +30,7 @@ class ComposerStaticInit4c3d7858e7155c3883fd3627a4102199
         array (
             'YakimaFinds\\Tests\\' => 18,
             'YakimaFinds\\' => 12,
+            'YFEvents\\' => 9,
         ),
         'S' => 
         array (
@@ -116,6 +117,10 @@ class ComposerStaticInit4c3d7858e7155c3883fd3627a4102199
             0 => __DIR__ . '/../..' . '/tests',
         ),
         'YakimaFinds\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
+        'YFEvents\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),

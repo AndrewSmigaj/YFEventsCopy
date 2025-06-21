@@ -1,6 +1,7 @@
 # API Keys and Secrets
 config/api_keys.php
 config/email.php
+config/database.php
 config/backup.php
 *.key
 *.pem

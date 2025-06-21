@@ -1,7 +1,9 @@
 <?php
 // Admin Shops Management Page
-require_once __DIR__ . '/auth_check.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/bootstrap.php';
+
+// Get database connection
+$db = $GLOBALS['db'] ?? null;
 
 // Set correct base path for refactor admin
 $basePath = '/refactor';
@@ -305,8 +307,8 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
-        const apiBasePath = '<?= $basePath ?>'; // API calls should use same base path
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
+        const apiBasePath = '<?php echo $basePath; ?>' || '/refactor'; // API calls should use same base path
         let shopsData = [];
         let filteredShops = [];
         

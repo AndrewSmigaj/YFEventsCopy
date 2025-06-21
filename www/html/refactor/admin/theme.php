@@ -1,14 +1,9 @@
 <?php
 // Admin Theme Editor Page
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/bootstrap.php';
 
-// Check admin authentication
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /refactor/admin/login');
-    exit;
-}
+// Get database connection
+$db = $GLOBALS['db'] ?? null;
 
 // Set correct base path for refactor admin
 $basePath = '/refactor';
@@ -455,8 +450,8 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
-        const apiBasePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
+        const apiBasePath = '<?php echo $basePath; ?>' || '/refactor';
         let currentTab = 'appearance';
         let themeSettings = {};
         let seoSettings = {};

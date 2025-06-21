@@ -342,7 +342,7 @@ $basePath = '/refactor';
     </div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
         let resendTimeout = 0;
         let contactData = {};
         

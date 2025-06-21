@@ -1,14 +1,9 @@
 <?php
 // Admin Scrapers Management Page
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/bootstrap.php';
 
-// Check admin authentication
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /refactor/admin/login');
-    exit;
-}
+// Get database connection
+$db = $GLOBALS['db'] ?? null;
 
 // Set correct base path for refactor admin
 $basePath = '/refactor';
@@ -213,13 +208,15 @@ $basePath = '/refactor';
                 <div class="form-row">
                     <div class="form-group">
                         <label for="scraperType">Type *</label>
-                        <select id="scraperType" name="type" required>
+                        <select id="scraperType" name="type" required onchange="updateScraperOptions()">
                             <option value="">Select Type</option>
                             <option value="ical">iCal/ICS Calendar</option>
                             <option value="html">HTML Scraping</option>
                             <option value="json">JSON API</option>
                             <option value="eventbrite">Eventbrite</option>
                             <option value="facebook">Facebook Events</option>
+                            <option value="intelligent">Intelligent (LLM-powered)</option>
+                            <option value="firecrawl">Firecrawl (JavaScript rendering)</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -233,6 +230,7 @@ $basePath = '/refactor';
                 <div class="form-group">
                     <label for="scraperConfig">Configuration (JSON)</label>
                     <textarea id="scraperConfig" name="config" placeholder='{"selectors": {"title": ".event-title", "date": ".event-date"}}'></textarea>
+                    <div id="configHelp" class="form-help" style="display:none; margin-top: 10px; font-size: 0.9em; color: #666;"></div>
                 </div>
                 
                 <div class="form-actions">
@@ -273,8 +271,10 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
-        const apiBasePath = '<?= $basePath ?>'; // API calls should use same base path
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
+        const apiBasePath = '<?php echo $basePath; ?>' || '/refactor'; // API calls should use same base path
+        console.log('basePath is set to:', basePath);
+        console.log('apiBasePath is set to:', apiBasePath);
         let scrapersData = [];
         let selectedScrapers = new Set();
         
@@ -363,6 +363,14 @@ $basePath = '/refactor';
                 const lastRun = scraper.last_run ? new Date(scraper.last_run).toLocaleString() : 'Never';
                 const status = scraper.status === 'active' ? 'active' : 'inactive';
                 
+                // Check if this is a Firecrawl scraper
+                let typeDisplay = scraper.type;
+                if (scraper.type === 'firecrawl') {
+                    typeDisplay = `${scraper.type} <span class="badge badge-info" style="font-size: 0.7em;">🔥 JS Rendering</span>`;
+                } else if (scraper.type === 'intelligent') {
+                    typeDisplay = `${scraper.type} <span class="badge badge-info" style="font-size: 0.7em;">🤖 AI-Powered</span>`;
+                }
+                
                 html += `
                     <div class="scraper-card">
                         <div class="scraper-header">
@@ -375,7 +383,7 @@ $basePath = '/refactor';
                         
                         <div class="scraper-stats">
                             <div class="stat-item">
-                                <div class="stat-item-value">${scraper.type}</div>
+                                <div class="stat-item-value">${typeDisplay}</div>
                                 <div class="stat-item-label">Type</div>
                             </div>
                             <div class="stat-item">
@@ -469,10 +477,118 @@ $basePath = '/refactor';
             document.getElementById('scraperForm').reset();
             document.getElementById('scraperId').value = '';
             document.getElementById('scraperModal').classList.add('show');
+            updateScraperOptions();
+        }
+        
+        function updateScraperOptions() {
+            const scraperType = document.getElementById('scraperType').value;
+            const configHelp = document.getElementById('configHelp');
+            const configTextarea = document.getElementById('scraperConfig');
+            
+            let helpText = '';
+            let placeholder = '';
+            
+            switch(scraperType) {
+                case 'firecrawl':
+                    helpText = `<strong>Firecrawl Configuration:</strong><br>
+                    • <code>location</code>: City name (e.g., "Yakima")<br>
+                    • <code>state</code>: State code (e.g., "wa")<br>
+                    • <code>categories</code>: Array of event categories<br>
+                    • <code>max_pages</code>: Maximum pages to scrape<br>
+                    • <code>rate_limit</code>: Rate limiting settings<br>
+                    <br><strong>Note:</strong> Requires Firecrawl API key in .env file`;
+                    placeholder = '{"location": "Yakima", "state": "wa", "categories": ["music", "arts"], "max_pages": 3, "rate_limit": {"requests_per_minute": 30, "delay_seconds": 2}}';
+                    break;
+                case 'intelligent':
+                    helpText = `<strong>Intelligent Scraper Configuration:</strong><br>
+                    • <code>prompt</code>: Instructions for the AI<br>
+                    • <code>max_events</code>: Maximum events to extract<br>
+                    • <code>model</code>: AI model to use`;
+                    placeholder = '{"prompt": "Extract all events with dates and locations", "max_events": 50}';
+                    break;
+                case 'html':
+                    helpText = `<strong>HTML Scraper Configuration:</strong><br>
+                    • <code>selectors</code>: CSS selectors for event data<br>
+                    • <code>date_format</code>: Date parsing format`;
+                    placeholder = '{"selectors": {"title": ".event-title", "date": ".event-date", "location": ".event-location"}}';
+                    break;
+                case 'ical':
+                    helpText = `<strong>iCal Configuration:</strong><br>
+                    • Usually no configuration needed<br>
+                    • <code>timezone</code>: Override timezone if needed`;
+                    placeholder = '{}';
+                    break;
+                case 'json':
+                    helpText = `<strong>JSON API Configuration:</strong><br>
+                    • <code>headers</code>: Custom headers<br>
+                    • <code>params</code>: Query parameters`;
+                    placeholder = '{"headers": {"Authorization": "Bearer TOKEN"}, "params": {"limit": 100}}';
+                    break;
+                default:
+                    helpText = '';
+                    placeholder = '{}';
+            }
+            
+            if (helpText) {
+                configHelp.innerHTML = helpText;
+                configHelp.style.display = 'block';
+            } else {
+                configHelp.style.display = 'none';
+            }
+            
+            if (placeholder) {
+                configTextarea.placeholder = placeholder;
+            }
         }
         
         function closeModal() {
             document.getElementById('scraperModal').classList.remove('show');
+        }
+        
+        function showRunModal() {
+            document.getElementById('runModal').classList.add('show');
+        }
+        
+        function closeRunModal() {
+            document.getElementById('runModal').classList.remove('show');
+        }
+        
+        async function startScraping() {
+            const selectedSources = [];
+            document.querySelectorAll('#runModal input[type="checkbox"]:checked').forEach(cb => {
+                selectedSources.push(parseInt(cb.value));
+            });
+            
+            if (selectedSources.length === 0) {
+                showToast('Please select at least one source', 'error');
+                return;
+            }
+            
+            try {
+                showToast('Starting scrapers...', 'info');
+                const response = await fetch(`${apiBasePath}/api/scrapers/run-all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ source_ids: selectedSources })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(`Scraping completed! Processed ${selectedSources.length} sources`, 'success');
+                    closeRunModal();
+                    loadStatistics();
+                    loadScrapers();
+                } else {
+                    showToast(result.message || 'Scraping failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error during scraping:', error);
+                showToast('Error starting scrapers', 'error');
+            }
         }
         
         function showToast(message, type = 'success') {

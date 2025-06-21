@@ -1,10 +1,15 @@
 <?php
 // Admin Events Management Page
-require_once __DIR__ . '/auth_check.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/bootstrap.php';
 
 // Set correct base path for refactor admin
 $basePath = '/refactor';
+
+// Get database connection
+$db = $GLOBALS['db'] ?? null;
+if (!$db) {
+    die('Database connection not available');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -280,7 +285,8 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
+        console.log('basePath is set to:', basePath);
         let currentPage = 1;
         let selectedEvents = new Set();
         let currentFilters = {};
@@ -293,14 +299,18 @@ $basePath = '/refactor';
         });
         
         async function loadStatistics() {
+            console.log('Loading statistics from:', `${basePath}/api/admin/events/statistics.php`);
             try {
                 const response = await fetch(`${basePath}/api/admin/events/statistics`, {
                     credentials: 'include'
                 });
+                console.log('Statistics API response status:', response.status);
                 const data = await response.json();
+                console.log('Statistics data received:', data);
                 
                 if (data.success) {
                     const stats = data.data.statistics;
+                    console.log('Updating statistics display with:', stats);
                     updateStatisticsDisplay(stats);
                 } else {
                     // Fallback: show zeros with error message
@@ -318,23 +328,23 @@ $basePath = '/refactor';
             const statsRow = document.getElementById('statsRow');
             statsRow.innerHTML = `
                 <div class="stat-card" onclick="filterByStatus('all')" style="cursor: pointer;">
-                    <div class="stat-number">${stats.total || 0}</div>
+                    <div class="stat-number">${stats.total_events || 0}</div>
                     <div class="stat-label">Total Events</div>
                 </div>
                 <div class="stat-card" onclick="filterByStatus('pending')" style="cursor: pointer;">
-                    <div class="stat-number">${stats.pending || 0}</div>
+                    <div class="stat-number">${stats.pending_events || 0}</div>
                     <div class="stat-label">Pending</div>
                 </div>
                 <div class="stat-card" onclick="filterByStatus('approved')" style="cursor: pointer;">
-                    <div class="stat-number">${stats.approved || 0}</div>
+                    <div class="stat-number">${stats.approved_events || 0}</div>
                     <div class="stat-label">Approved</div>
                 </div>
                 <div class="stat-card" onclick="filterByFeatured()" style="cursor: pointer;">
-                    <div class="stat-number">${stats.featured || 0}</div>
+                    <div class="stat-number">${stats.featured_events || 0}</div>
                     <div class="stat-label">Featured</div>
                 </div>
                 <div class="stat-card" onclick="filterByDate('today')" style="cursor: pointer;">
-                    <div class="stat-number">${stats.today || 0}</div>
+                    <div class="stat-number">${stats.todays_events || 0}</div>
                     <div class="stat-label">Today's Events</div>
                 </div>
             `;
@@ -372,6 +382,7 @@ $basePath = '/refactor';
         }
         
         async function loadEvents(page = 1) {
+            console.log('Loading events from page:', page);
             try {
                 currentPage = page;
                 const params = new URLSearchParams({
@@ -380,15 +391,21 @@ $basePath = '/refactor';
                     ...currentFilters
                 });
                 
-                const response = await fetch(`${basePath}/api/admin/events?${params}`, {
+                const url = `${basePath}/api/admin/events.php?${params}`;
+                console.log('Events API URL:', url);
+                const response = await fetch(url, {
                     credentials: 'include'
                 });
+                console.log('Events API response status:', response.status);
                 const data = await response.json();
+                console.log('Events data received:', data);
                 
                 if (data.success) {
                     const events = data.data.events || [];
+                    console.log('Rendering events table with', events.length, 'events');
                     renderEventsTable(events);
                 } else {
+                    console.error('Events API failed:', data.message);
                     showToast(data.message || 'Failed to load events', 'error');
                     renderEventsTable([]);
                 }
@@ -408,8 +425,8 @@ $basePath = '/refactor';
         }
         
         function filterByFeatured() {
-            document.getElementById('featuredFilter').value = 'featured';
-            currentFilters.featured = 'featured';
+            // Filter by featured events by modifying the status filter
+            currentFilters.featured = '1';
             applyFilters();
             showToast('Showing featured events only', 'info');
         }
@@ -550,8 +567,7 @@ $basePath = '/refactor';
         function applyFilters() {
             currentFilters = {
                 search: document.getElementById('searchInput').value,
-                status: document.getElementById('statusFilter').value,
-                featured: document.getElementById('featuredFilter').value
+                status: document.getElementById('statusFilter').value
             };
             
             const dateFilter = document.getElementById('dateFilter').value;
@@ -566,7 +582,6 @@ $basePath = '/refactor';
             document.getElementById('searchInput').value = '';
             document.getElementById('statusFilter').value = 'all';
             document.getElementById('dateFilter').value = 'all';
-            document.getElementById('featuredFilter').value = 'all';
             currentFilters = {};
             loadEvents(1);
         }
@@ -762,13 +777,27 @@ $basePath = '/refactor';
         async function forceScrape() {
             // Load available scraper sources
             try {
-                const response = await fetch(`${basePath}/api/scrapers`);
-                const data = await response.json();
+                const url = `${basePath}/api/scrapers.php`;
+                console.log('Fetching scrapers from:', url);
+                const response = await fetch(url, {
+                    credentials: 'include'
+                });
+                console.log('Scrapers response status:', response.status);
+                console.log('Scrapers response headers:', response.headers);
+                
+                const responseText = await response.text();
+                console.log('Raw response:', responseText.substring(0, 200));
+                
+                const data = JSON.parse(responseText);
+                console.log('Parsed scrapers data:', data);
                 
                 if (data.success) {
                     scraperSources = data.data;
                     renderScraperSources();
                     document.getElementById('scraperModal').classList.add('show');
+                } else {
+                    console.error('API returned error:', data.message);
+                    showToast('Failed to load scrapers: ' + data.message, 'error');
                 }
             } catch (error) {
                 console.error('Error loading scraper sources:', error);

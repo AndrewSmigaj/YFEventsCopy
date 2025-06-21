@@ -1,14 +1,9 @@
 <?php
 // Admin Settings Management Page
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/bootstrap.php';
 
-// Check admin authentication
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /refactor/admin/login');
-    exit;
-}
+// Get database connection
+$db = $GLOBALS['db'] ?? null;
 
 // Load configuration
 $configFile = __DIR__ . '/../config/app.php';
@@ -574,7 +569,7 @@ $basePath = '/refactor';
     </div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
         
         function showTab(tabName) {
             // Hide all tabs

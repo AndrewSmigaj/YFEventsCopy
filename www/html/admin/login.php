@@ -1,8 +1,10 @@
 <?php
-session_start();
+// Load authentication service
+require_once dirname(__DIR__, 3) . '/src/Services/AuthService.php';
+use YFEvents\Services\AuthService;
 
 // Check if already logged in
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+if (AuthService::isAdminLoggedIn()) {
     header('Location: /admin/');
     exit;
 }
@@ -14,11 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    // Check credentials (YakFind/MapTime)
-    if ($username === 'YakFind' && $password === 'MapTime') {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_username'] = $username;
-        $_SESSION['login_time'] = time();
+    // Verify credentials using centralized auth service
+    if (AuthService::verifyAdminCredentials($username, $password)) {
+        AuthService::startAdminSession($username);
         
         // Redirect to requested page or admin panel
         $redirect = $_GET['redirect'] ?? $_POST['redirect'] ?? './';

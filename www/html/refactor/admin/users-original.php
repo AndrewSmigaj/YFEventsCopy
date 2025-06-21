@@ -685,7 +685,7 @@ if ($basePath === '/') {
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?= $basePath ?>';
+        const basePath = '<?php echo $basePath; ?>' || '/refactor';
         let currentPage = 1;
         let selectedUsers = new Set();
         let currentFilters = {};

@@ -5,8 +5,7 @@
  * Allows enabling/disabling modules and viewing module information
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/auth_check.php';
+require_once __DIR__ . '/bootstrap.php';
 
 use YakimaFinds\Infrastructure\Config\ConfigManager;
 
