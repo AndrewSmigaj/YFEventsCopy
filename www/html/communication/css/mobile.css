@@ -1,0 +1,414 @@
+/* Mobile Theme for YFEvents Communication Hub */
+
+/* Mobile-specific variables */
+:root {
+    --mobile-header-height: 56px;
+    --mobile-bottom-nav-height: 60px;
+    --mobile-safe-area-inset-top: env(safe-area-inset-top);
+    --mobile-safe-area-inset-bottom: env(safe-area-inset-bottom);
+}
+
+/* Base mobile styles */
+@media (max-width: 768px) {
+    /* Prevent horizontal scrolling */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    /* Mobile layout structure */
+    body {
+        padding-top: calc(var(--mobile-header-height) + var(--mobile-safe-area-inset-top));
+        padding-bottom: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-area-inset-bottom));
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Mobile header */
+    .mobile-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--mobile-header-height);
+        background: var(--bs-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 1rem;
+        z-index: 1040;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-header .header-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .mobile-header .header-action {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        margin: -0.5rem;
+    }
+    
+    /* Mobile bottom navigation */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: var(--mobile-bottom-nav-height);
+        background: white;
+        border-top: 1px solid var(--bs-gray-300);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 1040;
+        padding-bottom: var(--mobile-safe-area-inset-bottom);
+    }
+    
+    .mobile-bottom-nav .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem;
+        color: var(--bs-gray-600);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .mobile-bottom-nav .nav-item.active {
+        color: var(--bs-primary);
+    }
+    
+    .mobile-bottom-nav .nav-item i {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .mobile-bottom-nav .nav-item span {
+        font-size: 0.75rem;
+    }
+    
+    /* Hide desktop sidebar on mobile */
+    #channelSidebar {
+        display: none;
+    }
+    
+    /* Mobile channel list (slide-out drawer) */
+    .mobile-channel-drawer {
+        position: fixed;
+        top: var(--mobile-header-height);
+        left: -100%;
+        width: 85%;
+        max-width: 320px;
+        height: calc(100vh - var(--mobile-header-height) - var(--mobile-bottom-nav-height));
+        background: white;
+        z-index: 1050;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    }
+    
+    .mobile-channel-drawer.show {
+        left: 0;
+    }
+    
+    .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1049;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+    }
+    
+    .mobile-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Mobile message area */
+    .message-area {
+        padding: 0;
+        height: calc(100vh - var(--mobile-header-height) - var(--mobile-bottom-nav-height));
+    }
+    
+    #messageList {
+        padding: 1rem;
+        padding-bottom: 5rem;
+    }
+    
+    /* Mobile message input */
+    .message-input-container {
+        position: fixed;
+        bottom: var(--mobile-bottom-nav-height);
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid var(--bs-gray-300);
+        padding: 0.75rem;
+        z-index: 1030;
+    }
+    
+    .message-input-container .input-group {
+        margin-bottom: 0;
+    }
+    
+    #messageInput {
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .input-group .btn {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0.5rem;
+    }
+    
+    /* Mobile message bubbles */
+    .message {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+    }
+    
+    .message.own {
+        flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--bs-gray-300);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+        margin: 0 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .message-bubble {
+        max-width: 75%;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        background: var(--bs-gray-100);
+        word-wrap: break-word;
+    }
+    
+    .message.own .message-bubble {
+        background: var(--bs-primary);
+        color: white;
+    }
+    
+    .message-header {
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+        opacity: 0.7;
+    }
+    
+    .message-time {
+        font-size: 0.625rem;
+        opacity: 0.6;
+        margin-top: 0.25rem;
+    }
+    
+    /* Mobile modals */
+    .modal-dialog {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    .modal-content {
+        border-radius: 1rem;
+    }
+    
+    /* Touch-friendly buttons */
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1.5rem;
+        touch-action: manipulation;
+    }
+    
+    /* Mobile form inputs */
+    .form-control, .form-select {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Swipe actions */
+    .swipeable {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .swipe-actions {
+        position: absolute;
+        top: 0;
+        right: -100px;
+        bottom: 0;
+        width: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bs-danger);
+        color: white;
+        transition: right 0.3s ease;
+    }
+    
+    .swipeable.swiped .swipe-actions {
+        right: 0;
+    }
+    
+    /* Pull to refresh */
+    .pull-to-refresh {
+        position: absolute;
+        top: -60px;
+        left: 0;
+        right: 0;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: top 0.3s ease;
+    }
+    
+    .pull-to-refresh.show {
+        top: var(--mobile-header-height);
+    }
+    
+    .pull-to-refresh .spinner-border {
+        width: 30px;
+        height: 30px;
+    }
+    
+    /* Mobile-optimized scrollbar */
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.2);
+        border-radius: 2px;
+    }
+    
+    /* Disable hover effects on mobile */
+    @media (hover: none) {
+        .btn:hover {
+            background-color: inherit;
+        }
+        
+        .list-group-item:hover {
+            background-color: inherit;
+        }
+    }
+}
+
+/* PWA specific styles */
+@media (display-mode: standalone) {
+    /* Adjust for PWA status bar */
+    .mobile-header {
+        padding-top: var(--mobile-safe-area-inset-top);
+        height: calc(var(--mobile-header-height) + var(--mobile-safe-area-inset-top));
+    }
+    
+    /* Hide install prompt in PWA mode */
+    .install-prompt {
+        display: none;
+    }
+}
+
+/* Landscape mode adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .mobile-bottom-nav {
+        height: 50px;
+    }
+    
+    .mobile-bottom-nav .nav-item span {
+        display: none;
+    }
+    
+    .message-area {
+        height: calc(100vh - var(--mobile-header-height) - 50px);
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .mobile-header {
+        background: #1a1a1a;
+    }
+    
+    .mobile-bottom-nav {
+        background: #2a2a2a;
+        border-top-color: #444;
+    }
+    
+    .mobile-channel-drawer {
+        background: #2a2a2a;
+        color: white;
+    }
+    
+    .message-bubble {
+        background: #3a3a3a;
+        color: white;
+    }
+    
+    .message.own .message-bubble {
+        background: #0056b3;
+    }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+    /* Fix for iOS rubber band scrolling */
+    .message-area {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix for iOS keyboard */
+    .message-input-container {
+        position: -webkit-sticky;
+        position: sticky;
+    }
+}
+
+/* Android specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    /* Fix for Android keyboard */
+    body.keyboard-open {
+        padding-bottom: 0;
+    }
+    
+    body.keyboard-open .mobile-bottom-nav {
+        display: none;
+    }
+    
+    body.keyboard-open .message-input-container {
+        bottom: 0;
+    }
+}

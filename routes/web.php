@@ -15,6 +15,9 @@ use YakimaFinds\Presentation\Http\Controllers\AdminDashboardController;
 
 /** @var Router $router */
 
+// Home route
+$router->get('/', EventController::class, 'getCalendarEvents');
+
 // Public event routes
 $router->get('/events', EventController::class, 'getCalendarEvents');
 $router->get('/events/{id}', EventController::class, 'getEvent');

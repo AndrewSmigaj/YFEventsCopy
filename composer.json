@@ -21,7 +21,8 @@
     },
     "autoload": {
         "psr-4": {
-            "YakimaFinds\\": "src/"
+            "YakimaFinds\\": "src/",
+            "YFEvents\\": "src/"
         }
     },
     "autoload-dev": {

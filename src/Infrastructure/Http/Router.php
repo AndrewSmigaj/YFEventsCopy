@@ -74,7 +74,7 @@ class Router
      */
     public function dispatch(): void
     {
-        $method = $_SERVER['REQUEST_METHOD'];
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $path = $this->getCurrentPath();
 
         foreach ($this->routes as $route) {
@@ -177,7 +177,7 @@ class Router
             'error' => true,
             'message' => 'Route not found',
             'path' => $this->getCurrentPath(),
-            'method' => $_SERVER['REQUEST_METHOD']
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN'
         ]);
     }
 

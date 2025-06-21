@@ -14,9 +14,21 @@ use RuntimeException;
  */
 class Container implements ContainerInterface
 {
+    private static ?Container $instance = null;
     private array $bindings = [];
     private array $instances = [];
     private array $singletons = [];
+    
+    /**
+     * Get singleton instance of container
+     */
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
     public function bind(string $abstract, string|callable $concrete): void
     {
@@ -26,6 +38,14 @@ class Container implements ContainerInterface
     public function singleton(string $abstract, string|callable $concrete): void
     {
         $this->singletons[$abstract] = $concrete;
+    }
+    
+    /**
+     * Register a binding in the container (alias for bind)
+     */
+    public function register(string $abstract, string|callable $concrete): void
+    {
+        $this->bind($abstract, $concrete);
     }
 
     public function instance(string $abstract, object $instance): void
