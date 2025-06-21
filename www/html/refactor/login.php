@@ -25,17 +25,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_role'] = $user['role'];
             
-            // Check if user has a shop (vendor)
-            $stmt = $pdo->prepare("SELECT shop_id FROM shop_owners WHERE user_id = :user_id");
-            $stmt->execute(['user_id' => $user['id']]);
-            $shopOwner = $stmt->fetch();
+            // Check if user is a vendor/seller (for YFClaim/estate sales)
+            // Vendors are identified by having an entry in yfc_sellers table
+            try {
+                $stmt = $pdo->prepare("SELECT id, company_name FROM yfc_sellers WHERE user_id = :user_id");
+                $stmt->execute(['user_id' => $user['id']]);
+                $seller = $stmt->fetch();
+                
+                if ($seller) {
+                    $_SESSION['is_vendor'] = true;
+                    $_SESSION['seller_id'] = $seller['id'];
+                    $_SESSION['company_name'] = $seller['company_name'];
+                }
+            } catch (PDOException $e) {
+                // Table might not exist, ignore
+            }
             
-            if ($shopOwner) {
-                $_SESSION['shop_id'] = $shopOwner['shop_id'];
+            // Check if user owns a local shop
+            $stmt = $pdo->prepare("SELECT id, name FROM local_shops WHERE owner_id = :user_id");
+            $stmt->execute(['user_id' => $user['id']]);
+            $shop = $stmt->fetch();
+            
+            if ($shop) {
+                $_SESSION['shop_id'] = $shop['id'];
+                $_SESSION['shop_name'] = $shop['name'];
+                $_SESSION['is_shop_owner'] = true;
             }
             
             // Redirect to communication hub
-            header('Location: /communication/');
+            header('Location: /refactor/communication/');
             exit;
         } else {
             $error = 'Invalid email or password';
