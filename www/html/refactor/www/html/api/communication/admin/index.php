@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once __DIR__ . '/../../../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../../../config/database.php';
-require_once __DIR__ . '/../../../../../config/bootstrap.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/bootstrap.php';
 
 // Check admin privileges
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
@@ -134,8 +134,7 @@ function handleUsers($method, $segments, $db) {
             } else {
                 // Get all users with filters
                 $sql = "SELECT id, username, email, first_name, last_name, role, 
-                               created_at, last_login_at as last_active_at,
-                               CASE WHEN is_active = 1 THEN 'active' ELSE 'suspended' END as status
+                               created_at, last_login as last_active_at, status
                         FROM users WHERE 1=1";
                 $params = [];
                 
@@ -151,8 +150,8 @@ function handleUsers($method, $segments, $db) {
                 }
                 
                 if (isset($_GET['status'])) {
-                    $sql .= " AND is_active = ?";
-                    $params[] = $_GET['status'] === 'active' ? 1 : 0;
+                    $sql .= " AND status = ?";
+                    $params[] = $_GET['status'];
                 }
                 
                 $sql .= " ORDER BY created_at DESC";
@@ -213,10 +212,10 @@ function handleUsers($method, $segments, $db) {
             if (isset($segments[2]) && $segments[2] === 'status') {
                 // Update user status
                 $data = json_decode(file_get_contents('php://input'), true);
-                $isActive = $data['status'] === 'active' ? 1 : 0;
+                $status = $data['status'];
                 
-                $stmt = $db->prepare("UPDATE users SET is_active = ? WHERE id = ?");
-                $stmt->execute([$isActive, $userId]);
+                $stmt = $db->prepare("UPDATE users SET status = ? WHERE id = ?");
+                $stmt->execute([$status, $userId]);
                 
                 echo json_encode(['success' => true]);
             } else {
@@ -261,7 +260,7 @@ function handleUsers($method, $segments, $db) {
             }
             
             // Don't actually delete, just deactivate
-            $stmt = $db->prepare("UPDATE users SET is_active = 0 WHERE id = ?");
+            $stmt = $db->prepare("UPDATE users SET status = 'inactive' WHERE id = ?");
             $stmt->execute([$userId]);
             
             echo json_encode(['success' => true]);

@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
         
-        $stmt = $pdo->prepare("SELECT id, username, email, password_hash, first_name, last_name, role FROM users WHERE email = :email AND is_active = 1 AND role = 'admin'");
+        $stmt = $pdo->prepare("SELECT id, username, email, password_hash, first_name, last_name, role FROM users WHERE email = :email AND status = 'active' AND role = 'admin'");
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
         
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
             
             // Update last login
-            $updateStmt = $pdo->prepare("UPDATE users SET last_login_at = NOW() WHERE id = :id");
+            $updateStmt = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = :id");
             $updateStmt->execute(['id' => $user['id']]);
             
             header('Location: /refactor/admin/');

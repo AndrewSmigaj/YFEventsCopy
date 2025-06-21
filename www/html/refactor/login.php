@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
         );
         
-        $stmt = $pdo->prepare("SELECT id, username, email, password_hash, first_name, last_name, role FROM users WHERE email = :email AND is_active = 1");
+        $stmt = $pdo->prepare("SELECT id, username, email, password_hash, first_name, last_name, role FROM users WHERE email = :email AND status = 'active'");
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
         
