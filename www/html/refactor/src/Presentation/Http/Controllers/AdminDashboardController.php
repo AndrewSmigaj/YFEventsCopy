@@ -641,6 +641,30 @@ class AdminDashboardController extends BaseController
                 <div class="stat-number" id="featured-events">-</div>
                 <div class="stat-label">Featured Events</div>
             </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-number" id="active-channels">-</div>
+                <div class="stat-label">Active Channels</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-number" id="total-users">-</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📨</div>
+                <div class="stat-number" id="total-messages">-</div>
+                <div class="stat-label">Messages Today</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📢</div>
+                <div class="stat-number" id="active-announcements">-</div>
+                <div class="stat-label">Active Announcements</div>
+            </div>
         </div>
         
         <div class="actions-grid">
@@ -705,6 +729,19 @@ class AdminDashboardController extends BaseController
             </div>
             
             <div class="action-section">
+                <div class="action-title">💬 Communication Hub</div>
+                <ul class="action-list">
+                    <li><a href="{$basePath}/admin/communication/" class="action-link">📊 Communication Dashboard</a></li>
+                    <li><a href="{$basePath}/admin/communication/#channels" class="action-link">📢 Manage Channels</a></li>
+                    <li><a href="{$basePath}/admin/communication/#users" class="action-link">👥 Manage Users</a></li>
+                    <li><a href="{$basePath}/admin/communication/#messages" class="action-link">💬 Message Moderation</a></li>
+                    <li><a href="{$basePath}/admin/communication/#announcements" class="action-link">📢 Announcements</a></li>
+                    <li><a href="{$basePath}/admin/communication/#statistics" class="action-link">📈 Usage Statistics</a></li>
+                    <li><a href="{$basePath}/communication/" class="action-link">👀 View Public Hub</a></li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
                 <div class="action-title">🔧 System Management</div>
                 <ul class="action-list">
                     <li><a href="{$basePath}/admin/modules.php" class="action-link">🧩 Module Management</a></li>
@@ -755,6 +792,22 @@ class AdminDashboardController extends BaseController
                     if (shopStats.success) {
                         document.getElementById('total-shops').textContent = shopStats.data.statistics.total || 0;
                     }
+                }
+                
+                // Load communication statistics
+                try {
+                    const commStatsResponse = await fetch('{$basePath}/api/communication/admin/statistics');
+                    if (commStatsResponse.ok) {
+                        const commStats = await commStatsResponse.json();
+                        if (commStats.success) {
+                            document.getElementById('active-channels').textContent = commStats.data.channels || 0;
+                            document.getElementById('total-users').textContent = commStats.data.users || 0;
+                            document.getElementById('total-messages').textContent = commStats.data.messages_today || 0;
+                            document.getElementById('active-announcements').textContent = commStats.data.announcements || 0;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading communication stats:', error);
                 }
                 
                 // Load recent activity
