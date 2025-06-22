@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Events;
+namespace YFEvents\Domain\Events;
 
-use YakimaFinds\Domain\Common\RepositoryInterface;
+use YFEvents\Domain\Common\RepositoryInterface;
 use DateTimeInterface;
 
 /**

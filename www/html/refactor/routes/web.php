@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-use YakimaFinds\Infrastructure\Http\Router;
-use YakimaFinds\Presentation\Http\Controllers\EventController;
-use YakimaFinds\Presentation\Http\Controllers\AdminEventController;
-use YakimaFinds\Presentation\Http\Controllers\ShopController;
-use YakimaFinds\Presentation\Http\Controllers\AdminShopController;
-use YakimaFinds\Presentation\Http\Controllers\AdminDashboardController;
-use YakimaFinds\Presentation\Http\Controllers\HomeController;
-use YakimaFinds\Presentation\Http\Controllers\AuthController;
-use YakimaFinds\Presentation\Http\Controllers\ClaimsController;
-use YakimaFinds\Presentation\Http\Controllers\ClassifiedsController;
+use YFEvents\Infrastructure\Http\Router;
+use YFEvents\Presentation\Http\Controllers\EventController;
+use YFEvents\Presentation\Http\Controllers\AdminEventController;
+use YFEvents\Presentation\Http\Controllers\ShopController;
+use YFEvents\Presentation\Http\Controllers\AdminShopController;
+use YFEvents\Presentation\Http\Controllers\AdminDashboardController;
+use YFEvents\Presentation\Http\Controllers\HomeController;
+use YFEvents\Presentation\Http\Controllers\AuthController;
+use YFEvents\Presentation\Http\Controllers\ClaimsController;
+use YFEvents\Presentation\Http\Controllers\ClassifiedsController;
 
 /**
  * Web routes for the application

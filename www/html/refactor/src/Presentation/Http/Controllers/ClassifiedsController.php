@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Presentation\Http\Controllers;
+namespace YFEvents\Presentation\Http\Controllers;
 
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
-use YakimaFinds\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Container\Container;
 
 class ClassifiedsController extends BaseController
 {

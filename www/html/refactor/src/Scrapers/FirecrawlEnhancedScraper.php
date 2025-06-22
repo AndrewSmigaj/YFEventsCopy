@@ -1,8 +1,8 @@
 <?php
 
-namespace YakimaFinds\Scrapers;
+namespace YFEvents\Scrapers;
 
-use YakimaFinds\Utils\FirecrawlService;
+use YFEvents\Utils\FirecrawlService;
 
 /**
  * Firecrawl Enhanced Scraper

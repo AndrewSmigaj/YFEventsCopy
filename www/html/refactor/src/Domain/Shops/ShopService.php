@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Shops;
+namespace YFEvents\Domain\Shops;
 
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 use InvalidArgumentException;
 use RuntimeException;
 

@@ -16,6 +16,43 @@ class ChannelApiController
     public function __construct(CommunicationService $communicationService)
     {
         $this->communicationService = $communicationService;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+    
+    /**
+     * Get current user ID from session
+     */
+    private function getCurrentUserId(): int
+    {
+        if (!isset($_SESSION['user_id'])) {
+            $this->sendJsonError('Authentication required', 401);
+            exit;
+        }
+        return (int)$_SESSION['user_id'];
+    }
+    
+    /**
+     * Send JSON response
+     */
+    private function sendJsonResponse(array $data, int $statusCode = 200): void
+    {
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+    
+    /**
+     * Send JSON error response
+     */
+    private function sendJsonError(string $message, int $statusCode = 400): void
+    {
+        $this->sendJsonResponse([
+            'success' => false,
+            'error' => $message
+        ], $statusCode);
     }
     
     /**
@@ -50,7 +87,7 @@ class ChannelApiController
                 'data' => $data
             ]);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
@@ -76,7 +113,7 @@ class ChannelApiController
                 ]
             ], 201);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
@@ -92,7 +129,7 @@ class ChannelApiController
             $channel = $this->communicationService->getChannelById($id, $userId);
             
             if (!$channel) {
-                $this->sendErrorResponse('Channel not found', 404);
+                $this->sendJsonError('Channel not found', 404);
                 return;
             }
             
@@ -113,7 +150,7 @@ class ChannelApiController
                 ]
             ]);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
@@ -130,7 +167,7 @@ class ChannelApiController
             $channel = $this->communicationService->updateChannel($id, $userId, $data);
             
             if (!$channel) {
-                $this->sendErrorResponse('Channel not found or access denied', 404);
+                $this->sendJsonError('Channel not found or access denied', 404);
                 return;
             }
             
@@ -143,7 +180,7 @@ class ChannelApiController
                 ]
             ]);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
@@ -159,7 +196,7 @@ class ChannelApiController
             $result = $this->communicationService->deleteChannel($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Channel not found or access denied', 404);
+                $this->sendJsonError('Channel not found or access denied', 404);
                 return;
             }
             
@@ -168,7 +205,7 @@ class ChannelApiController
                 'message' => 'Channel deleted successfully'
             ]);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
@@ -183,7 +220,7 @@ class ChannelApiController
             $participant = $this->communicationService->joinChannel($id, $userId);
             
             if (!$participant) {
-                $this->sendErrorResponse('Already a member of this channel');
+                $this->sendJsonError('Already a member of this channel');
                 return;
             }
             
@@ -192,7 +229,7 @@ class ChannelApiController
                 'message' => 'Successfully joined channel'
             ]);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
@@ -207,7 +244,7 @@ class ChannelApiController
             $result = $this->communicationService->leaveChannel($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Not a member of this channel');
+                $this->sendJsonError('Not a member of this channel');
                 return;
             }
             
@@ -216,23 +253,10 @@ class ChannelApiController
                 'message' => 'Successfully left channel'
             ]);
         } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+            $this->sendJsonError($e->getMessage());
         }
     }
     
-    /**
-     * Get current user ID from session
-     */
-    private function getCurrentUserId(): int
-    {
-        session_start();
-        
-        if (!isset($_SESSION['user_id'])) {
-            throw new \RuntimeException('Not authenticated');
-        }
-        
-        return (int)$_SESSION['user_id'];
-    }
     
     /**
      * Get JSON input from request
@@ -249,25 +273,4 @@ class ChannelApiController
         return $data ?? [];
     }
     
-    /**
-     * Send JSON response
-     */
-    private function sendJsonResponse(array $data, int $statusCode = 200): void
-    {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-    
-    /**
-     * Send error response
-     */
-    private function sendErrorResponse(string $message, int $statusCode = 400): void
-    {
-        $this->sendJsonResponse([
-            'success' => false,
-            'error' => $message
-        ], $statusCode);
-    }
 }

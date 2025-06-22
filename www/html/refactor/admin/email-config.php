@@ -63,7 +63,7 @@ if (isset($_POST['test_connection'])) {
         if (!extension_loaded('imap')) {
             // Use alternative file-based processor
             require_once dirname(__DIR__) . '/src/Infrastructure/Email/CurlEmailProcessor.php';
-            $processor = new \YakimaFinds\Infrastructure\Email\CurlEmailProcessor($emailConfig);
+            $processor = new \YFEvents\Infrastructure\Email\CurlEmailProcessor($emailConfig);
             $result = $processor->testConnection();
             
             $testMessage = "IMAP extension not installed. Using file-based email processing instead.\n\n";

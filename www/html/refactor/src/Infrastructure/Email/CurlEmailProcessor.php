@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Email;
+namespace YFEvents\Infrastructure\Email;
 
 use Exception;
 

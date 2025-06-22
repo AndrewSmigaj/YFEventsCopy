@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Scrapers;
+namespace YFEvents\Infrastructure\Scrapers;
 
 /**
  * Scraper Interface

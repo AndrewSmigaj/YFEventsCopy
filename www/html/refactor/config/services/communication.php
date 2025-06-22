@@ -8,16 +8,16 @@ declare(strict_types=1);
  * Add these registrations to your main container configuration
  */
 
-use YakimaFinds\Infrastructure\Container\Container;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 
 // Import repositories
 use YFEvents\Domain\Communication\Repositories\ChannelRepositoryInterface;
 use YFEvents\Domain\Communication\Repositories\MessageRepositoryInterface;
 use YFEvents\Domain\Communication\Repositories\ParticipantRepositoryInterface;
-use YakimaFinds\Infrastructure\Repositories\Communication\ChannelRepository;
-use YakimaFinds\Infrastructure\Repositories\Communication\MessageRepository;
-use YakimaFinds\Infrastructure\Repositories\Communication\ParticipantRepository;
+use YFEvents\Infrastructure\Repositories\Communication\ChannelRepository;
+use YFEvents\Infrastructure\Repositories\Communication\MessageRepository;
+use YFEvents\Infrastructure\Repositories\Communication\ParticipantRepository;
 
 // Import services
 use YFEvents\Domain\Communication\Services\ChannelService;

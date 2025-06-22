@@ -7,7 +7,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-use YakimaFinds\Infrastructure\Config\ConfigManager;
+use YFEvents\Infrastructure\Config\ConfigManager;
 
 $configManager = ConfigManager::getInstance();
 $modulesConfig = require __DIR__ . '/../src/Infrastructure/Config/modules.php';

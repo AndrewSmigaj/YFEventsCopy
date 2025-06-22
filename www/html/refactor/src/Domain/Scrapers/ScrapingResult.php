@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Scrapers;
+namespace YFEvents\Domain\Scrapers;
 
-use YakimaFinds\Domain\Events\Event;
+use YFEvents\Domain\Events\Event;
 
 class ScrapingResult
 {

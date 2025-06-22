@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Presentation\Http\Controllers;
+namespace YFEvents\Presentation\Http\Controllers;
 
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
 use PDO;
 use Exception;
 
@@ -503,7 +503,7 @@ class ClaimsController extends BaseController
             if ($authMethod === 'sms') {
                 // Use SMS service
                 try {
-                    $smsService = new \YakimaFinds\Infrastructure\Services\SMSService();
+                    $smsService = new \YFEvents\Infrastructure\Services\SMSService();
                     $sent = $smsService->sendBuyerVerification($authValue, $authCode);
                 } catch (Exception $smsError) {
                     $errorMessage = $smsError->getMessage();

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Controllers\Admin;
+namespace YFEvents\Application\Controllers\Admin;
 
-use YakimaFinds\Application\Controllers\BaseController;
-use YakimaFinds\Application\Http\Request;
-use YakimaFinds\Application\Http\Response;
-use YakimaFinds\Application\Services\ConfigService;
-use YakimaFinds\Application\Validation\ConfigValidator;
+use YFEvents\Application\Controllers\BaseController;
+use YFEvents\Application\Http\Request;
+use YFEvents\Application\Http\Response;
+use YFEvents\Application\Services\ConfigService;
+use YFEvents\Application\Validation\ConfigValidator;
 
 class ConfigController extends BaseController
 {

@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Services;
+namespace YFEvents\Application\Services;
 
-use YakimaFinds\Domain\Claims\Sale;
-use YakimaFinds\Domain\Claims\Item;
-use YakimaFinds\Domain\Claims\Offer;
-use YakimaFinds\Domain\Claims\SaleRepositoryInterface;
-use YakimaFinds\Domain\Claims\ItemRepositoryInterface;
-use YakimaFinds\Domain\Claims\OfferRepositoryInterface;
-use YakimaFinds\Application\DTOs\PaginatedResult;
-use YakimaFinds\Infrastructure\Services\QRCodeService;
+use YFEvents\Domain\Claims\Sale;
+use YFEvents\Domain\Claims\Item;
+use YFEvents\Domain\Claims\Offer;
+use YFEvents\Domain\Claims\SaleRepositoryInterface;
+use YFEvents\Domain\Claims\ItemRepositoryInterface;
+use YFEvents\Domain\Claims\OfferRepositoryInterface;
+use YFEvents\Application\DTOs\PaginatedResult;
+use YFEvents\Infrastructure\Services\QRCodeService;
 use DateTime;
 
 class ClaimService

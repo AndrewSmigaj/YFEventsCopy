@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Repositories;
+namespace YFEvents\Infrastructure\Repositories;
 
-use YakimaFinds\Domain\Shops\Shop;
-use YakimaFinds\Domain\Shops\ShopRepositoryInterface;
-use YakimaFinds\Infrastructure\Database\AbstractRepository;
+use YFEvents\Domain\Shops\Shop;
+use YFEvents\Domain\Shops\ShopRepositoryInterface;
+use YFEvents\Infrastructure\Database\AbstractRepository;
 
 /**
  * Shop repository implementation

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Services;
+namespace YFEvents\Infrastructure\Services;
 
 use PDO;
 use Exception;
-use YakimaFinds\Domain\Event\Event;
+use YFEvents\Domain\Event\Event;
 
 /**
  * Email-based event processing service for Facebook events

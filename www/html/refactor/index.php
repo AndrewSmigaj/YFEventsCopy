@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use YakimaFinds\Application\Bootstrap;
-use YakimaFinds\Infrastructure\Http\Router;
+use YFEvents\Application\Bootstrap;
+use YFEvents\Infrastructure\Http\Router;
 
 // Enable error reporting for development
 error_reporting(E_ALL);
@@ -13,9 +13,9 @@ ini_set('display_errors', '1');
 require_once __DIR__ . '/vendor/autoload.php';
 
 try {
-    // Bootstrap the application
-    $container = Bootstrap::boot();
-    $config = $container->resolve(\YakimaFinds\Infrastructure\Config\ConfigInterface::class);
+    // Bootstrap the application with all services
+    $container = require __DIR__ . '/config/bootstrap.php';
+    $config = $container->resolve(\YFEvents\Infrastructure\Config\ConfigInterface::class);
 
     // Create router
     $router = new Router($container, $config);
@@ -31,6 +31,6 @@ try {
 
 } catch (\Exception $e) {
     // Handle bootstrap errors
-    $debug = defined('APP_ENV') && APP_ENV === 'development';
-    \YakimaFinds\Infrastructure\Http\ErrorHandler::handle500($e, $debug);
+    $debug = true; // Enable debug temporarily
+    \YFEvents\Infrastructure\Http\ErrorHandler::handle500($e, $debug);
 }

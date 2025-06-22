@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Http;
+namespace YFEvents\Infrastructure\Http;
 
 /**
  * Centralized error handling for HTTP responses

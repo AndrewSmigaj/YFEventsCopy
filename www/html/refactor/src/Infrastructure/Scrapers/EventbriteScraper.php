@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Scrapers;
+namespace YFEvents\Infrastructure\Scrapers;
 
-use YakimaFinds\Domain\Events\Event;
-use YakimaFinds\Infrastructure\Http\FirecrawlClient;
-use YakimaFinds\Infrastructure\Services\RateLimiter;
+use YFEvents\Domain\Events\Event;
+use YFEvents\Infrastructure\Http\FirecrawlClient;
+use YFEvents\Infrastructure\Services\RateLimiter;
 use DateTime;
 use Exception;
 

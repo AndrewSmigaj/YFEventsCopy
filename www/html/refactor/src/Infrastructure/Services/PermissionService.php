@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Services;
+namespace YFEvents\Infrastructure\Services;
 
 use PDO;
 use Exception;

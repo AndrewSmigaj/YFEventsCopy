@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Controllers\Admin;
+namespace YFEvents\Application\Controllers\Admin;
 
-use YakimaFinds\Application\Controllers\BaseController;
-use YakimaFinds\Application\Http\Request;
-use YakimaFinds\Application\Http\Response;
-use YakimaFinds\Application\Services\UserService;
-use YakimaFinds\Application\Validation\UserValidator;
+use YFEvents\Application\Controllers\BaseController;
+use YFEvents\Application\Http\Request;
+use YFEvents\Application\Http\Response;
+use YFEvents\Application\Services\UserService;
+use YFEvents\Application\Validation\UserValidator;
 
 class UserController extends BaseController
 {

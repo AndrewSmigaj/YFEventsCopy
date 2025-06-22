@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application;
+namespace YFEvents\Application;
 
-use YakimaFinds\Infrastructure\Container\Container;
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Providers\ServiceProvider;
+use YFEvents\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Providers\ServiceProvider;
 
 /**
  * Application bootstrap class

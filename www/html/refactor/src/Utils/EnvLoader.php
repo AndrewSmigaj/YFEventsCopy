@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Utils;
+namespace YFEvents\Utils;
 
 class EnvLoader
 {

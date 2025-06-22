@@ -1,9 +1,9 @@
 <?php
 
-namespace YakimaFinds\Scrapers\Intelligent;
+namespace YFEvents\Scrapers\Intelligent;
 
-use YakimaFinds\Models\EventModel;
-use YakimaFinds\Utils\GeocodeService;
+use YFEvents\Models\EventModel;
+use YFEvents\Utils\GeocodeService;
 
 class LLMScraper
 {

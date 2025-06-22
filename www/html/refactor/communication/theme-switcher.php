@@ -3,7 +3,7 @@
 session_start();
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use YakimaFinds\Infrastructure\Utils\MobileDetector;
+use YFEvents\Infrastructure\Utils\MobileDetector;
 
 $mobileDetector = new MobileDetector();
 

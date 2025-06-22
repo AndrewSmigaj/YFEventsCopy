@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Http;
+namespace YFEvents\Infrastructure\Http;
 
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
 
 /**
  * Simple HTTP router for handling requests
@@ -111,9 +111,14 @@ class Router
             $controllerClass = $route['controller'];
             $action = $route['action'];
 
-            // Instantiate controller with dependencies from container
-            $config = $this->container->resolve(\YakimaFinds\Infrastructure\Config\ConfigInterface::class);
-            $controller = new $controllerClass($this->container, $config);
+            // Try to resolve controller from container first, fall back to manual instantiation
+            try {
+                $controller = $this->container->resolve($controllerClass);
+            } catch (\Exception $e) {
+                // Fall back to manual instantiation for controllers that expect container and config
+                $config = $this->container->resolve(\YFEvents\Infrastructure\Config\ConfigInterface::class);
+                $controller = new $controllerClass($this->container, $config);
+            }
 
             // Extract path parameters
             $params = array_slice($matches, 1);

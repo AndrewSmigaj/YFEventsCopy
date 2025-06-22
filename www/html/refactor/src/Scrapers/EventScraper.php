@@ -1,11 +1,11 @@
 <?php
 
-namespace YakimaFinds\Scrapers;
+namespace YFEvents\Scrapers;
 
-use YakimaFinds\Models\EventModel;
-use YakimaFinds\Models\CalendarSourceModel;
-use YakimaFinds\Utils\GeocodeService;
-use YakimaFinds\Utils\SystemLogger;
+use YFEvents\Models\EventModel;
+use YFEvents\Models\CalendarSourceModel;
+use YFEvents\Utils\GeocodeService;
+use YFEvents\Utils\SystemLogger;
 
 class EventScraper
 {
@@ -546,7 +546,7 @@ class EventScraper
         
         // Use LLMScraper to apply the method
         require_once __DIR__ . '/Intelligent/LLMScraper.php';
-        $llmScraper = new \YakimaFinds\Scrapers\Intelligent\LLMScraper($this->db);
+        $llmScraper = new \YFEvents\Scrapers\Intelligent\LLMScraper($this->db);
         
         $result = $llmScraper->applyExistingMethod($source['url'], $method);
         

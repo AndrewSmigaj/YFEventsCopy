@@ -6,8 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'YakimaFinds\\Tests\\' => array($baseDir . '/tests'),
-    'YakimaFinds\\' => array($baseDir . '/src'),
+    'YFEvents\\Tests\\' => array($baseDir . '/tests'),
     'YFEvents\\' => array($baseDir . '/src'),
     'Symfony\\Polyfill\\Php81\\' => array($vendorDir . '/symfony/polyfill-php81'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),

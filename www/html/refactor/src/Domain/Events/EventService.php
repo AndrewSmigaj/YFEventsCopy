@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Events;
+namespace YFEvents\Domain\Events;
 
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 use DateTimeInterface;
 use DateTime;
 use InvalidArgumentException;

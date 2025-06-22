@@ -19,14 +19,14 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 // Bootstrap the application
-use YakimaFinds\Application\Bootstrap;
+use YFEvents\Application\Bootstrap;
 
 try {
     // Initialize the application container
     $container = Bootstrap::boot();
     
     // Get database connection from container
-    $db = $container->resolve(\YakimaFinds\Infrastructure\Database\ConnectionInterface::class);
+    $db = $container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
     
     // Make database connection available globally for legacy admin pages
     $GLOBALS['db'] = $db->getConnection();

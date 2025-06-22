@@ -12,13 +12,13 @@ try {
     
     // Test configuration
     echo "<h2>✅ Configuration Test</h2>\n";
-    $config = new \YakimaFinds\Infrastructure\Config\Config(__DIR__ . '/config');
+    $config = new \YFEvents\Infrastructure\Config\Config(__DIR__ . '/config');
     echo "<p>✅ Configuration loaded successfully</p>\n";
     echo "<p>Database: " . $config->get('database.name') . "</p>\n";
     
     // Test database connection
     echo "<h2>✅ Database Test</h2>\n";
-    $connection = new \YakimaFinds\Infrastructure\Database\Connection($config);
+    $connection = new \YFEvents\Infrastructure\Database\Connection($config);
     $pdo = $connection->getPdo();
     echo "<p>✅ Database connection successful</p>\n";
     

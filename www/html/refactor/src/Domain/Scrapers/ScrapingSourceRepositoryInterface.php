@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Scrapers;
+namespace YFEvents\Domain\Scrapers;
 
 interface ScrapingSourceRepositoryInterface
 {

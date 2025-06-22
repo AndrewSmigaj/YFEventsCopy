@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Utils;
+namespace YFEvents\Infrastructure\Utils;
 
 /**
  * Mobile device detection utility

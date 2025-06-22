@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Scrapers;
+namespace YFEvents\Infrastructure\Scrapers;
 
-use YakimaFinds\Domain\Scrapers\ScraperInterface;
-use YakimaFinds\Domain\Scrapers\ScrapingResult;
-use YakimaFinds\Domain\Scrapers\ScrapingSource;
-use YakimaFinds\Infrastructure\Services\HttpClientInterface;
+use YFEvents\Domain\Scrapers\ScraperInterface;
+use YFEvents\Domain\Scrapers\ScrapingResult;
+use YFEvents\Domain\Scrapers\ScrapingSource;
+use YFEvents\Infrastructure\Services\HttpClientInterface;
 use Psr\Log\LoggerInterface;
 
 abstract class AbstractScraper implements ScraperInterface

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Shops;
+namespace YFEvents\Domain\Shops;
 
-use YakimaFinds\Domain\Common\EntityInterface;
+use YFEvents\Domain\Common\EntityInterface;
 use DateTime;
 use DateTimeInterface;
 

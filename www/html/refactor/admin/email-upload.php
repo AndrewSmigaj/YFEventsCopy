@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['email_file'])) {
 if (isset($_POST['process_emails'])) {
     try {
         require_once dirname(__DIR__) . '/src/Infrastructure/Email/CurlEmailProcessor.php';
-        $processor = new \YakimaFinds\Infrastructure\Email\CurlEmailProcessor([]);
+        $processor = new \YFEvents\Infrastructure\Email\CurlEmailProcessor([]);
         $results = $processor->processEmails();
         
         $message = "Processing complete!\n";

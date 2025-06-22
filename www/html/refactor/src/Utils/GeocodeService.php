@@ -1,6 +1,6 @@
 <?php
 
-namespace YakimaFinds\Utils;
+namespace YFEvents\Utils;
 
 class GeocodeService
 {

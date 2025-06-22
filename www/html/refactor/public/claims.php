@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use YakimaFinds\Presentation\Http\Controllers\ClaimsController;
+use YFEvents\Presentation\Http\Controllers\ClaimsController;
 
 // Create controller instance
 $controller = new ClaimsController();

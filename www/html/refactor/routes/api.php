@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use YakimaFinds\Infrastructure\Http\Router;
-use YakimaFinds\Presentation\Api\Controllers\EventApiController;
-use YakimaFinds\Presentation\Api\Controllers\ShopApiController;
-use YakimaFinds\Presentation\Http\Controllers\HomeController;
-use YakimaFinds\Presentation\Http\Controllers\AdminEventController;
-use YakimaFinds\Presentation\Http\Controllers\AdminShopController;
-use YakimaFinds\Presentation\Http\Controllers\UserController;
-use YakimaFinds\Presentation\Http\Controllers\ThemeController;
+use YFEvents\Infrastructure\Http\Router;
+use YFEvents\Presentation\Api\Controllers\EventApiController;
+use YFEvents\Presentation\Api\Controllers\ShopApiController;
+use YFEvents\Presentation\Http\Controllers\HomeController;
+use YFEvents\Presentation\Http\Controllers\AdminEventController;
+use YFEvents\Presentation\Http\Controllers\AdminShopController;
+use YFEvents\Presentation\Http\Controllers\UserController;
+use YFEvents\Presentation\Http\Controllers\ThemeController;
 
 /**
  * API routes for the application
@@ -95,6 +95,34 @@ $router->put('/api/seo/settings', ThemeController::class, 'updateSEOSettings');
 // Social media management routes
 $router->get('/api/social/settings', ThemeController::class, 'getSocialMediaSettings');
 $router->put('/api/social/settings', ThemeController::class, 'updateSocialMediaSettings');
+
+// Communication API routes
+$router->get('/api/communication/channels', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'index');
+$router->post('/api/communication/channels', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'store');
+$router->get('/api/communication/channels/{id}', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'show');
+$router->put('/api/communication/channels/{id}', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'update');
+$router->delete('/api/communication/channels/{id}', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'delete');
+$router->post('/api/communication/channels/{id}/join', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'join');
+$router->delete('/api/communication/channels/{id}/leave', \YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController::class, 'leave');
+
+// Message API routes
+$router->get('/api/communication/channels/{channelId}/messages', \YFEvents\Presentation\Api\Controllers\Communication\MessageApiController::class, 'index');
+$router->post('/api/communication/channels/{channelId}/messages', \YFEvents\Presentation\Api\Controllers\Communication\MessageApiController::class, 'store');
+$router->put('/api/communication/messages/{id}', \YFEvents\Presentation\Api\Controllers\Communication\MessageApiController::class, 'update');
+$router->delete('/api/communication/messages/{id}', \YFEvents\Presentation\Api\Controllers\Communication\MessageApiController::class, 'delete');
+$router->post('/api/communication/messages/{id}/pin', \YFEvents\Presentation\Api\Controllers\Communication\MessageApiController::class, 'pin');
+$router->delete('/api/communication/messages/{id}/pin', \YFEvents\Presentation\Api\Controllers\Communication\MessageApiController::class, 'unpin');
+
+// Announcement API routes
+$router->get('/api/communication/announcements', \YFEvents\Presentation\Api\Controllers\Communication\AnnouncementApiController::class, 'index');
+$router->post('/api/communication/announcements', \YFEvents\Presentation\Api\Controllers\Communication\AnnouncementApiController::class, 'create');
+$router->get('/api/communication/announcements/{id}/stats', \YFEvents\Presentation\Api\Controllers\Communication\AnnouncementApiController::class, 'stats');
+
+// Notification API routes
+$router->get('/api/communication/notifications', \YFEvents\Presentation\Api\Controllers\Communication\NotificationApiController::class, 'index');
+$router->put('/api/communication/notifications/read', \YFEvents\Presentation\Api\Controllers\Communication\NotificationApiController::class, 'markRead');
+$router->get('/api/communication/notifications/count', \YFEvents\Presentation\Api\Controllers\Communication\NotificationApiController::class, 'count');
+$router->put('/api/communication/notifications/preferences', \YFEvents\Presentation\Api\Controllers\Communication\NotificationApiController::class, 'updatePreferences');
 
 // Other admin routes
 $router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');

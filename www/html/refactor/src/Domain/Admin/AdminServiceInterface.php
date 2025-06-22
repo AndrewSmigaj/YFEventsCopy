@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Admin;
+namespace YFEvents\Domain\Admin;
 
 /**
  * Service interface for admin system management

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Presentation\Http\Controllers;
+namespace YFEvents\Presentation\Http\Controllers;
 
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 
 class HomeController
 {
@@ -39,7 +39,7 @@ class HomeController
         
         try {
             // Test database connection
-            $connection = $this->container->resolve(\YakimaFinds\Infrastructure\Database\ConnectionInterface::class);
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
             $pdo = $connection->getConnection();
             $pdo->query("SELECT 1");
             

@@ -7,9 +7,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../admin/bootstrap.php';
 
-use YakimaFinds\Infrastructure\Http\FirecrawlClient;
-use YakimaFinds\Infrastructure\Scrapers\EventbriteScraper;
-use YakimaFinds\Utils\EnvLoader;
+use YFEvents\Infrastructure\Http\FirecrawlClient;
+use YFEvents\Infrastructure\Scrapers\EventbriteScraper;
+use YFEvents\Utils\EnvLoader;
 
 // Load environment variables
 EnvLoader::load(__DIR__ . '/../.env');

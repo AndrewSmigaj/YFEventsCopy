@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use YakimaFinds\Utils\EnvLoader;
+use YFEvents\Utils\EnvLoader;
 
 // Load environment variables
 EnvLoader::load(__DIR__ . '/../.env');

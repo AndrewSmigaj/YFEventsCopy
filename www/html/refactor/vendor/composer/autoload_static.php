@@ -28,8 +28,7 @@ class ComposerStaticInit4c3d7858e7155c3883fd3627a4102199
     public static $prefixLengthsPsr4 = array (
         'Y' => 
         array (
-            'YakimaFinds\\Tests\\' => 18,
-            'YakimaFinds\\' => 12,
+            'YFEvents\\Tests\\' => 15,
             'YFEvents\\' => 9,
         ),
         'S' => 
@@ -112,13 +111,9 @@ class ComposerStaticInit4c3d7858e7155c3883fd3627a4102199
     );
 
     public static $prefixDirsPsr4 = array (
-        'YakimaFinds\\Tests\\' => 
+        'YFEvents\\Tests\\' => 
         array (
             0 => __DIR__ . '/../..' . '/tests',
-        ),
-        'YakimaFinds\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/src',
         ),
         'YFEvents\\' => 
         array (

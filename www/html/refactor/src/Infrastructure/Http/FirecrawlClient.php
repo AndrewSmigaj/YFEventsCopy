@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Http;
+namespace YFEvents\Infrastructure\Http;
 
-use YakimaFinds\Infrastructure\Services\RateLimiter;
+use YFEvents\Infrastructure\Services\RateLimiter;
 use Exception;
 
 /**

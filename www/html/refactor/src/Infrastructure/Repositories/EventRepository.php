@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Repositories;
+namespace YFEvents\Infrastructure\Repositories;
 
-use YakimaFinds\Domain\Events\Event;
-use YakimaFinds\Domain\Events\EventRepositoryInterface;
-use YakimaFinds\Infrastructure\Database\AbstractRepository;
+use YFEvents\Domain\Events\Event;
+use YFEvents\Domain\Events\EventRepositoryInterface;
+use YFEvents\Infrastructure\Database\AbstractRepository;
 use DateTimeInterface;
 use DateTime;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace YakimaFinds\Models;
+namespace YFEvents\Models;
 
 use PDO;
 

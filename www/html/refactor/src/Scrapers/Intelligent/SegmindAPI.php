@@ -1,6 +1,6 @@
 <?php
 
-namespace YakimaFinds\Scrapers\Intelligent;
+namespace YFEvents\Scrapers\Intelligent;
 
 class SegmindAPI
 {

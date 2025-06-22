@@ -10,8 +10,8 @@ declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-use YakimaFinds\Infrastructure\Services\EmailEventProcessor;
-use YakimaFinds\Infrastructure\Config\ConfigManager;
+use YFEvents\Infrastructure\Services\EmailEventProcessor;
+use YFEvents\Infrastructure\Config\ConfigManager;
 
 // Setup error logging
 ini_set('log_errors', 1);

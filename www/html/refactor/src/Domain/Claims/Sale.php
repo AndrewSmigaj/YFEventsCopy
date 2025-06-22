@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Claims;
+namespace YFEvents\Domain\Claims;
 
-use YakimaFinds\Domain\Common\EntityInterface;
+use YFEvents\Domain\Common\EntityInterface;
 use DateTimeInterface;
 use DateTime;
 

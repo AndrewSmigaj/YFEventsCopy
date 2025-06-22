@@ -11,22 +11,39 @@ declare(strict_types=1);
 // Load environment configuration
 require_once __DIR__ . '/database.php';
 
-use YakimaFinds\Infrastructure\Container\Container;
-use YakimaFinds\Infrastructure\Database\Connection;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Database\Connection;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Config\Config;
+use YFEvents\Infrastructure\Config\ConfigInterface;
 
 // Create the container instance
 $container = Container::getInstance();
 
+// Register config interface
+$container->singleton(ConfigInterface::class, function() {
+    $config = new Config();
+    
+    // Load database config
+    if (file_exists(__DIR__ . '/database.php')) {
+        $dbConfig = require __DIR__ . '/database.php';
+        $config->set('database', $dbConfig);
+    }
+    
+    return $config;
+});
+
 // Register database connection
-$container->singleton(ConnectionInterface::class, function() {
-    $config = require __DIR__ . '/database.php';
+$container->singleton(ConnectionInterface::class, function($container) {
+    $config = $container->resolve(ConfigInterface::class);
+    $dbConfig = $config->get('database', []);
+    
     return new Connection(
-        $config['host'],
-        $config['name'],
-        $config['username'],
-        $config['password'],
-        $config['options'] ?? []
+        $dbConfig['host'] ?? 'localhost',
+        $dbConfig['name'] ?? 'yakima_finds',
+        $dbConfig['username'] ?? 'yfevents',
+        $dbConfig['password'] ?? 'yfevents_pass',
+        $dbConfig['options'] ?? []
     );
 });
 

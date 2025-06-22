@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
 
-use YakimaFinds\Infrastructure\Services\EmailEventProcessor;
+use YFEvents\Infrastructure\Services\EmailEventProcessor;
 
 // Get database connection
 $db = $GLOBALS['db'] ?? null;

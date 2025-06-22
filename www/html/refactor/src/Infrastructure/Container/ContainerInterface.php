@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Container;
+namespace YFEvents\Infrastructure\Container;
 
 /**
  * Dependency injection container interface

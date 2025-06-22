@@ -1,6 +1,6 @@
 <?php
 
-namespace YakimaFinds\Scrapers;
+namespace YFEvents\Scrapers;
 
 use PDO;
 

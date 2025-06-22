@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Shops;
+namespace YFEvents\Domain\Shops;
 
-use YakimaFinds\Domain\Common\RepositoryInterface;
+use YFEvents\Domain\Common\RepositoryInterface;
 
 /**
  * Repository interface for shop data access

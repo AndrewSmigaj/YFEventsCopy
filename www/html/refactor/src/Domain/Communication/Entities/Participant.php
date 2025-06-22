@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace YFEvents\Domain\Communication\Entities;
 
-use YakimaFinds\Domain\Common\EntityInterface;
+use YFEvents\Domain\Common\EntityInterface;
 
 /**
  * Participant entity for channel membership

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Common;
+namespace YFEvents\Domain\Common;
 
 /**
  * Base interface for all domain entities

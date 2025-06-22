@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Presentation\Api\Controllers;
+namespace YFEvents\Presentation\Api\Controllers;
 
-use YakimaFinds\Presentation\Http\Controllers\BaseController;
-use YakimaFinds\Domain\Events\EventServiceInterface;
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
+use YFEvents\Presentation\Http\Controllers\BaseController;
+use YFEvents\Domain\Events\EventServiceInterface;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
 use DateTime;
 use Exception;
 

@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Mobile detection
-use YakimaFinds\Infrastructure\Utils\MobileDetector;
+use YFEvents\Infrastructure\Utils\MobileDetector;
 $mobileDetector = new MobileDetector();
 $isMobile = $mobileDetector->isMobile();
 $deviceType = $mobileDetector->getDeviceType();
@@ -345,7 +345,7 @@ $userRole = $_SESSION['user_role'] ?? 'user';
     
     <!-- Communication App JS -->
     <script>
-        window.basePath = '';
+        window.basePath = '/refactor';
         window.currentUserId = <?php echo $userId; ?>;
         window.currentUserName = '<?php echo htmlspecialchars($userName); ?>';
         window.isMobile = <?php echo $isMobile ? 'true' : 'false'; ?>;
