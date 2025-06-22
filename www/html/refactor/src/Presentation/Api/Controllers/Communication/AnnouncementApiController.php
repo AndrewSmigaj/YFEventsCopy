@@ -103,10 +103,18 @@ class AnnouncementApiController
     /**
      * Get announcement statistics
      */
-    public function stats(int $id): void
+    public function stats(): void
     {
         try {
             $userId = $this->getCurrentUserId();
+            
+            // Get ID from $_GET
+            if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+                $this->sendErrorResponse('Announcement ID is required', 400);
+                return;
+            }
+            
+            $id = (int)$_GET['id'];
             
             // Check if user has permission to view stats
             if (!$this->userCanViewAnnouncementStats($userId)) {

@@ -16,14 +16,66 @@ class MessageApiController
     public function __construct(CommunicationService $communicationService)
     {
         $this->communicationService = $communicationService;
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+    
+    /**
+     * Get current user ID from session
+     */
+    private function getCurrentUserId(): int
+    {
+        if (!isset($_SESSION['user_id'])) {
+            $this->sendJsonError('Authentication required', 401);
+            exit;
+        }
+        return (int)$_SESSION['user_id'];
+    }
+    
+    /**
+     * Send JSON response
+     */
+    private function sendJsonResponse(array $data, int $statusCode = 200): void
+    {
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+    
+    /**
+     * Send JSON error response
+     */
+    private function sendJsonError(string $message, int $statusCode = 400): void
+    {
+        $this->sendJsonResponse([
+            'success' => false,
+            'error' => $message
+        ], $statusCode);
+    }
+    
+    /**
+     * Get JSON input
+     */
+    private function getJsonInput(): array
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        return $data ?? [];
     }
     
     /**
      * Get messages for a channel
      */
-    public function index(int $channelId): void
+    public function index(): void
     {
         try {
+            $channelId = (int)($_GET['channelId'] ?? 0);
+            if (!$channelId) {
+                $this->sendJsonError('Channel ID required', 400);
+                return;
+            }
+            
             $userId = $this->getCurrentUserId();
             $page = (int)($_GET['page'] ?? 1);
             $limit = (int)($_GET['limit'] ?? 50);
@@ -55,9 +107,15 @@ class MessageApiController
     /**
      * Send a message to a channel
      */
-    public function store(int $channelId): void
+    public function store(): void
     {
         try {
+            $channelId = (int)($_GET['channelId'] ?? 0);
+            if (!$channelId) {
+                $this->sendJsonError('Channel ID required', 400);
+                return;
+            }
+            
             $userId = $this->getCurrentUserId();
             $data = $this->getJsonInput();
             
