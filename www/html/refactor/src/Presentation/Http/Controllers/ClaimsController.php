@@ -20,14 +20,23 @@ class ClaimsController extends BaseController
     {
         parent::__construct($container, $config);
         
-        // Get database connection
-        $dbConfig = $config->get('database');
-        $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";
-        $this->pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]);
+        // Get database connection from container
+        try {
+            $connection = $container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $this->pdo = $connection->getConnection();
+        } catch (Exception $e) {
+            // Fallback to direct connection
+            $this->pdo = new PDO(
+                "mysql:host=localhost;dbname=yakima_finds;charset=utf8mb4",
+                'yfevents',
+                'yfevents_pass',
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]
+            );
+        }
     }
 
     // ==== PUBLIC PAGES ====
