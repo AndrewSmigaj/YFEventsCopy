@@ -41,6 +41,8 @@ $container->bind(\YFEvents\Domain\Shops\ShopServiceInterface::class, function($c
 
 $container->bind(\YFEvents\Domain\Admin\AdminServiceInterface::class, function($container) {
     return new \YFEvents\Domain\Admin\AdminService(
+        $container->resolve(\YFEvents\Domain\Events\EventServiceInterface::class),
+        $container->resolve(\YFEvents\Domain\Shops\ShopServiceInterface::class),
         $container->resolve(ConnectionInterface::class)
     );
 });
