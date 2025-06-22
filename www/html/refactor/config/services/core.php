@@ -9,11 +9,38 @@ declare(strict_types=1);
  */
 
 use YFEvents\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 
-// This file would contain core service registrations
-// For now, it's a placeholder for any core services needed
+// Register repositories
+$container->bind(\YFEvents\Domain\Events\EventRepositoryInterface::class, function($container) {
+    return new \YFEvents\Infrastructure\Repositories\EventRepository(
+        $container->resolve(ConnectionInterface::class)
+    );
+});
 
-// Example:
-// $container->singleton(LoggerInterface::class, function() {
-//     return new FileLogger('/logs/app.log');
-// });
+$container->bind(\YFEvents\Domain\Shops\ShopRepositoryInterface::class, function($container) {
+    return new \YFEvents\Infrastructure\Repositories\ShopRepository(
+        $container->resolve(ConnectionInterface::class)
+    );
+});
+
+// Register services
+$container->bind(\YFEvents\Domain\Events\EventServiceInterface::class, function($container) {
+    return new \YFEvents\Domain\Events\EventService(
+        $container->resolve(\YFEvents\Domain\Events\EventRepositoryInterface::class),
+        $container->resolve(ConnectionInterface::class)
+    );
+});
+
+$container->bind(\YFEvents\Domain\Shops\ShopServiceInterface::class, function($container) {
+    return new \YFEvents\Domain\Shops\ShopService(
+        $container->resolve(\YFEvents\Domain\Shops\ShopRepositoryInterface::class),
+        $container->resolve(ConnectionInterface::class)
+    );
+});
+
+$container->bind(\YFEvents\Domain\Admin\AdminServiceInterface::class, function($container) {
+    return new \YFEvents\Domain\Admin\AdminService(
+        $container->resolve(ConnectionInterface::class)
+    );
+});

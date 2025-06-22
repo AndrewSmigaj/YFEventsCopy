@@ -355,9 +355,19 @@ class HomeController
             </div>
             
             <div class="endpoint">
+                <div class="endpoint-title">💬 Communication Hub</div>
+                <ul class="endpoint-list">
+                    <li><a href="{$basePath}/communication/">Communication Center</a></li>
+                    <li><a href="{$basePath}/communication/theme-switcher.php">Mobile Theme</a></li>
+                    <li><a href="{$basePath}/login.php">Login</a></li>
+                </ul>
+            </div>
+            
+            <div class="endpoint">
                 <div class="endpoint-title">🛠️ Admin & API</div>
                 <ul class="endpoint-list">
                     <li><a href="{$basePath}/admin/login">Admin Login</a></li>
+                    <li><a href="{$basePath}/admin/dashboard">Admin Dashboard</a></li>
                     <li><a href="{$basePath}/api/events">Events API</a></li>
                     <li><a href="{$basePath}/api/shops">Shops API</a></li>
                     <li><a href="{$basePath}/api/health">Health Check</a></li>
@@ -368,7 +378,7 @@ class HomeController
         <div class="architecture">
             <h3>🏛️ Architecture Highlights</h3>
             <ul>
-                <li><strong>4 Complete Domains:</strong> Events, Shops, Claims (YFClaim), Scrapers</li>
+                <li><strong>5 Complete Domains:</strong> Events, Shops, Claims (YFClaim), Scrapers, Communication</li>
                 <li><strong>Repository Pattern:</strong> Clean data access abstraction</li>
                 <li><strong>Service Layer:</strong> Business logic encapsulation</li>
                 <li><strong>Dependency Injection:</strong> Flexible and testable components</li>

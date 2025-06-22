@@ -31,6 +31,6 @@ try {
 
 } catch (\Exception $e) {
     // Handle bootstrap errors
-    $debug = true; // Enable debug temporarily
+    $debug = false;
     \YFEvents\Infrastructure\Http\ErrorHandler::handle500($e, $debug);
 }
