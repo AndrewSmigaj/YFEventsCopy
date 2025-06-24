@@ -6,16 +6,24 @@ namespace YFEvents\Presentation\Http\Controllers;
 
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\View\ViewInterface;
+use YFEvents\Infrastructure\View\ViewFactory;
 
 /**
  * Base controller with common functionality
  */
 abstract class BaseController
 {
+    protected ViewInterface $view;
+    
     public function __construct(
         protected ContainerInterface $container,
         protected ConfigInterface $config
-    ) {}
+    ) {
+        // Initialize view
+        $viewFactory = new ViewFactory($config);
+        $this->view = $viewFactory->create();
+    }
 
     /**
      * Render a JSON response
@@ -180,5 +188,31 @@ abstract class BaseController
         
         $this->errorResponse('Insufficient permissions', 403);
         return false;
+    }
+    
+    /**
+     * Render a view with layout
+     */
+    protected function render(string $view, array $data = [], string $layout = 'default'): void
+    {
+        header('Content-Type: text/html; charset=utf-8');
+        echo $this->view->renderWithLayout($view, $data, $layout);
+    }
+    
+    /**
+     * Render a view without layout
+     */
+    protected function renderPartial(string $view, array $data = []): void
+    {
+        header('Content-Type: text/html; charset=utf-8');
+        echo $this->view->render($view, $data);
+    }
+    
+    /**
+     * Render view and return as string
+     */
+    protected function renderToString(string $view, array $data = []): string
+    {
+        return $this->view->render($view, $data);
     }
 }

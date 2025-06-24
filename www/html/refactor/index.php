@@ -9,6 +9,15 @@ use YFEvents\Infrastructure\Http\Router;
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
+// Configure session to use a writable directory
+$sessionDir = __DIR__ . '/sessions';
+if (!is_dir($sessionDir)) {
+    @mkdir($sessionDir, 0777, true);
+}
+if (is_writable($sessionDir)) {
+    ini_set('session.save_path', $sessionDir);
+}
+
 // Load autoloader
 require_once __DIR__ . '/vendor/autoload.php';
 

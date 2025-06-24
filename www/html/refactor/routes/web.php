@@ -8,6 +8,14 @@ use YFEvents\Presentation\Http\Controllers\AdminEventController;
 use YFEvents\Presentation\Http\Controllers\ShopController;
 use YFEvents\Presentation\Http\Controllers\AdminShopController;
 use YFEvents\Presentation\Http\Controllers\AdminDashboardController;
+use YFEvents\Presentation\Http\Controllers\AdminUsersController;
+use YFEvents\Presentation\Http\Controllers\AdminEmailController;
+use YFEvents\Presentation\Http\Controllers\AdminThemeController;
+use YFEvents\Presentation\Http\Controllers\AdminScraperController;
+use YFEvents\Presentation\Http\Controllers\AdminClaimsController;
+use YFEvents\Presentation\Http\Controllers\AdminSettingsController;
+use YFEvents\Presentation\Http\Controllers\AdminModulesController;
+use YFEvents\Presentation\Http\Controllers\AdminCommunicationController;
 use YFEvents\Presentation\Http\Controllers\HomeController;
 use YFEvents\Presentation\Http\Controllers\AuthController;
 use YFEvents\Presentation\Http\Controllers\ClaimsController;
@@ -140,6 +148,97 @@ $router->get('/admin/dashboard/top-content', AdminDashboardController::class, 'g
 $router->get('/admin/dashboard/alerts', AdminDashboardController::class, 'getSystemAlerts');
 $router->get('/admin/dashboard/analytics', AdminDashboardController::class, 'getAnalytics');
 $router->get('/admin/dashboard/export', AdminDashboardController::class, 'exportData');
+
+// Admin user management routes
+$router->get('/admin/users', AdminUsersController::class, 'index');
+$router->get('/admin/users/list', AdminUsersController::class, 'getUsers');
+$router->get('/admin/users/{id}', AdminUsersController::class, 'getUser');
+$router->post('/admin/users/create', AdminUsersController::class, 'createUser');
+$router->post('/admin/users/{id}/update', AdminUsersController::class, 'updateUser');
+$router->post('/admin/users/{id}/delete', AdminUsersController::class, 'deleteUser');
+$router->post('/admin/users/{id}/reset-password', AdminUsersController::class, 'resetPassword');
+$router->get('/admin/users/statistics', AdminUsersController::class, 'getUserStatistics');
+
+// Admin email management routes
+$router->get('/admin/email-events', AdminEmailController::class, 'showEmailEvents');
+$router->get('/admin/email-config', AdminEmailController::class, 'showEmailConfig');
+$router->post('/admin/email/process', AdminEmailController::class, 'processEmails');
+$router->get('/admin/email/history', AdminEmailController::class, 'getEmailHistory');
+$router->get('/admin/email/config', AdminEmailController::class, 'getEmailConfig');
+$router->post('/admin/email/config', AdminEmailController::class, 'updateEmailConfig');
+$router->post('/admin/email/test-connection', AdminEmailController::class, 'testConnection');
+$router->post('/admin/email/upload', AdminEmailController::class, 'uploadEmail');
+
+// Admin theme management routes
+$router->get('/admin/theme', AdminThemeController::class, 'index');
+$router->get('/admin/theme/settings', AdminThemeController::class, 'getSettings');
+$router->post('/admin/theme/settings/{id}', AdminThemeController::class, 'updateSetting');
+$router->post('/admin/theme/settings/bulk', AdminThemeController::class, 'updateBulkSettings');
+$router->post('/admin/theme/generate-css', AdminThemeController::class, 'generateCSS');
+$router->post('/admin/theme/apply-preset', AdminThemeController::class, 'applyPreset');
+
+// Admin scraper management routes
+$router->get('/admin/scrapers', AdminScraperController::class, 'index');
+$router->get('/admin/scrapers/list', AdminScraperController::class, 'getScrapers');
+$router->get('/admin/scrapers/{id}', AdminScraperController::class, 'getScraper');
+$router->post('/admin/scrapers/create', AdminScraperController::class, 'createScraper');
+$router->post('/admin/scrapers/{id}/update', AdminScraperController::class, 'updateScraper');
+$router->post('/admin/scrapers/{id}/delete', AdminScraperController::class, 'deleteScraper');
+$router->post('/admin/scrapers/{id}/run', AdminScraperController::class, 'runScraper');
+$router->post('/admin/scrapers/test', AdminScraperController::class, 'testScraper');
+$router->get('/admin/scrapers/statistics', AdminScraperController::class, 'getStatistics');
+
+// Admin claims management routes
+$router->get('/admin/claims', AdminClaimsController::class, 'index');
+$router->get('/admin/claims/statistics', AdminClaimsController::class, 'getStatistics');
+$router->get('/admin/claims/sales', AdminClaimsController::class, 'getSales');
+$router->get('/admin/claims/sales/{id}', AdminClaimsController::class, 'getSaleDetails');
+$router->post('/admin/claims/sales/{id}/update', AdminClaimsController::class, 'updateSale');
+$router->post('/admin/claims/sales/{id}/delete', AdminClaimsController::class, 'deleteSale');
+$router->get('/admin/claims/offers', AdminClaimsController::class, 'getOffers');
+$router->post('/admin/claims/offers/{id}/update', AdminClaimsController::class, 'updateOffer');
+$router->get('/admin/claims/sellers', AdminClaimsController::class, 'getSellers');
+$router->post('/admin/claims/sellers/{id}/toggle', AdminClaimsController::class, 'toggleSellerStatus');
+
+// Admin settings management routes
+$router->get('/admin/settings', AdminSettingsController::class, 'index');
+$router->get('/admin/settings/get', AdminSettingsController::class, 'getSettings');
+$router->post('/admin/settings/update', AdminSettingsController::class, 'updateSetting');
+$router->post('/admin/settings/bulk', AdminSettingsController::class, 'updateBulkSettings');
+$router->get('/admin/settings/system-info', AdminSettingsController::class, 'getSystemInfo');
+$router->post('/admin/settings/clear-cache', AdminSettingsController::class, 'clearCache');
+$router->get('/admin/settings/export', AdminSettingsController::class, 'exportSettings');
+$router->post('/admin/settings/import', AdminSettingsController::class, 'importSettings');
+
+// Admin module management routes
+$router->get('/admin/modules', AdminModulesController::class, 'index');
+$router->get('/admin/modules/list', AdminModulesController::class, 'getModules');
+$router->get('/admin/modules/details', AdminModulesController::class, 'getModule');
+$router->post('/admin/modules/enable', AdminModulesController::class, 'enableModule');
+$router->post('/admin/modules/disable', AdminModulesController::class, 'disableModule');
+$router->post('/admin/modules/install-db', AdminModulesController::class, 'installDatabase');
+$router->post('/admin/modules/uninstall-db', AdminModulesController::class, 'uninstallDatabase');
+$router->post('/admin/modules/configure', AdminModulesController::class, 'updateConfiguration');
+$router->get('/admin/modules/statistics', AdminModulesController::class, 'getStatistics');
+
+// Admin communication management routes
+$router->get('/admin/communication', AdminCommunicationController::class, 'index');
+$router->get('/admin/communication/statistics', AdminCommunicationController::class, 'getStatistics');
+$router->get('/admin/communication/channels', AdminCommunicationController::class, 'getChannels');
+$router->post('/admin/communication/channels', AdminCommunicationController::class, 'createChannel');
+$router->post('/admin/communication/channels/{id}', AdminCommunicationController::class, 'updateChannel');
+$router->delete('/admin/communication/channels/{id}', AdminCommunicationController::class, 'deleteChannel');
+$router->get('/admin/communication/participants', AdminCommunicationController::class, 'getParticipants');
+$router->post('/admin/communication/participants', AdminCommunicationController::class, 'addParticipant');
+$router->delete('/admin/communication/participants', AdminCommunicationController::class, 'removeParticipant');
+$router->get('/admin/communication/messages', AdminCommunicationController::class, 'getMessages');
+$router->delete('/admin/communication/messages/{id}', AdminCommunicationController::class, 'deleteMessage');
+$router->post('/admin/communication/messages/{id}/flag', AdminCommunicationController::class, 'toggleMessageFlag');
+$router->get('/admin/communication/announcements', AdminCommunicationController::class, 'getAnnouncements');
+$router->post('/admin/communication/announcements', AdminCommunicationController::class, 'createAnnouncement');
+$router->post('/admin/communication/announcements/{id}', AdminCommunicationController::class, 'updateAnnouncement');
+$router->delete('/admin/communication/announcements/{id}', AdminCommunicationController::class, 'deleteAnnouncement');
+$router->get('/admin/communication/notifications', AdminCommunicationController::class, 'getNotificationSettings');
 
 // Classifieds routes (module-based)
 $router->get('/classifieds', ClassifiedsController::class, 'showClassifiedsPage');

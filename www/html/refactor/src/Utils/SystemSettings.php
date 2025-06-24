@@ -2,39 +2,41 @@
 
 namespace YFEvents\Utils;
 
+use YFEvents\Infrastructure\Database\ConnectionInterface;
+use PDO;
+use Exception;
+
 class SystemSettings
 {
-    private $db;
-    private static $cache = [];
+    private PDO $db;
+    private array $cache = [];
     
-    public function __construct($db)
+    public function __construct(ConnectionInterface $connection)
     {
-        $this->db = $db;
+        $this->db = $connection->getConnection();
     }
     
     /**
      * Get a system setting value
      */
-    public static function get($key, $default = null, $db = null)
+    public function get(string $key, $default = null)
     {
-        global $pdo;
-        if (!$db) $db = $pdo;
-        
         // Check cache first
-        if (isset(self::$cache[$key])) {
-            return self::$cache[$key];
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
         }
         
         try {
-            $stmt = $db->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
+            $stmt = $this->db->prepare("SELECT setting_value FROM system_settings WHERE setting_key = ?");
             $stmt->execute([$key]);
             $result = $stmt->fetch();
             
             $value = $result ? $result['setting_value'] : $default;
-            self::$cache[$key] = $value;
+            $this->cache[$key] = $value;
             
             return $value;
         } catch (Exception $e) {
+            error_log("Error getting system setting '$key': " . $e->getMessage());
             return $default;
         }
     }
@@ -42,13 +44,10 @@ class SystemSettings
     /**
      * Set a system setting value
      */
-    public static function set($key, $value, $description = null, $db = null)
+    public function set(string $key, $value, ?string $description = null): bool
     {
-        global $pdo;
-        if (!$db) $db = $pdo;
-        
         try {
-            $stmt = $db->prepare("
+            $stmt = $this->db->prepare("
                 INSERT INTO system_settings (setting_key, setting_value, description) 
                 VALUES (?, ?, ?) 
                 ON DUPLICATE KEY UPDATE 
@@ -58,10 +57,11 @@ class SystemSettings
             $stmt->execute([$key, $value, $description]);
             
             // Update cache
-            self::$cache[$key] = $value;
+            $this->cache[$key] = $value;
             
             return true;
         } catch (Exception $e) {
+            error_log("Error setting system setting '$key': " . $e->getMessage());
             return false;
         }
     }
@@ -69,27 +69,26 @@ class SystemSettings
     /**
      * Check if unapproved events should be shown
      */
-    public static function showUnapprovedEvents($db = null)
+    public function showUnapprovedEvents(): bool
     {
-        return self::get('show_unapproved_events', '0', $db) === '1';
+        return $this->get('show_unapproved_events', '0') === '1';
     }
     
     /**
      * Get disclaimer text for unapproved events
      */
-    public static function getUnapprovedEventsDisclaimer($db = null)
+    public function getUnapprovedEventsDisclaimer(): string
     {
-        return self::get('unapproved_events_disclaimer', 
-            'These events are automatically imported and have not been verified. Details may be incomplete or inaccurate.',
-            $db
+        return $this->get('unapproved_events_disclaimer', 
+            'These events are automatically imported and have not been verified. Details may be incomplete or inaccurate.'
         );
     }
     
     /**
      * Clear the settings cache
      */
-    public static function clearCache()
+    public function clearCache(): void
     {
-        self::$cache = [];
+        $this->cache = [];
     }
 }

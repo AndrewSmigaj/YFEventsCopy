@@ -30,6 +30,15 @@ class Message implements EntityInterface
     private int $replyCount;
     private int $reactionCount;
     
+    // Location fields for Picks channel
+    private ?string $locationName;
+    private ?string $locationAddress;
+    private ?float $locationLatitude;
+    private ?float $locationLongitude;
+    private ?\DateTimeImmutable $eventDate;
+    private ?string $eventStartTime;
+    private ?string $eventEndTime;
+    
     public function __construct(
         ?int $id,
         int $channelId,
@@ -47,7 +56,14 @@ class Message implements EntityInterface
         ?\DateTimeImmutable $deletedAt = null,
         ?string $emailMessageId = null,
         int $replyCount = 0,
-        int $reactionCount = 0
+        int $reactionCount = 0,
+        ?string $locationName = null,
+        ?string $locationAddress = null,
+        ?float $locationLatitude = null,
+        ?float $locationLongitude = null,
+        ?\DateTimeImmutable $eventDate = null,
+        ?string $eventStartTime = null,
+        ?string $eventEndTime = null
     ) {
         $this->id = $id;
         $this->channelId = $channelId;
@@ -66,6 +82,13 @@ class Message implements EntityInterface
         $this->emailMessageId = $emailMessageId;
         $this->replyCount = $replyCount;
         $this->reactionCount = $reactionCount;
+        $this->locationName = $locationName;
+        $this->locationAddress = $locationAddress;
+        $this->locationLatitude = $locationLatitude;
+        $this->locationLongitude = $locationLongitude;
+        $this->eventDate = $eventDate;
+        $this->eventStartTime = $eventStartTime;
+        $this->eventEndTime = $eventEndTime;
         
         $this->validate();
     }
@@ -253,6 +276,47 @@ class Message implements EntityInterface
         $this->updatedAt = new \DateTimeImmutable();
     }
     
+    // Location getters
+    public function getLocationName(): ?string
+    {
+        return $this->locationName;
+    }
+    
+    public function getLocationAddress(): ?string
+    {
+        return $this->locationAddress;
+    }
+    
+    public function getLocationLatitude(): ?float
+    {
+        return $this->locationLatitude;
+    }
+    
+    public function getLocationLongitude(): ?float
+    {
+        return $this->locationLongitude;
+    }
+    
+    public function hasLocation(): bool
+    {
+        return $this->locationLatitude !== null && $this->locationLongitude !== null;
+    }
+    
+    public function getEventDate(): ?\DateTimeImmutable
+    {
+        return $this->eventDate;
+    }
+    
+    public function getEventStartTime(): ?string
+    {
+        return $this->eventStartTime;
+    }
+    
+    public function getEventEndTime(): ?string
+    {
+        return $this->eventEndTime;
+    }
+    
     public function toArray(): array
     {
         return [
@@ -270,6 +334,13 @@ class Message implements EntityInterface
             'email_message_id' => $this->emailMessageId,
             'reply_count' => $this->replyCount,
             'reaction_count' => $this->reactionCount,
+            'location_name' => $this->locationName,
+            'location_address' => $this->locationAddress,
+            'location_latitude' => $this->locationLatitude,
+            'location_longitude' => $this->locationLongitude,
+            'event_date' => $this->eventDate?->format('Y-m-d'),
+            'event_start_time' => $this->eventStartTime,
+            'event_end_time' => $this->eventEndTime,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt->format('Y-m-d H:i:s'),
             'deleted_at' => $this->deletedAt?->format('Y-m-d H:i:s'),
@@ -295,7 +366,14 @@ class Message implements EntityInterface
             isset($data['deleted_at']) ? new \DateTimeImmutable($data['deleted_at']) : null,
             $data['email_message_id'] ?? null,
             (int)($data['reply_count'] ?? 0),
-            (int)($data['reaction_count'] ?? 0)
+            (int)($data['reaction_count'] ?? 0),
+            $data['location_name'] ?? null,
+            $data['location_address'] ?? null,
+            isset($data['location_latitude']) ? (float)$data['location_latitude'] : null,
+            isset($data['location_longitude']) ? (float)$data['location_longitude'] : null,
+            isset($data['event_date']) ? new \DateTimeImmutable($data['event_date']) : null,
+            $data['event_start_time'] ?? null,
+            $data['event_end_time'] ?? null
         );
     }
 }

@@ -50,3 +50,5 @@ Thumbs.db
 
 # Local changelog (for tracking only)
 /CHANGELOG_LOCAL.md
+# Session storage directory
+www/html/refactor/sessions/

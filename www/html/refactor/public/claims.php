@@ -23,19 +23,19 @@ $pdo = new PDO(
 
 // Get current active sales
 $stmt = $pdo->prepare("
-    SELECT s.*, sel.company_name, sel.contact_email, sel.contact_phone,
-           COUNT(i.id) as item_count,
+    SELECT s.*, sel.company_name, sel.email as contact_email, sel.phone as contact_phone,
+           COUNT(DISTINCT i.id) as item_count,
            COUNT(DISTINCT o.buyer_id) as buyer_count,
            COUNT(o.id) as offer_count
     FROM yfc_sales s
     LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
     LEFT JOIN yfc_items i ON s.id = i.sale_id
     LEFT JOIN yfc_offers o ON i.id = o.item_id
-    WHERE s.status = 'active' 
-    AND s.claim_start <= NOW() 
-    AND s.claim_end >= NOW()
+    WHERE (s.status IS NULL OR s.status = 'active')
+    AND (s.claim_start IS NULL OR s.claim_start <= NOW())
+    AND (s.claim_end IS NULL OR s.claim_end >= NOW())
     GROUP BY s.id
-    ORDER BY s.claim_end ASC
+    ORDER BY COALESCE(s.claim_end, s.end_date) ASC
 ");
 $stmt->execute();
 $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -305,11 +305,15 @@ $basePath = '/refactor';
             <div class="sales-grid">
                 <?php foreach ($sales as $sale): ?>
                     <?php 
-                    $endTime = new DateTime($sale['claim_end']);
-                    $now = new DateTime();
-                    $timeLeft = $now->diff($endTime);
-                    $hoursLeft = ($timeLeft->days * 24) + $timeLeft->h;
-                    $isUrgent = $hoursLeft < 24;
+                    $hoursLeft = 0;
+                    $isUrgent = false;
+                    if ($sale['claim_end']) {
+                        $endTime = new DateTime($sale['claim_end']);
+                        $now = new DateTime();
+                        $timeLeft = $now->diff($endTime);
+                        $hoursLeft = ($timeLeft->days * 24) + $timeLeft->h;
+                        $isUrgent = $hoursLeft < 24;
+                    }
                     ?>
                     <div class="sale-card">
                         <div class="sale-header">
@@ -327,15 +331,23 @@ $basePath = '/refactor';
                             <div class="sale-info">
                                 <div class="sale-info-item">
                                     <span class="sale-info-icon">📍</span>
-                                    <?= htmlspecialchars($sale['location'] ?? 'Location TBD') ?>
+                                    <?= htmlspecialchars(($sale['city'] ? $sale['city'] . ', ' : '') . ($sale['state'] ?? 'WA')) ?>
                                 </div>
                                 <div class="sale-info-item">
                                     <span class="sale-info-icon">📅</span>
-                                    Claims: <?= date('M j', strtotime($sale['claim_start'])) ?> - <?= date('M j, Y', strtotime($sale['claim_end'])) ?>
+                                    <?php if ($sale['claim_start'] && $sale['claim_end']): ?>
+                                        Claims: <?= date('M j', strtotime($sale['claim_start'])) ?> - <?= date('M j, Y', strtotime($sale['claim_end'])) ?>
+                                    <?php else: ?>
+                                        Sale: <?= date('M j', strtotime($sale['start_date'])) ?> - <?= date('M j', strtotime($sale['end_date'])) ?>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="sale-info-item">
                                     <span class="sale-info-icon">🏠</span>
-                                    Sale: <?= date('M j, Y', strtotime($sale['sale_date'])) ?>
+                                    <?php if ($sale['pickup_start']): ?>
+                                        Pickup: <?= date('M j g:ia', strtotime($sale['pickup_start'])) ?>
+                                    <?php else: ?>
+                                        Duration: <?= date('M j', strtotime($sale['start_date'])) ?> - <?= date('M j', strtotime($sale['end_date'])) ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             
