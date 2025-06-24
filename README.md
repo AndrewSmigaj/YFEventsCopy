@@ -29,13 +29,28 @@ A comprehensive event calendar system designed for yakimafinds.com that integrat
 - **Duplicate Detection**: Smart filtering to prevent duplicate events
 - **Category Mapping**: Automatic event categorization from source data
 
+### Communication Module
+- **Real-time Messaging**: Multi-channel communication platform
+- **Picks Feature**: Location-based sharing for estate/yard sales with map integration
+- **Channel Types**: Public, private, event-specific, vendor, and announcement channels
+- **Rich Content**: Mentions, markdown, attachments, and location data
+- **Mobile PWA**: Progressive web app with offline support
+
+### YFClaim Estate Sales Module
+- **Estate Sale Platform**: Complete system for estate sale companies
+- **Public Browsing**: Browse active sales with items and photos
+- **Buyer Features**: Authentication, offer management, claim tracking
+- **Seller Dashboard**: Sale creation, item management, offer review
+- **Admin Tools**: Company verification, sale approval, statistics
+
 ## Technology Stack
 
-- **Backend**: PHP 8.2+ with PDO
-- **Database**: MySQL with spatial indexing
+- **Backend**: PHP 8.2+ with PDO, Domain-Driven Design
+- **Database**: MySQL with spatial indexing and JSON support
 - **Frontend**: Vanilla JavaScript with Google Maps API
 - **Styling**: CSS Grid/Flexbox with responsive design
-- **Integration**: Designed to extend existing CMS systems
+- **Architecture**: Clean architecture with dependency injection
+- **Integration**: Modular design for CMS extension
 
 ## Installation
 
@@ -48,6 +63,8 @@ A comprehensive event calendar system designed for yakimafinds.com that integrat
 - Composer (for dependency management)
 
 ### Quick Setup
+
+See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions.
 
 1. **Clone the repository**
    ```bash
