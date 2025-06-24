@@ -134,15 +134,34 @@ const CommunicationApp = {
         
         const icon = this.getChannelIcon(channel.type);
         
-        div.innerHTML = `
-            <span class="channel-name">
-                <span class="channel-icon">${icon}</span>
-                ${this.escapeHtml(channel.name)}
-            </span>
-            ${channel.unread_count > 0 ? `<span class="unread-count">${channel.unread_count}</span>` : ''}
-        `;
+        // Special handling for Picks channel
+        if (channel.slug === 'picks') {
+            div.innerHTML = `
+                <span class="channel-name">
+                    <span class="channel-icon">${icon}</span>
+                    ${this.escapeHtml(channel.name)}
+                    <a href="${this.basePath}/communication/picks.php" class="btn btn-sm btn-outline-primary ms-2" title="View Map" onclick="event.stopPropagation();">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </a>
+                </span>
+                ${channel.unread_count > 0 ? `<span class="unread-count">${channel.unread_count}</span>` : ''}
+            `;
+        } else {
+            div.innerHTML = `
+                <span class="channel-name">
+                    <span class="channel-icon">${icon}</span>
+                    ${this.escapeHtml(channel.name)}
+                </span>
+                ${channel.unread_count > 0 ? `<span class="unread-count">${channel.unread_count}</span>` : ''}
+            `;
+        }
         
-        div.addEventListener('click', () => this.selectChannel(channel));
+        div.addEventListener('click', (e) => {
+            // Don't select channel if clicking on the map link
+            if (!e.target.closest('a')) {
+                this.selectChannel(channel);
+            }
+        });
         
         return div;
     },
@@ -282,6 +301,7 @@ const CommunicationApp = {
                         ${message.is_edited ? '<span class="text-muted small">(edited)</span>' : ''}
                     </div>
                     <div class="message-text">${this.formatMessageContent(message.content)}</div>
+                    ${this.currentChannel && this.currentChannel.slug === 'picks' && message.location_latitude ? this.renderPickLocation(message) : ''}
                     ${message.yfclaim_item_id ? this.renderYFClaimReference(message.yfclaim_item_id) : ''}
                     ${message.attachments && message.attachments.length > 0 ? this.renderAttachments(message.attachments) : ''}
                     ${message.reply_count > 0 ? `<div class="mt-2"><small class="text-muted">${message.reply_count} replies</small></div>` : ''}
@@ -314,6 +334,23 @@ const CommunicationApp = {
         );
         
         return formatted;
+    },
+    
+    /**
+     * Render pick location info
+     */
+    renderPickLocation(message) {
+        return `
+            <div class="pick-info mt-2 p-2 bg-light rounded">
+                ${message.location_name ? `<h6 class="mb-1">${this.escapeHtml(message.location_name)}</h6>` : ''}
+                ${message.location_address ? `<p class="mb-1 small"><i class="fas fa-map-marker-alt"></i> ${this.escapeHtml(message.location_address)}</p>` : ''}
+                ${message.event_date ? `<p class="mb-1 small"><i class="fas fa-calendar"></i> ${new Date(message.event_date).toLocaleDateString()}</p>` : ''}
+                ${message.event_start_time ? `<p class="mb-1 small"><i class="fas fa-clock"></i> ${message.event_start_time}${message.event_end_time ? ` - ${message.event_end_time}` : ''}</p>` : ''}
+                <a href="${this.basePath}/communication/picks.php" class="btn btn-sm btn-primary mt-2">
+                    <i class="fas fa-map"></i> View on Map
+                </a>
+            </div>
+        `;
     },
     
     /**

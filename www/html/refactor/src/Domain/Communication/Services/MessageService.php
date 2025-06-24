@@ -39,6 +39,10 @@ class MessageService
         // Process mentions in content
         $mentions = $this->extractMentions($data['content']);
         
+        // Merge metadata with mentions
+        $metadata = $data['metadata'] ?? [];
+        $metadata['mentions'] = $mentions;
+        
         $message = new Message(
             null,
             $data['channel_id'],
@@ -50,7 +54,7 @@ class MessageService
             false,
             false,
             false,
-            ['mentions' => $mentions],
+            $metadata,
             null,
             null,
             null,
