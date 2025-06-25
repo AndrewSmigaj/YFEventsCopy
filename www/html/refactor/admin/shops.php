@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 // Admin Shops Management Page
 require_once __DIR__ . '/bootstrap.php';
 
@@ -6,7 +9,7 @@ require_once __DIR__ . '/bootstrap.php';
 $db = $GLOBALS['db'] ?? null;
 
 // Set correct base path for refactor admin
-$basePath = '/refactor';
+$basePath = PathHelper::getBasePath();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +19,7 @@ $basePath = '/refactor';
     <title>Shop Management - YFEvents Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/admin-styles.css">
+    <link rel="stylesheet" href="./assets/admin-styles.css">
     <style>
         /* Page-specific styles for shops page */
         .shops-grid {
@@ -103,7 +106,7 @@ $basePath = '/refactor';
                     <h1><i class="bi bi-shop"></i> Shop Management</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
                             <li class="breadcrumb-item active">Shops</li>
                         </ol>
                     </nav>
@@ -119,7 +122,7 @@ $basePath = '/refactor';
                     <button class="btn-admin btn-admin-success" onclick="refreshShops()">
                         <i class="bi bi-arrow-clockwise"></i> Refresh
                     </button>
-                    <a href="..../modules/yfclassifieds/www/admin/simple-index.php" class="btn-admin btn-admin-warning" target="_blank">
+                    <a href="../../modules/yfclassifieds/www/admin/simple-index.php" class="btn-admin btn-admin-warning" target="_blank">
                         <i class="bi bi-grid"></i> View Classifieds
                     </a>
                 </div>
@@ -157,16 +160,16 @@ $basePath = '/refactor';
                 <div class="classifieds-section">
                     <h6><i class="bi bi-shop"></i> YF Classifieds Integration</h6>
                     <div class="classifieds-links">
-                        <a href="../modules/yfclassifieds/www/admin/simple-index.php" class="classifieds-link" target="_blank">
+                        <a href="../../modules/yfclassifieds/www/admin/simple-index.php" class="classifieds-link" target="_blank">
                             <i class="bi bi-grid"></i> Classifieds Dashboard
                         </a>
-                        <a href="../modules/yfclassifieds/www/admin/create.php" class="classifieds-link" target="_blank">
+                        <a href="../../modules/yfclassifieds/www/admin/create.php" class="classifieds-link" target="_blank">
                             <i class="bi bi-plus-circle"></i> Add New Item
                         </a>
-                        <a href="../modules/yfclassifieds/www/admin/items.php" class="classifieds-link" target="_blank">
+                        <a href="../../modules/yfclassifieds/www/admin/items.php" class="classifieds-link" target="_blank">
                             <i class="bi bi-list"></i> Manage Items
                         </a>
-                        <a href="../modules/yfclassifieds/www/index.php" class="classifieds-link" target="_blank">
+                        <a href="../../modules/yfclassifieds/www/index.php" class="classifieds-link" target="_blank">
                             <i class="bi bi-eye"></i> Public Gallery
                         </a>
                     </div>
@@ -307,8 +310,8 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?php echo $basePath; ?>' || '/refactor';
-        const apiBasePath = '<?php echo $basePath; ?>' || '/refactor'; // API calls should use same base path
+        const basePath = '<?php echo $basePath; ?>' || PathHelper::getBasePath();
+        const apiBasePath = '<?php echo $basePath; ?>' || PathHelper::getBasePath(); // API calls should use same base path
         let shopsData = [];
         let filteredShops = [];
         

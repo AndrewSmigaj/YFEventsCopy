@@ -984,20 +984,75 @@ class ClaimsController extends BaseController
         .empty-state h3 { font-size: 1.5rem; margin-bottom: 15px; color: #495057; }
         .empty-state p { font-size: 1.1rem; line-height: 1.6; }
         @media (max-width: 768px) { .header h1 { font-size: 2.5rem; } .header-actions { flex-direction: column; align-items: center; } .sales-grid { grid-template-columns: 1fr; } .section-header { flex-direction: column; gap: 15px; align-items: flex-start; } }
+        
+        .nav-bar {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #343a40;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .nav-divider {
+            width: 1px;
+            height: 20px;
+            background: #dee2e6;
+            margin: 0 10px;
+        }
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="{$basePath}/">← Home</a>
+                <a href="{$basePath}/events">Events</a>
+                <a href="{$basePath}/shops">Shops</a>
+                <a href="{$basePath}/claims">Estate Sales</a>
+                <a href="{$basePath}/communication/">Community</a>
+            </div>
+            <div class="nav-links">
+                <a href="{$basePath}/login.php">Login</a>
+            </div>
+        </div>
+    </nav>
+    
     <div class="header">
         <h1>🏛️ YFClaim Estate Sales</h1>
         <p>Browse and claim items from estate sales across the Yakima Valley</p>
         <div class="header-actions">
-            <a href="{$basePath}/seller/login" class="header-btn">Estate Sale Company? Login</a>
+            <a href="{$basePath}/login.php" class="header-btn">Login / Register</a>
             <a href="{$basePath}/buyer/offers" class="header-btn">View My Offers</a>
         </div>
     </div>
     
     <div class="container">
-        <a href="{$basePath}/" class="nav-link">← Back to YFEvents</a>
         
         <section class="section">
             <div class="section-header">

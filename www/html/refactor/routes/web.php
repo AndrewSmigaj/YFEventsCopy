@@ -42,6 +42,10 @@ $router->post('/admin/login', AuthController::class, 'processAdminLogin');
 $router->post('/admin/logout', AuthController::class, 'adminLogout');
 $router->get('/admin/status', AuthController::class, 'adminStatus');
 
+// User registration routes
+$router->get('/register', AuthController::class, 'showRegistration');
+$router->post('/register', AuthController::class, 'processRegistration');
+
 // Admin static pages will be handled by Apache directly, not through router
 
 // Public event routes (HTML pages)

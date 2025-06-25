@@ -46,33 +46,33 @@ $pageTitle = 'Communication Management';
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/admin/">YFEvents Admin</a>
+            <a class="navbar-brand" href="./">YFEvents Admin</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/">Dashboard</a>
+                        <a class="nav-link" href="./">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/events.php">Events</a>
+                        <a class="nav-link" href="./events.php">Events</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/shops.php">Shops</a>
+                        <a class="nav-link" href="./shops.php">Shops</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/admin/communication/">Communication</a>
+                        <a class="nav-link active" href="./communication/">Communication</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/communication/" target="_blank">
+                        <a class="nav-link" href="../../communication/" target="_blank">
                             <i class="fas fa-external-link-alt"></i> View Hub
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/admin/logout.php">Logout</a>
+                        <a class="nav-link" href="./logout.php">Logout</a>
                     </li>
                 </ul>
             </div>

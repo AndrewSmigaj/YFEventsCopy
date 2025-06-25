@@ -349,7 +349,7 @@ class HomeController
                 <ul class="endpoint-list">
                     <li><a href="{$basePath}/claims">Browse Sales</a></li>
                     <li><a href="{$basePath}/claims/upcoming">Upcoming Sales</a></li>
-                    <li><a href="{$basePath}/seller/register">Seller Registration</a></li>
+                    <li><a href="{$basePath}/register">Seller Registration</a></li>
                     <li><a href="{$basePath}/buyer/offers">My Offers</a></li>
                 </ul>
             </div>
@@ -360,17 +360,17 @@ class HomeController
                     <li><a href="{$basePath}/communication/">Communication Center</a></li>
                     <li><a href="{$basePath}/communication/theme-switcher.php">Mobile Theme</a></li>
                     <li><a href="{$basePath}/login.php">Login</a></li>
+                    <li><a href="{$basePath}/register">Register</a></li>
                 </ul>
             </div>
             
             <div class="endpoint">
-                <div class="endpoint-title">🛠️ Admin & API</div>
+                <div class="endpoint-title">🛠️ APIs & Resources</div>
                 <ul class="endpoint-list">
-                    <li><a href="{$basePath}/admin/login">Admin Login</a></li>
-                    <li><a href="{$basePath}/admin/dashboard">Admin Dashboard</a></li>
                     <li><a href="{$basePath}/api/events">Events API</a></li>
                     <li><a href="{$basePath}/api/shops">Shops API</a></li>
                     <li><a href="{$basePath}/api/health">Health Check</a></li>
+                    <li><a href="{$basePath}/api/documentation">API Documentation</a></li>
                 </ul>
             </div>
         </div>

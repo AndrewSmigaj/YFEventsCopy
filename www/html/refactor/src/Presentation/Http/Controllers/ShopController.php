@@ -525,15 +525,70 @@ class ShopController extends BaseController
             border-radius: 6px;
             font-size: 0.9rem;
         }
+        
+        .nav-bar {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+        
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #343a40;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .nav-divider {
+            width: 1px;
+            height: 20px;
+            background: #dee2e6;
+            margin: 0 10px;
+        }
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="{$basePath}/">← Home</a>
+                <a href="{$basePath}/events">Events</a>
+                <a href="{$basePath}/shops">Shops</a>
+                <a href="{$basePath}/claims">Estate Sales</a>
+                <a href="{$basePath}/communication/">Community</a>
+            </div>
+            <div class="nav-links">
+                <a href="{$basePath}/login.php">Login</a>
+            </div>
+        </div>
+    </nav>
+    
     <div class="header">
         <h1>🏪 Shop Details</h1>
     </div>
     
     <div class="container">
-        <a href="{$basePath}/shops" class="back-link">← Back to Shops</a>
         
         <div class="shop-details" id="shop-details">
             <div class="loading">Loading shop details...</div>
@@ -750,16 +805,71 @@ HTML;
                 height: 400px;
             }
         }
+        
+        .nav-bar {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #343a40;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .nav-divider {
+            width: 1px;
+            height: 20px;
+            background: #dee2e6;
+            margin: 0 10px;
+        }
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="{$basePath}/">← Home</a>
+                <a href="{$basePath}/events">Events</a>
+                <a href="{$basePath}/shops">Shops</a>
+                <a href="{$basePath}/claims">Estate Sales</a>
+                <a href="{$basePath}/communication/">Community</a>
+            </div>
+            <div class="nav-links">
+                <a href="{$basePath}/login.php">Login</a>
+            </div>
+        </div>
+    </nav>
+    
     <div class="header">
         <h1>🗺️ Local Shops Map</h1>
         <p>Interactive map of businesses in the Yakima Valley</p>
     </div>
     
     <div class="container">
-        <a href="{$basePath}/shops" class="back-link">← Back to Shops Directory</a>
         
         <div class="map-controls">
             <div class="control-group">
@@ -1440,16 +1550,71 @@ HTML;
             font-size: 0.8rem;
             font-weight: 600;
         }
+        
+        .nav-bar {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: #343a40;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .nav-divider {
+            width: 1px;
+            height: 20px;
+            background: #dee2e6;
+            margin: 0 10px;
+        }
     </style>
 </head>
 <body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="{$basePath}/">← Home</a>
+                <a href="{$basePath}/events">Events</a>
+                <a href="{$basePath}/shops">Shops</a>
+                <a href="{$basePath}/claims">Estate Sales</a>
+                <a href="{$basePath}/communication/">Community</a>
+            </div>
+            <div class="nav-links">
+                <a href="{$basePath}/login.php">Login</a>
+            </div>
+        </div>
+    </nav>
+    
     <div class="header">
         <h1>🏪 Local Shops Directory</h1>
         <p>Discover local businesses in the Yakima Valley</p>
     </div>
     
     <div class="container">
-        <a href="{$basePath}/" class="back-link">← Back to Home</a>
         
         <div class="filters">
             <div class="filter-row">

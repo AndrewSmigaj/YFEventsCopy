@@ -2,6 +2,8 @@
 // Simple test page to verify the refactored application is working
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/src/Helpers/PathHelper.php';
+use YFEvents\Helpers\PathHelper;
 
 echo "<h1>YFEvents V2 Refactored Application Test</h1>\n";
 
@@ -37,9 +39,9 @@ try {
     
     echo "<h3>Available Endpoints:</h3>\n";
     echo "<ul>\n";
-    echo "<li><a href='/refactor/'>🏠 Main Application</a></li>\n";
-    echo "<li><a href='/refactor/api/events'>📅 Events API</a></li>\n";
-    echo "<li><a href='/refactor/api/shops'>🏪 Shops API</a></li>\n";
+    echo "<li><a href='" . PathHelper::url() . "'>🏠 Main Application</a></li>\n";
+    echo "<li><a href='" . PathHelper::apiUrl('events') . "'>📅 Events API</a></li>\n";
+    echo "<li><a href='" . PathHelper::apiUrl('shops') . "'>🏪 Shops API</a></li>\n";
     echo "</ul>\n";
     
 } catch (Exception $e) {

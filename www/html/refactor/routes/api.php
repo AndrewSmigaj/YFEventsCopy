@@ -10,6 +10,7 @@ use YFEvents\Presentation\Http\Controllers\AdminEventController;
 use YFEvents\Presentation\Http\Controllers\AdminShopController;
 use YFEvents\Presentation\Http\Controllers\UserController;
 use YFEvents\Presentation\Http\Controllers\ThemeController;
+use YFEvents\Presentation\Http\Controllers\ApiDocController;
 
 /**
  * API routes for the application
@@ -19,6 +20,9 @@ use YFEvents\Presentation\Http\Controllers\ThemeController;
 
 // Health check
 $router->get('/api/health', HomeController::class, 'health');
+
+// API Documentation
+$router->get('/api/documentation', ApiDocController::class, 'showDocumentation');
 
 // Public API routes - specific routes before parameterized ones
 $router->get('/api/events', EventApiController::class, 'index');

@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 session_start();
 
 // Handle login
@@ -52,8 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['is_shop_owner'] = true;
             }
             
-            // Redirect to communication hub
-            header('Location: /refactor/communication/');
+            // Redirect based on role
+            if ($user['role'] === 'admin') {
+                // Admin goes to admin dashboard
+                header('Location: /refactor/admin/dashboard');
+            } elseif (isset($_SESSION['is_vendor']) && $_SESSION['is_vendor']) {
+                // Sellers/vendors go to seller dashboard
+                header('Location: /refactor/seller/dashboard');
+            } elseif (isset($_SESSION['is_shop_owner']) && $_SESSION['is_shop_owner']) {
+                // Shop owners go to shop management
+                header('Location: /refactor/shops/manage');
+            } else {
+                // Regular users go to communication hub
+                $redirect = $_GET['redirect'] ?? '/refactor/communication/';
+                header('Location: ' . $redirect);
+            }
             exit;
         } else {
             $error = 'Invalid email or password';
@@ -77,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h4>Login to YFEvents Communication</h4>
+                        <h4>Login to YFEvents</h4>
                     </div>
                     <div class="card-body">
                         <?php if (isset($error)): ?>
@@ -94,16 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="password" class="form-control" id="password" name="password" required>
                             </div>
                             <button type="submit" class="btn btn-primary">Login</button>
+                            <a href="<?= PathHelper::url() ?>" class="btn btn-link">Back to Home</a>
                         </form>
                         
-                        <hr>
-                        
-                        <div class="alert alert-info">
-                            <h6>Test Accounts:</h6>
-                            <ul class="mb-0">
-                                <li><strong>Admin:</strong> test@yakimafinds.com / test123</li>
-                                <li><strong>Vendor:</strong> vendor@yakimafinds.com / vendor123</li>
-                            </ul>
+                        <div class="mt-3 text-center">
+                            <small>
+                                Don't have an account? <a href="<?= PathHelper::url('register') ?>">Register here</a>
+                            </small>
                         </div>
                     </div>
                 </div>

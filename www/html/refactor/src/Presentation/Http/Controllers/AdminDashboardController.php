@@ -32,8 +32,10 @@ class AdminDashboardController extends BaseController
             return;
         }
 
-        // Render using the new view system
-        $this->render('admin.dashboard', [], 'admin');
+        // For now, redirect to the static admin dashboard
+        // TODO: Implement proper view rendering system
+        header('Location: /refactor/admin/dashboard.php');
+        exit;
     }
 
     /**

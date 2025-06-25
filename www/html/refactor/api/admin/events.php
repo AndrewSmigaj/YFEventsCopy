@@ -19,11 +19,8 @@ if (!$db) {
 header('Content-Type: application/json');
 
 // Check admin authentication
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    http_response_code(401);
-    echo json_encode(['error' => true, 'message' => 'Admin authentication required']);
-    exit;
-}
+require_once __DIR__ . '/../auth_check.php';
+requireAdminApi();
 
 try {
     // Get pagination and filter parameters

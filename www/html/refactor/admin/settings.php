@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 // Admin Settings Management Page
 require_once __DIR__ . '/bootstrap.php';
 
@@ -86,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-$basePath = '/refactor';
+$basePath = PathHelper::getBasePath();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -96,7 +99,7 @@ $basePath = '/refactor';
     <title>System Settings - YFEvents Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/admin-styles.css">
+    <link rel="stylesheet" href="./assets/admin-styles.css">
     <style>
         .settings-tabs {
             display: flex;
@@ -270,7 +273,7 @@ $basePath = '/refactor';
                     <h1><i class="bi bi-palette"></i> Settings</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
                             <li class="breadcrumb-item active">Settings</li>
                         </ol>
                     </nav>
@@ -569,7 +572,7 @@ $basePath = '/refactor';
     </div>
     
     <script>
-        const basePath = '<?php echo $basePath; ?>' || '/refactor';
+        const basePath = '<?php echo $basePath; ?>' || PathHelper::getBasePath();
         
         function showTab(tabName) {
             // Hide all tabs

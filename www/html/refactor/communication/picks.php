@@ -5,6 +5,12 @@ if (is_writable($sessionDir)) {
     ini_set('session.save_path', $sessionDir);
 }
 
+// Load API keys configuration
+$apiKeysFile = dirname(__DIR__) . '/config/api_keys.php';
+if (file_exists($apiKeysFile)) {
+    require_once $apiKeysFile;
+}
+
 session_start();
 
 // Check if user is logged in
@@ -454,7 +460,7 @@ $userName = $_SESSION['user_name'] ?? 'User';
     
     <!-- Load Google Maps API -->
     <script async defer 
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC3K8NB0QCIX6ulBDmnf8qSRzoApDgzSqU&libraries=places&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=<?php echo defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : ''; ?>&libraries=places&callback=initMap">
     </script>
 </body>
 </html>

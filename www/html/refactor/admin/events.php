@@ -1,9 +1,12 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 // Admin Events Management Page
 require_once __DIR__ . '/bootstrap.php';
 
 // Set correct base path for refactor admin
-$basePath = '/refactor';
+$basePath = PathHelper::getBasePath();
 
 // Get database connection
 $db = $GLOBALS['db'] ?? null;
@@ -19,7 +22,7 @@ if (!$db) {
     <title>Event Management - YFEvents Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/admin-styles.css">
+    <link rel="stylesheet" href="./assets/admin-styles.css">
     <style>
         /* Page-specific styles for events page */
         .event-title {
@@ -64,7 +67,7 @@ if (!$db) {
                     <h1><i class="bi bi-calendar-event"></i> Event Management</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
                             <li class="breadcrumb-item active">Events</li>
                         </ol>
                     </nav>
@@ -285,7 +288,7 @@ if (!$db) {
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?php echo $basePath; ?>' || '/refactor';
+        const basePath = '<?php echo $basePath; ?>' || PathHelper::getBasePath();
         console.log('basePath is set to:', basePath);
         let currentPage = 1;
         let selectedEvents = new Set();
@@ -294,6 +297,29 @@ if (!$db) {
         
         // Load initial data
         document.addEventListener('DOMContentLoaded', () => {
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const filter = urlParams.get('filter');
+            const source = urlParams.get('source');
+            const status = urlParams.get('status');
+            
+            // Apply filters from URL
+            if (filter === 'recent') {
+                currentFilters.recent = true;
+                // Show only events from last 30 days
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                currentFilters.start_date = thirtyDaysAgo.toISOString().split('T')[0];
+            }
+            if (source === 'email') {
+                currentFilters.source = 'email';
+                // Filter by email source (source_id for email events)
+                currentFilters.source_type = 'email';
+            }
+            if (status) {
+                currentFilters.status = status;
+            }
+            
             loadStatistics();
             loadEvents();
         });
@@ -327,8 +353,24 @@ if (!$db) {
         function updateStatisticsDisplay(stats) {
             const statsRow = document.getElementById('statsRow');
             statsRow.innerHTML = `
-                <div class="stat-card" onclick="filterByStatus('all')" style="cursor: pointer;">
+                <a href="${basePath}/admin/events.php" class="stat-card">
                     <div class="stat-number">${stats.total_events || 0}</div>
+                    <div class="stat-label">Total Events</div>
+                </a>
+                <a href="${basePath}/admin/events.php?status=pending" class="stat-card">
+                    <div class="stat-number">${stats.pending_events || 0}</div>
+                    <div class="stat-label">Pending</div>
+                </a>
+                <a href="${basePath}/admin/events.php?status=approved" class="stat-card">
+                    <div class="stat-number">${stats.approved_events || 0}</div>
+                    <div class="stat-label">Approved</div>
+                </a>
+                <a href="${basePath}/admin/events.php?featured=1" class="stat-card">
+                    <div class="stat-number">${stats.featured_events || 0}</div>
+                    <div class="stat-label">Featured</div>
+                </a>
+            `;
+        }</div>
                     <div class="stat-label">Total Events</div>
                 </div>
                 <div class="stat-card" onclick="filterByStatus('pending')" style="cursor: pointer;">

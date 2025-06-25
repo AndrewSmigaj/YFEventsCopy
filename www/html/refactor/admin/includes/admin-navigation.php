@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 /**
  * Shared Admin Navigation Component
  * 
@@ -55,7 +58,7 @@ $quickStats = getQuickStats();
     <nav class="sidebar-nav">
         <!-- Dashboard -->
         <div class="nav-section">
-            <a href="/refactor/admin/dashboard" class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('dashboard') ?>" class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
@@ -64,18 +67,18 @@ $quickStats = getQuickStats();
         <!-- Event Management -->
         <div class="nav-section">
             <div class="nav-section-title">📅 Events</div>
-            <a href="events.php" class="nav-link <?= $currentPage === 'events' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('events.php') ?>" class="nav-link <?= $currentPage === 'events' ? 'active' : '' ?>">
                 <i class="bi bi-calendar-event"></i>
                 <span>Manage Events</span>
                 <?php if ($quickStats['pending_events'] > 0): ?>
                     <span class="badge bg-warning"><?= $quickStats['pending_events'] ?></span>
                 <?php endif; ?>
             </a>
-            <a href="email-events.php" class="nav-link <?= $currentPage === 'email-events' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('email-events.php') ?>" class="nav-link <?= $currentPage === 'email-events' ? 'active' : '' ?>">
                 <i class="bi bi-envelope"></i>
                 <span>Email Events</span>
             </a>
-            <a href="scrapers.php" class="nav-link <?= $currentPage === 'scrapers' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('scrapers.php') ?>" class="nav-link <?= $currentPage === 'scrapers' ? 'active' : '' ?>">
                 <i class="bi bi-robot"></i>
                 <span>Event Scrapers</span>
             </a>
@@ -84,7 +87,7 @@ $quickStats = getQuickStats();
         <!-- Shop Management -->
         <div class="nav-section">
             <div class="nav-section-title">🏪 Shops</div>
-            <a href="shops.php" class="nav-link <?= $currentPage === 'shops' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('shops.php') ?>" class="nav-link <?= $currentPage === 'shops' ? 'active' : '' ?>">
                 <i class="bi bi-shop"></i>
                 <span>Manage Shops</span>
                 <?php if ($quickStats['pending_shops'] > 0): ?>
@@ -96,20 +99,20 @@ $quickStats = getQuickStats();
         <!-- YF Classifieds -->
         <div class="nav-section">
             <div class="nav-section-title">🛍️ Classifieds</div>
-            <a href="../modules/yfclassifieds/www/admin/simple-index.php" class="nav-link" target="_blank">
+            <a href="../../modules/yfclassifieds/www/admin/simple-index.php" class="nav-link" target="_blank">
                 <i class="bi bi-grid"></i>
                 <span>Classifieds Dashboard</span>
                 <span class="badge bg-info"><?= $quickStats['total_classifieds'] ?></span>
             </a>
-            <a href="../modules/yfclassifieds/www/admin/create.php" class="nav-link" target="_blank">
+            <a href="../../modules/yfclassifieds/www/admin/create.php" class="nav-link" target="_blank">
                 <i class="bi bi-plus-circle"></i>
                 <span>Add New Item</span>
             </a>
-            <a href="../modules/yfclassifieds/www/admin/upload.php" class="nav-link" target="_blank">
+            <a href="../../modules/yfclassifieds/www/admin/upload.php" class="nav-link" target="_blank">
                 <i class="bi bi-camera"></i>
                 <span>Upload Photos</span>
             </a>
-            <a href="../modules/yfclassifieds/www/index.php" class="nav-link" target="_blank">
+            <a href="../../modules/yfclassifieds/www/index.php" class="nav-link" target="_blank">
                 <i class="bi bi-eye"></i>
                 <span>View Gallery</span>
             </a>
@@ -118,11 +121,11 @@ $quickStats = getQuickStats();
         <!-- Module Management -->
         <div class="nav-section">
             <div class="nav-section-title">🧩 Modules</div>
-            <a href="modules.php" class="nav-link <?= $currentPage === 'modules' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('modules.php') ?>" class="nav-link <?= $currentPage === 'modules' ? 'active' : '' ?>">
                 <i class="bi bi-puzzle"></i>
                 <span>Module Manager</span>
             </a>
-            <a href="claims.php" class="nav-link <?= $currentPage === 'claims' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('claims.php') ?>" class="nav-link <?= $currentPage === 'claims' ? 'active' : '' ?>">
                 <i class="bi bi-tag"></i>
                 <span>YF Claim</span>
             </a>
@@ -131,19 +134,19 @@ $quickStats = getQuickStats();
         <!-- System -->
         <div class="nav-section">
             <div class="nav-section-title">⚙️ System</div>
-            <a href="users.php" class="nav-link <?= $currentPage === 'users' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('users.php') ?>" class="nav-link <?= $currentPage === 'users' ? 'active' : '' ?>">
                 <i class="bi bi-people"></i>
                 <span>Users</span>
             </a>
-            <a href="settings.php" class="nav-link <?= $currentPage === 'settings' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('settings.php') ?>" class="nav-link <?= $currentPage === 'settings' ? 'active' : '' ?>">
                 <i class="bi bi-gear"></i>
                 <span>Settings</span>
             </a>
-            <a href="theme.php" class="nav-link <?= $currentPage === 'theme' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('theme.php') ?>" class="nav-link <?= $currentPage === 'theme' ? 'active' : '' ?>">
                 <i class="bi bi-palette"></i>
                 <span>Theme & SEO</span>
             </a>
-            <a href="email-config.php" class="nav-link <?= $currentPage === 'email-config' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('email-config.php') ?>" class="nav-link <?= $currentPage === 'email-config' ? 'active' : '' ?>">
                 <i class="bi bi-envelope-gear"></i>
                 <span>Email Config</span>
             </a>
@@ -152,11 +155,11 @@ $quickStats = getQuickStats();
         <!-- Quick Actions -->
         <div class="nav-section">
             <div class="nav-section-title">🚀 Quick Actions</div>
-            <a href="/refactor/" class="nav-link" target="_blank">
+            <a href="../" class="nav-link" target="_blank">
                 <i class="bi bi-house"></i>
                 <span>View Site</span>
             </a>
-            <a href="browser-scrapers.php" class="nav-link <?= $currentPage === 'browser-scrapers' ? 'active' : '' ?>">
+            <a href="<?= PathHelper::adminUrl('browser-scrapers.php') ?>" class="nav-link <?= $currentPage === 'browser-scrapers' ? 'active' : '' ?>">
                 <i class="bi bi-browser-chrome"></i>
                 <span>Browser Scrapers</span>
             </a>
@@ -195,9 +198,9 @@ function toggleSidebar() {
 
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        fetch('/refactor/admin/logout', { method: 'POST' })
-            .then(() => window.location.href = '/refactor/admin/login')
-            .catch(() => window.location.href = '/refactor/admin/login');
+        fetch('<?= PathHelper::url() ?>/admin/logout', { method: 'POST' })
+            .then(() => window.location.href = '<?= PathHelper::url() ?>/admin/login')
+            .catch(() => window.location.href = '<?= PathHelper::url() ?>/admin/login');
     }
 }
 </script>

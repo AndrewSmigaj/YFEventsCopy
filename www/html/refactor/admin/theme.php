@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 // Admin Theme Editor Page
 require_once __DIR__ . '/bootstrap.php';
 
@@ -6,7 +9,7 @@ require_once __DIR__ . '/bootstrap.php';
 $db = $GLOBALS['db'] ?? null;
 
 // Set correct base path for refactor admin
-$basePath = '/refactor';
+$basePath = PathHelper::getBasePath();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +19,7 @@ $basePath = '/refactor';
     <title>Theme Editor - YFEvents Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/admin-styles.css">
+    <link rel="stylesheet" href="./assets/admin-styles.css">
     <link rel="stylesheet" href="<?= $basePath ?>/css/theme-custom.css">
     <style>
         /* Theme editor specific styles */
@@ -342,7 +345,7 @@ $basePath = '/refactor';
                     <h1><i class="bi bi-palette"></i> Theme</h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
                             <li class="breadcrumb-item active">Theme</li>
                         </ol>
                     </nav>
@@ -450,8 +453,8 @@ $basePath = '/refactor';
     <div id="toast" class="toast"></div>
     
     <script>
-        const basePath = '<?php echo $basePath; ?>' || '/refactor';
-        const apiBasePath = '<?php echo $basePath; ?>' || '/refactor';
+        const basePath = '<?php echo $basePath; ?>' || PathHelper::getBasePath();
+        const apiBasePath = '<?php echo $basePath; ?>' || PathHelper::getBasePath();
         let currentTab = 'appearance';
         let themeSettings = {};
         let seoSettings = {};

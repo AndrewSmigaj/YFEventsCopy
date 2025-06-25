@@ -1,95 +1,51 @@
 <?php
+/**
+ * Application Configuration
+ * This file centralizes all path and URL configurations
+ */
+
+// Load environment variables
+require_once dirname(__DIR__) . '/src/Utils/EnvLoader.php';
+use YFEvents\Utils\EnvLoader;
+EnvLoader::load(dirname(__DIR__));
+
+// Determine if we're in a subdirectory (like /refactor) or root
+$scriptPath = dirname($_SERVER['SCRIPT_NAME'] ?? '');
+$isSubdirectory = $scriptPath !== '/' && $scriptPath !== '' && $scriptPath !== '.';
+
+// Dynamic base path detection
+$basePath = $isSubdirectory ? $scriptPath : '';
+
+// Remove trailing slash
+$basePath = rtrim($basePath, '/');
 
 return [
-    'name' => 'YFEvents',
-    'version' => '2.0.0',
-    'environment' => 'development',
-    'debug' => true,
-    'timezone' => 'America/Los_Angeles',
+    // Base path for URLs (empty for root, '/refactor' for subdirectory)
+    'base_path' => $basePath,
     
-    'url' => 'http://137.184.245.149',
+    // Full base URL
+    'base_url' => 'https://' . ($_SERVER['HTTP_HOST'] ?? 'backoffice.yakimafinds.com') . $basePath,
     
-    'logging' => [
-        'level' => 'INFO',
-        'path' => __DIR__ . '/../storage/logs',
-        'daily' => true,
-    ],
-
-    'cache' => [
-        'default' => 'file',
-        'stores' => [
-            'file' => [
-                'driver' => 'file',
-                'path' => __DIR__ . '/../storage/cache',
-            ],
-        ],
-    ],
-
-    'session' => [
-        'lifetime' => 120,
-        'encrypt' => false,
-        'files' => __DIR__ . '/../storage/sessions',
-        'connection' => null,
-        'table' => 'sessions',
-        'store' => null,
-        'lottery' => [2, 100],
-        'cookie' => 'yfevents_session',
-        'path' => '/',
-        'domain' => null,
-        'secure' => false,
-        'http_only' => true,
-        'same_site' => 'lax',
-    ],
-
-    'sms' => [
-        'enabled' => false,
-        'provider' => 'twilio', // twilio, aws, nexmo
-        'from_number' => '',
-        
-        // Twilio Configuration
-        'twilio' => [
-            'account_sid' => '',
-            'auth_token' => '',
-            'from_number' => '',
-        ],
-        
-        // AWS SNS Configuration
-        'aws' => [
-            'key' => '',
-            'secret' => '',
-            'region' => 'us-east-1',
-            'from_number' => '',
-        ],
-        
-        // Nexmo/Vonage Configuration
-        'nexmo' => [
-            'api_key' => '',
-            'api_secret' => '',
-            'from_number' => '',
-        ],
-        
-        // Test mode settings
-        'test_mode' => true,
-        'test_numbers' => [], // Numbers that will receive actual SMS in test mode
-    ],
-
-    'email' => [
-        'enabled' => true,
-        'driver' => 'mail', // mail, smtp, sendmail
-        'from_email' => 'noreply@yakimafinds.com',
-        'from_name' => 'YakimaFinds',
-        
-        // SMTP Configuration
-        'smtp' => [
-            'host' => 'smtp.gmail.com',
-            'port' => 587,
-            'username' => '',
-            'password' => '',
-            'encryption' => 'tls', // tls, ssl
-        ],
-        
-        // Test mode settings
-        'test_mode' => false,
-        'test_emails' => [], // Emails that will receive actual emails in test mode
-    ],
+    // Admin path (relative to base)
+    'admin_path' => '/admin',
+    
+    // API path (relative to base)
+    'api_path' => '/api',
+    
+    // Assets path (relative to base)
+    'assets_path' => '/assets',
+    
+    // Modules path (relative to site root)
+    'modules_path' => '/modules',
+    
+    // Communication path (relative to site root)
+    'communication_path' => '/communication',
+    
+    // Database configuration
+    'database' => [
+        'host' => 'localhost',
+        'name' => 'yakima_finds',
+        'user' => 'yfevents',
+        'password' => EnvLoader::get('DB_PASS', '')
+    ]
 ];

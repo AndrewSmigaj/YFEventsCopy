@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 declare(strict_types=1);
 
 use YFEvents\Application\Bootstrap;

@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+use YFEvents\Helpers\PathHelper;
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
@@ -9,7 +12,7 @@ use YFEvents\Infrastructure\Services\EmailEventProcessor;
 $db = $GLOBALS['db'] ?? null;
 $pdo = $db; // EmailEventProcessor expects a PDO instance
 
-$basePath = '/refactor';
+$basePath = PathHelper::getBasePath();
 
 $emailConfig = require dirname(__DIR__) . '/config/email.php';
 $processor = new EmailEventProcessor($pdo, $emailConfig);
@@ -59,7 +62,7 @@ if (file_exists($logFile)) {
     <title>Email Event Processing - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/admin-styles.css">
+    <link rel="stylesheet" href="./assets/admin-styles.css">
     <style>
         .log-viewer {
             background: #f8f9fa;
@@ -77,6 +80,20 @@ if (file_exists($logFile)) {
             border-radius: 10px;
             padding: 1.5rem;
             margin-bottom: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card.clickable {
+            cursor: pointer;
+        }
+        .stat-card.clickable:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .stat-card h2 {
+            margin: 0.5rem 0;
+        }
+        .stat-card small {
+            opacity: 0.9;
         }
         .email-instructions {
             background: #e3f2fd;
@@ -144,22 +161,31 @@ if (file_exists($logFile)) {
                 <!-- Statistics -->
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <div class="stat-card">
-                            <h5>📊 Total Events (30 days)</h5>
-                            <h2><?= $stats['total_events'] ?? 0 ?></h2>
-                        </div>
+                        <a href="<?= $basePath ?>/admin/events.php?filter=recent" class="text-decoration-none">
+                            <div class="stat-card clickable">
+                                <h5>📊 Total Events (30 days)</h5>
+                                <h2><?= $stats['total_events'] ?? 0 ?></h2>
+                                <small class="text-muted">Click to view all recent events</small>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card">
-                            <h5>📧 Email Events</h5>
-                            <h2><?= $stats['email_events'] ?? 0 ?></h2>
-                        </div>
+                        <a href="<?= $basePath ?>/admin/events.php?source=email" class="text-decoration-none">
+                            <div class="stat-card clickable">
+                                <h5>📧 Email Events</h5>
+                                <h2><?= $stats['email_events'] ?? 0 ?></h2>
+                                <small class="text-muted">Click to view email-sourced events</small>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card">
-                            <h5>⏳ Pending Review</h5>
-                            <h2><?= $stats['pending_email_events'] ?? 0 ?></h2>
-                        </div>
+                        <a href="<?= $basePath ?>/admin/events.php?status=pending&source=email" class="text-decoration-none">
+                            <div class="stat-card clickable">
+                                <h5>⏳ Pending Review</h5>
+                                <h2><?= $stats['pending_email_events'] ?? 0 ?></h2>
+                                <small class="text-muted">Click to review pending events</small>
+                            </div>
+                        </a>
                     </div>
                 </div>
 
