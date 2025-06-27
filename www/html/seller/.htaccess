@@ -1,0 +1,16 @@
+RewriteEngine On
+
+# Handle item-specific URLs
+RewriteRule ^items/([0-9]+)/edit/?$ item-edit.php?id=$1 [L,QSA]
+RewriteRule ^items/([0-9]+)/sold/?$ item-sold.php?id=$1 [L,QSA]
+
+# Handle classifieds/create -> classifieds/create.php
+RewriteRule ^classifieds/create/?$ classifieds/create.php [L]
+
+# Handle items -> items.php
+RewriteRule ^items/?$ items.php [L]
+
+# Remove .php extension from URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
