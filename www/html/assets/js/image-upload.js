@@ -9,7 +9,7 @@ class ImageUploadComponent {
         this.config = {
             container: config.container || '#image-upload-container',
             uploadUrl: config.uploadUrl || '/seller/upload-image.php',
-            maxFileSize: config.maxFileSize || 5 * 1024 * 1024, // 5MB default
+            maxFileSize: config.maxFileSize || 2 * 1024 * 1024, // 2MB default (PHP limit)
             acceptedTypes: config.acceptedTypes || ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
             maxImages: config.maxImages || 10,
             itemId: config.itemId || null,
@@ -273,6 +273,17 @@ class ImageUploadComponent {
         if (this.images.length < this.config.maxImages) {
             document.getElementById('upload-drop-zone').style.display = 'block';
         }
+    }
+    
+    addExistingImage(url) {
+        // Add an already uploaded image to the component
+        const imageData = {
+            url: url,
+            temp: true,
+            is_primary: this.images.length === 0
+        };
+        
+        this.addImagePreview(imageData);
     }
     
     getImages() {

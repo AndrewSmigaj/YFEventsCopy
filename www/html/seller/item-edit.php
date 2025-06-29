@@ -11,11 +11,18 @@ if (!isset($_SESSION['seller_id'])) {
 $sellerId = $_SESSION['seller_id'];
 $itemId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
-// Verify item belongs to seller
+// Check for recovered images
+$recoveredImages = [];
+if (isset($_SESSION['recovered_images'])) {
+    $recoveredImages = $_SESSION['recovered_images'];
+    unset($_SESSION['recovered_images']); // Use only once
+}
+
+// Verify item belongs to seller through sale_id
 $checkStmt = $pdo->prepare("
     SELECT i.*, s.seller_id, c.name as category_name
     FROM yfc_items i
-    JOIN yfc_sales s ON i.sale_id = s.id
+    LEFT JOIN yfc_sales s ON i.sale_id = s.id
     LEFT JOIN yfc_categories c ON i.category_id = c.id
     WHERE i.id = ? AND s.seller_id = ?
 ");
@@ -168,6 +175,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
+                
+                <?php if (!empty($recoveredImages)): ?>
+                    <div class="alert alert-info alert-dismissible fade show">
+                        <i class="bi bi-check-circle"></i> <?= count($recoveredImages) ?> recovered image(s) have been added below. Don't forget to save your changes!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
 
                 <div class="form-card">
                     <form method="POST">
@@ -214,6 +228,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="mb-4">
                             <label class="form-label">Photos</label>
+                            <?php
+                            // Check if there are any unattached uploads
+                            $uploadDir = dirname(__DIR__) . '/uploads/items/';
+                            $hasUnattachedUploads = false;
+                            if (is_dir($uploadDir)) {
+                                $files = scandir($uploadDir);
+                                foreach ($files as $file) {
+                                    // Only check files uploaded by this seller (new format)
+                                    if (preg_match('/^seller' . $sellerId . '_.*\.(jpg|jpeg|png|gif|webp)$/i', $file)) {
+                                        $fileTime = filemtime($uploadDir . $file);
+                                        if ($fileTime > time() - 86400) { // Last 24 hours
+                                            $photoCheckStmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_item_photos WHERE photo_url = ?");
+                                            $photoCheckStmt->execute(['/uploads/items/' . $file]);
+                                            if ($photoCheckStmt->fetchColumn() == 0) {
+                                                $hasUnattachedUploads = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if ($hasUnattachedUploads && empty($recoveredImages)): ?>
+                                <div class="mb-2">
+                                    <a href="/seller/recover-uploads.php?return=edit&item=<?= $itemId ?>" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-images"></i> Add Previously Uploaded Images
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!empty($existingPhotos)): ?>
                                 <div class="existing-photos mb-3">
                                     <div class="row g-2">
@@ -272,6 +315,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     alert('Upload Error: ' + message);
                 }
             });
+            
+            // Pre-populate with recovered images if any
+            <?php if (!empty($recoveredImages)): ?>
+            const recoveredImages = <?= json_encode($recoveredImages) ?>;
+            recoveredImages.forEach(function(imageUrl) {
+                // Add to the uploader's image list
+                imageUploader.addExistingImage(imageUrl);
+            });
+            // Update the hidden field
+            updateUploadedImages();
+            <?php endif; ?>
         });
         
         function removeExistingPhoto(photoId) {

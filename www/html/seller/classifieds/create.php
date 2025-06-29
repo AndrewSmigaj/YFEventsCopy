@@ -12,15 +12,33 @@ $sellerId = $_SESSION['seller_id'];
 $error = '';
 $success = '';
 
+// Check for recovered images
+$recoveredImages = [];
+if (isset($_SESSION['recovered_images'])) {
+    $recoveredImages = $_SESSION['recovered_images'];
+    unset($_SESSION['recovered_images']); // Use only once
+}
+
 // Get categories
 $categoriesStmt = $pdo->query("SELECT * FROM yfc_categories ORDER BY name");
 $categories = $categoriesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get the classifieds sale for this seller
+// Get the classifieds sale for this seller (create if doesn't exist)
 $salesStmt = $pdo->prepare("SELECT id FROM yfc_sales WHERE seller_id = ? AND title = 'General Classifieds' LIMIT 1");
 $salesStmt->execute([$sellerId]);
 $sale = $salesStmt->fetch(PDO::FETCH_ASSOC);
-$saleId = $sale ? $sale['id'] : 3; // Default to sale ID 3 if not found
+
+if (!$sale) {
+    // Create General Classifieds sale for this seller
+    $createSaleStmt = $pdo->prepare("
+        INSERT INTO yfc_sales (seller_id, title, start_date, end_date, status, created_at) 
+        VALUES (?, 'General Classifieds', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), 'active', NOW())
+    ");
+    $createSaleStmt->execute([$sellerId]);
+    $saleId = $pdo->lastInsertId();
+} else {
+    $saleId = $sale['id'];
+}
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,13 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please enter a valid price';
     } else {
         try {
-            // Insert the item
+            // Insert the item (classifieds use sale_id to link to seller)
             $insertStmt = $pdo->prepare("
                 INSERT INTO yfc_items (
-                    sale_id, title, description, category_id, price, 
+                    sale_id, title, description, category_id, price, starting_price,
                     listing_type, status, created_at, available_until
                 ) VALUES (
-                    ?, ?, ?, ?, ?, 'classified', 'active', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)
+                    ?, ?, ?, ?, ?, ?, 'classified', 'active', NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)
                 )
             ");
             
@@ -51,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $title,
                 $description,
                 $categoryId ?: null,
-                $price
+                $price,
+                $price  // starting_price same as price for classifieds
             ]);
             
             $itemId = $pdo->lastInsertId();
@@ -159,6 +178,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-12">
                 <h1><i class="bi bi-megaphone"></i> Create Classified Ad</h1>
                 <p class="text-muted">List an item for direct sale to buyers</p>
+                <?php
+                // Check if there are any unattached uploads
+                $uploadDir = dirname(__DIR__, 2) . '/uploads/items/';
+                $hasUnattachedUploads = false;
+                if (is_dir($uploadDir)) {
+                    $files = scandir($uploadDir);
+                    foreach ($files as $file) {
+                        // Only check files uploaded by this seller (new format)
+                        if (preg_match('/^seller' . $sellerId . '_.*\.(jpg|jpeg|png|gif|webp)$/i', $file)) {
+                            $fileTime = filemtime($uploadDir . $file);
+                            if ($fileTime > time() - 86400) { // Last 24 hours
+                                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_item_photos WHERE photo_url = ?");
+                                $checkStmt->execute(['/uploads/items/' . $file]);
+                                if ($checkStmt->fetchColumn() == 0) {
+                                    $hasUnattachedUploads = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if ($hasUnattachedUploads && empty($recoveredImages)): ?>
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="bi bi-info-circle"></i> You have previously uploaded images that weren't saved. 
+                        <a href="/seller/recover-uploads.php" class="alert-link">Click here to use them</a>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -166,6 +214,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($error): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-triangle"></i> <?= htmlspecialchars($error) ?>
+                    <?php if (strpos($error, 'Error creating listing') !== false): ?>
+                        <br><small>Your images were uploaded. <a href="/seller/recover-uploads.php" class="alert-link">Click here to recover them</a>.</small>
+                    <?php endif; ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
@@ -212,6 +263,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="mb-4">
                     <label class="form-label">Photos</label>
+                    <?php if ($hasUnattachedUploads && empty($recoveredImages)): ?>
+                        <div class="mb-2">
+                            <a href="/seller/recover-uploads.php" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-images"></i> Use Previously Uploaded Images
+                            </a>
+                        </div>
+                    <?php endif; ?>
                     <div id="image-upload-container"></div>
                     <input type="hidden" name="uploaded_images" id="uploaded_images">
                 </div>
@@ -258,6 +316,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     alert('Upload Error: ' + message);
                 }
             });
+            
+            // Pre-populate with recovered images if any
+            <?php if (!empty($recoveredImages)): ?>
+            const recoveredImages = <?= json_encode($recoveredImages) ?>;
+            recoveredImages.forEach(function(imageUrl) {
+                // Add to the uploader's image list
+                imageUploader.addExistingImage(imageUrl);
+            });
+            // Update the hidden field
+            document.getElementById('uploaded_images').value = JSON.stringify(recoveredImages);
+            <?php endif; ?>
         });
     </script>
 </body>

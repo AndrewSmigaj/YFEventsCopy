@@ -214,7 +214,26 @@ $recentItems = $recentItemsStmt->fetchAll(PDO::FETCH_ASSOC);
                         <a class="nav-link" href="/seller/classifieds.php">Classifieds</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/seller/analytics.php">Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/seller/offers.php">Offers</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/seller/profile.php">Profile</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-grid-3x3-gap"></i> More
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock"></i> Admin Panel</a></li>
+                            <li><a class="dropdown-item" href="/communication/"><i class="bi bi-chat-dots"></i> Communication Hub</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/calendar.php"><i class="bi bi-calendar-event"></i> Event Calendar</a></li>
+                            <li><a class="dropdown-item" href="/shops.php"><i class="bi bi-shop-window"></i> Shop Directory</a></li>
+                            <li><a class="dropdown-item" href="/"><i class="bi bi-house"></i> Main Site</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/seller/logout.php">
@@ -295,6 +314,23 @@ $recentItems = $recentItemsStmt->fetchAll(PDO::FETCH_ASSOC);
                     <p class="text-muted">Track your sales performance</p>
                     <a href="/seller/analytics.php" class="btn btn-outline-primary">
                         <i class="bi bi-bar-chart"></i> Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Second row of quick actions -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-3">
+                <div class="action-card">
+                    <i class="bi bi-images"></i>
+                    <h5>Recover Images</h5>
+                    <p class="text-muted">Use previously uploaded images</p>
+                    <a href="/seller/recover-uploads.php" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise"></i> Recent
+                    </a>
+                    <a href="/seller/recover-legacy-uploads.php" class="btn btn-outline-secondary btn-sm mt-2">
+                        <i class="bi bi-clock-history"></i> Legacy
                     </a>
                 </div>
             </div>
