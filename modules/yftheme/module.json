@@ -1,0 +1,66 @@
+{
+    "name": "yftheme",
+    "display_name": "YF Theme Manager",
+    "version": "1.0.0",
+    "description": "Centralized CSS theme management system with visual editor for global styling",
+    "author": "YFEvents Team",
+    "namespace": "YFEvents\\Modules\\YFTheme",
+    "requirements": {
+        "php": ">=7.4",
+        "modules": ["yfauth"]
+    },
+    "permissions": [
+        {
+            "name": "theme.view",
+            "display_name": "View Themes",
+            "description": "View available themes and current settings"
+        },
+        {
+            "name": "theme.edit",
+            "display_name": "Edit Themes",
+            "description": "Edit theme variables and preview changes"
+        },
+        {
+            "name": "theme.create",
+            "display_name": "Create Themes",
+            "description": "Create new themes and theme presets"
+        },
+        {
+            "name": "theme.delete",
+            "display_name": "Delete Themes",
+            "description": "Delete themes and presets"
+        },
+        {
+            "name": "theme.export",
+            "display_name": "Export Themes",
+            "description": "Export themes for backup or sharing"
+        },
+        {
+            "name": "theme.apply",
+            "display_name": "Apply Themes",
+            "description": "Apply themes to the live site"
+        }
+    ],
+    "routes": {
+        "admin": {
+            "/modules/yftheme/admin": "www/admin/index.php",
+            "/modules/yftheme/api": "www/api/index.php"
+        },
+        "public": {
+            "/theme.css": "www/api/theme.php"
+        }
+    },
+    "hooks": {
+        "head": "src/Hooks/ThemeHook.php",
+        "admin_menu": "src/Hooks/AdminMenuHook.php"
+    },
+    "assets": {
+        "css": [
+            "www/assets/css/theme-editor.css"
+        ],
+        "js": [
+            "www/assets/js/theme-editor.js",
+            "www/assets/js/color-picker.js"
+        ]
+    }
+}

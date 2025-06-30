@@ -1,0 +1,93 @@
+{
+  "sourceName": "Meetup.com",
+  "sourceId": "meetup",
+  "baseUrl": "https://www.meetup.com",
+  "searchUrl": "https://www.meetup.com/find/events/?allMeetups=false&keywords=&location={{location}}&radius=25",
+  "description": "Meetup.com event scraper for local community events",
+  
+  "waitSelectors": [
+    "[data-testid='event-card']",
+    ".event-listing",
+    ".search-results",
+    ".eventList-list"
+  ],
+  
+  "dismissSelectors": [
+    ".modal-close",
+    "[data-dismiss='modal']",
+    ".cookie-notice-close",
+    "#onetrust-accept-btn-handler"
+  ],
+  
+  "selectors": {
+    "eventContainer": "[data-testid='event-card'], .event-listing, .event-item",
+    
+    "fields": {
+      "title": {
+        "selector": "h3, h2, [data-testid='event-title'], .event-title",
+        "transform": "clean"
+      },
+      "start_date": {
+        "selector": "time, [datetime]",
+        "attribute": "datetime",
+        "fallbackSelector": ".event-time, .date-display",
+        "transform": "date"
+      },
+      "end_date": {
+        "selector": "time[datetime]:nth-of-type(2)",
+        "attribute": "datetime",
+        "transform": "date"
+      },
+      "venue_name": {
+        "selector": ".venue-name, [data-testid='venue-name']",
+        "transform": "clean"
+      },
+      "venue_location": {
+        "selector": ".venue-address, .location",
+        "transform": "clean"
+      },
+      "organizer": {
+        "selector": ".group-name, .organizer-name",
+        "transform": "clean"
+      },
+      "description": {
+        "selector": ".event-description, .description",
+        "transform": "clean"
+      },
+      "url": {
+        "selector": "a[href*='/events/']",
+        "attribute": "href",
+        "transform": "url"
+      },
+      "image_url": {
+        "selector": "img",
+        "attribute": "src",
+        "transform": "url"
+      }
+    }
+  },
+  
+  "pagination": {
+    "type": "url",
+    "urlTemplate": "https://www.meetup.com/find/events/?allMeetups=false&keywords=&location={{location}}&radius=25&page={{page}}",
+    "nextSelector": ".pagination-next, .next-page"
+  },
+  
+  "antiDetection": {
+    "randomDelay": {
+      "min": 2000,
+      "max": 4000
+    },
+    "scrollBehavior": true,
+    "mouseMoves": false,
+    "humanTyping": false
+  },
+  
+  "specialHandling": {
+    "requiresLocation": true,
+    "hasGeoBias": true,
+    "needsCookieAcceptance": true,
+    "hasLazyLoading": false,
+    "requiresScrolling": false
+  }
+}

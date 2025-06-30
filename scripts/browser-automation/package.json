@@ -1,0 +1,24 @@
+{
+  "name": "yf-events-browser-scraper",
+  "version": "1.0.0",
+  "description": "Modular browser automation scraper for YFEvents",
+  "main": "scraper.js",
+  "scripts": {
+    "scrape": "node scraper.js",
+    "test": "node scraper.js --test",
+    "eventbrite": "node scraper.js --config=eventbrite",
+    "meetup": "node scraper.js --config=meetup",
+    "facebook": "node scraper.js --config=facebook-events"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "csv-writer": "^1.6.0",
+    "commander": "^11.0.0",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "author": "YakimaFinds",
+  "license": "MIT"
+}
