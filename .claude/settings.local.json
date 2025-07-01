@@ -41,7 +41,8 @@
       "Bash(composer:*)",
       "Bash(php:*)",
       "Bash(sudo dpkg:*)",
-      "Bash(sudo apt install:*)"
+      "Bash(sudo apt install:*)",
+      "Bash(mysql:*)"
     ],
     "deny": []
   }

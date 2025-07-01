@@ -25,7 +25,7 @@ CREATE TABLE communication_channels (
     INDEX idx_channels_activity (last_activity_at),
     INDEX idx_channels_archived (is_archived),
     INDEX idx_channels_slug (slug),
-    FOREIGN KEY (created_by_user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE SET NULL,
     FOREIGN KEY (shop_id) REFERENCES local_shops(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -58,7 +58,7 @@ CREATE TABLE communication_messages (
     INDEX idx_messages_yfclaim (yfclaim_item_id),
     INDEX idx_messages_email (email_message_id),
     FOREIGN KEY (channel_id) REFERENCES communication_channels(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (parent_message_id) REFERENCES communication_messages(id) ON DELETE SET NULL,
     -- Note: Foreign key to yfclaim_items would be added if YFClaim tables exist
     
@@ -84,7 +84,7 @@ CREATE TABLE communication_participants (
     INDEX idx_participants_role (role),
     INDEX idx_participants_digest (email_digest_frequency),
     FOREIGN KEY (channel_id) REFERENCES communication_channels(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (last_read_message_id) REFERENCES communication_messages(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -137,7 +137,7 @@ CREATE TABLE communication_notifications (
     INDEX idx_notifications_unread (user_id, is_read),
     INDEX idx_notifications_created (created_at),
     INDEX idx_notifications_type (type),
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (channel_id) REFERENCES communication_channels(id) ON DELETE CASCADE,
     FOREIGN KEY (message_id) REFERENCES communication_messages(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -154,7 +154,7 @@ CREATE TABLE communication_reactions (
     INDEX idx_reactions_message (message_id),
     INDEX idx_reactions_user (user_id),
     FOREIGN KEY (message_id) REFERENCES communication_messages(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Sample data removed - add after all tables are created

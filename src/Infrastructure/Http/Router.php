@@ -15,6 +15,7 @@ class Router
     private array $routes = [];
     private ContainerInterface $container;
     private ConfigInterface $config;
+    private string $currentPrefix = '';
 
     public function __construct(ContainerInterface $container, ConfigInterface $config)
     {

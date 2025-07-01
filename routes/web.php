@@ -148,28 +148,20 @@ $router->get('/classifieds/category/{slug}', ClassifiedsController::class, 'show
 // ===== MODULE ROUTES =====
 
 // YFAuth Module Routes (if controllers exist)
-$router->group(['prefix' => 'auth'], function($router) {
-    // Basic auth routes - controllers need to be implemented
-    // $router->get('/login', \YFEvents\Modules\YFAuth\Controllers\AuthController::class, 'showLogin');
-    // $router->post('/login', \YFEvents\Modules\YFAuth\Controllers\AuthController::class, 'processLogin');
-});
+// Basic auth routes - controllers need to be implemented
+// $router->get('/auth/login', \YFEvents\Modules\YFAuth\Controllers\AuthController::class, 'showLogin');
+// $router->post('/auth/login', \YFEvents\Modules\YFAuth\Controllers\AuthController::class, 'processLogin');
 
 // YFClaim Module Routes
-$router->group(['prefix' => 'estate-sales'], function($router) {
-    // Using existing ClaimsController
-    $router->get('/', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showClaimsPage');
-    $router->get('/upcoming', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showUpcomingClaimsPage');
-    $router->get('/sale/{id}', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showSale');
-});
+// Using existing ClaimsController
+$router->get('/estate-sales', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showClaimsPage');
+$router->get('/estate-sales/upcoming', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showUpcomingClaimsPage');
+$router->get('/estate-sales/sale/{id}', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showSale');
 
 // YFTheme Module Routes (if ThemeController exists)
-$router->group(['prefix' => 'theme'], function($router) {
-    $router->get('/editor', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'showEditor');
-    $router->post('/api/save', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'saveTheme');
-});
+$router->get('/theme/editor', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'showEditor');
+$router->post('/theme/api/save', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'saveTheme');
 
 // YFClassifieds Module Routes (if ClassifiedsController exists)
-$router->group(['prefix' => 'classifieds'], function($router) {
-    $router->get('/', \YFEvents\Presentation\Http\Controllers\ClassifiedsController::class, 'index');
-    $router->get('/item/{id}', \YFEvents\Presentation\Http\Controllers\ClassifiedsController::class, 'showItem');
-});
+$router->get('/classifieds', \YFEvents\Presentation\Http\Controllers\ClassifiedsController::class, 'index');
+$router->get('/classifieds/item/{id}', \YFEvents\Presentation\Http\Controllers\ClassifiedsController::class, 'showItem');

@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `chat_conversations` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`created_by`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`event_id`) REFERENCES `events`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`forum_topic_id`) REFERENCES `forum_topics`(`id`) ON DELETE CASCADE,
     INDEX `idx_conversations_type` (`type`),
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `chat_participants` (
     `last_seen` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`conversation_id`) REFERENCES `chat_conversations`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     UNIQUE KEY `unique_participant` (`conversation_id`, `user_id`),
     INDEX `idx_participants_conversation` (`conversation_id`),
     INDEX `idx_participants_user` (`user_id`),
@@ -67,9 +67,9 @@ CREATE TABLE IF NOT EXISTS `chat_messages` (
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`conversation_id`) REFERENCES `chat_conversations`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`parent_message_id`) REFERENCES `chat_messages`(`id`) ON DELETE SET NULL,
-    FOREIGN KEY (`deleted_by`) REFERENCES `yfa_auth_users`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`deleted_by`) REFERENCES `users`(`id`) ON DELETE SET NULL,
     INDEX `idx_messages_conversation` (`conversation_id`),
     INDEX `idx_messages_user` (`user_id`),
     INDEX `idx_messages_created` (`created_at`),
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `chat_message_reactions` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`message_id`) REFERENCES `chat_messages`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     UNIQUE KEY `unique_reaction` (`message_id`, `user_id`, `emoji`),
     INDEX `idx_reactions_message` (`message_id`),
     INDEX `idx_reactions_user` (`user_id`)
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `chat_notifications` (
     `read_at` TIMESTAMP NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`conversation_id`) REFERENCES `chat_conversations`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`message_id`) REFERENCES `chat_messages`(`id`) ON DELETE CASCADE,
     INDEX `idx_notifications_user` (`user_id`),
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `chat_user_settings` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     UNIQUE KEY `unique_user_settings` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS `chat_user_presence` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     INDEX `idx_presence_user` (`user_id`),
     INDEX `idx_presence_status` (`status`),
     INDEX `idx_presence_last_seen` (`last_seen`)
@@ -176,8 +176,8 @@ CREATE TABLE IF NOT EXISTS `chat_moderation_logs` (
     `duration` INT DEFAULT NULL, -- seconds for temporary actions
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`moderator_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`target_user_id`) REFERENCES `yfa_auth_users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`moderator_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`target_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`conversation_id`) REFERENCES `chat_conversations`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`message_id`) REFERENCES `chat_messages`(`id`) ON DELETE CASCADE,
     INDEX `idx_moderation_moderator` (`moderator_id`),
@@ -234,7 +234,7 @@ BEGIN
     IF NEW.content LIKE '%@%' THEN
         INSERT INTO chat_notifications (user_id, conversation_id, message_id, notification_type)
         SELECT u.id, NEW.conversation_id, NEW.id, 'mention'
-        FROM `yfa_auth_users` u
+        FROM users u
         INNER JOIN chat_participants p ON u.id = p.user_id
         WHERE p.conversation_id = NEW.conversation_id 
         AND p.user_id != NEW.user_id 
@@ -247,7 +247,8 @@ DELIMITER ;
 
 -- Insert default chat settings for existing users
 INSERT INTO chat_user_settings (user_id)
-SELECT id FROM `yfa_auth_users` WHERE id NOT IN (SELECT user_id FROM chat_user_settings);
+SELECT id FROM users 
+WHERE id NOT IN (SELECT user_id FROM chat_user_settings);
 
 -- Create indexes for performance optimization
 CREATE INDEX idx_chat_messages_conversation_created ON chat_messages(conversation_id, created_at);

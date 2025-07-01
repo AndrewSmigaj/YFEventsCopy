@@ -1,13 +1,13 @@
 # YFEvents Architecture Documentation
-# Last Updated: Phase 9 Namespace Updates Complete
+# Last Updated: Development Environment Setup Complete
 
 project:
   name: YFEvents
   version: 2.0.0
   description: Community Events Platform with Clean Architecture
   namespace: YFEvents
-  status: refactoring-in-progress
-  completion: 75%  # Phases 1-9 of 12 complete
+  status: development-environment-ready
+  completion: 80%  # Phases 1-9 complete, dev environment operational
 
 architecture:
   pattern: Clean Architecture (Hexagonal)
@@ -135,29 +135,30 @@ configuration:
 database:
   connection: MySQL/MariaDB
   name: yakima_finds
+  user_table: yfa_auth_users    # Standardized from 'users' references
   tables:
     core:
       - events
       - event_categories
-      - calendar_sources
+      - calendar_sources    # Moved before events to resolve FK dependency
       - local_shops
-      - shop_categories
-      - users              # Main user table (not module-specific)
+      - shop_categories    # Moved before local_shops to resolve FK dependency
+      - shop_owners       # Moved before local_shops to resolve FK dependency
       
     modules:
-      - yfa_auth_*        # YFAuth module tables
+      - yfa_auth_*        # YFAuth module tables (includes main user table)
       - yfc_*             # YFClaim module tables
       - theme_*           # YFTheme module tables
       
     communication:
-      - chat_conversations
-      - chat_messages
-      - communication_channels
+      - chat_*            # Chat system tables (pending import)
+      - communication_*   # Communication channels (pending import)
       
     system:
       - modules
       - module_settings
       - audit_log
+      - scraping_logs
 
 testing:
   structure:
@@ -176,10 +177,30 @@ deployment:
       
   commands:
     - composer install
-    - composer dump-autoload
+    - composer dump-autoload -o
     - cp .env.example .env
     - # Configure .env with actual values
-    - # Run database migrations/schemas
+    - # Run database import: ./scripts/import_database.sh
+
+development_environment:
+  platform: Ubuntu 22.04 LTS (WSL2)
+  stack:
+    - PHP 8.1 with required extensions
+    - MySQL 8.0
+    - Apache 2.4 with mod_rewrite
+    - Composer 2.x
+  
+  configuration:
+    - Virtual host configured for localhost
+    - Document root: /mnt/d/YFEventsCopy/public
+    - Database: yakima_finds (user: yfevents)
+    - Environment file: .env with APP_KEY generated
+    
+  issues_resolved:
+    - Router group() method: Simplified routes to not use groups
+    - Database foreign key ordering: Reordered table creation
+    - User table references: Standardized to yfa_auth_users
+    - Composer dependencies: Downgraded from PHP 8.2 to 8.1 compatible
 
 refactoring_progress:
   completed:
@@ -201,6 +222,13 @@ refactoring_progress:
       - Updated use statements and fully qualified class names
       - 383 references updated to 30 (remaining are string literals)
       
+  in_progress:
+    - Development Environment Setup:
+      - LAMP stack installed and configured
+      - Database partially imported (19 tables)
+      - Application accessible at http://localhost
+      - Some schemas pending import (chat, communication)
+      
   pending:
     - Phase 10: Testing & Verification
     - Phase 11: Final Review
@@ -214,3 +242,6 @@ notes:
   - Backwards compatibility maintained where possible
   - Security improvements implemented
   - Production database schema preserved
+  - YFClassifieds module skipped (overlaps with YFClaim)
+  - Router simplified to not require group() method
+  - Database schemas reordered to resolve dependencies

@@ -1,6 +1,15 @@
 -- YFEvents Communication Tool Database Schema
 -- Pure communication functionality only (no marketplace/classified features)
 
+-- Drop existing tables if needed (be careful in production!)
+DROP TABLE IF EXISTS communication_reactions;
+DROP TABLE IF EXISTS communication_email_addresses;
+DROP TABLE IF EXISTS communication_notifications;
+DROP TABLE IF EXISTS communication_attachments;
+DROP TABLE IF EXISTS communication_participants;
+DROP TABLE IF EXISTS communication_messages;
+DROP TABLE IF EXISTS communication_channels;
+
 -- Channels for communication only
 CREATE TABLE communication_channels (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,7 +34,7 @@ CREATE TABLE communication_channels (
     INDEX idx_channels_activity (last_activity_at),
     INDEX idx_channels_archived (is_archived),
     INDEX idx_channels_slug (slug),
-    FOREIGN KEY (created_by_user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id),
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE SET NULL,
     FOREIGN KEY (shop_id) REFERENCES local_shops(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -58,9 +67,8 @@ CREATE TABLE communication_messages (
     INDEX idx_messages_yfclaim (yfclaim_item_id),
     INDEX idx_messages_email (email_message_id),
     FOREIGN KEY (channel_id) REFERENCES communication_channels(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (parent_message_id) REFERENCES communication_messages(id) ON DELETE SET NULL,
-    -- Note: Foreign key to yfclaim_items would be added if YFClaim tables exist
     
     FULLTEXT KEY ft_messages_content (content)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -84,7 +92,7 @@ CREATE TABLE communication_participants (
     INDEX idx_participants_role (role),
     INDEX idx_participants_digest (email_digest_frequency),
     FOREIGN KEY (channel_id) REFERENCES communication_channels(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (last_read_message_id) REFERENCES communication_messages(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -137,7 +145,7 @@ CREATE TABLE communication_notifications (
     INDEX idx_notifications_unread (user_id, is_read),
     INDEX idx_notifications_created (created_at),
     INDEX idx_notifications_type (type),
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (channel_id) REFERENCES communication_channels(id) ON DELETE CASCADE,
     FOREIGN KEY (message_id) REFERENCES communication_messages(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -154,12 +162,10 @@ CREATE TABLE communication_reactions (
     INDEX idx_reactions_message (message_id),
     INDEX idx_reactions_user (user_id),
     FOREIGN KEY (message_id) REFERENCES communication_messages(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES `yfa_auth_users`(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Sample data removed - add after all tables are created
-
--- Create indexes for performance
+-- Create additional indexes for performance
 CREATE INDEX idx_messages_channel_created ON communication_messages(channel_id, created_at);
 CREATE INDEX idx_participants_last_read ON communication_participants(user_id, last_read_at);
 CREATE INDEX idx_notifications_user_unread ON communication_notifications(user_id, is_read, created_at);
