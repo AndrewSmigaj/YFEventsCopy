@@ -120,7 +120,7 @@ if ($source) {
     
     // Test the actual scraping
     try {
-        $scraper = new \YakimaFinds\Scrapers\EventScraper($db);
+        $scraper = new \YFEvents\Scrapers\EventScraper($db);
         $result = $scraper->scrapeSource($source);
         
         if ($result['success']) {

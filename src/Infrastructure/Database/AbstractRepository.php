@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Database;
+namespace YFEvents\Infrastructure\Database;
 
-use YakimaFinds\Domain\Common\EntityInterface;
-use YakimaFinds\Domain\Common\RepositoryInterface;
+use YFEvents\Domain\Common\EntityInterface;
+use YFEvents\Domain\Common\RepositoryInterface;
 
 /**
  * Abstract base repository with common database operations

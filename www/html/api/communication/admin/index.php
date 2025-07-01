@@ -20,8 +20,8 @@ $path = trim($_SERVER['PATH_INFO'] ?? '', '/');
 $segments = explode('/', $path);
 
 // Get container
-$container = \YakimaFinds\Infrastructure\Container\Container::getInstance();
-$db = $container->resolve(\YakimaFinds\Infrastructure\Database\Connection::class);
+$container = \YFEvents\Infrastructure\Container\Container::getInstance();
+$db = $container->resolve(\YFEvents\Infrastructure\Database\Connection::class);
 
 // Route the request
 try {

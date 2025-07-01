@@ -8,7 +8,7 @@ declare(strict_types=1);
  * Register core application services that are used throughout the system
  */
 
-use YakimaFinds\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Container\Container;
 
 // This file would contain core service registrations
 // For now, it's a placeholder for any core services needed

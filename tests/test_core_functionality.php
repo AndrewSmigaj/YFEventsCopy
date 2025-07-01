@@ -157,7 +157,7 @@ class YFEventsTestSuite
     private function testAutoloader()
     {
         $this->test("Composer autoloader working", function() {
-            return class_exists('YakimaFinds\Utils\GeocodeService');
+            return class_exists('YFEvents\Utils\GeocodeService');
         });
 
         $this->test("YFClaim models loadable", function() {

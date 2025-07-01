@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Services;
+namespace YFEvents\Application\Services;
 
-use YakimaFinds\Domain\Claims\Buyer;
-use YakimaFinds\Domain\Claims\Seller;
-use YakimaFinds\Domain\Claims\BuyerRepositoryInterface;
-use YakimaFinds\Domain\Claims\SellerRepositoryInterface;
-use YakimaFinds\Infrastructure\Services\EmailService;
-use YakimaFinds\Infrastructure\Services\SMSService;
+use YFEvents\Domain\Claims\Buyer;
+use YFEvents\Domain\Claims\Seller;
+use YFEvents\Domain\Claims\BuyerRepositoryInterface;
+use YFEvents\Domain\Claims\SellerRepositoryInterface;
+use YFEvents\Infrastructure\Services\EmailService;
+use YFEvents\Infrastructure\Services\SMSService;
 
 class ClaimAuthService
 {

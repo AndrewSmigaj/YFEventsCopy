@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Services;
+namespace YFEvents\Infrastructure\Services;
 
-use YakimaFinds\Infrastructure\Config\ConfigurationInterface;
+use YFEvents\Infrastructure\Config\ConfigurationInterface;
 
 class QRCodeService
 {

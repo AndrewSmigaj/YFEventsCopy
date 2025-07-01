@@ -1,0 +1,216 @@
+# YFEvents Architecture Documentation
+# Last Updated: Phase 9 Namespace Updates Complete
+
+project:
+  name: YFEvents
+  version: 2.0.0
+  description: Community Events Platform with Clean Architecture
+  namespace: YFEvents
+  status: refactoring-in-progress
+  completion: 75%  # Phases 1-9 of 12 complete
+
+architecture:
+  pattern: Clean Architecture (Hexagonal)
+  principles:
+    - Domain-Driven Design (DDD)
+    - SOLID Principles
+    - Dependency Inversion
+    - Repository Pattern
+    - Service Layer Pattern
+
+structure:
+  root:
+    - config/          # Configuration files (database, app, email, services)
+    - database/        # SQL schemas and migrations
+    - docs/           # Project documentation
+    - modules/        # Independent feature modules
+    - public/         # Web root (minimal exposure)
+    - resources/      # Views, assets, templates
+    - routes/         # Route definitions
+    - scripts/        # Utility and maintenance scripts
+    - src/           # Core application code
+    - storage/       # Runtime storage (logs, cache, sessions)
+    - tests/         # Test suites
+    - vendor/        # Composer dependencies
+
+  src:
+    layers:
+      domain:
+        path: src/Domain/
+        description: Business logic and entities
+        components:
+          - Events/       # Event management
+          - Shops/        # Shop/business listings
+          - Users/        # User management
+          - Claims/       # Estate sale claims
+          - Communication/ # Messaging system
+          - Scrapers/     # Web scraping interfaces
+          - Common/       # Shared interfaces
+        
+      application:
+        path: src/Application/
+        description: Use cases and application services
+        components:
+          - Services/     # Application services
+          - Controllers/  # Admin controllers
+          - Validation/   # Input validation
+          - Bootstrap.php # Application initialization
+          
+      infrastructure:
+        path: src/Infrastructure/
+        description: External implementations
+        components:
+          - Config/       # Configuration management
+          - Container/    # Dependency injection
+          - Database/     # Database connections
+          - Repositories/ # Repository implementations
+          - Services/     # Infrastructure services
+          - Http/         # HTTP handling (Router, ErrorHandler)
+          - Utils/        # Utilities (EnvLoader, etc.)
+          
+      presentation:
+        path: src/Presentation/
+        description: User interface layer
+        components:
+          - Api/          # API controllers
+          - Http/         # Web controllers
+
+modules:
+  structure:
+    yfauth:
+      namespace: YFEvents\Modules\YFAuth
+      description: Authentication and authorization
+      status: active
+      components:
+        - src/Models/
+        - src/Services/
+        - src/Middleware/
+        - database/schema.sql
+        - www/          # Module web files
+        
+    yfclaim:
+      namespace: YFEvents\Modules\YFClaim
+      description: Estate sale claim system
+      status: active
+      components:
+        - src/Models/
+        - src/Services/
+        - src/Utils/
+        - database/schema.sql
+        - www/          # Module web files
+        
+    yftheme:
+      namespace: YFEvents\Modules\YFTheme
+      description: Theme customization system
+      status: active
+      components:
+        - src/Models/
+        - src/Services/
+        - database/schema.sql
+        - www/          # Module web files
+        
+    yfclassifieds:
+      namespace: YFEvents\Modules\YFClassifieds
+      description: Classified listings
+      status: inactive  # Overlaps with YFClaim
+      note: Functionality merged into YFClaim
+
+configuration:
+  environment:
+    file: .env
+    example: .env.example
+    loader: YFEvents\Infrastructure\Utils\EnvLoader
+    
+  files:
+    - config/database.php    # Database settings (uses env vars)
+    - config/app.php        # Application settings (uses env vars)
+    - config/email.php      # Email configuration (uses env vars)
+    - config/services/      # Service configurations
+    
+  entry_point:
+    file: public/index.php
+    bootstrap: YFEvents\Application\Bootstrap
+    router: YFEvents\Infrastructure\Http\Router
+
+database:
+  connection: MySQL/MariaDB
+  name: yakima_finds
+  tables:
+    core:
+      - events
+      - event_categories
+      - calendar_sources
+      - local_shops
+      - shop_categories
+      - users              # Main user table (not module-specific)
+      
+    modules:
+      - yfa_auth_*        # YFAuth module tables
+      - yfc_*             # YFClaim module tables
+      - theme_*           # YFTheme module tables
+      
+    communication:
+      - chat_conversations
+      - chat_messages
+      - communication_channels
+      
+    system:
+      - modules
+      - module_settings
+      - audit_log
+
+testing:
+  structure:
+    - tests/Unit/          # Unit tests
+    - tests/Feature/       # Feature tests
+    - tests/Integration/   # Integration tests
+    - tests/Scripts/       # Migrated script tests
+
+deployment:
+  composer:
+    autoload:
+      "YFEvents\\": "src/"
+      "YFEvents\\Modules\\": "modules/"
+    autoload-dev:
+      "YFEvents\\Tests\\": "tests/"
+      
+  commands:
+    - composer install
+    - composer dump-autoload
+    - cp .env.example .env
+    - # Configure .env with actual values
+    - # Run database migrations/schemas
+
+refactoring_progress:
+  completed:
+    - Phase 1: Preparation and Planning
+    - Phase 2: Create Clean Directory Structure
+    - Phase 3: Migrate to Clean Architecture
+    - Phase 4: Move Assets and Admin
+    - Phase 5: Module Integration
+    - Phase 6: Database Schema Consolidation (documented, not merged)
+    - Phase 7: Clean Up (removed old refactor, organized tests)
+    - Phase 8: Configuration Updates
+      - Updated composer.json namespaces
+      - Created comprehensive .env.example
+      - Updated config files to use env vars
+      - Fixed entry point paths
+    - Phase 9: Namespace Updates
+      - Updated all PHP files from YakimaFinds to YFEvents namespace
+      - Fixed EnvLoader namespace to YFEvents\Infrastructure\Utils
+      - Updated use statements and fully qualified class names
+      - 383 references updated to 30 (remaining are string literals)
+      
+  pending:
+    - Phase 10: Testing & Verification
+    - Phase 11: Final Review
+    - Phase 12: Post-Refactor Setup
+
+notes:
+  - All hardcoded credentials removed from config files
+  - Environment variables used throughout
+  - Module system preserved and enhanced
+  - Clean Architecture principles applied
+  - Backwards compatibility maintained where possible
+  - Security improvements implemented
+  - Production database schema preserved

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Claims;
+namespace YFEvents\Domain\Claims;
 
 interface SellerRepositoryInterface
 {

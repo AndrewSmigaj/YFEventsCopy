@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Repositories\Communication;
+namespace YFEvents\Infrastructure\Repositories\Communication;
 
-use YakimaFinds\Infrastructure\Database\AbstractRepository;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Database\AbstractRepository;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 use YFEvents\Domain\Communication\Entities\Participant;
 use YFEvents\Domain\Communication\Repositories\ParticipantRepositoryInterface;
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Tests\Unit\Application\Services;
+namespace YFEvents\Tests\Unit\Application\Services;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use YakimaFinds\Application\Services\AdminService;
-use YakimaFinds\Domain\Events\EventRepositoryInterface;
-use YakimaFinds\Domain\Shops\ShopRepositoryInterface;
-use YakimaFinds\Infrastructure\Database\Connection;
+use YFEvents\Application\Services\AdminService;
+use YFEvents\Domain\Events\EventRepositoryInterface;
+use YFEvents\Domain\Shops\ShopRepositoryInterface;
+use YFEvents\Infrastructure\Database\Connection;
 
 class AdminServiceTest extends TestCase
 {

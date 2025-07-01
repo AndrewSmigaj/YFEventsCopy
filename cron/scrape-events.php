@@ -20,9 +20,9 @@ date_default_timezone_set('America/Los_Angeles'); // Pacific Time for Yakima
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use YakimaFinds\Models\EventModel;
-use YakimaFinds\Models\CalendarSourceModel;
-use YakimaFinds\Scrapers\EventScraper;
+use YFEvents\Models\EventModel;
+use YFEvents\Models\CalendarSourceModel;
+use YFEvents\Scrapers\EventScraper;
 
 // Logging function
 function logMessage($message, $level = 'INFO') {

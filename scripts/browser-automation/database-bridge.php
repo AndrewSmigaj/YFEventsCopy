@@ -12,7 +12,7 @@ declare(strict_types=1);
 // Autoload the refactored system
 require_once dirname(__DIR__, 2) . '/www/html/refactor/vendor/autoload.php';
 
-use YakimaFinds\Infrastructure\Config\ConfigManager;
+use YFEvents\Infrastructure\Config\ConfigManager;
 
 header('Content-Type: application/json');
 

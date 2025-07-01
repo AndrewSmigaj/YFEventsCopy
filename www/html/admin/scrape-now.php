@@ -44,7 +44,7 @@ try {
         $year = $config['year'] ?? date('Y');
         
         // Parse events
-        $events = \YakimaFinds\Scrapers\YakimaValleyEventScraper::parseEvents($content, $baseUrl, $year);
+        $events = \YFEvents\Scrapers\YakimaValleyEventScraper::parseEvents($content, $baseUrl, $year);
         
         // Insert events into database
         $eventsAdded = 0;

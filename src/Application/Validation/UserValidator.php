@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Validation;
+namespace YFEvents\Application\Validation;
 
-use YakimaFinds\Domain\Users\UserRepositoryInterface;
+use YFEvents\Domain\Users\UserRepositoryInterface;
 
 class UserValidator extends BaseValidator
 {

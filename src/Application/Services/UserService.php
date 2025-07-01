@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Services;
+namespace YFEvents\Application\Services;
 
-use YakimaFinds\Domain\Users\User;
-use YakimaFinds\Domain\Users\UserRepositoryInterface;
-use YakimaFinds\Infrastructure\Database\Connection;
-use YakimaFinds\Application\DTOs\PaginatedResult;
+use YFEvents\Domain\Users\User;
+use YFEvents\Domain\Users\UserRepositoryInterface;
+use YFEvents\Infrastructure\Database\Connection;
+use YFEvents\Application\DTOs\PaginatedResult;
 use DateTime;
 
 class UserService

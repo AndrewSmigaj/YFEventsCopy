@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Scrapers;
+namespace YFEvents\Infrastructure\Scrapers;
 
-use YakimaFinds\Domain\Scrapers\ScrapingResult;
-use YakimaFinds\Domain\Scrapers\ScrapingSource;
-use YakimaFinds\Domain\Events\Event;
+use YFEvents\Domain\Scrapers\ScrapingResult;
+use YFEvents\Domain\Scrapers\ScrapingSource;
+use YFEvents\Domain\Events\Event;
 use DOMDocument;
 use DOMXPath;
 

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Admin;
+namespace YFEvents\Domain\Admin;
 
-use YakimaFinds\Domain\Events\EventServiceInterface;
-use YakimaFinds\Domain\Shops\ShopServiceInterface;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Domain\Events\EventServiceInterface;
+use YFEvents\Domain\Shops\ShopServiceInterface;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 use DateTimeInterface;
 use DateTime;
 

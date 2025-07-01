@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Scrapers;
+namespace YFEvents\Domain\Scrapers;
 
-use YakimaFinds\Domain\Scrapers\ScrapingResult;
-use YakimaFinds\Domain\Scrapers\ScrapingSource;
+use YFEvents\Domain\Scrapers\ScrapingResult;
+use YFEvents\Domain\Scrapers\ScrapingSource;
 
 interface ScraperInterface
 {

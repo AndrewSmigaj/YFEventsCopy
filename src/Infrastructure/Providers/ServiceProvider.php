@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Providers;
+namespace YFEvents\Infrastructure\Providers;
 
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
-use YakimaFinds\Infrastructure\Config\Config;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
-use YakimaFinds\Infrastructure\Database\Connection;
-use YakimaFinds\Domain\Events\EventRepositoryInterface;
-use YakimaFinds\Infrastructure\Repositories\EventRepository;
-use YakimaFinds\Domain\Events\EventServiceInterface;
-use YakimaFinds\Domain\Events\EventService;
-use YakimaFinds\Domain\Shops\ShopRepositoryInterface;
-use YakimaFinds\Infrastructure\Repositories\ShopRepository;
-use YakimaFinds\Domain\Shops\ShopServiceInterface;
-use YakimaFinds\Domain\Shops\ShopService;
-use YakimaFinds\Domain\Admin\AdminServiceInterface;
-use YakimaFinds\Domain\Admin\AdminService;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Config\Config;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Database\Connection;
+use YFEvents\Domain\Events\EventRepositoryInterface;
+use YFEvents\Infrastructure\Repositories\EventRepository;
+use YFEvents\Domain\Events\EventServiceInterface;
+use YFEvents\Domain\Events\EventService;
+use YFEvents\Domain\Shops\ShopRepositoryInterface;
+use YFEvents\Infrastructure\Repositories\ShopRepository;
+use YFEvents\Domain\Shops\ShopServiceInterface;
+use YFEvents\Domain\Shops\ShopService;
+use YFEvents\Domain\Admin\AdminServiceInterface;
+use YFEvents\Domain\Admin\AdminService;
 
 /**
  * Main service provider for dependency injection
@@ -48,6 +48,11 @@ class ServiceProvider
             
             // Load configuration files
             $configPath = __DIR__ . '/../../../config';
+            
+            // Debug: check if config path exists
+            if (!is_dir($configPath)) {
+                throw new \RuntimeException("Config directory not found: $configPath");
+            }
             
             if (file_exists($configPath . '/app.php')) {
                 $config->loadFromFile($configPath . '/app.php');

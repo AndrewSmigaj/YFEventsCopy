@@ -11,9 +11,9 @@ declare(strict_types=1);
 // Load environment configuration
 require_once __DIR__ . '/database.php';
 
-use YakimaFinds\Infrastructure\Container\Container;
-use YakimaFinds\Infrastructure\Database\Connection;
-use YakimaFinds\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Database\Connection;
+use YFEvents\Infrastructure\Database\ConnectionInterface;
 
 // Create the container instance
 $container = Container::getInstance();

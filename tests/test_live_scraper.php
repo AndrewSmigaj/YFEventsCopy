@@ -9,8 +9,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use YakimaFinds\Scrapers\EventScraper;
-use YakimaFinds\Models\CalendarSourceModel;
+use YFEvents\Scrapers\EventScraper;
+use YFEvents\Models\CalendarSourceModel;
 
 // Colors for output
 define('GREEN', "\033[0;32m");

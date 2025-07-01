@@ -10,7 +10,7 @@ if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../config/database.php';
 
-use YakimaFinds\Utils\SystemSettings;
+use YFEvents\Utils\SystemSettings;
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

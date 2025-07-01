@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Http;
+namespace YFEvents\Infrastructure\Http;
 
-use YakimaFinds\Infrastructure\Container\ContainerInterface;
-use YakimaFinds\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
 
 /**
  * Simple HTTP router for handling requests
@@ -74,17 +74,31 @@ class Router
      */
     public function dispatch(): void
     {
-        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getCurrentPath();
 
+        $pathMatches = [];
+        $allowedMethods = [];
+
         foreach ($this->routes as $route) {
-            if ($route['method'] === $method && preg_match($route['pattern'], $path, $matches)) {
-                $this->executeRoute($route, $matches);
-                return;
+            if (preg_match($route['pattern'], $path, $matches)) {
+                $pathMatches[] = $route;
+                $allowedMethods[] = $route['method'];
+                
+                if ($route['method'] === $method) {
+                    $this->executeRoute($route, $matches);
+                    return;
+                }
             }
         }
 
-        // No route found
+        // Check if path exists but method is wrong
+        if (!empty($pathMatches)) {
+            $this->handleMethodNotAllowed($allowedMethods);
+            return;
+        }
+
+        // No route found at all
         $this->handleNotFound();
     }
 
@@ -97,8 +111,9 @@ class Router
             $controllerClass = $route['controller'];
             $action = $route['action'];
 
-            // Instantiate controller with dependencies
-            $controller = new $controllerClass($this->container, $this->config);
+            // Instantiate controller with dependencies from container
+            $config = $this->container->resolve(\YFEvents\Infrastructure\Config\ConfigInterface::class);
+            $controller = new $controllerClass($this->container, $config);
 
             // Extract path parameters
             $params = array_slice($matches, 1);
@@ -126,6 +141,19 @@ class Router
         // Remove query string
         if (($pos = strpos($path, '?')) !== false) {
             $path = substr($path, 0, $pos);
+        }
+
+        // Strip base path if running in subdirectory
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $basePath = dirname($scriptName);
+        
+        if ($basePath !== '/' && strpos($path, $basePath) === 0) {
+            $path = substr($path, strlen($basePath));
+        }
+        
+        // Ensure path starts with /
+        if (empty($path) || $path[0] !== '/') {
+            $path = '/' . $path;
         }
 
         return $path;
@@ -171,14 +199,15 @@ class Router
      */
     private function handleNotFound(): void
     {
-        http_response_code(404);
-        header('Content-Type: application/json');
-        echo json_encode([
-            'error' => true,
-            'message' => 'Route not found',
-            'path' => $this->getCurrentPath(),
-            'method' => $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN'
-        ]);
+        ErrorHandler::handle404($this->getCurrentPath(), $_SERVER['REQUEST_METHOD']);
+    }
+
+    /**
+     * Handle 405 method not allowed
+     */
+    private function handleMethodNotAllowed(array $allowedMethods): void
+    {
+        ErrorHandler::handle405($this->getCurrentPath(), $_SERVER['REQUEST_METHOD'], $allowedMethods);
     }
 
     /**
@@ -186,26 +215,8 @@ class Router
      */
     private function handleError(\Exception $e): void
     {
-        http_response_code(500);
-        header('Content-Type: application/json');
-        
-        $response = [
-            'error' => true,
-            'message' => 'Internal server error'
-        ];
-
-        // Add debug info if in debug mode
-        if ($this->config->get('app.debug', false)) {
-            $response['debug'] = [
-                'exception' => get_class($e),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
-            ];
-        }
-
-        echo json_encode($response);
+        $debug = $this->config->get('app.debug', false);
+        ErrorHandler::handle500($e, $debug);
     }
 
     /**

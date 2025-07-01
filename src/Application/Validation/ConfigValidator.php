@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Application\Validation;
+namespace YFEvents\Application\Validation;
 
 class ConfigValidator extends BaseValidator
 {

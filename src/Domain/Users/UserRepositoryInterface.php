@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Domain\Users;
+namespace YFEvents\Domain\Users;
 
 interface UserRepositoryInterface
 {

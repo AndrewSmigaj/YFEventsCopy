@@ -1,5 +1,5 @@
 {
-    "name": "yakimafinds/yfevents",
+    "name": "yfevents/yfevents",
     "description": "YFEvents - Yakima Valley Event Management System",
     "type": "project",
     "version": "2.0.0",
@@ -21,13 +21,13 @@
     },
     "autoload": {
         "psr-4": {
-            "YakimaFinds\\": "src/",
-            "YFEvents\\": "src/"
+            "YFEvents\\": "src/",
+            "YFEvents\\Modules\\": "modules/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "YakimaFinds\\Tests\\": "tests/"
+            "YFEvents\\Tests\\": "tests/"
         }
     },
     "scripts": {

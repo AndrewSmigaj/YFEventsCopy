@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Config;
+namespace YFEvents\Infrastructure\Config;
 
 use InvalidArgumentException;
 use RuntimeException;

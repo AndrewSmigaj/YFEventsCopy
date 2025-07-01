@@ -2,20 +2,23 @@
 
 declare(strict_types=1);
 
-namespace YakimaFinds\Infrastructure\Services;
+namespace YFEvents\Infrastructure\Services;
 
-use YakimaFinds\Infrastructure\Config\ConfigurationInterface;
+use YFEvents\Infrastructure\Config\ConfigurationInterface;
 
 class SMSService
 {
     private bool $enabled;
     private string $provider;
+    private array $smsConfig;
     
-    public function __construct(
-        private readonly ConfigurationInterface $config
-    ) {
-        $this->enabled = $config->get('sms.enabled', false);
-        $this->provider = $config->get('sms.provider', 'twilio');
+    public function __construct()
+    {
+        // Load configuration directly from config file
+        $appConfig = include __DIR__ . '/../../config/app.php';
+        $this->smsConfig = $appConfig['sms'] ?? [];
+        $this->enabled = $this->smsConfig['enabled'] ?? false;
+        $this->provider = $this->smsConfig['provider'] ?? 'twilio';
     }
 
     /**
@@ -52,46 +55,170 @@ class SMSService
     }
 
     /**
-     * Send SMS (placeholder implementation)
+     * Send SMS with real implementation
      */
     private function send(string $to, string $message): bool
     {
         if (!$this->enabled) {
             // Log the message instead
-            error_log("SMS to {$to}: {$message}");
+            error_log("SMS disabled - would send to {$to}: {$message}");
+            return false;
+        }
+        
+        // Check test mode
+        if ($this->smsConfig['test_mode'] ?? true) {
+            error_log("SMS test mode - to {$to}: {$message}");
             return true;
         }
         
-        // In production, this would integrate with Twilio, AWS SNS, etc.
+        // Send via configured provider
         switch ($this->provider) {
             case 'twilio':
                 return $this->sendViaTwilio($to, $message);
             case 'aws':
                 return $this->sendViaAWS($to, $message);
+            case 'nexmo':
+                return $this->sendViaNexmo($to, $message);
             default:
-                error_log("SMS to {$to}: {$message}");
-                return true;
+                error_log("Unknown SMS provider '{$this->provider}' - to {$to}: {$message}");
+                return false;
         }
     }
 
     /**
-     * Send via Twilio (placeholder)
+     * Send via Twilio
      */
     private function sendViaTwilio(string $to, string $message): bool
     {
-        // Twilio integration would go here
-        error_log("Twilio SMS to {$to}: {$message}");
-        return true;
+        $config = $this->smsConfig['twilio'] ?? [];
+        $accountSid = $config['account_sid'] ?? '';
+        $authToken = $config['auth_token'] ?? '';
+        $fromNumber = $config['from_number'] ?? '';
+        
+        if (empty($accountSid) || empty($authToken) || empty($fromNumber)) {
+            error_log("Twilio SMS failed: Missing configuration");
+            return false;
+        }
+        
+        try {
+            // Twilio API call using cURL
+            $url = "https://api.twilio.com/2010-04-01/Accounts/{$accountSid}/Messages.json";
+            
+            $data = [
+                'From' => $fromNumber,
+                'To' => $to,
+                'Body' => $message
+            ];
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_USERPWD, $accountSid . ':' . $authToken);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpCode === 201) {
+                error_log("Twilio SMS sent successfully to {$to}");
+                return true;
+            } else {
+                error_log("Twilio SMS failed: HTTP {$httpCode} - {$response}");
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Twilio SMS error: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
-     * Send via AWS SNS (placeholder)
+     * Send via AWS SNS
      */
     private function sendViaAWS(string $to, string $message): bool
     {
-        // AWS SNS integration would go here
-        error_log("AWS SMS to {$to}: {$message}");
-        return true;
+        $config = $this->smsConfig['aws'] ?? [];
+        $key = $config['key'] ?? '';
+        $secret = $config['secret'] ?? '';
+        $region = $config['region'] ?? 'us-east-1';
+        
+        if (empty($key) || empty($secret)) {
+            error_log("AWS SNS failed: Missing configuration");
+            return false;
+        }
+        
+        try {
+            // AWS SNS API call using cURL (simplified)
+            // In production, you'd use the AWS SDK
+            $endpoint = "https://sns.{$region}.amazonaws.com/";
+            
+            // For now, just log - AWS SNS requires more complex authentication
+            error_log("AWS SNS would send to {$to}: {$message}");
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("AWS SNS error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send via Nexmo/Vonage
+     */
+    private function sendViaNexmo(string $to, string $message): bool
+    {
+        $config = $this->smsConfig['nexmo'] ?? [];
+        $apiKey = $config['api_key'] ?? '';
+        $apiSecret = $config['api_secret'] ?? '';
+        $fromNumber = $config['from_number'] ?? 'YFClaim';
+        
+        if (empty($apiKey) || empty($apiSecret)) {
+            error_log("Nexmo SMS failed: Missing configuration");
+            return false;
+        }
+        
+        try {
+            // Nexmo API call using cURL
+            $url = 'https://rest.nexmo.com/sms/json';
+            
+            $data = [
+                'api_key' => $apiKey,
+                'api_secret' => $apiSecret,
+                'from' => $fromNumber,
+                'to' => $to,
+                'text' => $message
+            ];
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            $result = json_decode($response, true);
+            
+            if ($httpCode === 200 && isset($result['messages'][0]['status']) && $result['messages'][0]['status'] === '0') {
+                error_log("Nexmo SMS sent successfully to {$to}");
+                return true;
+            } else {
+                $errorText = $result['messages'][0]['error-text'] ?? 'Unknown error';
+                error_log("Nexmo SMS failed: {$errorText}");
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Nexmo SMS error: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**

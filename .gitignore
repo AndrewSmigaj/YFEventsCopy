@@ -1,18 +1,62 @@
+# Dependencies
 /vendor/
 /node_modules/
+
+# Environment
+.env
+.env.backup
+.env.production
+
+# Storage
 /storage/logs/*
-/storage/cache/*
-/storage/sessions/*
-/.env
-/.env.backup
-/config/api_keys.php
-/.phpunit.result.cache
-/.php-cs-fixer.cache
-/public/hot
-/public/storage
-npm-debug.log
-yarn-error.log
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/app/*
+/storage/uploads/*
+!storage/*/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Testing
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+*.cache
+
+# Build artifacts
 *.log
-!.gitkeep
+*_results.json
+*_progress.json
+*.pid
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# Module uploads
+/public/modules/*/uploads/
+/modules/*/www/assets/uploads/
+
+# User uploads
+/public/uploads/*
+!public/uploads/.gitkeep
+
+# Config
+/config/api_keys.php
+/config/email.php
+
+# Architecture documentation
+# Track this file - it documents our system design
+# architecture.yaml

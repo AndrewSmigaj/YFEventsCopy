@@ -3,9 +3,9 @@
 require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../config/database.php';
 
-use YakimaFinds\Models\EventModel;
-use YakimaFinds\Models\ShopModel;
-use YakimaFinds\Utils\SystemSettings;
+use YFEvents\Models\EventModel;
+use YFEvents\Models\ShopModel;
+use YFEvents\Utils\SystemSettings;
 
 // Set JSON header
 header('Content-Type: application/json');

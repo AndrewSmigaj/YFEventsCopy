@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 // Mobile detection
-use YakimaFinds\Infrastructure\Utils\MobileDetector;
+use YFEvents\Infrastructure\Utils\MobileDetector;
 $mobileDetector = new MobileDetector();
 $isMobile = $mobileDetector->isMobile();
 $deviceType = $mobileDetector->getDeviceType();

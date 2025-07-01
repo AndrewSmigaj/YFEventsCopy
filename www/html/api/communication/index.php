@@ -12,7 +12,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../../config/bootstrap.php';
 
-use YakimaFinds\Infrastructure\Container\Container;
+use YFEvents\Infrastructure\Container\Container;
 use YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController;
 use YFEvents\Presentation\Api\Controllers\Communication\MessageApiController;
 use YFEvents\Presentation\Api\Controllers\Communication\AnnouncementApiController;
