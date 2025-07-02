@@ -14,7 +14,7 @@ class ClassifiedsController extends BaseController
     public function __construct(Container $container, ConfigInterface $config)
     {
         parent::__construct($container, $config);
-        $this->modulePath = __DIR__ . '/../../../../../../../modules/yfclassifieds/www';
+        $this->modulePath = __DIR__ . '/../../../../modules/yfclassifieds/www';
     }
 
     /**

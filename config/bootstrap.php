@@ -8,6 +8,12 @@ declare(strict_types=1);
  * This file initializes the application container and registers all services
  */
 
+// Prevent multiple bootstrapping
+if (defined('YF_BOOTSTRAPPED')) {
+    return $container ?? null;
+}
+define('YF_BOOTSTRAPPED', true);
+
 // Load environment configuration
 require_once __DIR__ . '/database.php';
 
@@ -16,7 +22,7 @@ use YFEvents\Infrastructure\Database\Connection;
 use YFEvents\Infrastructure\Database\ConnectionInterface;
 
 // Create the container instance
-$container = Container::getInstance();
+$container = new Container();
 
 // Register database connection
 $container->singleton(ConnectionInterface::class, function() {

@@ -3,7 +3,7 @@
  * Simple YF Classifieds Admin Dashboard
  */
 
-require_once __DIR__ . '/../../../../www/html/refactor/admin/auth_check.php';
+require_once __DIR__ . '/../../../../admin/auth_check.php';
 require_once __DIR__ . '/../../../../config/database.php';
 
 // Get basic statistics

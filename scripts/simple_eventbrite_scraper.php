@@ -16,7 +16,8 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
-require_once dirname(__DIR__) . '/www/html/refactor/vendor/autoload.php';
+// Bootstrap application and load all dependencies
+require_once __DIR__ . '/../config/app-root.php';
 
 class SimpleEventbriteScraper
 {

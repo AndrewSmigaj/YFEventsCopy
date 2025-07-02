@@ -10,7 +10,8 @@
 declare(strict_types=1);
 
 // Autoload the refactored system
-require_once dirname(__DIR__, 2) . '/www/html/refactor/vendor/autoload.php';
+// Bootstrap application and load all dependencies
+require_once __DIR__ . '/../../config/app-root.php';
 
 use YFEvents\Infrastructure\Config\ConfigManager;
 
@@ -27,7 +28,7 @@ class DatabaseBridge
     
     private function setupDatabase(): void
     {
-        $config = require dirname(__DIR__, 2) . '/www/html/refactor/config/database.php';
+        $config = require dirname(__DIR__, 2) . '/config/database.php';
         $dbConfig = $config['database'];
         
         $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";

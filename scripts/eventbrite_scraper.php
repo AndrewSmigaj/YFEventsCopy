@@ -19,7 +19,8 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
-require_once dirname(__DIR__) . '/www/html/refactor/vendor/autoload.php';
+// Bootstrap application and load all dependencies
+require_once __DIR__ . '/../config/app-root.php';
 
 class EventbriteScraper
 {
@@ -46,7 +47,7 @@ class EventbriteScraper
     private function setupDatabase(): void
     {
         try {
-            $config = require dirname(__DIR__) . '/www/html/refactor/config/database.php';
+            $config = require dirname(__DIR__) . '/config/database.php';
             $dbConfig = $config['database'];
             
             $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";

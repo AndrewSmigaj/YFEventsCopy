@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../../../config/database.php';
 // Try to load the SimpleThemeService first (fallback)
 if (file_exists(__DIR__ . '/../../src/Services/SimpleThemeService.php')) {
     require_once __DIR__ . '/../../src/Services/SimpleThemeService.php';
-    use YFEvents\Modules\YFTheme\Services\SimpleThemeService as ThemeService;
+    class_alias('YFEvents\Modules\YFTheme\Services\SimpleThemeService', 'ThemeService');
 } else {
     // Fallback to basic functionality
     class ThemeService {
@@ -28,6 +28,15 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     // header('Location: /admin/login.php');
     // exit;
 }
+
+// Setup database connection - following pattern from public/admin/email-events.php
+$config = require __DIR__ . '/../../../../config/database.php';
+$dbConfig = $config['database'];
+$dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";
+$pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+]);
 
 $themeService = new ThemeService($pdo);
 $message = '';

@@ -14,7 +14,7 @@ class EnvLoader
             return;
         }
 
-        $envFile = $envFile ?: dirname(__DIR__, 2) . '/.env';
+        $envFile = $envFile ?: dirname(__DIR__, 3) . '/.env';
         
         if (!file_exists($envFile)) {
             return;

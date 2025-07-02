@@ -198,7 +198,7 @@ if ($stats['not_found'] > 0 || $stats['error'] > 0) {
     
     if ($stats['error'] > 0) {
         echo "  • Server errors detected. Check PHP error logs and fix any syntax/runtime errors.\n";
-        echo "  • Run: tail -f /home/robug/YFEvents/www/html/refactor/logs/error.log\n";
+        echo "  • Run: tail -f /home/robug/YFEvents/logs/error.log\n";
     }
 }
 

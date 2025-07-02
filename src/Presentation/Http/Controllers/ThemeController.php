@@ -544,6 +544,34 @@ class ThemeController extends BaseController
     }
 
     /**
+     * Show theme editor page
+     */
+    public function showEditor(): void
+    {
+        // Check if module is enabled
+        $modulesConfig = require __DIR__ . '/../../../Infrastructure/Config/modules.php';
+        if (!isset($modulesConfig['modules']['yftheme']['enabled']) || 
+            !$modulesConfig['modules']['yftheme']['enabled']) {
+            http_response_code(404);
+            echo "Theme module is not enabled";
+            return;
+        }
+        
+        // Build path to theme editor
+        $modulePath = __DIR__ . '/../../../../modules/yftheme/www/admin/theme-editor.php';
+        
+        // Check if file exists
+        if (!file_exists($modulePath)) {
+            http_response_code(404);
+            echo "Theme editor not found";
+            return;
+        }
+        
+        // Include the module's theme editor page
+        require $modulePath;
+    }
+
+    /**
      * Generate theme CSS file
      */
     private function generateThemeCSS(): void
