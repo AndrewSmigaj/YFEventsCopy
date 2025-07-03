@@ -51,7 +51,8 @@
       "Bash(sudo service:*)",
       "Bash(apache2ctl:*)",
       "Bash(curl -s \"http://localhost:8000/claims/sale?id=2\")",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

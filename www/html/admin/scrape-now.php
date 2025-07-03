@@ -3,10 +3,7 @@
 require_once '../../../config/database.php';
 
 // Authentication check
-session_start();
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    die(json_encode(['error' => 'Unauthorized']));
-}
+require_once dirname(__DIR__, 3) . '/includes/admin_auth_required.php';
 
 header('Content-Type: application/json');
 

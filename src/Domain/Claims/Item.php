@@ -11,8 +11,6 @@ use DateTime;
 class Item implements EntityInterface
 {
     private array $images = [];
-    private array $offers = [];
-    private ?Offer $winningOffer = null;
 
     public function __construct(
         private ?int $id,
@@ -20,14 +18,12 @@ class Item implements EntityInterface
         private int $categoryId,
         private string $title,
         private ?string $description,
-        private float $startingPrice,
+        private float $price,
         private ?float $buyNowPrice,
         private string $condition,
         private ?string $dimensions,
         private string $status,
         private int $viewCount,
-        private int $offerCount,
-        private ?int $winningOfferId,
         private DateTimeInterface $createdAt,
         private ?DateTimeInterface $updatedAt = null
     ) {}
@@ -57,9 +53,9 @@ class Item implements EntityInterface
         return $this->description;
     }
 
-    public function getStartingPrice(): float
+    public function getPrice(): float
     {
-        return $this->startingPrice;
+        return $this->price;
     }
 
     public function getBuyNowPrice(): ?float
@@ -87,15 +83,6 @@ class Item implements EntityInterface
         return $this->viewCount;
     }
 
-    public function getOfferCount(): int
-    {
-        return $this->offerCount;
-    }
-
-    public function getWinningOfferId(): ?int
-    {
-        return $this->winningOfferId;
-    }
 
     public function getCreatedAt(): DateTimeInterface
     {
@@ -112,15 +99,6 @@ class Item implements EntityInterface
         return $this->images;
     }
 
-    public function getOffers(): array
-    {
-        return $this->offers;
-    }
-
-    public function getWinningOffer(): ?Offer
-    {
-        return $this->winningOffer;
-    }
 
     /**
      * Set item images
@@ -138,39 +116,13 @@ class Item implements EntityInterface
         $this->images[] = $image;
     }
 
-    /**
-     * Set item offers
-     */
-    public function setOffers(array $offers): void
-    {
-        $this->offers = $offers;
-        $this->offerCount = count($offers);
-    }
-
-    /**
-     * Add an offer
-     */
-    public function addOffer(Offer $offer): void
-    {
-        $this->offers[] = $offer;
-        $this->offerCount++;
-    }
-
-    /**
-     * Set winning offer
-     */
-    public function setWinningOffer(Offer $offer): void
-    {
-        $this->winningOffer = $offer;
-        $this->winningOfferId = $offer->getId();
-    }
 
     /**
      * Check if item is available for offers
      */
     public function isAvailable(): bool
     {
-        return $this->status === 'active' && $this->winningOfferId === null;
+        return $this->status === 'available';
     }
 
     /**
@@ -181,48 +133,6 @@ class Item implements EntityInterface
         return $this->buyNowPrice !== null && $this->buyNowPrice > 0;
     }
 
-    /**
-     * Get current price range for display
-     */
-    public function getPriceRange(): array
-    {
-        if (empty($this->offers)) {
-            return [
-                'min' => $this->startingPrice,
-                'max' => $this->startingPrice
-            ];
-        }
-
-        $amounts = array_map(fn($offer) => $offer->getAmount(), $this->offers);
-        return [
-            'min' => min($amounts),
-            'max' => max($amounts)
-        ];
-    }
-
-    /**
-     * Get highest offer amount
-     */
-    public function getHighestOfferAmount(): ?float
-    {
-        if (empty($this->offers)) {
-            return null;
-        }
-
-        $amounts = array_map(fn($offer) => $offer->getAmount(), $this->offers);
-        return max($amounts);
-    }
-
-    /**
-     * Accept an offer
-     */
-    public function acceptOffer(int $offerId): self
-    {
-        return $this->update([
-            'winning_offer_id' => $offerId,
-            'status' => 'sold'
-        ]);
-    }
 
     /**
      * Activate item
@@ -267,14 +177,12 @@ class Item implements EntityInterface
             categoryId: $data['category_id'] ?? $this->categoryId,
             title: $data['title'] ?? $this->title,
             description: $data['description'] ?? $this->description,
-            startingPrice: $data['starting_price'] ?? $this->startingPrice,
+            price: $data['price'] ?? $this->price,
             buyNowPrice: $data['buy_now_price'] ?? $this->buyNowPrice,
             condition: $data['condition'] ?? $this->condition,
             dimensions: $data['dimensions'] ?? $this->dimensions,
             status: $data['status'] ?? $this->status,
             viewCount: $data['view_count'] ?? $this->viewCount,
-            offerCount: $data['offer_count'] ?? $this->offerCount,
-            winningOfferId: $data['winning_offer_id'] ?? $this->winningOfferId,
             createdAt: $this->createdAt,
             updatedAt: new DateTime()
         );
@@ -288,19 +196,15 @@ class Item implements EntityInterface
             'category_id' => $this->categoryId,
             'title' => $this->title,
             'description' => $this->description,
-            'starting_price' => $this->startingPrice,
+            'price' => $this->price,
             'buy_now_price' => $this->buyNowPrice,
             'condition' => $this->condition,
             'dimensions' => $this->dimensions,
             'status' => $this->status,
             'view_count' => $this->viewCount,
-            'offer_count' => $this->offerCount,
-            'winning_offer_id' => $this->winningOfferId,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
-            'images' => $this->images,
-            'price_range' => $this->getPriceRange(),
-            'highest_offer' => $this->getHighestOfferAmount()
+            'images' => $this->images
         ];
     }
 
@@ -312,14 +216,12 @@ class Item implements EntityInterface
             categoryId: $data['category_id'],
             title: $data['title'],
             description: $data['description'] ?? null,
-            startingPrice: (float)$data['starting_price'],
+            price: (float)($data['price'] ?? $data['starting_price'] ?? 0),
             buyNowPrice: isset($data['buy_now_price']) ? (float)$data['buy_now_price'] : null,
             condition: $data['condition'] ?? 'used',
             dimensions: $data['dimensions'] ?? null,
             status: $data['status'] ?? 'active',
             viewCount: $data['view_count'] ?? 0,
-            offerCount: $data['offer_count'] ?? 0,
-            winningOfferId: $data['winning_offer_id'] ?? null,
             createdAt: isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime(),
             updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at']) : null
         );

@@ -6,6 +6,7 @@ namespace YFEvents\Presentation\Http\Controllers;
 
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Modules\YFClaim\Services\ClaimAuthService;
 use PDO;
 use Exception;
 
@@ -132,13 +133,16 @@ class ClaimsController extends BaseController
      */
     public function showSellerRegistration(): void
     {
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
+        session_start();
+        
+        // Check if already logged in
+        if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged_in'] === true) {
+            header('Location: /seller/dashboard');
+            exit;
         }
-
+        
         header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderSellerRegistrationPage($basePath);
+        echo $this->renderSellerRegister();
     }
 
     /**
@@ -151,59 +155,75 @@ class ClaimsController extends BaseController
             return;
         }
 
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
+        header('Content-Type: application/json');
 
         try {
-            // Validate input
-            $companyName = trim($_POST['company_name'] ?? '');
-            $contactName = trim($_POST['contact_name'] ?? '');
-            $email = trim($_POST['email'] ?? '');
-            $phone = trim($_POST['phone'] ?? '');
-            $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
+            // Gather registration data
+            $data = [
+                'company_name' => trim($_POST['company_name'] ?? ''),
+                'contact_name' => trim($_POST['contact_name'] ?? ''),
+                'email' => trim($_POST['email'] ?? ''),
+                'username' => trim($_POST['username'] ?? ''),
+                'password' => $_POST['password'] ?? '',
+                'phone' => trim($_POST['phone'] ?? ''),
+                'address' => trim($_POST['address'] ?? ''),
+                'city' => trim($_POST['city'] ?? ''),
+                'state' => trim($_POST['state'] ?? 'WA'),
+                'zip' => trim($_POST['zip'] ?? ''),
+                'website' => trim($_POST['website'] ?? '')
+            ];
+            
+            // Extract names if provided as full name
+            if (!empty($data['contact_name']) && strpos($data['contact_name'], ' ') !== false) {
+                $nameParts = explode(' ', $data['contact_name'], 2);
+                $data['first_name'] = $nameParts[0];
+                $data['last_name'] = $nameParts[1] ?? '';
+            } else {
+                $data['first_name'] = $data['contact_name'];
+                $data['last_name'] = '';
+            }
+            
+            // Use email as username if not provided
+            if (empty($data['username'])) {
+                $data['username'] = $data['email'];
+            }
 
-            if (empty($companyName) || empty($contactName) || empty($email) || empty($password)) {
+            // Validate required fields
+            if (empty($data['company_name']) || empty($data['contact_name']) || empty($data['email']) || empty($data['password'])) {
                 throw new Exception('All required fields must be filled');
             }
 
-            if ($password !== $confirmPassword) {
+            // Validate passwords match
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+            if ($data['password'] !== $confirmPassword) {
                 throw new Exception('Passwords do not match');
             }
 
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new Exception('Invalid email address');
             }
 
-            // Check if email already exists
-            $stmt = $this->pdo->prepare("SELECT id FROM yfc_sellers WHERE email = ?");
-            $stmt->execute([$email]);
-            if ($stmt->fetch()) {
-                throw new Exception('Email address already registered');
+            // Initialize auth service
+            $authService = new ClaimAuthService($this->pdo);
+            
+            // Register seller through the service
+            $result = $authService->registerSeller($data);
+            
+            if ($result['success']) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'redirect' => '/seller/login'
+                ]);
+            } else {
+                throw new Exception($result['error'] ?? 'Registration failed');
             }
-
-            // Create seller account
-            $stmt = $this->pdo->prepare("
-                INSERT INTO yfc_sellers (company_name, contact_name, email, phone, password_hash, status, created_at)
-                VALUES (?, ?, ?, ?, ?, 'pending', NOW())
-            ");
-            $stmt->execute([
-                $companyName,
-                $contactName,
-                $email,
-                $phone,
-                password_hash($password, PASSWORD_DEFAULT)
-            ]);
-
-            // Show success message
-            header('Content-Type: text/html; charset=utf-8');
-            echo $this->renderRegistrationSuccess($basePath, $email);
-
+            
         } catch (Exception $e) {
-            header('Content-Type: text/html; charset=utf-8');
-            echo $this->renderSellerRegistrationPage($basePath, $e->getMessage());
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
@@ -212,13 +232,16 @@ class ClaimsController extends BaseController
      */
     public function showSellerLogin(): void
     {
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
+        session_start();
+        
+        // Check if already logged in
+        if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged_in'] === true) {
+            header('Location: /seller/dashboard');
+            exit;
         }
-
+        
         header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderSellerLoginPage($basePath);
+        echo $this->renderSellerLogin();
     }
 
     /**
@@ -232,50 +255,49 @@ class ClaimsController extends BaseController
         }
 
         session_start();
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
+        header('Content-Type: application/json');
 
         try {
-            $email = trim($_POST['email'] ?? '');
+            $username = trim($_POST['username'] ?? '');
             $password = $_POST['password'] ?? '';
 
-            if (empty($email) || empty($password)) {
-                throw new Exception('Email and password are required');
+            if (empty($username) || empty($password)) {
+                throw new Exception('Username and password are required');
             }
 
-            $stmt = $this->pdo->prepare("
-                SELECT id, company_name, password_hash, status 
-                FROM yfc_sellers 
-                WHERE email = ?
-            ");
-            $stmt->execute([$email]);
-            $seller = $stmt->fetch();
-
-            if (!$seller || !password_verify($password, $seller['password_hash'])) {
-                throw new Exception('Invalid email or password');
+            // Initialize auth service
+            $authService = new ClaimAuthService($this->pdo);
+            
+            // Authenticate using the service
+            $result = $authService->authenticateSeller($username, $password);
+            
+            if ($result['success']) {
+                // Set session variables (ClaimAuthService already sets most of these)
+                $_SESSION['claim_seller_logged_in'] = true;
+                $_SESSION['claim_seller_id'] = $result['seller']['id'];
+                $_SESSION['claim_auth_user_id'] = $result['auth_user']['id'];
+                $_SESSION['claim_session_id'] = $result['session_id'];
+                $_SESSION['seller_email'] = $result['seller']['email'];
+                $_SESSION['seller_name'] = $result['seller']['contact_name'];
+                $_SESSION['company_name'] = $result['seller']['company_name'];
+                
+                // Also set legacy session variables for compatibility
+                $_SESSION['yfclaim_seller_id'] = $result['seller']['id'];
+                $_SESSION['yfclaim_seller_name'] = $result['seller']['company_name'];
+                
+                echo json_encode([
+                    'success' => true,
+                    'redirect' => '/modules/yfclaim/www/dashboard/'
+                ]);
+            } else {
+                echo json_encode($result);
             }
-
-            if ($seller['status'] !== 'active') {
-                throw new Exception('Account is not active. Please contact admin.');
-            }
-
-            // Set session
-            $_SESSION['yfclaim_seller_id'] = $seller['id'];
-            $_SESSION['yfclaim_seller_name'] = $seller['company_name'];
-
-            // Update last login
-            $stmt = $this->pdo->prepare("UPDATE yfc_sellers SET last_login = NOW() WHERE id = ?");
-            $stmt->execute([$seller['id']]);
-
-            // Redirect to dashboard
-            header('Location: ' . $basePath . '/seller/dashboard');
-            exit;
-
+            
         } catch (Exception $e) {
-            header('Content-Type: text/html; charset=utf-8');
-            echo $this->renderSellerLoginPage($basePath, $e->getMessage());
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
@@ -285,29 +307,17 @@ class ClaimsController extends BaseController
     public function showSellerDashboard(): void
     {
         session_start();
-        if (!isset($_SESSION['yfclaim_seller_id'])) {
-            $basePath = dirname($_SERVER['SCRIPT_NAME']);
-            if ($basePath === '/') {
-                $basePath = '';
-            }
-            header('Location: ' . $basePath . '/seller/login');
-            exit;
+        
+        // Ensure session compatibility between systems
+        if (isset($_SESSION['yfclaim_seller_id']) && !isset($_SESSION['claim_seller_id'])) {
+            $_SESSION['claim_seller_logged_in'] = true;
+            $_SESSION['claim_seller_id'] = $_SESSION['yfclaim_seller_id'];
+            $_SESSION['seller_name'] = $_SESSION['yfclaim_seller_name'];
+            $_SESSION['company_name'] = $_SESSION['yfclaim_seller_name'];
         }
-
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
-        $sellerId = $_SESSION['yfclaim_seller_id'];
-        $sellerName = $_SESSION['yfclaim_seller_name'];
-
-        // Get seller's sales
-        $sales = $this->getSellerSales($sellerId);
-        $stats = $this->getSellerStats($sellerId);
-
-        header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderSellerDashboard($basePath, $sellerName, $sales, $stats);
+        
+        // Use the module dashboard
+        require BASE_PATH . '/modules/yfclaim/www/dashboard/index.php';
     }
 
     /**
@@ -316,22 +326,8 @@ class ClaimsController extends BaseController
     public function showCreateSale(): void
     {
         session_start();
-        if (!isset($_SESSION['yfclaim_seller_id'])) {
-            $basePath = dirname($_SERVER['SCRIPT_NAME']);
-            if ($basePath === '/') {
-                $basePath = '';
-            }
-            header('Location: ' . $basePath . '/seller/login');
-            exit;
-        }
-
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
-        header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderCreateSalePage($basePath);
+        $this->ensureSessionCompatibility();
+        require BASE_PATH . '/modules/yfclaim/www/dashboard/create-sale.php';
     }
 
     /**
@@ -421,8 +417,15 @@ class ClaimsController extends BaseController
     public function sellerLogout(): void
     {
         session_start();
+        
+        // Clear all seller session variables
         unset($_SESSION['yfclaim_seller_id']);
         unset($_SESSION['yfclaim_seller_name']);
+        unset($_SESSION['claim_seller_logged_in']);
+        unset($_SESSION['claim_seller_id']);
+        unset($_SESSION['seller_email']);
+        unset($_SESSION['seller_name']);
+        unset($_SESSION['company_name']);
         
         $basePath = dirname($_SERVER['SCRIPT_NAME']);
         if ($basePath === '/') {
@@ -614,7 +617,7 @@ class ClaimsController extends BaseController
 
             echo json_encode([
                 'success' => true,
-                'redirect' => dirname($_SERVER['SCRIPT_NAME']) . '/buyer/offers'
+                'redirect' => dirname($_SERVER['SCRIPT_NAME']) . '/claims'
             ]);
 
         } catch (Exception $e) {
@@ -625,102 +628,6 @@ class ClaimsController extends BaseController
         }
     }
 
-    /**
-     * Show buyer offers page
-     */
-    public function showBuyerOffers(): void
-    {
-        session_start();
-        if (!isset($_SESSION['yfclaim_buyer_id'])) {
-            $basePath = dirname($_SERVER['SCRIPT_NAME']);
-            if ($basePath === '/') {
-                $basePath = '';
-            }
-            header('Location: ' . $basePath . '/buyer/auth');
-            exit;
-        }
-
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
-        $buyerId = $_SESSION['yfclaim_buyer_id'];
-        $buyerName = $_SESSION['yfclaim_buyer_name'];
-
-        // Get buyer's offers
-        $offers = $this->getBuyerOffersData($buyerId);
-
-        header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderBuyerOffersPage($basePath, $buyerName, $offers);
-    }
-
-    /**
-     * Submit offer on an item
-     */
-    public function submitOffer(): void
-    {
-        session_start();
-        if (!isset($_SESSION['yfclaim_buyer_id'])) {
-            http_response_code(401);
-            echo json_encode(['success' => false, 'error' => 'Authentication required']);
-            return;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            return;
-        }
-
-        header('Content-Type: application/json');
-
-        try {
-            $buyerId = $_SESSION['yfclaim_buyer_id'];
-            $itemId = (int)($_POST['item_id'] ?? 0);
-            $offerAmount = (float)($_POST['offer_amount'] ?? 0);
-
-            if (!$itemId || $offerAmount <= 0) {
-                throw new Exception('Invalid item or offer amount');
-            }
-
-            // Check if item is available
-            $stmt = $this->pdo->prepare("
-                SELECT i.*, s.claim_end 
-                FROM yfc_items i
-                JOIN yfc_sales s ON i.sale_id = s.id
-                WHERE i.id = ? AND i.status = 'available' AND s.claim_end > NOW()
-            ");
-            $stmt->execute([$itemId]);
-            $item = $stmt->fetch();
-
-            if (!$item) {
-                throw new Exception('Item is not available for offers');
-            }
-
-            // Check minimum offer
-            if ($offerAmount < $item['starting_price']) {
-                throw new Exception('Offer must be at least $' . number_format($item['starting_price'], 2));
-            }
-
-            // Create offer
-            $stmt = $this->pdo->prepare("
-                INSERT INTO yfc_offers (item_id, buyer_id, offer_amount, status, created_at)
-                VALUES (?, ?, ?, 'active', NOW())
-            ");
-            $stmt->execute([$itemId, $buyerId, $offerAmount]);
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'Offer submitted successfully'
-            ]);
-
-        } catch (Exception $e) {
-            echo json_encode([
-                'success' => false,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
 
     /**
      * Buyer logout
@@ -744,24 +651,133 @@ class ClaimsController extends BaseController
     // ==== API ENDPOINTS ====
 
     /**
-     * Get buyer offers via API
+     * Handle contact seller form submission
      */
-    public function getBuyerOffers(): void
+    public function contactSeller(): void
     {
-        session_start();
-        if (!isset($_SESSION['yfclaim_buyer_id'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Authentication required']);
+        header('Content-Type: application/json');
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
             return;
         }
-
-        header('Content-Type: application/json');
-        $buyerId = $_SESSION['yfclaim_buyer_id'];
-        $offers = $this->getBuyerOffersData($buyerId);
-        echo json_encode(['offers' => $offers]);
+        
+        try {
+            // Get form data
+            $itemId = (int)($_POST['item_id'] ?? 0);
+            $buyerName = trim($_POST['buyer_name'] ?? '');
+            $buyerEmail = trim($_POST['buyer_email'] ?? '');
+            $buyerPhone = trim($_POST['buyer_phone'] ?? '');
+            $message = trim($_POST['message'] ?? '');
+            
+            // Validate required fields
+            if (!$itemId || !$buyerName || !$buyerEmail || !$message) {
+                throw new Exception('Please fill in all required fields');
+            }
+            
+            // Validate email
+            if (!filter_var($buyerEmail, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('Please provide a valid email address');
+            }
+            
+            // Rate limiting check (1 per minute per IP)
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+            $cacheKey = 'contact_' . md5($ip . $itemId);
+            $cacheFile = sys_get_temp_dir() . '/' . $cacheKey;
+            
+            if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < 60)) {
+                throw new Exception('Please wait a minute before sending another message');
+            }
+            
+            // Get item and seller info
+            $stmt = $this->pdo->prepare("
+                SELECT i.*, s.id as sale_id, s.title as sale_title,
+                       sel.id as seller_id, sel.email as seller_email, 
+                       sel.company_name, sel.contact_name
+                FROM yfc_items i
+                JOIN yfc_sales s ON i.sale_id = s.id
+                JOIN yfc_sellers sel ON s.seller_id = sel.id
+                WHERE i.id = ?
+            ");
+            $stmt->execute([$itemId]);
+            $item = $stmt->fetch();
+            
+            if (!$item) {
+                throw new Exception('Item not found');
+            }
+            
+            // Send email to seller
+            $subject = "Inquiry about {$item['title']} - {$item['sale_title']}";
+            $emailBody = "You have received a new inquiry about an item in your sale.\n\n";
+            $emailBody .= "Item: {$item['title']}\n";
+            $emailBody .= "Sale: {$item['sale_title']}\n";
+            $emailBody .= "Price: $" . number_format($item['price'], 2) . "\n\n";
+            $emailBody .= "From: {$buyerName}\n";
+            $emailBody .= "Email: {$buyerEmail}\n";
+            if ($buyerPhone) {
+                $emailBody .= "Phone: {$buyerPhone}\n";
+            }
+            $emailBody .= "\nMessage:\n{$message}\n\n";
+            $emailBody .= "Please respond directly to the buyer's email address.";
+            
+            $headers = "From: noreply@yakimafinds.com\r\n";
+            $headers .= "Reply-To: {$buyerEmail}\r\n";
+            $headers .= "X-Mailer: PHP/" . phpversion();
+            
+            if (!mail($item['seller_email'], $subject, $emailBody, $headers)) {
+                throw new Exception('Failed to send message. Please try again later.');
+            }
+            
+            // Update rate limit cache
+            file_put_contents($cacheFile, time());
+            
+            // Log notification
+            if (class_exists('YFEvents\Modules\YFClaim\Models\NotificationModel')) {
+                $notificationModel = new \YFEvents\Modules\YFClaim\Models\NotificationModel($this->pdo);
+                $notificationModel->create([
+                    'seller_id' => $item['seller_id'],
+                    'sale_id' => $item['sale_id'],
+                    'type' => 'item_inquiry',
+                    'title' => 'New inquiry for ' . $item['title'],
+                    'message' => "From: {$buyerName} ({$buyerEmail})"
+                ]);
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Your message has been sent to the seller!'
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     // ==== HELPER METHODS FOR DATA RETRIEVAL ====
+
+    /**
+     * Ensure session variables are compatible between both systems
+     */
+    private function ensureSessionCompatibility(): void
+    {
+        // Map from controller naming to module naming
+        if (isset($_SESSION['yfclaim_seller_id']) && !isset($_SESSION['claim_seller_id'])) {
+            $_SESSION['claim_seller_logged_in'] = true;
+            $_SESSION['claim_seller_id'] = $_SESSION['yfclaim_seller_id'];
+            $_SESSION['seller_name'] = $_SESSION['yfclaim_seller_name'] ?? '';
+            $_SESSION['company_name'] = $_SESSION['yfclaim_seller_name'] ?? '';
+        }
+        
+        // Map from module naming to controller naming
+        if (isset($_SESSION['claim_seller_id']) && !isset($_SESSION['yfclaim_seller_id'])) {
+            $_SESSION['yfclaim_seller_id'] = $_SESSION['claim_seller_id'];
+            $_SESSION['yfclaim_seller_name'] = $_SESSION['company_name'] ?? $_SESSION['seller_name'] ?? '';
+        }
+    }
 
     private function getCurrentSales(): array
     {
@@ -817,13 +833,9 @@ class ClaimsController extends BaseController
     {
         $stmt = $this->pdo->prepare("
             SELECT i.*, 
-                   COUNT(DISTINCT o.id) as offer_count,
-                   MAX(o.offer_amount) as highest_offer,
                    (SELECT filename FROM yfc_item_images WHERE item_id = i.id AND is_primary = 1 LIMIT 1) as primary_image
             FROM yfc_items i
-            LEFT JOIN yfc_offers o ON i.id = o.item_id AND o.status = 'active'
             WHERE i.sale_id = ? AND i.status = 'available'
-            GROUP BY i.id
             ORDER BY i.sort_order ASC, i.id ASC
         ");
         $stmt->execute([$saleId]);
@@ -835,11 +847,8 @@ class ClaimsController extends BaseController
         $stmt = $this->pdo->prepare("
             SELECT 
                 COUNT(DISTINCT i.id) as total_items,
-                COUNT(DISTINCT o.id) as total_offers,
-                COUNT(DISTINCT o.buyer_id) as unique_buyers,
                 COUNT(DISTINCT CASE WHEN i.status = 'claimed' THEN i.id END) as claimed_items
             FROM yfc_items i
-            LEFT JOIN yfc_offers o ON i.id = o.item_id
             WHERE i.sale_id = ?
         ");
         $stmt->execute([$saleId]);
@@ -850,15 +859,11 @@ class ClaimsController extends BaseController
     {
         $stmt = $this->pdo->prepare("
             SELECT i.*, s.title as sale_title, s.id as sale_id,
-                   sel.company_name, sel.phone as seller_phone,
-                   COUNT(o.id) as offer_count,
-                   MAX(o.offer_amount) as highest_offer
+                   sel.company_name, sel.phone as seller_phone
             FROM yfc_items i
             JOIN yfc_sales s ON i.sale_id = s.id
             JOIN yfc_sellers sel ON s.seller_id = sel.id
-            LEFT JOIN yfc_offers o ON i.id = o.item_id AND o.status = 'active'
             WHERE i.id = ?
-            GROUP BY i.id
         ");
         $stmt->execute([$itemId]);
         return $stmt->fetch() ?: null;
@@ -868,12 +873,9 @@ class ClaimsController extends BaseController
     {
         $stmt = $this->pdo->prepare("
             SELECT s.*, 
-                   COUNT(DISTINCT i.id) as item_count,
-                   COUNT(DISTINCT o.id) as offer_count,
-                   COUNT(DISTINCT o.buyer_id) as buyer_count
+                   COUNT(DISTINCT i.id) as item_count
             FROM yfc_sales s
             LEFT JOIN yfc_items i ON s.id = i.sale_id
-            LEFT JOIN yfc_offers o ON i.id = o.item_id
             WHERE s.seller_id = ?
             GROUP BY s.id
             ORDER BY s.created_at DESC
@@ -889,33 +891,15 @@ class ClaimsController extends BaseController
                 COUNT(DISTINCT s.id) as total_sales,
                 COUNT(DISTINCT CASE WHEN s.status = 'active' THEN s.id END) as active_sales,
                 COUNT(DISTINCT i.id) as total_items,
-                COUNT(DISTINCT o.id) as total_offers,
                 SUM(CASE WHEN i.status = 'claimed' THEN 1 ELSE 0 END) as claimed_items
             FROM yfc_sales s
             LEFT JOIN yfc_items i ON s.id = i.sale_id
-            LEFT JOIN yfc_offers o ON i.id = o.item_id
             WHERE s.seller_id = ?
         ");
         $stmt->execute([$sellerId]);
         return $stmt->fetch();
     }
 
-    private function getBuyerOffersData(int $buyerId): array
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT o.*, i.title as item_title, i.status as item_status,
-                   s.title as sale_title, s.pickup_start, s.pickup_end,
-                   sel.company_name, sel.phone as seller_phone
-            FROM yfc_offers o
-            JOIN yfc_items i ON o.item_id = i.id
-            JOIN yfc_sales s ON i.sale_id = s.id
-            JOIN yfc_sellers sel ON s.seller_id = sel.id
-            WHERE o.buyer_id = ?
-            ORDER BY o.created_at DESC
-        ");
-        $stmt->execute([$buyerId]);
-        return $stmt->fetchAll();
-    }
 
     private function generateUniqueCode(string $type): string
     {
@@ -998,7 +982,6 @@ class ClaimsController extends BaseController
         <p>Browse and claim items from estate sales across the Yakima Valley</p>
         <div class="header-actions">
             <a href="{$basePath}/seller/login" class="header-btn">Estate Sale Company? Login</a>
-            <a href="{$basePath}/buyer/offers" class="header-btn">View My Offers</a>
         </div>
     </div>
     
@@ -1055,8 +1038,6 @@ HTML;
     private function renderSaleCard(array $sale, string $basePath, array $timeInfo, string $type): string
     {
         $itemCount = $sale['item_count'] ?? 0;
-        $offerCount = $sale['offer_count'] ?? 0;
-        $buyerCount = $sale['buyer_count'] ?? 0;
         
         $actionButton = $type === 'current' 
             ? '<a href="' . $basePath . '/claims/sale?id=' . $sale['id'] . '" class="btn btn-primary">Browse Items</a>'
@@ -1088,14 +1069,6 @@ HTML;
                         <div class="stat">
                             <div class="stat-value">{$itemCount}</div>
                             <div class="stat-label">Items</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">{$offerCount}</div>
-                            <div class="stat-label">Offers</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-value">{$buyerCount}</div>
-                            <div class="stat-label">Buyers</div>
                         </div>
                     </div>
                     
@@ -1136,10 +1109,6 @@ HTML;
     }
 
     // Additional render methods follow - simplified for space
-    private function renderUpcomingClaimsPage(string $basePath, array $upcomingSales): string
-    {
-        return "<!-- Upcoming sales page HTML -->"; // Implementation continues...
-    }
 
     private function renderSalePage(string $basePath, array $sale, array $items, array $stats): string
     {
@@ -1294,14 +1263,6 @@ HTML;
                     <div class="stat-label">Total Items</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value">{$stats['total_offers']}</div>
-                    <div class="stat-label">Offers Made</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value">{$stats['unique_buyers']}</div>
-                    <div class="stat-label">Active Buyers</div>
-                </div>
-                <div class="stat">
                     <div class="stat-value">{$stats['claimed_items']}</div>
                     <div class="stat-label">Items Claimed</div>
                 </div>
@@ -1442,8 +1403,9 @@ HTML;
         session_start();
         $isAuthenticated = isset($_SESSION['yfclaim_buyer_id']);
         $buyerName = $_SESSION['yfclaim_buyer_name'] ?? '';
+        $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
         
-        $offerSection = $this->renderOfferSection($basePath, $item, $isAuthenticated, $buyerName);
+        $contactSection = $this->renderContactSection($basePath, $item);
         $itemImages = $this->renderItemImages($item);
         
         return <<<HTML
@@ -1542,12 +1504,8 @@ HTML;
                         <span class="meta-value">{$item['condition']}</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Current Offers:</span>
-                        <span class="meta-value">{$item['offer_count']}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Highest Offer:</span>
-                        <span class="meta-value">\${$item['highest_offer']}</span>
+                        <span class="meta-label">Price:</span>
+                        <span class="meta-value">\${$price}</span>
                     </div>
                 </div>
                 
@@ -1560,32 +1518,29 @@ HTML;
             </div>
         </div>
         
-        {$offerSection}
+        {$contactSection}
     </div>
     
     <script>
-        // Offer submission functionality
+        // Contact form functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const offerForm = document.getElementById('offer-form');
-            const offerInput = document.getElementById('offer-amount');
-            const submitBtn = document.getElementById('submit-offer-btn');
+            const contactForm = document.getElementById('contact-form');
+            const submitBtn = document.getElementById('submit-contact-btn');
             const loading = document.getElementById('loading');
             const alertContainer = document.getElementById('alert-container');
             
-            if (offerForm) {
-                offerForm.addEventListener('submit', async function(e) {
+            if (contactForm) {
+                contactForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
-                    const offerAmount = parseFloat(offerInput.value);
-                    const startingPrice = {$item['starting_price']};
+                    const buyerName = document.getElementById('buyer-name').value.trim();
+                    const buyerEmail = document.getElementById('buyer-email').value.trim();
+                    const buyerPhone = document.getElementById('buyer-phone').value.trim();
+                    const message = document.getElementById('message').value.trim();
+                    const itemId = document.getElementById('item-id').value;
                     
-                    if (!offerAmount || offerAmount <= 0) {
-                        showAlert('Please enter a valid offer amount.', 'error');
-                        return;
-                    }
-                    
-                    if (offerAmount < startingPrice) {
-                        showAlert('Offer must be at least \$' + startingPrice.toFixed(2), 'error');
+                    if (!buyerName || !buyerEmail || !message) {
+                        showAlert('Please fill in all required fields.', 'error');
                         return;
                     }
                     
@@ -1593,48 +1548,32 @@ HTML;
                     clearAlerts();
                     
                     try {
-                        const response = await fetch('{$basePath}/api/claims/offer', {
+                        const response = await fetch('{$basePath}/api/claims/contact', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
                             },
                             body: new URLSearchParams({
-                                item_id: '{$item['id']}',
-                                offer_amount: offerAmount
+                                item_id: itemId,
+                                buyer_name: buyerName,
+                                buyer_email: buyerEmail,
+                                buyer_phone: buyerPhone,
+                                message: message
                             })
                         });
                         
                         const result = await response.json();
                         
                         if (result.success) {
-                            showAlert('Offer submitted successfully! You can track its status in your offers page.', 'success');
-                            offerInput.value = '';
-                            
-                            // Redirect to offers page after success
-                            setTimeout(() => {
-                                window.location.href = '{$basePath}/buyer/offers';
-                            }, 2000);
+                            showAlert('Message sent successfully! The seller will contact you soon.', 'success');
+                            contactForm.reset();
                         } else {
-                            showAlert(result.error || 'Failed to submit offer.', 'error');
+                            showAlert(result.error || 'Failed to send message.', 'error');
                         }
                     } catch (error) {
                         showAlert('Network error. Please try again.', 'error');
                     } finally {
                         showLoading(false);
-                    }
-                });
-                
-                // Real-time offer validation
-                offerInput.addEventListener('input', function() {
-                    const offerAmount = parseFloat(this.value);
-                    const startingPrice = {$item['starting_price']};
-                    
-                    if (offerAmount && offerAmount < startingPrice) {
-                        this.style.borderColor = '#dc3545';
-                        submitBtn.disabled = true;
-                    } else {
-                        this.style.borderColor = '#e9ecef';
-                        submitBtn.disabled = false;
                     }
                 });
             }
@@ -1663,65 +1602,64 @@ HTML;
 HTML;
     }
     
-    private function renderOfferSection(string $basePath, array $item, bool $isAuthenticated, string $buyerName): string
+    private function renderContactSection(string $basePath, array $item): string
     {
-        if (!$isAuthenticated) {
+        $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
+        $isAvailable = $item['status'] === 'available';
+        
+        if (!$isAvailable) {
             return <<<HTML
-                <div class="offer-section">
-                    <div class="offer-header">
-                        <h3 class="offer-title">💰 Make an Offer</h3>
-                        <div class="offer-stats">
-                            <span>{$item['offer_count']} offers made</span>
-                            <span>Highest: \${$item['highest_offer']}</span>
-                        </div>
+                <div class="contact-section">
+                    <div class="contact-header">
+                        <h3 class="contact-title">📧 Contact Seller</h3>
                     </div>
-                    
-                    <div class="auth-prompt">
-                        <h4>🔐 Authentication Required</h4>
-                        <p>You need to authenticate before making an offer on this item.</p>
-                        <a href="/buyer/auth?sale_id={$item['sale_id']}&item_id={$item['id']}" class="btn btn-primary">Authenticate to Make Offer</a>
+                    <div class="alert alert-info">
+                        This item is no longer available.
                     </div>
                 </div>
 HTML;
         }
         
         return <<<HTML
-            <div class="offer-section">
-                <div class="offer-header">
-                    <h3 class="offer-title">💰 Make an Offer</h3>
-                    <div class="offer-stats">
-                        <span>{$item['offer_count']} offers made</span>
-                        <span>Highest: \${$item['highest_offer']}</span>
-                        <span>Welcome, {$buyerName}!</span>
+            <div class="contact-section">
+                <div class="contact-header">
+                    <h3 class="contact-title">📧 Contact Seller</h3>
+                    <div class="item-price">
+                        <span>Price: \${$price}</span>
                     </div>
                 </div>
                 
                 <div id="alert-container"></div>
                 
-                <form id="offer-form" class="offer-form">
+                <form id="contact-form" class="contact-form">
+                    <input type="hidden" id="item-id" value="{$item['id']}">
+                    
                     <div class="form-group">
-                        <label class="form-label" for="offer-amount">Your Offer Amount</label>
-                        <div class="input-group">
-                            <span class="input-prefix">\$</span>
-                            <input type="number" id="offer-amount" class="form-input" step="0.01" min="{$item['starting_price']}" placeholder="Enter your offer amount" required>
-                        </div>
-                        <small style="color: #6c757d; margin-top: 5px; display: block;">Minimum offer: \${$item['starting_price']}</small>
+                        <label class="form-label" for="buyer-name">Your Name</label>
+                        <input type="text" id="buyer-name" class="form-input" placeholder="Enter your name" required>
                     </div>
                     
-                    <div class="alert alert-warning">
-                        <strong>Important:</strong> Your offer is binding once accepted by the seller. Please ensure you can pick up the item during the designated pickup window.
+                    <div class="form-group">
+                        <label class="form-label" for="buyer-email">Your Email</label>
+                        <input type="email" id="buyer-email" class="form-input" placeholder="your@email.com" required>
                     </div>
                     
-                    <button type="submit" id="submit-offer-btn" class="btn btn-primary btn-block">Submit Offer</button>
+                    <div class="form-group">
+                        <label class="form-label" for="buyer-phone">Phone (optional)</label>
+                        <input type="tel" id="buyer-phone" class="form-input" placeholder="(555) 123-4567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="message">Message</label>
+                        <textarea id="message" class="form-input" rows="4" placeholder="I'm interested in this item..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" id="submit-contact-btn" class="btn btn-primary btn-block">Send Message</button>
                 </form>
                 
                 <div id="loading" class="loading">
                     <div class="spinner"></div>
-                    <p>Submitting your offer...</p>
-                </div>
-                
-                <div style="margin-top: 20px; text-align: center;">
-                    <a href="{$basePath}/buyer/offers" class="btn btn-secondary">View My Offers</a>
+                    <p>Sending your message...</p>
                 </div>
             </div>
 HTML;
@@ -1740,30 +1678,6 @@ HTML;
 HTML;
     }
 
-    private function renderSellerRegistrationPage(string $basePath, string $error = ''): string
-    {
-        return "<!-- Seller registration page HTML -->"; // Implementation continues...
-    }
-
-    private function renderRegistrationSuccess(string $basePath, string $email): string
-    {
-        return "<!-- Registration success page HTML -->"; // Implementation continues...
-    }
-
-    private function renderSellerLoginPage(string $basePath, string $error = ''): string
-    {
-        return "<!-- Seller login page HTML -->"; // Implementation continues...
-    }
-
-    private function renderSellerDashboard(string $basePath, string $sellerName, array $sales, array $stats): string
-    {
-        return "<!-- Seller dashboard HTML -->"; // Implementation continues...
-    }
-
-    private function renderCreateSalePage(string $basePath, string $error = ''): string
-    {
-        return "<!-- Create sale page HTML -->"; // Implementation continues...
-    }
 
     private function renderBuyerAuthPage(string $basePath, int $saleId, int $itemId): string
     {
@@ -2124,426 +2038,6 @@ HTML;
 HTML;
     }
 
-    private function renderBuyerOffersPage(string $basePath, string $buyerName, array $offers): string
-    {
-        $offersHtml = $this->renderOffersGrid($offers, $basePath);
-        $offerStats = $this->calculateOfferStats($offers);
-        
-        return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Offers | YFClaim Estate Sales</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; line-height: 1.6; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; }
-        .header h1 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 700; }
-        .header p { font-size: 1.1rem; opacity: 0.95; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .nav-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-        .nav-link { color: #667eea; text-decoration: none; font-weight: 500; }
-        .nav-link:hover { text-decoration: underline; }
-        .logout-btn { background: #dc3545; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; }
-        .logout-btn:hover { background: #c82333; }
-        .stats-section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .welcome-text { color: #2c3e50; }
-        .welcome-text h2 { font-size: 1.8rem; margin-bottom: 5px; }
-        .welcome-text p { color: #6c757d; }
-        .quick-actions { display: flex; gap: 15px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 500; cursor: pointer; text-decoration: none; text-align: center; transition: all 0.3s ease; }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a67d8; }
-        .btn-secondary { background: #6c757d; color: white; }
-        .btn-secondary:hover { background: #5a6268; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; }
-        .stat-value { font-size: 2.2rem; font-weight: bold; margin-bottom: 5px; }
-        .stat-label { font-size: 0.9rem; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
-        .offers-section { margin-bottom: 40px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .section-header h2 { font-size: 1.8rem; color: #2c3e50; }
-        .filter-tabs { display: flex; gap: 15px; }
-        .filter-tab { padding: 8px 16px; border: 2px solid #e9ecef; border-radius: 20px; background: white; color: #6c757d; cursor: pointer; transition: all 0.3s ease; }
-        .filter-tab.active { border-color: #667eea; background: #667eea; color: white; }
-        .offers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
-        .offer-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; }
-        .offer-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
-        .offer-header { padding: 20px; border-bottom: 1px solid #e9ecef; }
-        .offer-title { font-size: 1.2rem; font-weight: 600; color: #2c3e50; margin-bottom: 8px; }
-        .offer-sale { color: #6c757d; font-size: 0.95rem; }
-        .offer-body { padding: 20px; }
-        .offer-amount { font-size: 1.8rem; font-weight: bold; color: #28a745; margin-bottom: 15px; }
-        .offer-details { margin-bottom: 15px; }
-        .offer-detail { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
-        .offer-detail .label { color: #6c757d; }
-        .offer-detail .value { font-weight: 500; }
-        .offer-status { display: inline-block; padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-active { background: #d4edda; color: #155724; }
-        .status-accepted { background: #d1ecf1; color: #0c5460; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-expired { background: #e2e3e5; color: #383d41; }
-        .offer-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .empty-state { text-align: center; padding: 60px 20px; color: #6c757d; }
-        .empty-state h3 { font-size: 1.5rem; margin-bottom: 15px; color: #495057; }
-        .empty-state p { font-size: 1.1rem; line-height: 1.6; margin-bottom: 25px; }
-        .offer-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .offer-modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: white; border-radius: 15px; padding: 30px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 1.4rem; color: #2c3e50; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6c757d; }
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #2c3e50; }
-        .form-input { width: 100%; padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; }
-        .form-input:focus { outline: none; border-color: #667eea; }
-        @media (max-width: 768px) { 
-            .nav-section { flex-direction: column; align-items: flex-start; }
-            .stats-header { flex-direction: column; gap: 20px; align-items: flex-start; }
-            .offers-grid { grid-template-columns: 1fr; }
-            .section-header { flex-direction: column; gap: 15px; align-items: flex-start; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>💼 My Offers</h1>
-        <p>Track your estate sale offers and manage your claims</p>
-    </div>
-    
-    <div class="container">
-        <div class="nav-section">
-            <a href="{$basePath}/claims" class="nav-link">← Browse Estate Sales</a>
-            <a href="{$basePath}/buyer/logout" class="logout-btn">Logout</a>
-        </div>
-        
-        <div class="stats-section">
-            <div class="stats-header">
-                <div class="welcome-text">
-                    <h2>Welcome back, {$buyerName}!</h2>
-                    <p>Here's a summary of your offering activity</p>
-                </div>
-                <div class="quick-actions">
-                    <a href="{$basePath}/claims" class="btn btn-primary">Browse Sales</a>
-                    <button id="make-offer-btn" class="btn btn-secondary">Make New Offer</button>
-                </div>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">{$offerStats['total']}</div>
-                    <div class="stat-label">Total Offers</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{$offerStats['active']}</div>
-                    <div class="stat-label">Active Offers</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">{$offerStats['accepted']}</div>
-                    <div class="stat-label">Accepted</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">\${$offerStats['total_amount']}</div>
-                    <div class="stat-label">Total Offered</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="offers-section">
-            <div class="section-header">
-                <h2>Your Offers</h2>
-                <div class="filter-tabs">
-                    <div class="filter-tab active" data-filter="all">All Offers</div>
-                    <div class="filter-tab" data-filter="active">Active</div>
-                    <div class="filter-tab" data-filter="accepted">Accepted</div>
-                    <div class="filter-tab" data-filter="ended">Ended</div>
-                </div>
-            </div>
-            {$offersHtml}
-        </div>
-    </div>
-    
-    <!-- Make Offer Modal -->
-    <div id="offer-modal" class="offer-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Make New Offer</h3>
-                <button class="modal-close" id="close-modal">&times;</button>
-            </div>
-            <div id="modal-body">
-                <p>Select an item from an active sale to make an offer.</p>
-                <div style="margin-top: 20px;">
-                    <a href="{$basePath}/claims" class="btn btn-primary">Browse Current Sales</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        // Filter functionality
-        const filterTabs = document.querySelectorAll('.filter-tab');
-        const offerCards = document.querySelectorAll('.offer-card');
-        
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                // Update active tab
-                filterTabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Filter offers
-                const filter = this.dataset.filter;
-                offerCards.forEach(card => {
-                    if (filter === 'all' || card.dataset.status === filter) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
-        });
-        
-        // Modal functionality
-        const makeOfferBtn = document.getElementById('make-offer-btn');
-        const offerModal = document.getElementById('offer-modal');
-        const closeModal = document.getElementById('close-modal');
-        
-        makeOfferBtn.addEventListener('click', function() {
-            offerModal.classList.add('show');
-        });
-        
-        closeModal.addEventListener('click', function() {
-            offerModal.classList.remove('show');
-        });
-        
-        offerModal.addEventListener('click', function(e) {
-            if (e.target === offerModal) {
-                offerModal.classList.remove('show');
-            }
-        });
-        
-        // Share functionality
-        function shareItem(itemId, title, description) {
-            const baseUrl = window.location.origin;
-            const itemUrl = baseUrl + '{$basePath}/claims/item/' + itemId;
-            const shareText = title + ' - ' + description.substring(0, 100) + '...';
-            
-            // Simple share menu - you can enhance this with a modal
-            const shareOptions = [
-                {
-                    name: 'Facebook',
-                    url: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(itemUrl),
-                    icon: '📘'
-                },
-                {
-                    name: 'Twitter',
-                    url: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText) + '&url=' + encodeURIComponent(itemUrl),
-                    icon: '🐦'
-                },
-                {
-                    name: 'Copy Link',
-                    action: function() {
-                        navigator.clipboard.writeText(itemUrl).then(() => {
-                            alert('Link copied to clipboard!');
-                        });
-                    },
-                    icon: '📋'
-                }
-            ];
-            
-            // Create share menu
-            let menu = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:9999;">';
-            menu += '<h3 style="margin-bottom:15px;">Share Item</h3>';
-            shareOptions.forEach(option => {
-                if (option.url) {
-                    menu += '<a href="' + option.url + '" target="_blank" style="display:block;padding:10px;text-decoration:none;color:#333;hover:background:#f0f0f0;">' + option.icon + ' ' + option.name + '</a>';
-                } else {
-                    menu += '<button onclick="' + option.action.toString() + '();document.getElementById(\'shareMenu\').remove();" style="display:block;width:100%;padding:10px;border:none;background:none;text-align:left;cursor:pointer;">' + option.icon + ' ' + option.name + '</button>';
-                }
-            });
-            menu += '<button onclick="document.getElementById(\'shareMenu\').remove();" style="margin-top:10px;padding:5px 15px;">Close</button>';
-            menu += '</div>';
-            menu += '<div onclick="document.getElementById(\'shareMenu\').remove();" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
-            
-            const menuElement = document.createElement('div');
-            menuElement.id = 'shareMenu';
-            menuElement.innerHTML = menu;
-            document.body.appendChild(menuElement);
-        }
-        
-        function shareSaleFacebook() {
-            const saleUrl = window.location.href;
-            const saleTitle = document.querySelector('.sale-title').textContent;
-            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(saleUrl), 'facebook-share', 'width=626,height=436');
-        }
-        
-        function shareSaleTwitter() {
-            const saleUrl = window.location.href;
-            const saleTitle = document.querySelector('.sale-title').textContent;
-            const text = saleTitle + ' - Check out this estate sale!';
-            window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(saleUrl), 'twitter-share', 'width=550,height=420');
-        }
-        
-        function shareSaleEmail() {
-            const saleUrl = window.location.href;
-            const saleTitle = document.querySelector('.sale-title').textContent;
-            const subject = encodeURIComponent('Check out this estate sale: ' + saleTitle);
-            const body = encodeURIComponent('I found this estate sale that might interest you:\n\n' + saleTitle + '\n\n' + saleUrl);
-            window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
-        }
-        
-        function copySaleLink() {
-            const saleUrl = window.location.href;
-            navigator.clipboard.writeText(saleUrl).then(() => {
-                const btn = event.target;
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '✅ Copied!';
-                btn.style.background = '#28a745';
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                }, 2000);
-            }).catch(() => {
-                alert('Failed to copy link. URL: ' + saleUrl);
-            });
-        }
-    </script>
-</body>
-</html>
-HTML;
-    }
-    
-    private function renderOffersGrid(array $offers, string $basePath): string
-    {
-        if (empty($offers)) {
-            return <<<HTML
-                <div class="empty-state">
-                    <h3>No Offers Yet</h3>
-                    <p>You haven't made any offers yet. Browse current estate sales to find items you're interested in and start making offers!</p>
-                    <a href="{$basePath}/claims" class="btn btn-primary">Browse Estate Sales</a>
-                </div>
-HTML;
-        }
-        
-        $html = '<div class="offers-grid">';
-        
-        foreach ($offers as $offer) {
-            $statusClass = $this->getOfferStatusClass($offer['status']);
-            $statusText = $this->getOfferStatusText($offer['status']);
-            $offerAmount = number_format((float)$offer['offer_amount'], 2);
-            $offerDate = date('M j, Y', strtotime($offer['created_at']));
-            
-            // Determine if pickup info should be shown
-            $pickupInfo = '';
-            if ($offer['status'] === 'accepted' && !empty($offer['pickup_start'])) {
-                $pickupStart = date('M j', strtotime($offer['pickup_start']));
-                $pickupEnd = date('M j, Y', strtotime($offer['pickup_end']));
-                $pickupInfo = <<<PICKUP
-                    <div class="offer-detail">
-                        <span class="label">Pickup Window:</span>
-                        <span class="value">{$pickupStart} - {$pickupEnd}</span>
-                    </div>
-PICKUP;
-            }
-            
-            $contactInfo = '';
-            if ($offer['status'] === 'accepted' && !empty($offer['seller_phone'])) {
-                $contactInfo = <<<CONTACT
-                    <div class="offer-detail">
-                        <span class="label">Contact:</span>
-                        <span class="value">{$offer['seller_phone']}</span>
-                    </div>
-CONTACT;
-            }
-            
-            $html .= <<<OFFER
-                <div class="offer-card" data-status="{$offer['status']}">
-                    <div class="offer-header">
-                        <div class="offer-title">{$offer['item_title']}</div>
-                        <div class="offer-sale">{$offer['sale_title']}</div>
-                    </div>
-                    <div class="offer-body">
-                        <div class="offer-amount">\${$offerAmount}</div>
-                        
-                        <div class="offer-details">
-                            <div class="offer-detail">
-                                <span class="label">Status:</span>
-                                <span class="offer-status {$statusClass}">{$statusText}</span>
-                            </div>
-                            <div class="offer-detail">
-                                <span class="label">Offered:</span>
-                                <span class="value">{$offerDate}</span>
-                            </div>
-                            <div class="offer-detail">
-                                <span class="label">Company:</span>
-                                <span class="value">{$offer['company_name']}</span>
-                            </div>
-                            {$pickupInfo}
-                            {$contactInfo}
-                        </div>
-                        
-                        <div class="offer-actions">
-                            <a href="{$basePath}/claims/item/{$offer['item_id']}" class="btn btn-secondary">View Item</a>
-                        </div>
-                    </div>
-                </div>
-OFFER;
-        }
-        
-        $html .= '</div>';
-        return $html;
-    }
-    
-    private function getOfferStatusClass(string $status): string
-    {
-        switch ($status) {
-            case 'active': return 'status-active';
-            case 'accepted': return 'status-accepted';
-            case 'rejected': return 'status-rejected';
-            case 'expired': return 'status-expired';
-            default: return 'status-active';
-        }
-    }
-    
-    private function getOfferStatusText(string $status): string
-    {
-        switch ($status) {
-            case 'active': return 'Active';
-            case 'accepted': return 'Accepted';
-            case 'rejected': return 'Rejected';
-            case 'expired': return 'Expired';
-            default: return 'Active';
-        }
-    }
-    
-    private function calculateOfferStats(array $offers): array
-    {
-        $stats = [
-            'total' => count($offers),
-            'active' => 0,
-            'accepted' => 0,
-            'total_amount' => 0
-        ];
-        
-        foreach ($offers as $offer) {
-            $stats['total_amount'] += (float)$offer['offer_amount'];
-            
-            switch ($offer['status']) {
-                case 'active':
-                    $stats['active']++;
-                    break;
-                case 'accepted':
-                    $stats['accepted']++;
-                    break;
-            }
-        }
-        
-        $stats['total_amount'] = number_format($stats['total_amount'], 0);
-        
-        return $stats;
-    }
-
     private function formatDateRange(string $start, string $end): string
     {
         return date('M j', strtotime($start)) . ' - ' . date('M j, Y', strtotime($end));
@@ -2645,7 +2139,12 @@ ITEM;
     }
 
     // Additional stub methods for completeness
-    public function manageSaleItems(): void { echo "Sale items management - coming soon"; }
+    public function manageSaleItems(): void 
+    {
+        session_start();
+        $this->ensureSessionCompatibility();
+        require BASE_PATH . '/modules/yfclaim/www/dashboard/manage-items.php';
+    }
     public function showEditSale(): void { echo "Edit sale - coming soon"; }
     public function updateSale(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
     public function getSaleItemsApi(): void { echo json_encode(['items' => []]); }
@@ -2653,4 +2152,494 @@ ITEM;
     public function updateSaleItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
     public function deleteSaleItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
     public function claimItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
+
+    /**
+     * Render seller login page HTML
+     */
+    private function renderSellerLogin(): string
+    {
+        $css = $this->getSellerAuthStyles();
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Login - YFClaim</title>
+    <style>{$css}</style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>YFClaim</h1>
+            <p>Seller Portal</p>
+        </div>
+        
+        <div class="welcome-text">
+            <h3>Welcome back!</h3>
+            <p>Sign in to manage your estate sales, upload items, and connect with buyers.</p>
+        </div>
+        
+        <div id="alerts"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Email or Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" id="loginBtn">Sign In</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Signing you in...</p>
+            </div>
+        </form>
+        
+        <div class="register-link">
+            <p>New seller? <a href="/seller/register">Register for an account</a></p>
+        </div>
+        
+        <div class="links">
+            <a href="/">← Back to Home</a>
+            <a href="#" onclick="alert('Password reset feature coming soon!')">Forgot Password?</a>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loading');
+            const alerts = document.getElementById('alerts');
+            
+            // Clear previous alerts
+            alerts.innerHTML = '';
+            
+            // Show loading
+            loginBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch('/seller/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alerts.innerHTML = '<div class="alert alert-success">Login successful! Redirecting to dashboard...</div>';
+                    setTimeout(() => {
+                        window.location.href = '/seller/dashboard';
+                    }, 1500);
+                } else {
+                    alerts.innerHTML = `<div class="alert alert-error">\${data.error || 'Login failed'}</div>`;
+                    loginBtn.disabled = false;
+                }
+            } catch (error) {
+                alerts.innerHTML = '<div class="alert alert-error">An error occurred. Please try again.</div>';
+                loginBtn.disabled = false;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Render seller registration page HTML
+     */
+    private function renderSellerRegister(): string
+    {
+        $css = $this->getSellerAuthStyles();
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Registration - YFClaim</title>
+    <style>{$css}</style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <h1>YFClaim</h1>
+            <p>Seller Registration</p>
+        </div>
+        
+        <div class="welcome-text">
+            <h3>Join YFClaim</h3>
+            <p>Create your seller account to start managing estate sales, uploading items, and connecting with buyers.</p>
+        </div>
+        
+        <div id="alerts"></div>
+        
+        <form id="registerForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contact_name">Contact Name</label>
+                    <input type="text" id="contact_name" name="contact_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" id="company_name" name="company_name" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="website">Website (Optional)</label>
+                    <input type="url" id="website" name="website">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Business Address</label>
+                <textarea id="address" name="address" placeholder="Street address, city, state, zip"></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            
+            <button type="submit" id="registerBtn">Create Account</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Creating your account...</p>
+            </div>
+        </form>
+        
+        <div class="login-link">
+            <p>Already have an account? <a href="/seller/login">Sign in here</a></p>
+        </div>
+        
+        <div class="links">
+            <a href="/">← Back to Home</a>
+            <a href="/claims">Browse Sales</a>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirm_password');
+            
+            const registerBtn = document.getElementById('registerBtn');
+            const loading = document.getElementById('loading');
+            const alerts = document.getElementById('alerts');
+            
+            // Clear previous alerts
+            alerts.innerHTML = '';
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alerts.innerHTML = '<div class="alert alert-error">Passwords do not match</div>';
+                return;
+            }
+            
+            // Show loading
+            registerBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/seller/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alerts.innerHTML = '<div class="alert alert-success">Registration successful! Redirecting to login...</div>';
+                    setTimeout(() => {
+                        window.location.href = '/seller/login';
+                    }, 2000);
+                } else {
+                    alerts.innerHTML = `<div class="alert alert-error">\${data.error || 'Registration failed'}</div>`;
+                    registerBtn.disabled = false;
+                }
+            } catch (error) {
+                alerts.innerHTML = '<div class="alert alert-error">An error occurred. Please try again.</div>';
+                registerBtn.disabled = false;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Get CSS styles for seller auth pages
+     */
+    private function getSellerAuthStyles(): string
+    {
+        return '
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container, .register-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .register-container {
+            max-width: 500px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            color: #333;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .logo p {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .welcome-text {
+            background: #f8f9ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .welcome-text h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .welcome-text p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+        }
+        
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border-color: #fcc;
+        }
+        
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border-color: #cfc;
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin: 0 1rem;
+            font-weight: 500;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .register-link, .login-link {
+            background: #f8f9ff;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .register-link a, .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .login-container, .register-container {
+                padding: 2rem;
+            }
+        }
+        ';
+    }
 }

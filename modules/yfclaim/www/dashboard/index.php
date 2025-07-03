@@ -377,8 +377,8 @@ $unreadNotifications = $notificationModel->getUnreadCount($sellerId);
                 <div class="stat-label">Total Items</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?= $stats['total_offers'] ?></div>
-                <div class="stat-label">Total Offers</div>
+                <div class="stat-number"><?= $stats['sold_items'] ?? 0 ?></div>
+                <div class="stat-label">Items Sold</div>
             </div>
         </div>
         
@@ -393,10 +393,10 @@ $unreadNotifications = $notificationModel->getUnreadCount($sellerId);
                 <h4>Manage Items</h4>
                 <p>Add, edit, and organize items across your sales</p>
             </div>
-            <div class="action-card" onclick="window.location.href='view-offers.php'">
-                <div class="action-icon">💰</div>
-                <h4>Review Offers</h4>
-                <p>View and accept offers from buyers</p>
+            <div class="action-card" onclick="window.location.href='inquiries.php'">
+                <div class="action-icon">📧</div>
+                <h4>Item Inquiries</h4>
+                <p>View messages from interested buyers</p>
             </div>
         </div>
         
@@ -475,7 +475,7 @@ $unreadNotifications = $notificationModel->getUnreadCount($sellerId);
                         document.querySelector('.stat-card:nth-child(1) .stat-number').textContent = data.stats.total_sales;
                         document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = data.stats.active_sales;
                         document.querySelector('.stat-card:nth-child(3) .stat-number').textContent = data.stats.total_items;
-                        document.querySelector('.stat-card:nth-child(4) .stat-number').textContent = data.stats.total_offers;
+                        document.querySelector('.stat-card:nth-child(4) .stat-number').textContent = data.stats.sold_items || 0;
                     }
                 })
                 .catch(console.error);

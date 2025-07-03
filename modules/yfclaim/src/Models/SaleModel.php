@@ -88,35 +88,18 @@ class SaleModel extends BaseModel {
         $stmt->execute([$saleId]);
         $stats['total_items'] = $stmt->fetchColumn();
         
-        // Items with offers
-        $stmt = $this->db->prepare("
-            SELECT COUNT(DISTINCT item_id) FROM yfc_offers o
-            JOIN yfc_items i ON o.item_id = i.id
-            WHERE i.sale_id = ?
-        ");
+        // Available items
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'available'");
         $stmt->execute([$saleId]);
-        $stats['items_with_offers'] = $stmt->fetchColumn();
+        $stats['available_items'] = $stmt->fetchColumn();
         
-        // Total offers
-        $stmt = $this->db->prepare("
-            SELECT COUNT(*) FROM yfc_offers o
-            JOIN yfc_items i ON o.item_id = i.id
-            WHERE i.sale_id = ?
-        ");
+        // Sold items
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'sold'");
         $stmt->execute([$saleId]);
-        $stats['total_offers'] = $stmt->fetchColumn();
+        $stats['sold_items'] = $stmt->fetchColumn();
         
-        // Claimed items
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'claimed'");
-        $stmt->execute([$saleId]);
-        $stats['claimed_items'] = $stmt->fetchColumn();
-        
-        // Unique buyers (through offers)
-        $stmt = $this->db->prepare("
-            SELECT COUNT(DISTINCT o.buyer_id) FROM yfc_offers o
-            JOIN yfc_items i ON o.item_id = i.id
-            WHERE i.sale_id = ?
-        ");
+        // Unique buyers (from buyer table)
+        $stmt = $this->db->prepare("SELECT COUNT(DISTINCT id) FROM yfc_buyers WHERE sale_id = ?");
         $stmt->execute([$saleId]);
         $stats['unique_buyers'] = $stmt->fetchColumn();
         

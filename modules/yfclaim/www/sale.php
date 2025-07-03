@@ -614,7 +614,6 @@ if (isset($_SESSION['buyer_token'])) {
                     <option value="title">Title</option>
                     <option value="price-low">Price: Low to High</option>
                     <option value="price-high">Price: High to Low</option>
-                    <option value="offers">Most Offers</option>
                 </select>
                 
                 <label>Search:</label>
@@ -634,7 +633,6 @@ if (isset($_SESSION['buyer_token'])) {
                          data-title="<?= htmlspecialchars(strtolower($item['title'])) ?>"
                          data-number="<?= $item['item_number'] ?>"
                          data-price="<?= $item['starting_price'] ?>"
-                         data-offers="<?= $item['offer_count'] ?>"
                          onclick="viewItem(<?= $item['id'] ?>)">
                         
                         <?php if ($item['status'] === 'claimed'): ?>
@@ -732,8 +730,6 @@ if (isset($_SESSION['buyer_token'])) {
                         return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
                     case 'price-high':
                         return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-                    case 'offers':
-                        return parseInt(b.dataset.offers) - parseInt(a.dataset.offers);
                     default: // number
                         return parseInt(a.dataset.number) - parseInt(b.dataset.number);
                 }

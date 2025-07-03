@@ -102,12 +102,10 @@ $router->post('/seller/logout', ClaimsController::class, 'sellerLogout');
 $router->get('/buyer/auth', ClaimsController::class, 'showBuyerAuth');
 $router->post('/buyer/auth/send', ClaimsController::class, 'sendBuyerAuthCode');
 $router->post('/buyer/auth/verify', ClaimsController::class, 'verifyBuyerAuthCode');
-$router->get('/buyer/offers', ClaimsController::class, 'showBuyerOffers');
 $router->post('/buyer/logout', ClaimsController::class, 'buyerLogout');
 
 // YFClaim API routes
-$router->post('/api/claims/offer', ClaimsController::class, 'submitOffer');
-$router->get('/api/claims/offers/{buyerId}', ClaimsController::class, 'getBuyerOffers');
+$router->post('/api/claims/contact', ClaimsController::class, 'contactSeller');
 $router->post('/api/claims/item/{id}/claim', ClaimsController::class, 'claimItem');
 $router->get('/api/claims/sale/{id}/items', ClaimsController::class, 'getSaleItemsApi');
 $router->post('/api/claims/seller/items/add', ClaimsController::class, 'addSaleItem');

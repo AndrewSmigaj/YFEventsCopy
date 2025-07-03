@@ -3,11 +3,7 @@
 require_once '../../../config/database.php';
 
 // Authentication check
-session_start();
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /admin/login.php');
-    exit;
-}
+require_once dirname(__DIR__, 3) . '/includes/admin_auth_required.php';
 
 $message = '';
 $error = '';

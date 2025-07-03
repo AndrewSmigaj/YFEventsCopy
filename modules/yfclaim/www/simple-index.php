@@ -30,7 +30,7 @@ $allSales = $saleModel->getAllSales(10, 0);
 </head>
 <body>
     <h1>🏷️ YFClaim - Estate Sale Platform</h1>
-    <p>Browse and bid on estate sale items</p>
+    <p>Browse and contact sellers about estate sale items</p>
 
     <h2>Available Sales</h2>
 

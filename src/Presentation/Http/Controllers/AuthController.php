@@ -6,15 +6,26 @@ namespace YFEvents\Presentation\Http\Controllers;
 
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Application\Services\AuthService;
+use PDO;
 
 /**
  * Authentication controller
  */
 class AuthController extends BaseController
 {
+    private AuthService $authService;
+    
     public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
         parent::__construct($container, $config);
+        
+        // Get database connection
+        $dbConfig = $config->get('database');
+        $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset={$dbConfig['charset']}";
+        $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], $dbConfig['options']);
+        
+        $this->authService = new AuthService($pdo);
     }
 
     /**
@@ -22,8 +33,11 @@ class AuthController extends BaseController
      */
     public function showAdminLogin(): void
     {
+        // Generate CSRF token for the form
+        $csrfToken = $this->authService->generateCSRFToken();
+        
         header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderLoginPage();
+        echo $this->renderLoginPage($csrfToken);
     }
 
     /**
@@ -43,31 +57,27 @@ class AuthController extends BaseController
             return;
         }
 
-        // Simple hardcoded admin credentials for the refactored demo
-        // In production, this would check against a user database
-        $validCredentials = [
-            'admin' => 'admin123',
-            'yakima' => 'yakima2025',
-            'yfevents' => 'yfevents_admin'
-        ];
+        // Authenticate using AuthService
+        $result = $this->authService->login($input['username'], $input['password']);
 
-        $username = $input['username'];
-        $password = $input['password'];
+        if ($result['success']) {
+            // Check if user has admin role
+            if (!$this->authService->hasRole('admin') && !$this->authService->hasRole('super_admin')) {
+                $this->authService->logout();
+                $this->errorResponse('Access denied. Admin role required.', 403);
+                return;
+            }
 
-        if (isset($validCredentials[$username]) && $validCredentials[$username] === $password) {
-            // Start session and set admin flag
-            session_start();
-            $_SESSION['admin_logged_in'] = true;
-            $_SESSION['admin_username'] = $username;
-            $_SESSION['admin_login_time'] = time();
+            // Get intended URL or default to admin dashboard
+            $redirectUrl = $this->authService->getIntendedUrl('/admin/dashboard');
 
             $this->successResponse([
-                'redirect' => '/admin/dashboard',
-                'username' => $username,
+                'redirect' => $redirectUrl,
+                'username' => $result['user']['username'],
                 'login_time' => date('Y-m-d H:i:s')
             ], 'Login successful');
         } else {
-            $this->errorResponse('Invalid credentials', 401);
+            $this->errorResponse($result['error'] ?? 'Invalid credentials', 401);
         }
     }
 
@@ -76,8 +86,7 @@ class AuthController extends BaseController
      */
     public function adminLogout(): void
     {
-        session_start();
-        session_destroy();
+        $this->authService->logout();
         
         $this->successResponse([
             'redirect' => '/admin/login'
@@ -89,13 +98,13 @@ class AuthController extends BaseController
      */
     public function adminStatus(): void
     {
-        session_start();
-        
-        if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in']) {
+        if ($this->authService->isAuthenticated() && $this->authService->hasAnyRole(['admin', 'super_admin'])) {
+            $user = $this->authService->getCurrentUser();
             $this->successResponse([
                 'authenticated' => true,
-                'username' => $_SESSION['admin_username'] ?? 'admin',
-                'login_time' => isset($_SESSION['admin_login_time']) ? date('Y-m-d H:i:s', $_SESSION['admin_login_time']) : null
+                'username' => $user['username'],
+                'roles' => $user['roles'],
+                'login_time' => isset($_SESSION['auth']['login_time']) ? date('Y-m-d H:i:s', $_SESSION['auth']['login_time']) : null
             ]);
         } else {
             $this->errorResponse('Not authenticated', 401, [
@@ -104,7 +113,7 @@ class AuthController extends BaseController
         }
     }
 
-    private function renderLoginPage(): string
+    private function renderLoginPage(string $csrfToken): string
     {
         return <<<HTML
 <!DOCTYPE html>

@@ -118,58 +118,6 @@ class BuyerModel extends BaseModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    /**
-     * Get buyer's offers
-     */
-    public function getOffers($buyerId, $status = null) {
-        $sql = "
-            SELECT o.*, 
-                   i.title as item_title,
-                   i.item_number,
-                   i.status as item_status,
-                   s.title as sale_title
-            FROM yfc_offers o
-            JOIN yfc_items i ON o.item_id = i.id
-            JOIN yfc_sales s ON i.sale_id = s.id
-            WHERE o.buyer_id = ?
-        ";
-        $params = [$buyerId];
-        
-        if ($status) {
-            $sql .= " AND o.status = ?";
-            $params[] = $status;
-        }
-        
-        $sql .= " ORDER BY o.created_at DESC";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
-    /**
-     * Get buyer statistics
-     */
-    public function getStats($buyerId) {
-        $stats = [];
-        
-        // Total offers
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_offers WHERE buyer_id = ?");
-        $stmt->execute([$buyerId]);
-        $stats['total_offers'] = $stmt->fetchColumn();
-        
-        // Winning offers
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_offers WHERE buyer_id = ? AND status = 'winning'");
-        $stmt->execute([$buyerId]);
-        $stats['winning_offers'] = $stmt->fetchColumn();
-        
-        // Active offers
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_offers WHERE buyer_id = ? AND status = 'active'");
-        $stmt->execute([$buyerId]);
-        $stats['active_offers'] = $stmt->fetchColumn();
-        
-        return $stats;
-    }
     
     /**
      * Resend authentication code
