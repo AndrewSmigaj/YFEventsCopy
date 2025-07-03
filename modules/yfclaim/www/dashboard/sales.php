@@ -1,11 +1,5 @@
 <?php
-session_start();
-
-// Check if seller is logged in
-if (!isset($_SESSION['claim_seller_logged_in']) || $_SESSION['claim_seller_logged_in'] !== true) {
-    header('Location: /modules/yfclaim/www/admin/login.php');
-    exit;
-}
+// This file is included by ClaimsController which already handles auth and session
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../../config/db_connection.php';
@@ -347,8 +341,8 @@ if ($createdSaleId) {
         <div class="header-content">
             <div class="logo">YFClaim Seller Portal</div>
             <nav class="nav-links">
-                <a href="index.php">Dashboard</a>
-                <a href="sales.php">My Sales</a>
+                <a href="/seller/dashboard">Dashboard</a>
+                <a href="/seller/sales">My Sales</a>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout">Logout</a>
             </nav>
         </div>
@@ -360,7 +354,7 @@ if ($createdSaleId) {
                 <h1>🏷️ My Sales</h1>
                 <p>Manage your estate sales and track performance</p>
             </div>
-            <a href="create-sale.php" class="btn btn-success">+ Create New Sale</a>
+            <a href="/seller/sale/new" class="btn btn-success">+ Create New Sale</a>
         </div>
         
         <?php if ($successMessage): ?>
@@ -397,7 +391,7 @@ if ($createdSaleId) {
             <div class="empty-state">
                 <h3>No Sales Yet</h3>
                 <p>You haven't created any sales yet. Get started by creating your first estate sale!</p>
-                <a href="create-sale.php" class="btn btn-success">Create Your First Sale</a>
+                <a href="/seller/sale/new" class="btn btn-success">Create Your First Sale</a>
             </div>
         <?php else: ?>
             <div class="sales-grid" id="salesGrid">
@@ -435,7 +429,7 @@ if ($createdSaleId) {
                                 </p>
                                 <p>
                                     <span class="icon">📅</span>
-                                    <?= date('M j, Y g:i A', strtotime($sale['start_date'])) ?> - <?= date('M j, Y g:i A', strtotime($sale['end_date'])) ?>
+                                    <?= date('M j, Y g:i A', strtotime($sale['preview_start'] ?? $sale['claim_start'])) ?> - <?= date('M j, Y g:i A', strtotime($sale['preview_end'] ?? $sale['claim_end'])) ?>
                                 </p>
                                 <p>
                                     <span class="icon">🔓</span>
@@ -455,23 +449,18 @@ if ($createdSaleId) {
                                     <div class="stat-label">Items</div>
                                 </div>
                                 <div class="stat">
-                                    <div class="stat-value"><?= $stats['total_offers'] ?></div>
-                                    <div class="stat-label">Offers</div>
+                                    <div class="stat-value"><?= $stats['views'] ?? 0 ?></div>
+                                    <div class="stat-label">Views</div>
                                 </div>
                                 <div class="stat">
-                                    <div class="stat-value"><?= $stats['unique_buyers'] ?></div>
-                                    <div class="stat-label">Buyers</div>
-                                </div>
-                                <div class="stat">
-                                    <div class="stat-value"><?= $stats['claimed_items'] ?></div>
+                                    <div class="stat-value"><?= $stats['claimed_items'] ?? 0 ?></div>
                                     <div class="stat-label">Claimed</div>
                                 </div>
                             </div>
                             
                             <div class="sale-actions">
                                 <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-primary btn-small">View Public Page</a>
-                                <a href="manage-items.php?sale_id=<?= $sale['id'] ?>" class="btn btn-secondary btn-small">Manage Items</a>
-                                <a href="view-offers.php?sale_id=<?= $sale['id'] ?>" class="btn btn-secondary btn-small">View Offers (<?= $stats['total_offers'] ?>)</a>
+                                <a href="/seller/sale/<?= $sale['id'] ?>/items" class="btn btn-secondary btn-small">Manage Items</a>
                                 <?php if ($status === 'upcoming'): ?>
                                     <button class="btn btn-secondary btn-small" onclick="editSale(<?= $sale['id'] ?>)">Edit Sale</button>
                                 <?php endif; ?>

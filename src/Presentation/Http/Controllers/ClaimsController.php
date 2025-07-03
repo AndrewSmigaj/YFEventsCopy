@@ -321,6 +321,16 @@ class ClaimsController extends BaseController
     }
 
     /**
+     * Show seller sales list
+     */
+    public function showSellerSales(): void
+    {
+        session_start();
+        $this->ensureSessionCompatibility();
+        require BASE_PATH . '/modules/yfclaim/www/dashboard/sales.php';
+    }
+
+    /**
      * Show create sale form
      */
     public function showCreateSale(): void
@@ -2143,6 +2153,12 @@ ITEM;
     {
         session_start();
         $this->ensureSessionCompatibility();
+        
+        // Map route parameter to expected GET parameter
+        if (isset($_GET['id'])) {
+            $_GET['sale_id'] = $_GET['id'];
+        }
+        
         require BASE_PATH . '/modules/yfclaim/www/dashboard/manage-items.php';
     }
     public function showEditSale(): void { echo "Edit sale - coming soon"; }

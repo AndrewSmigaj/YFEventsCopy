@@ -91,11 +91,13 @@ $router->post('/seller/register', ClaimsController::class, 'processSellerRegistr
 $router->get('/seller/login', ClaimsController::class, 'showSellerLogin');
 $router->post('/seller/login', ClaimsController::class, 'processSellerLogin');
 $router->get('/seller/dashboard', ClaimsController::class, 'showSellerDashboard');
+$router->get('/seller/sales', ClaimsController::class, 'showSellerSales');
 $router->get('/seller/sale/new', ClaimsController::class, 'showCreateSale');
 $router->post('/seller/sale/create', ClaimsController::class, 'createSale');
 $router->get('/seller/sale/{id}/edit', ClaimsController::class, 'showEditSale');
 $router->post('/seller/sale/{id}/update', ClaimsController::class, 'updateSale');
 $router->get('/seller/sale/{id}/items', ClaimsController::class, 'manageSaleItems');
+$router->post('/seller/sale/{id}/items', ClaimsController::class, 'manageSaleItems');
 $router->post('/seller/logout', ClaimsController::class, 'sellerLogout');
 
 // YFClaim buyer routes

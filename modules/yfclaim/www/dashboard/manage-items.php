@@ -1,11 +1,5 @@
 <?php
-session_start();
-
-// Check if seller is logged in
-if (!isset($_SESSION['claim_seller_logged_in']) || $_SESSION['claim_seller_logged_in'] !== true) {
-    header('Location: /modules/yfclaim/www/admin/login.php');
-    exit;
-}
+// This file is included by ClaimsController which already handles auth and session
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../../config/db_connection.php';
@@ -57,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 'description' => $description,
                 'category' => $category ?: 'General',
                 'item_number' => $itemNumber ?: null,
-                'starting_price' => floatval($startingPrice),
+                'price' => floatval($startingPrice),
                 'status' => 'available'
             ];
             
@@ -394,8 +388,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <div class="header-content">
             <div class="logo">YFClaim Seller Portal</div>
             <nav class="nav-links">
-                <a href="index.php">Dashboard</a>
-                <a href="sales.php">My Sales</a>
+                <a href="/seller/dashboard">Dashboard</a>
+                <a href="/seller/sales">My Sales</a>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout">Logout</a>
             </nav>
         </div>
@@ -404,7 +398,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <div class="container">
         <div class="page-header">
             <div class="breadcrumb">
-                <a href="index.php">Dashboard</a> > <a href="sales.php">My Sales</a> > Manage Items
+                <a href="/seller/dashboard">Dashboard</a> > <a href="/seller/sales">My Sales</a> > Manage Items
             </div>
             <h1>📦 Manage Items</h1>
             <?php if ($sale): ?>
@@ -428,7 +422,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="no-sale-selected">
                 <h3>No Sale Selected</h3>
                 <p>Please select a sale to manage its items.</p>
-                <a href="sales.php" class="btn btn-primary">View My Sales</a>
+                <a href="/seller/sales" class="btn btn-primary">View My Sales</a>
             </div>
         <?php else: ?>
             <div class="content-grid">
@@ -458,8 +452,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                                     Item #<?= htmlspecialchars($item['item_number']) ?> • 
                                                 <?php endif; ?>
                                                 <?= htmlspecialchars($item['category']) ?>
-                                                <?php if ($item['starting_price'] > 0): ?>
-                                                    • Starting at $<?= number_format($item['starting_price'], 2) ?>
+                                                <?php if (($item['price'] ?? 0) > 0): ?>
+                                                    • Starting at $<?= number_format($item['price'], 2) ?>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -550,8 +544,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <div id="quickActions">
                         <h3>Quick Actions</h3>
                         <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-primary" target="_blank" style="width: 100%; margin-bottom: 0.5rem;">View Public Sale Page</a>
-                        <a href="view-offers.php?sale_id=<?= $sale['id'] ?>" class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;">View Offers</a>
-                        <a href="sales.php" class="btn btn-secondary" style="width: 100%;">Back to Sales</a>
+                        <a href="/seller/sales" class="btn btn-secondary" style="width: 100%;">Back to Sales</a>
                     </div>
                 </div>
             </div>

@@ -1,13 +1,13 @@
 # YFEvents Architecture Documentation
-# Last Updated: Development Environment Setup Complete
+# Last Updated: Authentication System Unified, YFClaim Refactored
 
 project:
   name: YFEvents
-  version: 2.0.0
+  version: 2.1.0
   description: Community Events Platform with Clean Architecture
   namespace: YFEvents
   status: development-environment-ready
-  completion: 80%  # Phases 1-9 complete, dev environment operational
+  completion: 85%  # Unified auth implemented, YFClaim refactored
 
 architecture:
   pattern: Clean Architecture (Hexagonal)
@@ -51,7 +51,7 @@ structure:
         path: src/Application/
         description: Use cases and application services
         components:
-          - Services/     # Application services
+          - Services/     # Application services (includes unified AuthService)
           - Controllers/  # Admin controllers
           - Validation/   # Input validation
           - Bootstrap.php # Application initialization
@@ -79,7 +79,7 @@ modules:
   structure:
     yfauth:
       namespace: YFEvents\Modules\YFAuth
-      description: Authentication and authorization
+      description: Authentication and authorization (centralized auth provider)
       status: active
       components:
         - src/Models/
@@ -87,10 +87,13 @@ modules:
         - src/Middleware/
         - database/schema.sql
         - www/          # Module web files
+      notes:
+        - Now used by all modules via unified AuthService
+        - Handles all user authentication (admin, sellers, buyers)
         
     yfclaim:
       namespace: YFEvents\Modules\YFClaim
-      description: Estate sale claim system
+      description: Estate sale system (offers/bidding removed)
       status: active
       components:
         - src/Models/
@@ -98,6 +101,11 @@ modules:
         - src/Utils/
         - database/schema.sql
         - www/          # Module web files
+      changes:
+        - Removed: Offer/bidding functionality
+        - Added: Contact form system for inquiries
+        - Modified: Sellers authenticate via YFAuth
+        - Database: password_hash column now nullable
         
     yftheme:
       namespace: YFEvents\Modules\YFTheme
@@ -132,6 +140,33 @@ configuration:
     bootstrap: YFEvents\Application\Bootstrap
     router: YFEvents\Infrastructure\Http\Router
 
+authentication:
+  unified_system:
+    service: YFEvents\Application\Services\AuthService
+    provider: YFEvents\Modules\YFAuth\Services\AuthService
+    description: Centralized authentication wrapper
+    features:
+      - Single login interface for all user types
+      - Standardized session management
+      - Role-based access control (RBAC)
+      - Automatic session regeneration
+    session_structure:
+      auth:
+        - user_id
+        - username
+        - email
+        - roles[]
+        - permissions[]
+        - session_id
+        - login_time
+        - last_activity
+  
+  deprecated:
+    - Legacy admin authentication (hardcoded credentials)
+    - Direct YFClaim seller authentication
+    - Multiple session variable patterns
+    - Hardcoded passwords in controllers
+
 database:
   connection: MySQL/MariaDB
   name: yakima_finds
@@ -147,7 +182,7 @@ database:
       
     modules:
       - yfa_auth_*        # YFAuth module tables (includes main user table)
-      - yfc_*             # YFClaim module tables
+      - yfc_*             # YFClaim module tables (yfc_sellers.password_hash now nullable)
       - theme_*           # YFTheme module tables
       
     communication:
@@ -202,6 +237,35 @@ development_environment:
     - User table references: Standardized to yfa_auth_users
     - Composer dependencies: Downgraded from PHP 8.2 to 8.1 compatible
 
+recent_changes:
+  authentication_unification:
+    - Created unified AuthService wrapper
+    - Migrated all authentication to YFAuth module
+    - Standardized session variables across system
+    - Removed hardcoded admin credentials
+    - Updated ClaimsController to use AuthService
+    
+  yfclaim_refactoring:
+    - Removed offer/bidding functionality completely
+    - Sellers now authenticate via YFAuth (no local passwords)
+    - Fixed database column mappings (preview_start/end vs start_date/end_date)
+    - Fixed price field naming (price vs starting_price)
+    - Added proper POST routes for form submissions
+    - Implemented RESTful seller routes with parameter mapping
+    - Contact form system to replace bidding (pending implementation)
+    
+  database_updates:
+    - yfc_sellers.password_hash made nullable
+    - Column naming standardized to match actual schema
+    - No new migrations needed (working with existing schema)
+    
+  deprecated_features:
+    - YFClaim offer/bidding system
+    - Direct password handling in modules
+    - Multiple authentication patterns
+    - Hardcoded credentials
+    - Non-RESTful route patterns
+
 refactoring_progress:
   completed:
     - Phase 1: Preparation and Planning
@@ -235,13 +299,17 @@ refactoring_progress:
     - Phase 12: Post-Refactor Setup
 
 notes:
-  - All hardcoded credentials removed from config files
+  - All hardcoded credentials removed from config files and controllers
   - Environment variables used throughout
   - Module system preserved and enhanced
   - Clean Architecture principles applied
   - Backwards compatibility maintained where possible
-  - Security improvements implemented
-  - Production database schema preserved
+  - Security improvements implemented (unified auth, session management)
+  - Production database schema preserved (with minor nullable adjustments)
   - YFClassifieds module skipped (overlaps with YFClaim)
   - Router simplified to not require group() method
   - Database schemas reordered to resolve dependencies
+  - Authentication fully centralized through AuthService
+  - YFClaim simplified to focus on sales without bidding complexity
+  - RESTful routing patterns implemented for seller workflows
+  - Session variables standardized across all modules

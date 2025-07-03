@@ -1,26 +1,23 @@
 <?php
-session_start();
+// This file is included by ClaimsController which already handles auth and session
 
-// Check if seller is logged in
-if (!isset($_SESSION['claim_seller_logged_in']) || $_SESSION['claim_seller_logged_in'] !== true) {
-    header('Location: /modules/yfclaim/www/admin/login.php');
-    exit;
-}
-
-// Load dependencies
-require_once __DIR__ . '/../../../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../../../config/db_connection.php';
+// Load dependencies  
+require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../config/db_connection.php';
 $db = $pdo; // Dashboard files expect $db variable
 
 use YFEvents\Modules\YFClaim\Models\SellerModel;
 use YFEvents\Modules\YFClaim\Models\SaleModel;
-use YFEvents\Modules\YFClaim\Models\NotificationModel;
 
 $sellerModel = new SellerModel($db);
 $saleModel = new SaleModel($db);
-$notificationModel = new NotificationModel($db);
 
-$sellerId = $_SESSION['claim_seller_id'];
+// Get seller ID from session (set by controller)
+$sellerId = $_SESSION['claim_seller_id'] ?? null;
+
+if (!$sellerId) {
+    die('Error: No seller ID in session. Please log in again.');
+}
 $seller = $sellerModel->find($sellerId);
 
 if (!$seller) {
@@ -39,8 +36,8 @@ $activeSales = array_filter($recentSales, function($sale) {
     return $sale['status'] === 'active';
 });
 
-// Get notification count
-$unreadNotifications = $notificationModel->getUnreadCount($sellerId);
+// Get notification count (NotificationModel not implemented yet)
+$unreadNotifications = 0; // $notificationModel->getUnreadCount($sellerId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -383,20 +380,20 @@ $unreadNotifications = $notificationModel->getUnreadCount($sellerId);
         </div>
         
         <div class="quick-actions">
-            <div class="action-card" onclick="window.location.href='create-sale.php'">
+            <div class="action-card" onclick="window.location.href='/seller/sale/new'">
                 <div class="action-icon">🎯</div>
                 <h4>Create New Sale</h4>
                 <p>Set up a new claim sale with items and scheduling</p>
             </div>
-            <div class="action-card" onclick="window.location.href='manage-items.php'">
+            <div class="action-card" onclick="window.location.href='/seller/sales'">
                 <div class="action-icon">📦</div>
-                <h4>Manage Items</h4>
-                <p>Add, edit, and organize items across your sales</p>
+                <h4>Manage Sales</h4>
+                <p>View all your sales and manage items</p>
             </div>
-            <div class="action-card" onclick="window.location.href='inquiries.php'">
+            <div class="action-card" style="opacity: 0.5; cursor: not-allowed;">
                 <div class="action-icon">📧</div>
                 <h4>Item Inquiries</h4>
-                <p>View messages from interested buyers</p>
+                <p>Coming soon - View messages from interested buyers</p>
             </div>
         </div>
         
@@ -405,14 +402,14 @@ $unreadNotifications = $notificationModel->getUnreadCount($sellerId);
                 <div class="card-header">
                     <h3>Active Sales</h3>
                     <?php if (count($activeSales) > 0): ?>
-                        <a href="sales.php" class="btn">View All</a>
+                        <a href="/seller/sales" class="btn">View All</a>
                     <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <?php if (empty($activeSales)): ?>
                         <div class="empty-state">
                             <p>No active sales</p>
-                            <a href="create-sale.php" class="btn btn-success">Create Your First Sale</a>
+                            <a href="/seller/sale/new" class="btn btn-success">Create Your First Sale</a>
                         </div>
                     <?php else: ?>
                         <?php foreach (array_slice($activeSales, 0, 3) as $sale): ?>
@@ -436,14 +433,14 @@ $unreadNotifications = $notificationModel->getUnreadCount($sellerId);
                 <div class="card-header">
                     <h3>Recent Sales</h3>
                     <?php if (count($recentSales) > 3): ?>
-                        <a href="sales.php" class="btn">View All</a>
+                        <a href="/seller/sales" class="btn">View All</a>
                     <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recentSales)): ?>
                         <div class="empty-state">
                             <p>No sales yet</p>
-                            <a href="create-sale.php" class="btn btn-success">Create Your First Sale</a>
+                            <a href="/seller/sale/new" class="btn btn-success">Create Your First Sale</a>
                         </div>
                     <?php else: ?>
                         <?php foreach (array_slice($recentSales, 0, 5) as $sale): ?>

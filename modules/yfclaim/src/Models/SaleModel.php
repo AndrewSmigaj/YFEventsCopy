@@ -8,7 +8,7 @@ class SaleModel extends BaseModel {
     protected $table = 'yfc_sales';
     protected $fillable = [
         'seller_id', 'title', 'description', 'address', 'city', 'state', 'zip',
-        'latitude', 'longitude', 'start_date', 'end_date',
+        'latitude', 'longitude', 'preview_start', 'preview_end',
         'claim_start', 'claim_end', 'pickup_start', 'pickup_end',
         'qr_code', 'access_code', 'status', 'featured'
     ];
@@ -97,6 +97,12 @@ class SaleModel extends BaseModel {
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'sold'");
         $stmt->execute([$saleId]);
         $stats['sold_items'] = $stmt->fetchColumn();
+        
+        // Claimed items (sold items in our no-offer system)
+        $stats['claimed_items'] = $stats['sold_items'];
+        
+        // Views (placeholder for future feature)
+        $stats['views'] = 0;
         
         // Unique buyers (from buyer table)
         $stmt = $this->db->prepare("SELECT COUNT(DISTINCT id) FROM yfc_buyers WHERE sale_id = ?");

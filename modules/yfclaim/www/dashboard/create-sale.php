@@ -1,14 +1,9 @@
 <?php
-session_start();
-
-// Check if seller is logged in
-if (!isset($_SESSION['claim_seller_logged_in']) || $_SESSION['claim_seller_logged_in'] !== true) {
-    header('Location: /modules/yfclaim/www/admin/login.php');
-    exit;
-}
+// This file is included by ClaimsController which already handles auth and session
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../../config/db_connection.php';
+$db = $pdo; // Dashboard files expect $db variable
 
 use YFEvents\Modules\YFClaim\Models\SaleModel;
 use YFEvents\Modules\YFClaim\Models\SellerModel;
@@ -53,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'city' => $city,
                 'state' => $state,
                 'zip' => $zip,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
+                'preview_start' => $startDate,
+                'preview_end' => $endDate,
                 'claim_start' => $claimStart,
                 'claim_end' => $claimEnd,
                 'pickup_start' => $pickupStart ?: $endDate,
@@ -67,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($saleId) {
                 $success = true;
                 // Redirect to sales management
-                header('Location: sales.php?created=' . $saleId);
+                header('Location: /seller/dashboard?created=' . $saleId);
                 exit;
             } else {
                 $error = 'Failed to create sale. Please try again.';
@@ -310,8 +305,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="header-content">
             <div class="logo">YFClaim Seller Portal</div>
             <nav class="nav-links">
-                <a href="index.php">Dashboard</a>
-                <a href="sales.php">My Sales</a>
+                <a href="/seller/dashboard">Dashboard</a>
+                <a href="/seller/sales">My Sales</a>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout">Logout</a>
             </nav>
         </div>
@@ -336,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         
         <div class="form-container">
-            <form method="POST" action="">
+            <form method="POST" action="/seller/sale/create">
                 <!-- Basic Information -->
                 <div class="form-section">
                     <h3>📋 Basic Information</h3>
@@ -460,7 +455,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="form-actions">
-                    <a href="index.php" class="btn btn-secondary">Cancel</a>
+                    <a href="/seller/dashboard" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create Sale</button>
                 </div>
             </form>
