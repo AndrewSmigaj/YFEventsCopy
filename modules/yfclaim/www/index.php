@@ -1,7 +1,7 @@
 <?php
 // YFClaim - Public Interface
-require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../config/db_connection.php';
 
 use YFEvents\Modules\YFClaim\Models\SaleModel;
 use YFEvents\Modules\YFClaim\Models\ItemModel;

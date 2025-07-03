@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check admin authentication
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: /refactor/admin/login');
+    header('Location: /admin/login');
     exit;
 }
 
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-$basePath = '/refactor';
+$basePath = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">

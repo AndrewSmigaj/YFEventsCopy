@@ -1,7 +1,7 @@
 <?php
 // YFClaim - My Offers Page
-require_once '../../../config/database.php';
 require_once '../../../vendor/autoload.php';
+require_once '../../../config/db_connection.php';
 
 use YFEvents\Modules\YFClaim\Models\BuyerModel;
 use YFEvents\Modules\YFClaim\Models\OfferModel;

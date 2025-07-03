@@ -5,7 +5,7 @@ require_once __DIR__ . '/auth_check.php';
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$basePath = '/refactor';
+$basePath = '';
 
 // Load current email configuration
 $emailConfigFile = dirname(__DIR__) . '/config/email.php';

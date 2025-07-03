@@ -3,6 +3,7 @@ namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
 use Exception;
+use YFEvents\Domain\Common\BaseModel;
 
 class OfferModel extends BaseModel {
     protected $table = 'yfc_offers';
@@ -80,6 +81,16 @@ class OfferModel extends BaseModel {
             $this->addToHistory($offerId, $data['item_id'], $data['buyer_id'], $data['offer_amount'], 'placed');
             
             $this->commit();
+            
+            // Create notification for new offer (non-blocking)
+            try {
+                $notificationService = new \YFEvents\Modules\YFClaim\Services\NotificationService($this->db);
+                $notificationService->createNewOfferNotification($offerId);
+            } catch (\Exception $e) {
+                // Log but don't fail the offer
+                error_log('Failed to create offer notification: ' . $e->getMessage());
+            }
+            
             return $offerId;
             
         } catch (Exception $e) {
@@ -154,6 +165,16 @@ class OfferModel extends BaseModel {
             $stmt->execute([$offerId, $offer['item_id']]);
             
             $this->commit();
+            
+            // Create notification for accepted offer (non-blocking)
+            try {
+                $notificationService = new \YFEvents\Modules\YFClaim\Services\NotificationService($this->db);
+                $notificationService->createOfferAcceptedNotification($offerId);
+            } catch (\Exception $e) {
+                // Log but don't fail the acceptance
+                error_log('Failed to create accepted offer notification: ' . $e->getMessage());
+            }
+            
             return true;
             
         } catch (Exception $e) {

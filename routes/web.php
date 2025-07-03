@@ -141,6 +141,17 @@ $router->get('/admin/dashboard/alerts', AdminDashboardController::class, 'getSys
 $router->get('/admin/dashboard/analytics', AdminDashboardController::class, 'getAnalytics');
 $router->get('/admin/dashboard/export', AdminDashboardController::class, 'exportData');
 
+// Admin seller management routes (YFClaim)
+$router->get('/admin/sellers', AdminDashboardController::class, 'getSellers');
+$router->get('/admin/sellers/{id}', AdminDashboardController::class, 'getSellerDetails');
+$router->get('/admin/sellers/{id}/sales', AdminDashboardController::class, 'getSellerSales');
+$router->post('/admin/sellers/{id}/approve', AdminDashboardController::class, 'approveSeller');
+$router->post('/admin/sellers/{id}/suspend', AdminDashboardController::class, 'suspendSeller');
+$router->get('/admin/sales', AdminDashboardController::class, 'getAllSales');
+$router->get('/admin/sales/{id}', AdminDashboardController::class, 'getSaleDetails');
+$router->post('/admin/sales/{id}/approve', AdminDashboardController::class, 'approveSale');
+$router->post('/admin/sales/{id}/feature', AdminDashboardController::class, 'featureSale');
+
 // Classifieds routes (module-based)
 $router->get('/classifieds', ClassifiedsController::class, 'showClassifiedsPage');
 $router->get('/classifieds/item/{id}', ClassifiedsController::class, 'showItemPage');

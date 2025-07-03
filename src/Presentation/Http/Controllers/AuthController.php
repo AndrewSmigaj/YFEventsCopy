@@ -22,13 +22,8 @@ class AuthController extends BaseController
      */
     public function showAdminLogin(): void
     {
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
         header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderLoginPage($basePath);
+        echo $this->renderLoginPage();
     }
 
     /**
@@ -67,7 +62,7 @@ class AuthController extends BaseController
             $_SESSION['admin_login_time'] = time();
 
             $this->successResponse([
-                'redirect' => dirname($_SERVER['SCRIPT_NAME']) . '/admin/dashboard',
+                'redirect' => '/admin/dashboard',
                 'username' => $username,
                 'login_time' => date('Y-m-d H:i:s')
             ], 'Login successful');
@@ -85,7 +80,7 @@ class AuthController extends BaseController
         session_destroy();
         
         $this->successResponse([
-            'redirect' => dirname($_SERVER['SCRIPT_NAME']) . '/admin/login'
+            'redirect' => '/admin/login'
         ], 'Logged out successfully');
     }
 
@@ -109,7 +104,7 @@ class AuthController extends BaseController
         }
     }
 
-    private function renderLoginPage(string $basePath): string
+    private function renderLoginPage(): string
     {
         return <<<HTML
 <!DOCTYPE html>
@@ -281,7 +276,7 @@ class AuthController extends BaseController
             <p><strong>yfevents</strong> / yfevents_admin</p>
         </div>
         
-        <a href="{$basePath}/" class="back-link">← Back to Home</a>
+        <a href="/" class="back-link">← Back to Home</a>
     </div>
 
     <script>
@@ -293,7 +288,7 @@ class AuthController extends BaseController
             const alert = document.getElementById('alert');
             
             try {
-                const response = await fetch('{$basePath}/admin/login', {
+                const response = await fetch('/admin/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

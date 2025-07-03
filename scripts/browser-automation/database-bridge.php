@@ -9,11 +9,9 @@
 
 declare(strict_types=1);
 
-// Autoload the refactored system
-// Bootstrap application and load all dependencies
-require_once __DIR__ . '/../../config/app-root.php';
-
-use YFEvents\Infrastructure\Config\ConfigManager;
+// Load the database connection
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../config/db_connection.php';
 
 header('Content-Type: application/json');
 
@@ -23,19 +21,11 @@ class DatabaseBridge
     
     public function __construct()
     {
-        $this->setupDatabase();
-    }
-    
-    private function setupDatabase(): void
-    {
-        $config = require dirname(__DIR__, 2) . '/config/database.php';
-        $dbConfig = $config['database'];
-        
-        $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";
-        $this->pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
+        global $pdo;
+        if (!isset($pdo) || !($pdo instanceof PDO)) {
+            throw new Exception('Database connection not available');
+        }
+        $this->pdo = $pdo;
     }
     
     public function saveEvent(array $eventData): array

@@ -21,13 +21,7 @@ class HomeController
     public function index(): void
     {
         header('Content-Type: text/html; charset=utf-8');
-        
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-        
-        echo $this->renderHomePage($basePath);
+        echo $this->renderHomePage();
     }
 
     /**
@@ -65,13 +59,8 @@ class HomeController
      */
     public function showCombinedMap(): void
     {
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
         header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderCombinedMapPage($basePath);
+        echo $this->renderCombinedMapPage();
     }
 
     /**
@@ -111,6 +100,7 @@ class HomeController
                 'current_path' => $currentPath,
                 'method' => $_SERVER['REQUEST_METHOD'],
                 'script_name' => $_SERVER['SCRIPT_NAME'],
+                'dirname_script_name' => dirname($_SERVER['SCRIPT_NAME']),
                 'base_path' => $basePath,
                 'database_config' => $dbConfig,
                 'config_debug' => $this->config->get('app.debug'),
@@ -125,7 +115,7 @@ class HomeController
         }
     }
 
-    private function renderHomePage(string $basePath): string
+    private function renderHomePage(): string
     {
         return <<<HTML
 <!DOCTYPE html>
@@ -133,7 +123,7 @@ class HomeController
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YFEvents V2 - Refactored Application</title>
+    <title>Yakima Valley Estate Sales & Events | YFEvents</title>
     <style>
         * {
             margin: 0;
@@ -142,52 +132,188 @@ class HomeController
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Georgia, 'Times New Roman', serif;
+            background: #FFF8DC;
+            color: #1B2951;
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 800px;
-            width: 90%;
+        /* Header/Hero Section */
+        .hero {
+            background: linear-gradient(rgba(27, 41, 81, 0.9), rgba(27, 41, 81, 0.9)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><rect fill="%23FFF8DC" width="1200" height="400"/><path fill="%23B87333" opacity="0.1" d="M0,200 Q300,150 600,200 T1200,200 L1200,400 L0,400 Z"/></svg>');
+            background-size: cover;
+            color: white;
+            padding: 60px 20px;
             text-align: center;
         }
         
-        .logo {
-            font-size: 3rem;
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: normal;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero .tagline {
+            font-size: 1.3rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            opacity: 0.95;
+            margin-bottom: 40px;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .hero-btn {
+            background: #B87333;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .hero-btn:hover {
+            background: transparent;
+            border-color: #B87333;
+            transform: translateY(-2px);
+        }
+        
+        .hero-btn.secondary {
+            background: transparent;
+            border: 2px solid white;
+        }
+        
+        .hero-btn.secondary:hover {
+            background: white;
+            color: #1B2951;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        /* Quick Stats Bar */
+        .stats-bar {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: -40px auto 60px;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+        
+        .stat {
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .stat:last-child {
+            border-right: none;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            color: #B87333;
             font-weight: bold;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Services Grid */
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .service-card.estate-sales {
+            border-top-color: #B87333;
+        }
+        
+        .service-card.events {
+            border-top-color: #1B2951;
+        }
+        
+        .service-card.shops {
+            border-top-color: #4A6FA5;
+        }
+        
+        .service-card.sellers {
+            border-top-color: #8B4513;
+        }
+        
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .service-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #1B2951;
+        }
+        
+        .service-desc {
+            color: #6c757d;
+            margin-bottom: 25px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .service-links {
+            list-style: none;
+        }
+        
+        .service-links li {
             margin-bottom: 10px;
         }
         
-        .version {
-            color: #6c757d;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+        .service-links a {
+            color: #B87333;
+            text-decoration: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: color 0.3s ease;
         }
         
-        .description {
-            color: #495057;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 40px;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+        .service-links a:hover {
+            color: #8B4513;
+            text-decoration: underline;
         }
         
         .feature {
@@ -213,176 +339,210 @@ class HomeController
             font-size: 0.9rem;
         }
         
-        .endpoints {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .endpoint {
-            background: #f8f9fa;
+        /* Trust Section */
+        .trust-section {
+            background: #1B2951;
+            color: white;
+            padding: 40px;
             border-radius: 10px;
-            padding: 20px;
-            text-align: left;
+            margin: 60px 0;
+            text-align: center;
         }
         
-        .endpoint-title {
-            font-weight: 600;
-            color: #343a40;
-            margin-bottom: 15px;
+        .trust-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
         }
         
-        .endpoint-list {
-            list-style: none;
+        .trust-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
         }
         
-        .endpoint-list li {
-            margin-bottom: 8px;
+        .trust-item {
+            text-align: center;
         }
         
-        .endpoint-list a {
-            color: #007bff;
-            text-decoration: none;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        .trust-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .trust-text {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 20px;
+            text-align: center;
+            color: #6c757d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 0.9rem;
         }
         
-        .endpoint-list a:hover {
-            text-decoration: underline;
+        .footer a {
+            color: #B87333;
+            text-decoration: none;
         }
         
-        .status {
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-        }
-        
-        .architecture {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 30px;
-            text-align: left;
-        }
-        
-        .architecture h3 {
-            color: #343a40;
-            margin-bottom: 15px;
-        }
-        
-        .architecture ul {
-            color: #495057;
-            padding-left: 20px;
-        }
-        
-        .architecture li {
-            margin-bottom: 5px;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-bar {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .stat {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                padding-bottom: 20px;
+            }
+            
+            .stat:last-child {
+                border-bottom: none;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Yakima Valley Estate Sales & Events</h1>
+        <p class="tagline">Your Hub for Estate Sales, Local Events, and Community Connections</p>
+        <div class="hero-buttons">
+            <a href="/claims" class="hero-btn">🏛️ Browse Estate Sales</a>
+            <a href="/events" class="hero-btn secondary">📅 Find Events</a>
+            <a href="/seller/login" class="hero-btn secondary">🔐 Seller Login</a>
+        </div>
+    </div>
+    
+    <!-- Container -->
     <div class="container">
-        <div class="logo">YFEvents V2</div>
-        <div class="version">Refactored Application</div>
-        <div class="status">✅ ONLINE</div>
-        
-        <p class="description">
-            Welcome to the completely refactored YFEvents system! This modern, enterprise-grade application 
-            features clean architecture, comprehensive APIs, and modular design.
-        </p>
-        
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">🏗️</div>
-                <div class="feature-title">Clean Architecture</div>
-                <div class="feature-desc">Domain-driven design with clear separation of concerns</div>
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">47</div>
+                <div class="stat-label">Active Sales</div>
             </div>
-            
-            <div class="feature">
-                <div class="feature-icon">🚀</div>
-                <div class="feature-title">Modern PHP 8.1+</div>
-                <div class="feature-desc">Strict typing, interfaces, and best practices</div>
+            <div class="stat">
+                <div class="stat-number">156</div>
+                <div class="stat-label">Upcoming Events</div>
             </div>
-            
-            <div class="feature">
-                <div class="feature-icon">📱</div>
-                <div class="feature-title">RESTful APIs</div>
-                <div class="feature-desc">70+ endpoints with comprehensive coverage</div>
+            <div class="stat">
+                <div class="stat-number">2,341</div>
+                <div class="stat-label">Items Listed</div>
             </div>
-            
-            <div class="feature">
-                <div class="feature-icon">🛡️</div>
-                <div class="feature-title">Enterprise Ready</div>
-                <div class="feature-desc">Security, logging, and scalability built-in</div>
+            <div class="stat">
+                <div class="stat-number">89</div>
+                <div class="stat-label">Local Shops</div>
             </div>
         </div>
         
-        <div class="endpoints">
-            <div class="endpoint">
-                <div class="endpoint-title">📅 Public Events</div>
-                <ul class="endpoint-list">
-                    <li><a href="{$basePath}/events">Browse Events</a></li>
-                    <li><a href="{$basePath}/events/featured">Featured Events</a></li>
-                    <li><a href="{$basePath}/events/upcoming">Upcoming Events</a></li>
-                    <li><a href="{$basePath}/events/calendar">Calendar View</a></li>
+        <!-- Services Grid -->
+        <div class="services">
+            <!-- Estate Sales -->
+            <div class="service-card estate-sales">
+                <div class="service-icon">🏛️</div>
+                <h2 class="service-title">Estate Sales</h2>
+                <p class="service-desc">
+                    Discover unique treasures from estate sales across Yakima Valley. 
+                    Browse antiques, collectibles, furniture, and more.
+                </p>
+                <ul class="service-links">
+                    <li><a href="/claims">Browse Current Sales</a></li>
+                    <li><a href="/claims/upcoming">Upcoming Sales</a></li>
+                    <li><a href="/admin/login">Admin Login (Sellers)</a></li>
                 </ul>
             </div>
             
-            <div class="endpoint">
-                <div class="endpoint-title">🏪 Local Shops</div>
-                <ul class="endpoint-list">
-                    <li><a href="{$basePath}/shops">Browse Shops</a></li>
-                    <li><a href="{$basePath}/shops/featured">Featured Shops</a></li>
-                    <li><a href="{$basePath}/shops/map">Shop Map</a></li>
-                    <li><a href="{$basePath}/shops/submit">Add Your Shop</a></li>
+            <!-- Local Events -->
+            <div class="service-card events">
+                <div class="service-icon">📅</div>
+                <h2 class="service-title">Local Events</h2>
+                <p class="service-desc">
+                    Stay connected with community events, festivals, markets, 
+                    and gatherings happening around Yakima Valley.
+                </p>
+                <ul class="service-links">
+                    <li><a href="/events">Event Calendar</a></li>
+                    <li><a href="/events/featured">Featured Events</a></li>
+                    <li><a href="/events/upcoming">This Weekend</a></li>
+                    <li><a href="/events/submit">Submit Your Event</a></li>
                 </ul>
             </div>
             
-            <div class="endpoint">
-                <div class="endpoint-title">🏛️ Estate Sales (YFClaim)</div>
-                <ul class="endpoint-list">
-                    <li><a href="{$basePath}/claims">Browse Sales</a></li>
-                    <li><a href="{$basePath}/claims/upcoming">Upcoming Sales</a></li>
-                    <li><a href="{$basePath}/seller/register">Seller Registration</a></li>
-                    <li><a href="{$basePath}/buyer/offers">My Offers</a></li>
+            <!-- Local Shops -->
+            <div class="service-card shops">
+                <div class="service-icon">🏪</div>
+                <h2 class="service-title">Local Shops</h2>
+                <p class="service-desc">
+                    Support local businesses! Find antique stores, vintage shops, 
+                    and specialty retailers in your area.
+                </p>
+                <ul class="service-links">
+                    <li><a href="/shops">Business Directory</a></li>
+                    <li><a href="/shops/map">Shop Locations</a></li>
+                    <li><a href="/shops/featured">Featured Shops</a></li>
+                    <li><a href="/shops/submit">Add Your Business</a></li>
                 </ul>
             </div>
             
-            <div class="endpoint">
-                <div class="endpoint-title">🛠️ Admin & API</div>
-                <ul class="endpoint-list">
-                    <li><a href="{$basePath}/admin/login">Admin Login</a></li>
-                    <li><a href="{$basePath}/api/events">Events API</a></li>
-                    <li><a href="{$basePath}/api/shops">Shops API</a></li>
-                    <li><a href="{$basePath}/api/health">Health Check</a></li>
+            <!-- Seller Hub -->
+            <div class="service-card sellers">
+                <div class="service-icon">💼</div>
+                <h2 class="service-title">Seller Hub</h2>
+                <p class="service-desc">
+                    Professional tools for estate sale companies to manage 
+                    listings and track interested buyers.
+                </p>
+                <ul class="service-links">
+                    <li><a href="/admin/login">Seller Login</a></li>
+                    <li><span style="color: #6c757d;">💼 Seller Dashboard (Login Required)</span></li>
+                    <li><span style="color: #6c757d;">📱 Seller Chat (Coming Soon)</span></li>
+                    <li><span style="color: #6c757d;">📝 Contact Forms (Coming Soon)</span></li>
                 </ul>
             </div>
         </div>
         
-        <div class="architecture">
-            <h3>🏛️ Architecture Highlights</h3>
-            <ul>
-                <li><strong>4 Complete Domains:</strong> Events, Shops, Claims (YFClaim), Scrapers</li>
-                <li><strong>Repository Pattern:</strong> Clean data access abstraction</li>
-                <li><strong>Service Layer:</strong> Business logic encapsulation</li>
-                <li><strong>Dependency Injection:</strong> Flexible and testable components</li>
-                <li><strong>PSR Compliance:</strong> Modern PHP standards throughout</li>
-                <li><strong>120+ Files:</strong> 16,500+ lines of enterprise-grade code</li>
+        <!-- API & Developer Section (simplified) -->
+        <div class="service-card" style="margin-top: 30px;">
+            <div class="service-icon">🔧</div>
+            <h2 class="service-title">Developer Resources</h2>
+            <p class="service-desc">
+                Access our APIs and integrate with the YFEvents platform.
+            </p>
+            <ul class="service-links">
+                <li><a href="/api/events">Events API</a></li>
+                <li><a href="/api/shops">Shops API</a></li>
+                <li><a href="/api/health">System Status</a></li>
             </ul>
         </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2024 Yakima Valley Estate Sales & Events. All rights reserved.</p>
+        <p>
+            <a href="/admin/login">Admin</a> | 
+            <a href="/api/health">API Status</a> | 
+            <a href="/debug">Debug Info</a>
+        </p>
     </div>
 </body>
 </html>
 HTML;
     }
 
-    private function renderCombinedMapPage(string $basePath): string
+    private function renderCombinedMapPage(): string
     {
         return <<<HTML
 <!DOCTYPE html>
@@ -552,7 +712,7 @@ HTML;
     </div>
     
     <div class="container">
-        <a href="{$basePath}/" class="back-link">← Back to Home</a>
+        <a href="/" class="back-link">← Back to Home</a>
         
         <div class="map-controls">
             <div class="control-group">
@@ -635,8 +795,8 @@ HTML;
             try {
                 // Load events and shops in parallel
                 const [eventsResponse, shopsResponse] = await Promise.all([
-                    fetch('{$basePath}/api/events?status=approved&limit=50'),
-                    fetch('{$basePath}/api/shops/map')
+                    fetch('/api/events?status=approved&limit=50'),
+                    fetch('/api/shops/map')
                 ]);
                 
                 const eventsData = await eventsResponse.json();
@@ -711,7 +871,7 @@ HTML;
                                 </p>
                                 \${event.location ? `<p style="margin: 0 0 8px 0; color: #6c757d; font-size: 0.9rem;">📍 \${event.location}</p>` : ''}
                                 <div style="margin-top: 8px;">
-                                    <a href="{$basePath}/events/\${event.id}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">View Details →</a>
+                                    <a href="/events/\${event.id}" style="color: #667eea; text-decoration: none; font-size: 0.9rem;">View Details →</a>
                                 </div>
                             </div>
                         `
@@ -755,7 +915,7 @@ HTML;
                                 \${shop.phone ? `<p style="margin: 0 0 8px 0; color: #6c757d; font-size: 0.9rem;">📞 \${shop.phone}</p>` : ''}
                                 <div style="margin-top: 8px;">
                                     \${shop.website ? `<a href="\${shop.website}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 0.9rem; margin-right: 10px;">🌐 Website</a>` : ''}
-                                    <a href="{$basePath}/shops/\${shop.id}" style="color: #28a745; text-decoration: none; font-size: 0.9rem;">View Details →</a>
+                                    <a href="/shops/\${shop.id}" style="color: #28a745; text-decoration: none; font-size: 0.9rem;">View Details →</a>
                                 </div>
                             </div>
                         `

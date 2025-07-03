@@ -160,8 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 <body>
     <nav class="admin-nav">
         <div class="container">
-            <a href="/refactor/admin/dashboard">← Back to Dashboard</a>
-            <a href="/refactor/admin/modules.php" class="active">Module Management</a>
+            <a href="/admin/dashboard">← Back to Dashboard</a>
+            <a href="/admin/modules.php" class="active">Module Management</a>
         </div>
     </nav>
 

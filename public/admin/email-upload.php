@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$basePath = '/refactor';
+$basePath = '';
 $uploadDir = dirname(__DIR__) . '/storage/emails';
 $pendingDir = $uploadDir . '/pending_events';
 

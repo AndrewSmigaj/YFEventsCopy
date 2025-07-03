@@ -3,6 +3,7 @@ namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
 use Exception;
+use YFEvents\Domain\Common\BaseModel;
 
 class BuyerModel extends BaseModel {
     protected $table = 'yfc_buyers';
@@ -26,7 +27,7 @@ class BuyerModel extends BaseModel {
             'auth_method' => $authMethod,
             'auth_code' => $authCode,
             'auth_code_expires' => $authExpires,
-            'auth_verified' => false
+            'auth_verified' => 0
         ];
         
         if ($authMethod === 'email') {
@@ -65,7 +66,7 @@ class BuyerModel extends BaseModel {
             
             // Update buyer record
             $this->update($buyerId, [
-                'auth_verified' => true,
+                'auth_verified' => 1,
                 'session_token' => $sessionToken,
                 'session_expires' => $sessionExpires
             ]);

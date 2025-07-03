@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$basePath = '/refactor';
+$basePath = '';
 
 // Setup database connection
 $config = require dirname(__DIR__) . '/config/database.php';

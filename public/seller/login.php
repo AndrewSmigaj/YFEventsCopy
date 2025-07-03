@@ -6,11 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if already logged in
 if (isset($_SESSION['seller_id'])) {
-    header('Location: /refactor/seller/dashboard');
+    header('Location: /seller/dashboard');
     exit;
 }
 
-$basePath = '/refactor';
+$basePath = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">

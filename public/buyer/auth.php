@@ -6,11 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if already authenticated
 if (isset($_SESSION['buyer_id'])) {
-    header('Location: /refactor/buyer/offers');
+    header('Location: /buyer/offers');
     exit;
 }
 
-$basePath = '/refactor';
+$basePath = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">

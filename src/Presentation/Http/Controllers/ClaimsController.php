@@ -817,11 +817,12 @@ class ClaimsController extends BaseController
     {
         $stmt = $this->pdo->prepare("
             SELECT i.*, 
-                   COUNT(o.id) as offer_count,
-                   MAX(o.offer_amount) as highest_offer
+                   COUNT(DISTINCT o.id) as offer_count,
+                   MAX(o.offer_amount) as highest_offer,
+                   (SELECT filename FROM yfc_item_images WHERE item_id = i.id AND is_primary = 1 LIMIT 1) as primary_image
             FROM yfc_items i
             LEFT JOIN yfc_offers o ON i.id = o.item_id AND o.status = 'active'
-            WHERE i.sale_id = ? AND i.status = 'active'
+            WHERE i.sale_id = ? AND i.status = 'available'
             GROUP BY i.id
             ORDER BY i.sort_order ASC, i.id ASC
         ");
@@ -1145,6 +1146,21 @@ HTML;
         $itemsHtml = $this->renderSaleItems($items, $basePath);
         $saleStatus = $this->getSaleStatus($sale);
         
+        // Get first item image for Open Graph
+        $ogImage = '';
+        if (!empty($items)) {
+            foreach ($items as $item) {
+                if (!empty($item['primary_image'])) {
+                    $ogImage = "http://{$_SERVER['HTTP_HOST']}/uploads/yfclaim/items/{$item['primary_image']}";
+                    break;
+                }
+            }
+        }
+        // Fallback to default image if no item images
+        if (empty($ogImage)) {
+            $ogImage = "http://{$_SERVER['HTTP_HOST']}/assets/images/estate-sale-default.jpg";
+        }
+        
         return <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -1152,6 +1168,23 @@ HTML;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{$sale['title']} | YFClaim Estate Sales</title>
+    
+    <!-- Open Graph Meta Tags for Facebook -->
+    <meta property="og:title" content="{$sale['title']} - Estate Sale">
+    <meta property="og:description" content="{$sale['description']}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}">
+    <meta property="og:image" content="{$ogImage}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="YFClaim Estate Sales">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{$sale['title']} - Estate Sale">
+    <meta name="twitter:description" content="{$sale['description']}">
+    <meta name="twitter:image" content="{$ogImage}">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; line-height: 1.6; }
@@ -1275,6 +1308,16 @@ HTML;
             </div>
             
             {$this->renderSaleDescription($sale)}
+            
+            <div style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-bottom: 10px;">📢 Share This Sale</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="shareSaleFacebook()" class="btn btn-primary" style="background: #1877f2;">📘 Facebook</button>
+                    <button onclick="shareSaleTwitter()" class="btn btn-primary" style="background: #1da1f2;">🐦 Twitter</button>
+                    <button onclick="shareSaleEmail()" class="btn btn-primary" style="background: #6c757d;">✉️ Email</button>
+                    <button onclick="copySaleLink()" class="btn btn-primary" style="background: #28a745;">📋 Copy Link</button>
+                </div>
+            </div>
         </div>
         
         <div class="items-section">
@@ -1285,6 +1328,110 @@ HTML;
             {$itemsHtml}
         </div>
     </div>
+    
+    <script>
+        // Share functionality for items
+        function shareItem(itemId, title, description) {
+            const baseUrl = window.location.origin;
+            const itemUrl = baseUrl + '{$basePath}/claims/item/' + itemId;
+            const shareText = title + ' - ' + description.substring(0, 100) + '...';
+            
+            // Simple share menu
+            const shareOptions = [
+                {
+                    name: 'Facebook',
+                    url: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(itemUrl),
+                    icon: '📘'
+                },
+                {
+                    name: 'Twitter',
+                    url: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText) + '&url=' + encodeURIComponent(itemUrl),
+                    icon: '🐦'
+                },
+                {
+                    name: 'Pinterest',
+                    url: 'https://pinterest.com/pin/create/button/?url=' + encodeURIComponent(itemUrl) + '&description=' + encodeURIComponent(shareText),
+                    icon: '📌'
+                },
+                {
+                    name: 'Copy Link',
+                    action: function() {
+                        navigator.clipboard.writeText(itemUrl).then(() => {
+                            alert('Link copied to clipboard!');
+                        }).catch(() => {
+                            prompt('Copy this link:', itemUrl);
+                        });
+                    },
+                    icon: '📋'
+                }
+            ];
+            
+            // Create share menu
+            let menu = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:9999;min-width:200px;">';
+            menu += '<h3 style="margin-bottom:15px;">Share Item</h3>';
+            shareOptions.forEach(option => {
+                if (option.url) {
+                    menu += '<a href="' + option.url + '" target="_blank" style="display:block;padding:10px;text-decoration:none;color:#333;border-radius:5px;margin-bottom:5px;" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'none\'">' + option.icon + ' ' + option.name + '</a>';
+                } else {
+                    menu += '<button onclick="(' + option.action.toString() + ')();document.getElementById(\'shareMenu\').remove();" style="display:block;width:100%;padding:10px;border:none;background:none;text-align:left;cursor:pointer;border-radius:5px;" onmouseover="this.style.background=\'#f0f0f0\'" onmouseout="this.style.background=\'none\'">' + option.icon + ' ' + option.name + '</button>';
+                }
+            });
+            menu += '<button onclick="document.getElementById(\'shareMenu\').remove();" style="margin-top:10px;padding:5px 15px;background:#6c757d;color:white;border:none;border-radius:5px;cursor:pointer;">Close</button>';
+            menu += '</div>';
+            menu += '<div onclick="document.getElementById(\'shareMenu\').remove();" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
+            
+            // Remove any existing menu
+            const existingMenu = document.getElementById('shareMenu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            const menuElement = document.createElement('div');
+            menuElement.id = 'shareMenu';
+            menuElement.innerHTML = menu;
+            document.body.appendChild(menuElement);
+        }
+        
+        // Share functions for the sale
+        function shareSaleFacebook() {
+            const saleUrl = window.location.href;
+            const saleTitle = document.querySelector('.sale-title').textContent;
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(saleUrl), 'facebook-share', 'width=626,height=436');
+        }
+        
+        function shareSaleTwitter() {
+            const saleUrl = window.location.href;
+            const saleTitle = document.querySelector('.sale-title').textContent;
+            const text = saleTitle + ' - Check out this estate sale!';
+            window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(saleUrl), 'twitter-share', 'width=550,height=420');
+        }
+        
+        function shareSaleEmail() {
+            const saleUrl = window.location.href;
+            const saleTitle = document.querySelector('.sale-title').textContent;
+            const subject = encodeURIComponent('Check out this estate sale: ' + saleTitle);
+            const body = encodeURIComponent('I found this estate sale that might interest you:\\n\\n' + saleTitle + '\\n\\n' + saleUrl);
+            window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+        }
+        
+        function copySaleLink() {
+            const saleUrl = window.location.href;
+            navigator.clipboard.writeText(saleUrl).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                const originalBg = btn.style.background;
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = originalBg;
+                }, 2000);
+            }).catch(() => {
+                // Fallback for browsers that don't support clipboard API
+                prompt('Copy this link:', saleUrl);
+            });
+        }
+    </script>
 </body>
 </html>
 HTML;
@@ -1532,7 +1679,7 @@ HTML;
                     <div class="auth-prompt">
                         <h4>🔐 Authentication Required</h4>
                         <p>You need to authenticate before making an offer on this item.</p>
-                        <a href="{$basePath}/buyer/auth?sale_id={$item['sale_id']}&item_id={$item['id']}" class="btn btn-primary">Authenticate to Make Offer</a>
+                        <a href="/buyer/auth?sale_id={$item['sale_id']}&item_id={$item['id']}" class="btn btn-primary">Authenticate to Make Offer</a>
                     </div>
                 </div>
 HTML;
@@ -2177,11 +2324,90 @@ HTML;
             }
         });
         
-        // Auto-refresh offers every 30 seconds
-        setInterval(function() {
-            // In a real implementation, you would fetch updated offer data
-            console.log('Checking for offer updates...');
-        }, 30000);
+        // Share functionality
+        function shareItem(itemId, title, description) {
+            const baseUrl = window.location.origin;
+            const itemUrl = baseUrl + '{$basePath}/claims/item/' + itemId;
+            const shareText = title + ' - ' + description.substring(0, 100) + '...';
+            
+            // Simple share menu - you can enhance this with a modal
+            const shareOptions = [
+                {
+                    name: 'Facebook',
+                    url: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(itemUrl),
+                    icon: '📘'
+                },
+                {
+                    name: 'Twitter',
+                    url: 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText) + '&url=' + encodeURIComponent(itemUrl),
+                    icon: '🐦'
+                },
+                {
+                    name: 'Copy Link',
+                    action: function() {
+                        navigator.clipboard.writeText(itemUrl).then(() => {
+                            alert('Link copied to clipboard!');
+                        });
+                    },
+                    icon: '📋'
+                }
+            ];
+            
+            // Create share menu
+            let menu = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:9999;">';
+            menu += '<h3 style="margin-bottom:15px;">Share Item</h3>';
+            shareOptions.forEach(option => {
+                if (option.url) {
+                    menu += '<a href="' + option.url + '" target="_blank" style="display:block;padding:10px;text-decoration:none;color:#333;hover:background:#f0f0f0;">' + option.icon + ' ' + option.name + '</a>';
+                } else {
+                    menu += '<button onclick="' + option.action.toString() + '();document.getElementById(\'shareMenu\').remove();" style="display:block;width:100%;padding:10px;border:none;background:none;text-align:left;cursor:pointer;">' + option.icon + ' ' + option.name + '</button>';
+                }
+            });
+            menu += '<button onclick="document.getElementById(\'shareMenu\').remove();" style="margin-top:10px;padding:5px 15px;">Close</button>';
+            menu += '</div>';
+            menu += '<div onclick="document.getElementById(\'shareMenu\').remove();" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;"></div>';
+            
+            const menuElement = document.createElement('div');
+            menuElement.id = 'shareMenu';
+            menuElement.innerHTML = menu;
+            document.body.appendChild(menuElement);
+        }
+        
+        function shareSaleFacebook() {
+            const saleUrl = window.location.href;
+            const saleTitle = document.querySelector('.sale-title').textContent;
+            window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(saleUrl), 'facebook-share', 'width=626,height=436');
+        }
+        
+        function shareSaleTwitter() {
+            const saleUrl = window.location.href;
+            const saleTitle = document.querySelector('.sale-title').textContent;
+            const text = saleTitle + ' - Check out this estate sale!';
+            window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(saleUrl), 'twitter-share', 'width=550,height=420');
+        }
+        
+        function shareSaleEmail() {
+            const saleUrl = window.location.href;
+            const saleTitle = document.querySelector('.sale-title').textContent;
+            const subject = encodeURIComponent('Check out this estate sale: ' + saleTitle);
+            const body = encodeURIComponent('I found this estate sale that might interest you:\n\n' + saleTitle + '\n\n' + saleUrl);
+            window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+        }
+        
+        function copySaleLink() {
+            const saleUrl = window.location.href;
+            navigator.clipboard.writeText(saleUrl).then(() => {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }).catch(() => {
+                alert('Failed to copy link. URL: ' + saleUrl);
+            });
+        }
     </script>
 </body>
 </html>
@@ -2342,6 +2568,15 @@ OFFER;
                 ? '$' . number_format((float)$highestOffer, 2) . ' (highest offer)'
                 : '$' . number_format($startingPrice, 2) . ' (starting)';
             
+            // Properly escape values for JavaScript in HTML attributes
+            // Use JSON encoding which handles all special characters correctly
+            $escapedTitle = json_encode($item['title'], JSON_HEX_QUOT | JSON_HEX_APOS);
+            $escapedDescription = json_encode($item['description'], JSON_HEX_QUOT | JSON_HEX_APOS);
+            
+            // Remove the outer quotes that json_encode adds
+            $escapedTitle = substr($escapedTitle, 1, -1);
+            $escapedDescription = substr($escapedDescription, 1, -1);
+            
             $html .= <<<ITEM
                 <div class="item-card">
                     <div class="item-image">📦</div>
@@ -2355,7 +2590,7 @@ OFFER;
                         </div>
                         <div class="item-actions">
                             <a href="{$basePath}/claims/item/{$item['id']}" class="btn btn-primary">View Details</a>
-                            <a href="{$basePath}/buyer/auth?sale_id={$item['sale_id']}&item_id={$item['id']}" class="btn btn-secondary">Make Offer</a>
+                            <button onclick="shareItem({$item['id']}, '{$escapedTitle}', '{$escapedDescription}')" class="btn btn-secondary">Share Item</button>
                         </div>
                     </div>
                 </div>

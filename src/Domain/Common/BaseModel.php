@@ -185,4 +185,94 @@ abstract class BaseModel
     {
         return $this->db->rollback();
     }
+    
+    /**
+     * Find record by specific column
+     */
+    public function findBy($column, $value)
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE {$column} = :value";
+        $stmt = $this->query($sql, ['value' => $value]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Get all records with conditions
+     */
+    public function all($conditions = [], $orderBy = 'id ASC')
+    {
+        $sql = "SELECT * FROM {$this->table}";
+        $params = [];
+        
+        if (!empty($conditions)) {
+            $whereClauses = [];
+            foreach ($conditions as $field => $value) {
+                $whereClauses[] = "{$field} = :{$field}";
+                $params[$field] = $value;
+            }
+            $sql .= " WHERE " . implode(' AND ', $whereClauses);
+        }
+        
+        $sql .= " ORDER BY {$orderBy}";
+        
+        $stmt = $this->query($sql, $params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Create new record
+     */
+    public function create($data)
+    {
+        if (!isset($this->fillable)) {
+            throw new \Exception('Fillable array not defined in model');
+        }
+        
+        // Filter data to only fillable fields
+        $filteredData = array_intersect_key($data, array_flip($this->fillable));
+        
+        $columns = array_keys($filteredData);
+        $placeholders = array_map(function($col) { return ":{$col}"; }, $columns);
+        
+        $sql = "INSERT INTO {$this->table} (" . implode(", ", $columns) . ") 
+                VALUES (" . implode(", ", $placeholders) . ")";
+        
+        $stmt = $this->db->prepare($sql);
+        
+        foreach ($filteredData as $column => $value) {
+            $stmt->bindValue(":{$column}", $value);
+        }
+        
+        $stmt->execute();
+        return $this->db->lastInsertId();
+    }
+    
+    /**
+     * Update record
+     */
+    public function update($id, $data)
+    {
+        if (!isset($this->fillable)) {
+            throw new \Exception('Fillable array not defined in model');
+        }
+        
+        // Filter data to only fillable fields
+        $filteredData = array_intersect_key($data, array_flip($this->fillable));
+        
+        $sets = [];
+        foreach ($filteredData as $column => $value) {
+            $sets[] = "{$column} = :{$column}";
+        }
+        
+        $sql = "UPDATE {$this->table} SET " . implode(", ", $sets) . " WHERE id = :id";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id', $id);
+        
+        foreach ($filteredData as $column => $value) {
+            $stmt->bindValue(":{$column}", $value);
+        }
+        
+        return $stmt->execute();
+    }
 }

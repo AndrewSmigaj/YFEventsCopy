@@ -647,50 +647,60 @@ class AdminDashboardController extends BaseController
             <div class="action-section">
                 <div class="action-title">📅 Event Management</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/admin/events.php" class="action-link">📋 View All Events</a></li>
-                    <li><a href="{$basePath}/admin/events.php#pending" class="action-link">⏳ Review Pending Events</a></li>
-                    <li><a href="{$basePath}/admin/events.php#featured" class="action-link">⭐ Manage Featured Events</a></li>
-                    <li><a href="{$basePath}/admin/events/statistics" class="action-link">📊 Event Statistics</a></li>
+                    <li><a href="/admin/events.php" class="action-link">📋 View All Events</a></li>
+                    <li><a href="/admin/events.php#pending" class="action-link">⏳ Review Pending Events</a></li>
+                    <li><a href="/admin/events.php#featured" class="action-link">⭐ Manage Featured Events</a></li>
+                    <li><a href="/admin/events/statistics" class="action-link">📊 Event Statistics</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🏪 Shop Management</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/admin/shops.php" class="action-link">🏪 View All Shops</a></li>
-                    <li><a href="{$basePath}/admin/shops.php#pending" class="action-link">⏳ Review Pending Shops</a></li>
-                    <li><a href="{$basePath}/admin/shops.php#verify" class="action-link">✅ Verify Shop Information</a></li>
-                    <li><a href="{$basePath}/admin/shops/statistics" class="action-link">📊 Shop Statistics</a></li>
+                    <li><a href="/admin/shops.php" class="action-link">🏪 View All Shops</a></li>
+                    <li><a href="/admin/shops.php#pending" class="action-link">⏳ Review Pending Shops</a></li>
+                    <li><a href="/admin/shops.php#verify" class="action-link">✅ Verify Shop Information</a></li>
+                    <li><a href="/admin/shops/statistics" class="action-link">📊 Shop Statistics</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">📧 Email Management</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/admin/email-events.php" class="action-link">📧 Email Events</a></li>
-                    <li><a href="{$basePath}/admin/email-config.php" class="action-link">⚙️ Email Configuration</a></li>
-                    <li><a href="{$basePath}/admin/email-upload.php" class="action-link">📤 Upload Emails</a></li>
-                    <li><a href="{$basePath}/admin/email-config.php#test" class="action-link">🔌 Test Connection</a></li>
+                    <li><a href="/admin/email-events.php" class="action-link">📧 Email Events</a></li>
+                    <li><a href="/admin/email-config.php" class="action-link">⚙️ Email Configuration</a></li>
+                    <li><a href="/admin/email-upload.php" class="action-link">📤 Upload Emails</a></li>
+                    <li><a href="/admin/email-config.php#test" class="action-link">🔌 Test Connection</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🎨 Theme Management</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/admin/theme.php" class="action-link">🎨 Theme Editor</a></li>
-                    <li><a href="{$basePath}/admin/theme.php#seo" class="action-link">🔍 SEO Settings</a></li>
-                    <li><a href="{$basePath}/admin/theme.php#social" class="action-link">📱 Social Media</a></li>
-                    <li><a href="{$basePath}/admin/theme.php#presets" class="action-link">🎯 Theme Presets</a></li>
+                    <li><a href="/admin/theme.php" class="action-link">🎨 Theme Editor</a></li>
+                    <li><a href="/admin/theme.php#seo" class="action-link">🔍 SEO Settings</a></li>
+                    <li><a href="/admin/theme.php#social" class="action-link">📱 Social Media</a></li>
+                    <li><a href="/admin/theme.php#presets" class="action-link">🎯 Theme Presets</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🤖 Event Scrapers</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/admin/scrapers.php" class="action-link">🔧 Basic Scrapers</a></li>
-                    <li><a href="{$basePath}/admin/browser-scrapers.php" class="action-link">🤖 Browser Automation</a></li>
-                    <li><a href="{$basePath}/admin/scrapers.php#intelligent" class="action-link">🧠 AI Scraper</a></li>
-                    <li><a href="{$basePath}/admin/scrapers.php#status" class="action-link">📊 Scraper Status</a></li>
+                    <li><a href="/admin/scrapers.php" class="action-link">🔧 Basic Scrapers</a></li>
+                    <li><a href="/admin/browser-scrapers.php" class="action-link">🤖 Browser Automation</a></li>
+                    <li><a href="/admin/scrapers.php#intelligent" class="action-link">🧠 AI Scraper</a></li>
+                    <li><a href="/admin/scrapers.php#status" class="action-link">📊 Scraper Status</a></li>
+                </ul>
+            </div>
+            
+            <div class="action-section">
+                <div class="action-title">🏛️ Estate Sales (YFClaim)</div>
+                <ul class="action-list">
+                    <li><a href="/admin/sellers" class="action-link">👥 Manage Sellers</a></li>
+                    <li><a href="/admin/sales" class="action-link">📋 All Sales</a></li>
+                    <li><a href="/claims" class="action-link">🔍 View Public Sales</a></li>
+                    <li><a href="/modules/yfclaim/www/admin/" class="action-link">🛠️ YFClaim Admin</a></li>
                 </ul>
             </div>
             
@@ -700,28 +710,28 @@ class AdminDashboardController extends BaseController
                     <li><a href="/modules/yfclassifieds/www/admin/simple-index.php" class="action-link">🛍️ Classifieds Dashboard</a></li>
                     <li><a href="/modules/yfclassifieds/www/admin/upload.php" class="action-link">📸 Upload Photos</a></li>
                     <li><a href="/modules/yfclassifieds/www/admin/create.php" class="action-link">➕ Add New Item</a></li>
-                    <li><a href="{$basePath}/classifieds" class="action-link">👀 View Public Gallery</a></li>
+                    <li><a href="/classifieds" class="action-link">👀 View Public Gallery</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🔧 System Management</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/admin/modules.php" class="action-link">🧩 Module Management</a></li>
-                    <li><a href="{$basePath}/admin/dashboard/health" class="action-link">💚 System Health</a></li>
-                    <li><a href="{$basePath}/admin/dashboard/analytics" class="action-link">📈 Analytics</a></li>
-                    <li><a href="{$basePath}/admin/dashboard/performance" class="action-link">⚡ Performance</a></li>
-                    <li><a href="{$basePath}/admin/dashboard/activity" class="action-link">📋 Activity Log</a></li>
+                    <li><a href="/admin/modules.php" class="action-link">🧩 Module Management</a></li>
+                    <li><a href="/admin/dashboard/health" class="action-link">💚 System Health</a></li>
+                    <li><a href="/admin/dashboard/analytics" class="action-link">📈 Analytics</a></li>
+                    <li><a href="/admin/dashboard/performance" class="action-link">⚡ Performance</a></li>
+                    <li><a href="/admin/dashboard/activity" class="action-link">📋 Activity Log</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🔍 Quick Actions</div>
                 <ul class="action-list">
-                    <li><a href="{$basePath}/" class="action-link">🏠 View Public Site</a></li>
-                    <li><a href="{$basePath}/events" class="action-link">📅 Public Events</a></li>
-                    <li><a href="{$basePath}/shops" class="action-link">🏪 Public Shops</a></li>
-                    <li><a href="{$basePath}/admin/settings.php" class="action-link">⚙️ System Settings</a></li>
+                    <li><a href="/" class="action-link">🏠 View Public Site</a></li>
+                    <li><a href="/events" class="action-link">📅 Public Events</a></li>
+                    <li><a href="/shops" class="action-link">🏪 Public Shops</a></li>
+                    <li><a href="/admin/settings.php" class="action-link">⚙️ System Settings</a></li>
                 </ul>
             </div>
         </div>
@@ -738,7 +748,7 @@ class AdminDashboardController extends BaseController
         async function loadDashboardStats() {
             try {
                 // Load event statistics
-                const eventStatsResponse = await fetch('{$basePath}/admin/events/statistics');
+                const eventStatsResponse = await fetch('/admin/events/statistics');
                 if (eventStatsResponse.ok) {
                     const eventStats = await eventStatsResponse.json();
                     if (eventStats.success) {
@@ -749,7 +759,7 @@ class AdminDashboardController extends BaseController
                 }
                 
                 // Load shop statistics
-                const shopStatsResponse = await fetch('{$basePath}/admin/shops/statistics');
+                const shopStatsResponse = await fetch('/admin/shops/statistics');
                 if (shopStatsResponse.ok) {
                     const shopStats = await shopStatsResponse.json();
                     if (shopStats.success) {
@@ -758,7 +768,7 @@ class AdminDashboardController extends BaseController
                 }
                 
                 // Load recent activity
-                const activityResponse = await fetch('{$basePath}/admin/dashboard/activity');
+                const activityResponse = await fetch('/admin/dashboard/activity');
                 if (activityResponse.ok) {
                     const activity = await activityResponse.json();
                     if (activity.success && activity.data.activities) {
@@ -783,15 +793,15 @@ class AdminDashboardController extends BaseController
         
         async function logout() {
             try {
-                const response = await fetch('{$basePath}/admin/logout', { method: 'POST' });
+                const response = await fetch('/admin/logout', { method: 'POST' });
                 const data = await response.json();
                 
                 if (data.success) {
-                    window.location.href = '{$basePath}/admin/login';
+                    window.location.href = '/admin/login';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
-                window.location.href = '{$basePath}/admin/login';
+                window.location.href = '/admin/login';
             }
         }
         
@@ -802,5 +812,451 @@ class AdminDashboardController extends BaseController
 </body>
 </html>
 HTML;
+    }
+
+    // ===== SELLER MANAGEMENT METHODS (YFClaim) =====
+
+    /**
+     * Get all sellers
+     */
+    public function getSellers(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $pagination = $this->getPaginationParams($input);
+            
+            // Get database connection
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            // Build query
+            $query = "SELECT * FROM yfc_sellers";
+            $params = [];
+            $conditions = [];
+            
+            if (isset($input['status'])) {
+                $conditions[] = "status = :status";
+                $params[':status'] = $input['status'];
+            }
+            
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(" AND ", $conditions);
+            }
+            
+            $query .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = $pdo->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->bindValue(':limit', $pagination['limit'], \PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $pagination['offset'], \PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $sellers = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            // Get total count
+            $countQuery = "SELECT COUNT(*) FROM yfc_sellers";
+            if (!empty($conditions)) {
+                $countQuery .= " WHERE " . implode(" AND ", $conditions);
+            }
+            $stmt = $pdo->prepare($countQuery);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $total = $stmt->fetchColumn();
+            
+            $this->successResponse([
+                'sellers' => $sellers,
+                'pagination' => [
+                    'page' => $pagination['page'],
+                    'limit' => $pagination['limit'],
+                    'total' => (int) $total,
+                    'pages' => ceil($total / $pagination['limit'])
+                ]
+            ]);
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to load sellers: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get seller details
+     */
+    public function getSellerDetails(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $sellerId = (int) ($input['id'] ?? 0);
+            
+            if (!$sellerId) {
+                $this->errorResponse('Seller ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            // Get seller details
+            $stmt = $pdo->prepare("SELECT * FROM yfc_sellers WHERE id = :id");
+            $stmt->execute([':id' => $sellerId]);
+            $seller = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            if (!$seller) {
+                $this->errorResponse('Seller not found', 404);
+                return;
+            }
+            
+            // Get seller's sales count
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_sales WHERE seller_id = :id");
+            $stmt->execute([':id' => $sellerId]);
+            $salesCount = $stmt->fetchColumn();
+            
+            // Get seller's total items
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*) FROM yfc_items i
+                JOIN yfc_sales s ON i.sale_id = s.id
+                WHERE s.seller_id = :id
+            ");
+            $stmt->execute([':id' => $sellerId]);
+            $itemsCount = $stmt->fetchColumn();
+            
+            $this->successResponse([
+                'seller' => $seller,
+                'stats' => [
+                    'sales_count' => (int) $salesCount,
+                    'items_count' => (int) $itemsCount
+                ]
+            ]);
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to load seller details: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get seller's sales
+     */
+    public function getSellerSales(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $sellerId = (int) ($input['id'] ?? 0);
+            
+            if (!$sellerId) {
+                $this->errorResponse('Seller ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            $stmt = $pdo->prepare("
+                SELECT s.*, 
+                       COUNT(DISTINCT i.id) as item_count,
+                       COUNT(DISTINCT CASE WHEN i.status = 'claimed' THEN i.id END) as claimed_count
+                FROM yfc_sales s
+                LEFT JOIN yfc_items i ON s.id = i.sale_id
+                WHERE s.seller_id = :id
+                GROUP BY s.id
+                ORDER BY s.start_date DESC
+            ");
+            $stmt->execute([':id' => $sellerId]);
+            $sales = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $this->successResponse([
+                'sales' => $sales,
+                'count' => count($sales)
+            ]);
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to load seller sales: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Approve seller
+     */
+    public function approveSeller(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $sellerId = (int) ($input['id'] ?? 0);
+            
+            if (!$sellerId) {
+                $this->errorResponse('Seller ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            $stmt = $pdo->prepare("UPDATE yfc_sellers SET status = 'active' WHERE id = :id");
+            $stmt->execute([':id' => $sellerId]);
+            
+            if ($stmt->rowCount() === 0) {
+                $this->errorResponse('Seller not found', 404);
+                return;
+            }
+            
+            $this->successResponse([], 'Seller approved successfully');
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to approve seller: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Suspend seller
+     */
+    public function suspendSeller(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $sellerId = (int) ($input['id'] ?? 0);
+            $reason = $input['reason'] ?? '';
+            
+            if (!$sellerId) {
+                $this->errorResponse('Seller ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            $stmt = $pdo->prepare("UPDATE yfc_sellers SET status = 'suspended' WHERE id = :id");
+            $stmt->execute([':id' => $sellerId]);
+            
+            if ($stmt->rowCount() === 0) {
+                $this->errorResponse('Seller not found', 404);
+                return;
+            }
+            
+            // TODO: Add suspension reason to a log table if needed
+            
+            $this->successResponse([], 'Seller suspended successfully');
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to suspend seller: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get all sales (admin view)
+     */
+    public function getAllSales(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $pagination = $this->getPaginationParams($input);
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            $query = "
+                SELECT s.*, 
+                       sl.company_name as seller_name,
+                       COUNT(DISTINCT i.id) as item_count
+                FROM yfc_sales s
+                LEFT JOIN yfc_sellers sl ON s.seller_id = sl.id
+                LEFT JOIN yfc_items i ON s.id = i.sale_id
+            ";
+            
+            $conditions = [];
+            $params = [];
+            
+            if (isset($input['status'])) {
+                $conditions[] = "s.status = :status";
+                $params[':status'] = $input['status'];
+            }
+            
+            if (isset($input['featured'])) {
+                $conditions[] = "s.featured = :featured";
+                $params[':featured'] = $input['featured'] ? 1 : 0;
+            }
+            
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(" AND ", $conditions);
+            }
+            
+            $query .= " GROUP BY s.id ORDER BY s.start_date DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = $pdo->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->bindValue(':limit', $pagination['limit'], \PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $pagination['offset'], \PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $sales = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $this->successResponse([
+                'sales' => $sales,
+                'count' => count($sales)
+            ]);
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to load sales: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Get sale details
+     */
+    public function getSaleDetails(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $saleId = (int) ($input['id'] ?? 0);
+            
+            if (!$saleId) {
+                $this->errorResponse('Sale ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            // Get sale with seller info
+            $stmt = $pdo->prepare("
+                SELECT s.*, sl.company_name as seller_name, sl.email as seller_email
+                FROM yfc_sales s
+                LEFT JOIN yfc_sellers sl ON s.seller_id = sl.id
+                WHERE s.id = :id
+            ");
+            $stmt->execute([':id' => $saleId]);
+            $sale = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            if (!$sale) {
+                $this->errorResponse('Sale not found', 404);
+                return;
+            }
+            
+            // Get items count
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = :id");
+            $stmt->execute([':id' => $saleId]);
+            $itemsCount = $stmt->fetchColumn();
+            
+            // Get claimed items count
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = :id AND status = 'claimed'");
+            $stmt->execute([':id' => $saleId]);
+            $claimedCount = $stmt->fetchColumn();
+            
+            $this->successResponse([
+                'sale' => $sale,
+                'stats' => [
+                    'total_items' => (int) $itemsCount,
+                    'claimed_items' => (int) $claimedCount
+                ]
+            ]);
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to load sale details: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Approve sale
+     */
+    public function approveSale(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $saleId = (int) ($input['id'] ?? 0);
+            
+            if (!$saleId) {
+                $this->errorResponse('Sale ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            $stmt = $pdo->prepare("UPDATE yfc_sales SET status = 'active' WHERE id = :id");
+            $stmt->execute([':id' => $saleId]);
+            
+            if ($stmt->rowCount() === 0) {
+                $this->errorResponse('Sale not found', 404);
+                return;
+            }
+            
+            $this->successResponse([], 'Sale approved successfully');
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to approve sale: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Feature/unfeature sale
+     */
+    public function featureSale(): void
+    {
+        if (!$this->requireAdmin()) {
+            return;
+        }
+
+        try {
+            $input = $this->getInput();
+            $saleId = (int) ($input['id'] ?? 0);
+            $featured = (bool) ($input['featured'] ?? true);
+            
+            if (!$saleId) {
+                $this->errorResponse('Sale ID is required');
+                return;
+            }
+            
+            $connection = $this->container->resolve(\YFEvents\Infrastructure\Database\ConnectionInterface::class);
+            $pdo = $connection->getConnection();
+            
+            $stmt = $pdo->prepare("UPDATE yfc_sales SET featured = :featured WHERE id = :id");
+            $stmt->execute([':id' => $saleId, ':featured' => $featured ? 1 : 0]);
+            
+            if ($stmt->rowCount() === 0) {
+                $this->errorResponse('Sale not found', 404);
+                return;
+            }
+            
+            $message = $featured ? 'Sale featured successfully' : 'Sale unfeatured successfully';
+            $this->successResponse([], $message);
+            
+        } catch (Exception $e) {
+            $this->errorResponse('Failed to update sale: ' . $e->getMessage(), 500);
+        }
     }
 }

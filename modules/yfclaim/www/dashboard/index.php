@@ -9,15 +9,16 @@ if (!isset($_SESSION['claim_seller_logged_in']) || $_SESSION['claim_seller_logge
 
 // Load dependencies
 require_once __DIR__ . '/../../../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../../../config/database.php';
-require_once __DIR__ . '/../../src/Models/SellerModel.php';
-require_once __DIR__ . '/../../src/Models/SaleModel.php';
+require_once __DIR__ . '/../../../../../config/db_connection.php';
+$db = $pdo; // Dashboard files expect $db variable
 
 use YFEvents\Modules\YFClaim\Models\SellerModel;
 use YFEvents\Modules\YFClaim\Models\SaleModel;
+use YFEvents\Modules\YFClaim\Models\NotificationModel;
 
 $sellerModel = new SellerModel($db);
 $saleModel = new SaleModel($db);
+$notificationModel = new NotificationModel($db);
 
 $sellerId = $_SESSION['claim_seller_id'];
 $seller = $sellerModel->find($sellerId);
@@ -37,6 +38,9 @@ $recentSales = $saleModel->getBySeller($sellerId);
 $activeSales = array_filter($recentSales, function($sale) {
     return $sale['status'] === 'active';
 });
+
+// Get notification count
+$unreadNotifications = $notificationModel->getUnreadCount($sellerId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,6 +103,25 @@ $activeSales = array_filter($recentSales, function($sale) {
             text-decoration: none;
             font-size: 0.9rem;
             cursor: pointer;
+        }
+        
+        .notification-link {
+            position: relative;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
         
         .container {
@@ -319,6 +342,16 @@ $activeSales = array_filter($recentSales, function($sale) {
             <div class="logo">YFClaim Seller Portal</div>
             <div class="user-info">
                 <span class="user-name"><?= htmlspecialchars($seller['contact_name']) ?></span>
+                <?php if ($unreadNotifications > 0): ?>
+                <a href="/modules/yfclaim/www/dashboard/notifications.php" class="notification-link">
+                    Notifications
+                    <span class="notification-badge"><?= $unreadNotifications ?></span>
+                </a>
+                <?php else: ?>
+                <a href="/modules/yfclaim/www/dashboard/notifications.php" class="notification-link">
+                    Notifications
+                </a>
+                <?php endif; ?>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout" class="logout-btn">Logout</a>
             </div>
         </div>

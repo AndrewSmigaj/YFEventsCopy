@@ -1,5 +1,5 @@
 <?php
 // Redirect to the new dashboard
-header('Location: /refactor/admin/dashboard');
+header('Location: /admin/dashboard');
 exit;
 ?>

@@ -3,13 +3,14 @@ namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
 use Exception;
+use YFEvents\Domain\Common\BaseModel;
 
 class ItemModel extends BaseModel {
     protected $table = 'yfc_items';
     protected $fillable = [
-        'sale_id', 'title', 'description', 'starting_price', 'category_id',
-        'current_high_offer', 'offer_count', 'primary_image', 'images',
-        'condition_notes', 'measurements', 'sort_order', 'status', 'featured', 'qr_code'
+        'sale_id', 'title', 'description', 'starting_price', 'offer_increment',
+        'buy_now_price', 'category', 'condition_rating', 'dimensions', 'weight',
+        'item_number', 'sort_order', 'status', 'winning_offer_id', 'qr_code'
     ];
     
     /**

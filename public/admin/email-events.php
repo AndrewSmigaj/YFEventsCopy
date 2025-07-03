@@ -7,7 +7,7 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use YFEvents\Infrastructure\Services\EmailEventProcessor;
 
-$basePath = '/refactor';
+$basePath = '';
 
 // Setup database connection
 $config = require dirname(__DIR__) . '/config/database.php';

@@ -145,8 +145,7 @@ class Router
         }
 
         // Strip base path if running in subdirectory
-        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-        $basePath = dirname($scriptName);
+        $basePath = $this->getBasePath();
         
         if ($basePath !== '/' && strpos($path, $basePath) === 0) {
             $path = substr($path, strlen($basePath));
@@ -158,6 +157,22 @@ class Router
         }
 
         return $path;
+    }
+
+    /**
+     * Get the application base path
+     */
+    public function getBasePath(): string
+    {
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $basePath = dirname($scriptName);
+        
+        // Normalize base path
+        if ($basePath === '/' || $basePath === '\\' || $basePath === '.') {
+            return '';
+        }
+        
+        return $basePath;
     }
 
     /**

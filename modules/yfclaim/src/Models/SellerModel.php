@@ -2,6 +2,7 @@
 namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
+use YFEvents\Domain\Common\BaseModel;
 
 class SellerModel extends BaseModel {
     protected $table = 'yfc_sellers';

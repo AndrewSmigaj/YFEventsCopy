@@ -27,13 +27,8 @@ class ShopController extends BaseController
      */
     public function showShopsPage(): void
     {
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
         header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderShopsPage($basePath);
+        echo $this->renderShopsPage();
     }
 
     /**
@@ -112,8 +107,7 @@ class ShopController extends BaseController
             
             // Build filters for public directory
             $filters = [
-                'status' => 'active',
-                'active' => true
+                'status' => 'active'
             ];
             
             if (isset($input['category_id'])) {

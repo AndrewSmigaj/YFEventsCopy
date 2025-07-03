@@ -3,7 +3,7 @@
 
 // Check if database is configured
 $envFile = __DIR__ . '/../../.env';
-$configFile = __DIR__ . '/../../config/database.php';
+$configFile = __DIR__ . '/../../config/db_connection.php';
 
 $isConfigured = file_exists($envFile) && file_exists($configFile);
 $dbConnected = false;
@@ -11,7 +11,7 @@ $dbConnected = false;
 if ($isConfigured) {
     try {
         require_once $configFile;
-        $dbConnected = isset($db) && $db instanceof PDO;
+        $dbConnected = isset($pdo) && $pdo instanceof PDO;
     } catch (Exception $e) {
         $dbConnected = false;
     }

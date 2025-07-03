@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$basePath = '/refactor';
+$basePath = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">

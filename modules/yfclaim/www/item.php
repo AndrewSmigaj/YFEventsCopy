@@ -1,7 +1,7 @@
 <?php
 // YFClaim - Item Detail & Offer Submission
-require_once '../../../config/database.php';
 require_once '../../../vendor/autoload.php';
+require_once '../../../config/db_connection.php';
 
 use YFEvents\Modules\YFClaim\Models\ItemModel;
 use YFEvents\Modules\YFClaim\Models\SaleModel;

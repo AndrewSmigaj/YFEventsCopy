@@ -1,6 +1,6 @@
 <?php
 // Calendar entry point
-require_once dirname(dirname(__DIR__)) . '/config/database.php';
+require_once dirname(dirname(__DIR__)) . '/config/db_connection.php';
 
 // Get Google Maps API key from environment
 $googleMapsApiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? '';

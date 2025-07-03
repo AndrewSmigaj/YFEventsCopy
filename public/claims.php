@@ -40,7 +40,7 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$basePath = '/refactor';
+$basePath = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">

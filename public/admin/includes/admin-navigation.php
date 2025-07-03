@@ -55,7 +55,7 @@ $quickStats = getQuickStats();
     <nav class="sidebar-nav">
         <!-- Dashboard -->
         <div class="nav-section">
-            <a href="/refactor/admin/dashboard" class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+            <a href="/admin/dashboard" class="nav-link <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
@@ -152,7 +152,7 @@ $quickStats = getQuickStats();
         <!-- Quick Actions -->
         <div class="nav-section">
             <div class="nav-section-title">🚀 Quick Actions</div>
-            <a href="/refactor/" class="nav-link" target="_blank">
+            <a href="/" class="nav-link" target="_blank">
                 <i class="bi bi-house"></i>
                 <span>View Site</span>
             </a>
@@ -195,9 +195,9 @@ function toggleSidebar() {
 
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        fetch('/refactor/admin/logout', { method: 'POST' })
-            .then(() => window.location.href = '/refactor/admin/login')
-            .catch(() => window.location.href = '/refactor/admin/login');
+        fetch('/admin/logout', { method: 'POST' })
+            .then(() => window.location.href = '/admin/login')
+            .catch(() => window.location.href = '/admin/login');
     }
 }
 </script>

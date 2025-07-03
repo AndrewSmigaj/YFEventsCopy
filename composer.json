@@ -22,7 +22,7 @@
     "autoload": {
         "psr-4": {
             "YFEvents\\": "src/",
-            "YFEvents\\Modules\\": "modules/"
+            "YFEvents\\Modules\\YFClaim\\": "modules/yfclaim/src/"
         }
     },
     "autoload-dev": {
