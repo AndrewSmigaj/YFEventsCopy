@@ -1,4 +1,13 @@
+# Disable PATH_INFO for admin/index.php to prevent /admin/login being treated as /admin/index.php/login
+<Files "admin/index.php">
+    AcceptPathInfo Off
+</Files>
+
 RewriteEngine On
+
+# Force admin routes through router before Apache tries PATH_INFO
+RewriteCond %{REQUEST_URI} ^/admin/(events|shops|scrapers|users|login|logout|status|dashboard)/?$
+RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Allow direct access to admin PHP files and assets
 RewriteCond %{REQUEST_URI} ^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
@@ -6,10 +15,6 @@ RewriteRule ^admin/(.*)$ admin/$1 [L]
 
 # Route API calls through the router
 RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^(.*)$ index.php [QSA,L]
-
-# Route admin API calls and authentication through the router  
-RewriteCond %{REQUEST_URI} ^/admin/(events|shops|scrapers|users|login|logout|status|dashboard)/?$
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Handle other routes through router

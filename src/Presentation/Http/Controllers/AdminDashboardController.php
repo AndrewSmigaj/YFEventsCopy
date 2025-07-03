@@ -647,58 +647,58 @@ class AdminDashboardController extends BaseController
             <div class="action-section">
                 <div class="action-title">📅 Event Management</div>
                 <ul class="action-list">
-                    <li><a href="/admin/events.php" class="action-link">📋 View All Events</a></li>
-                    <li><a href="/admin/events.php#pending" class="action-link">⏳ Review Pending Events</a></li>
-                    <li><a href="/admin/events.php#featured" class="action-link">⭐ Manage Featured Events</a></li>
-                    <li><a href="/admin/events/statistics" class="action-link">📊 Event Statistics</a></li>
+                    <li><a href="/admin-legacy/events.php" class="action-link">📋 View All Events</a></li>
+                    <li><a href="/admin-legacy/events.php#pending" class="action-link">⏳ Review Pending Events</a></li>
+                    <li><a href="/admin-legacy/events.php#featured" class="action-link">⭐ Manage Featured Events</a></li>
+                    <li><a href="/admin-legacy/events/statistics" class="action-link">📊 Event Statistics</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🏪 Shop Management</div>
                 <ul class="action-list">
-                    <li><a href="/admin/shops.php" class="action-link">🏪 View All Shops</a></li>
-                    <li><a href="/admin/shops.php#pending" class="action-link">⏳ Review Pending Shops</a></li>
-                    <li><a href="/admin/shops.php#verify" class="action-link">✅ Verify Shop Information</a></li>
-                    <li><a href="/admin/shops/statistics" class="action-link">📊 Shop Statistics</a></li>
+                    <li><a href="/admin-legacy/shops.php" class="action-link">🏪 View All Shops</a></li>
+                    <li><a href="/admin-legacy/shops.php#pending" class="action-link">⏳ Review Pending Shops</a></li>
+                    <li><a href="/admin-legacy/shops.php#verify" class="action-link">✅ Verify Shop Information</a></li>
+                    <li><a href="/admin-legacy/shops/statistics" class="action-link">📊 Shop Statistics</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">📧 Email Management</div>
                 <ul class="action-list">
-                    <li><a href="/admin/email-events.php" class="action-link">📧 Email Events</a></li>
-                    <li><a href="/admin/email-config.php" class="action-link">⚙️ Email Configuration</a></li>
-                    <li><a href="/admin/email-upload.php" class="action-link">📤 Upload Emails</a></li>
-                    <li><a href="/admin/email-config.php#test" class="action-link">🔌 Test Connection</a></li>
+                    <li><a href="/admin-legacy/email-events.php" class="action-link">📧 Email Events</a></li>
+                    <li><a href="/admin-legacy/email-config.php" class="action-link">⚙️ Email Configuration</a></li>
+                    <li><a href="/admin-legacy/email-upload.php" class="action-link">📤 Upload Emails</a></li>
+                    <li><a href="/admin-legacy/email-config.php#test" class="action-link">🔌 Test Connection</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🎨 Theme Management</div>
                 <ul class="action-list">
-                    <li><a href="/admin/theme.php" class="action-link">🎨 Theme Editor</a></li>
-                    <li><a href="/admin/theme.php#seo" class="action-link">🔍 SEO Settings</a></li>
-                    <li><a href="/admin/theme.php#social" class="action-link">📱 Social Media</a></li>
-                    <li><a href="/admin/theme.php#presets" class="action-link">🎯 Theme Presets</a></li>
+                    <li><a href="/admin-legacy/theme.php" class="action-link">🎨 Theme Editor</a></li>
+                    <li><a href="/admin-legacy/theme.php#seo" class="action-link">🔍 SEO Settings</a></li>
+                    <li><a href="/admin-legacy/theme.php#social" class="action-link">📱 Social Media</a></li>
+                    <li><a href="/admin-legacy/theme.php#presets" class="action-link">🎯 Theme Presets</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🤖 Event Scrapers</div>
                 <ul class="action-list">
-                    <li><a href="/admin/scrapers.php" class="action-link">🔧 Basic Scrapers</a></li>
-                    <li><a href="/admin/browser-scrapers.php" class="action-link">🤖 Browser Automation</a></li>
-                    <li><a href="/admin/scrapers.php#intelligent" class="action-link">🧠 AI Scraper</a></li>
-                    <li><a href="/admin/scrapers.php#status" class="action-link">📊 Scraper Status</a></li>
+                    <li><a href="/admin-legacy/scrapers.php" class="action-link">🔧 Basic Scrapers</a></li>
+                    <li><a href="/admin-legacy/browser-scrapers.php" class="action-link">🤖 Browser Automation</a></li>
+                    <li><a href="/admin-legacy/scrapers.php#intelligent" class="action-link">🧠 AI Scraper</a></li>
+                    <li><a href="/admin-legacy/scrapers.php#status" class="action-link">📊 Scraper Status</a></li>
                 </ul>
             </div>
             
             <div class="action-section">
                 <div class="action-title">🏛️ Estate Sales (YFClaim)</div>
                 <ul class="action-list">
-                    <li><a href="/admin/sellers" class="action-link">👥 Manage Sellers</a></li>
-                    <li><a href="/admin/sales" class="action-link">📋 All Sales</a></li>
+                    <li><a href="/admin-legacy/sellers" class="action-link">👥 Manage Sellers</a></li>
+                    <li><a href="/admin-legacy/sales" class="action-link">📋 All Sales</a></li>
                     <li><a href="/claims" class="action-link">🔍 View Public Sales</a></li>
                     <li><a href="/modules/yfclaim/www/admin/" class="action-link">🛠️ YFClaim Admin</a></li>
                 </ul>
@@ -717,11 +717,11 @@ class AdminDashboardController extends BaseController
             <div class="action-section">
                 <div class="action-title">🔧 System Management</div>
                 <ul class="action-list">
-                    <li><a href="/admin/modules.php" class="action-link">🧩 Module Management</a></li>
-                    <li><a href="/admin/dashboard/health" class="action-link">💚 System Health</a></li>
-                    <li><a href="/admin/dashboard/analytics" class="action-link">📈 Analytics</a></li>
-                    <li><a href="/admin/dashboard/performance" class="action-link">⚡ Performance</a></li>
-                    <li><a href="/admin/dashboard/activity" class="action-link">📋 Activity Log</a></li>
+                    <li><a href="/admin-legacy/modules.php" class="action-link">🧩 Module Management</a></li>
+                    <li><a href="/admin-legacy/dashboard/health" class="action-link">💚 System Health</a></li>
+                    <li><a href="/admin-legacy/dashboard/analytics" class="action-link">📈 Analytics</a></li>
+                    <li><a href="/admin-legacy/dashboard/performance" class="action-link">⚡ Performance</a></li>
+                    <li><a href="/admin-legacy/dashboard/activity" class="action-link">📋 Activity Log</a></li>
                 </ul>
             </div>
             
@@ -731,7 +731,7 @@ class AdminDashboardController extends BaseController
                     <li><a href="/" class="action-link">🏠 View Public Site</a></li>
                     <li><a href="/events" class="action-link">📅 Public Events</a></li>
                     <li><a href="/shops" class="action-link">🏪 Public Shops</a></li>
-                    <li><a href="/admin/settings.php" class="action-link">⚙️ System Settings</a></li>
+                    <li><a href="/admin-legacy/settings.php" class="action-link">⚙️ System Settings</a></li>
                 </ul>
             </div>
         </div>
