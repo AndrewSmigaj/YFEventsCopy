@@ -27,7 +27,7 @@ if ($saleId) {
         header('Location: sales.php');
         exit;
     }
-    $items = $saleModel->getItems($saleId);
+    $items = $itemModel->getWithPrimaryImages($saleId);
 }
 
 $success = false;
@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $title = trim($_POST['title'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $category = trim($_POST['category'] ?? '');
+    $conditionRating = trim($_POST['condition_rating'] ?? '');
     $itemNumber = trim($_POST['item_number'] ?? '');
     $startingPrice = $_POST['starting_price'] ?? 0;
     
@@ -50,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 'title' => $title,
                 'description' => $description,
                 'category' => $category ?: 'General',
+                'condition_rating' => $conditionRating ?: null,
                 'item_number' => $itemNumber ?: null,
                 'price' => floatval($startingPrice),
                 'status' => 'available'
@@ -58,8 +60,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $itemId = $itemModel->create($itemData);
             
             if ($itemId) {
+                // Handle image uploads
+                if (!empty($_FILES['images']['name'][0])) {
+                    $uploadDir = __DIR__ . '/../../../../public/uploads/yfclaim/items/';
+                    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    $maxSize = 5 * 1024 * 1024; // 5MB
+                    
+                    foreach ($_FILES['images']['tmp_name'] as $key => $tmpName) {
+                        if (!empty($tmpName)) {
+                            $originalName = $_FILES['images']['name'][$key];
+                            $fileSize = $_FILES['images']['size'][$key];
+                            $fileType = $_FILES['images']['type'][$key];
+                            $fileError = $_FILES['images']['error'][$key];
+                            
+                            // Validate file
+                            if ($fileError === UPLOAD_ERR_OK && in_array($fileType, $allowedTypes) && $fileSize <= $maxSize) {
+                                // Generate unique filename
+                                $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+                                $filename = uniqid('item_' . $itemId . '_') . '.' . $extension;
+                                
+                                // Move uploaded file
+                                if (move_uploaded_file($tmpName, $uploadDir . $filename)) {
+                                    // Insert into database
+                                    $stmt = $pdo->prepare("
+                                        INSERT INTO yfc_item_images (item_id, filename, original_filename, file_size, mime_type, is_primary, sort_order)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                                    ");
+                                    $stmt->execute([
+                                        $itemId,
+                                        $filename,
+                                        $originalName,
+                                        $fileSize,
+                                        $fileType,
+                                        $key === 0 ? 1 : 0, // First image is primary
+                                        $key
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 $success = true;
-                $items = $saleModel->getItems($saleId); // Refresh items list
+                $items = $itemModel->getWithPrimaryImages($saleId); // Refresh items list
             } else {
                 $error = 'Failed to add item.';
             }
@@ -445,16 +488,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             <?php foreach ($items as $item): ?>
                                 <div class="item-card">
                                     <div class="item-header">
-                                        <div>
-                                            <div class="item-title"><?= htmlspecialchars($item['title']) ?></div>
+                                        <div style="display: flex; gap: 1rem;">
+                                            <?php if (!empty($item['primary_image'])): ?>
+                                                <img src="/uploads/yfclaim/items/<?= htmlspecialchars($item['primary_image']) ?>" 
+                                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                            <?php else: ?>
+                                                <div style="width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 24px;">📦</div>
+                                            <?php endif; ?>
+                                            <div>
+                                                <div class="item-title"><?= htmlspecialchars($item['title']) ?></div>
                                             <div class="item-meta">
                                                 <?php if ($item['item_number']): ?>
                                                     Item #<?= htmlspecialchars($item['item_number']) ?> • 
                                                 <?php endif; ?>
                                                 <?= htmlspecialchars($item['category']) ?>
+                                                <?php if (!empty($item['condition_rating'])): ?>
+                                                    • <?= ucfirst(str_replace('-', ' ', htmlspecialchars($item['condition_rating']))) ?>
+                                                <?php endif; ?>
                                                 <?php if (($item['price'] ?? 0) > 0): ?>
                                                     • Starting at $<?= number_format($item['price'], 2) ?>
                                                 <?php endif; ?>
+                                            </div>
                                             </div>
                                         </div>
                                         <span class="item-status status-<?= htmlspecialchars($item['status']) ?>">
@@ -470,7 +524,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                         <button class="btn btn-secondary btn-small" onclick="editItem(<?= $item['id'] ?>)">Edit</button>
                                         <button class="btn btn-secondary btn-small" onclick="deleteItem(<?= $item['id'] ?>)">Delete</button>
                                         <?php if ($item['status'] === 'available'): ?>
-                                            <a href="/modules/yfclaim/www/item.php?id=<?= $item['id'] ?>" class="btn btn-primary btn-small" target="_blank">View Public</a>
+                                            <a href="/claims/item/<?= $item['id'] ?>" class="btn btn-primary btn-small" target="_blank">View Public</a>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -489,7 +543,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     
                     <div id="addItemForm" style="display: none;">
                         <h3>Add New Item</h3>
-                        <form method="POST" action="">
+                        <form method="POST" action="" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="add_item">
                             
                             <div class="form-group">
@@ -523,6 +577,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             </div>
                             
                             <div class="form-group">
+                                <label for="condition_rating">Condition</label>
+                                <select id="condition_rating" name="condition_rating">
+                                    <option value="">Select condition...</option>
+                                    <option value="new">New</option>
+                                    <option value="like-new">Like New</option>
+                                    <option value="excellent">Excellent</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
                                 <label for="item_number">Item Number</label>
                                 <input type="text" id="item_number" name="item_number" 
                                        placeholder="Optional item number">
@@ -534,6 +601,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                        step="0.01" min="0" placeholder="0.00">
                             </div>
                             
+                            <div class="form-group">
+                                <label for="images">Item Images</label>
+                                <input type="file" id="images" name="images[]" multiple accept="image/*" 
+                                       onchange="previewImages(this)">
+                                <small style="display: block; margin-top: 5px; color: #666;">
+                                    You can select multiple images. First image will be the primary image.
+                                </small>
+                                <div id="imagePreview" style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;"></div>
+                            </div>
+                            
                             <div style="display: flex; gap: 0.5rem;">
                                 <button type="submit" class="btn btn-success">Add Item</button>
                                 <button type="button" class="btn btn-secondary" onclick="toggleAddForm()">Cancel</button>
@@ -543,7 +620,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     
                     <div id="quickActions">
                         <h3>Quick Actions</h3>
-                        <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-primary" target="_blank" style="width: 100%; margin-bottom: 0.5rem;">View Public Sale Page</a>
+                        <a href="/claims/sale?id=<?= $sale['id'] ?>" class="btn btn-primary" target="_blank" style="width: 100%; margin-bottom: 0.5rem;">View Public Sale Page</a>
                         <a href="/seller/sales" class="btn btn-secondary" style="width: 100%;">Back to Sales</a>
                     </div>
                 </div>
@@ -576,6 +653,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             if (confirm('Are you sure you want to delete this item?')) {
                 // TODO: Implement delete item functionality
                 alert('Delete item functionality coming soon!');
+            }
+        }
+        
+        function previewImages(input) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            
+            if (input.files) {
+                Array.from(input.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.style.position = 'relative';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;">
+                            ${index === 0 ? '<small style="position: absolute; bottom: 0; left: 0; background: #27ae60; color: white; padding: 2px 6px; font-size: 10px; border-radius: 0 0 0 4px;">Primary</small>' : ''}
+                        `;
+                        preview.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
             }
         }
     </script>

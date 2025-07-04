@@ -1413,7 +1413,8 @@ HTML;
         session_start();
         $isAuthenticated = isset($_SESSION['yfclaim_buyer_id']);
         $buyerName = $_SESSION['yfclaim_buyer_name'] ?? '';
-        $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
+        $price = $item['price'] ?? 0;
+        $conditionRating = $item['condition_rating'] ?? 'Not specified';
         
         $contactSection = $this->renderContactSection($basePath, $item);
         $itemImages = $this->renderItemImages($item);
@@ -1501,7 +1502,7 @@ HTML;
             
             <div class="item-details">
                 <h2 class="item-title">{$item['title']}</h2>
-                <div class="item-price">\${$item['starting_price']}</div>
+                <div class="item-price">\${$price}</div>
                 <div class="item-description">{$item['description']}</div>
                 
                 <div class="item-meta">
@@ -1511,7 +1512,7 @@ HTML;
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Condition:</span>
-                        <span class="meta-value">{$item['condition']}</span>
+                        <span class="meta-value">{$conditionRating}</span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Price:</span>
@@ -1614,7 +1615,7 @@ HTML;
     
     private function renderContactSection(string $basePath, array $item): string
     {
-        $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
+        $price = $item['price'] ?? 0;
         $isAvailable = $item['status'] === 'available';
         
         if (!$isAvailable) {
@@ -1700,7 +1701,7 @@ HTML;
                     <h3>🎯 You're making an offer on:</h3>
                     <div class='item-preview'>
                         <h4>{$item['title']}</h4>
-                        <p>Starting Price: \${$item['starting_price']}</p>
+                        <p>Starting Price: \${$price}</p>
                         <p>Sale: {$item['sale_title']}</p>
                     </div>
                 </div>";
@@ -2066,7 +2067,7 @@ HTML;
         foreach ($items as $item) {
             $offerCount = $item['offer_count'] ?? 0;
             $highestOffer = $item['highest_offer'] ?? null;
-            $startingPrice = (float)($item['starting_price'] ?? 0);
+            $startingPrice = (float)($item['price'] ?? 0);
             $category = $item['category'] ?? 'General';
             $priceDisplay = $highestOffer 
                 ? '$' . number_format((float)$highestOffer, 2) . ' (highest offer)'

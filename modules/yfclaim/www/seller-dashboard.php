@@ -525,7 +525,7 @@ if (isset($_GET['action'])) {
                                     </div>
                                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                                         <a href="/modules/yfclaim/www/admin/sales.php?id=<?= $sale['id'] ?>" class="btn btn-sm">Manage</a>
-                                        <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-sm btn-success">View Public</a>
+                                        <a href="/claims/sale?id=<?= $sale['id'] ?>" class="btn btn-sm btn-success">View Public</a>
                                     </div>
                                 </div>
                             </div>

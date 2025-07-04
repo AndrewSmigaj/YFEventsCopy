@@ -454,7 +454,7 @@ $upcomingSales = $saleModel->getUpcoming();
                                 </div>
                             </div>
                             <div class="sale-actions">
-                                <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-primary">
+                                <a href="/claims/sale?id=<?= $sale['id'] ?>" class="btn btn-primary">
                                     Browse Items
                                 </a>
                             </div>
@@ -520,7 +520,7 @@ $upcomingSales = $saleModel->getUpcoming();
                                 </div>
                             </div>
                             <div class="sale-actions">
-                                <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>&preview=1" class="btn btn-secondary">
+                                <a href="/claims/sale?id=<?= $sale['id'] ?>&preview=1" class="btn btn-secondary">
                                     Preview Items
                                 </a>
                             </div>

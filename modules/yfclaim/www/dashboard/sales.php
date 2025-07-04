@@ -215,6 +215,21 @@ if ($createdSaleId) {
             color: white;
         }
         
+        .status-draft {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-closed {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background: #7f8c8d;
+            color: white;
+        }
+        
         .sale-body {
             padding: 1.5rem;
         }
@@ -402,20 +417,25 @@ if ($createdSaleId) {
                     $claimStart = strtotime($sale['claim_start']);
                     $claimEnd = strtotime($sale['claim_end']);
                     
-                    // Determine status
-                    $status = 'ended';
-                    $statusText = 'Ended';
+                    // Use database status
+                    $status = $sale['status'];
+                    $statusText = ucfirst($status);
+                    
+                    // Add date-based info
+                    $dateInfo = '';
                     if ($now < $claimStart) {
-                        $status = 'upcoming';
-                        $statusText = 'Upcoming';
+                        $daysUntil = ceil(($claimStart - $now) / 86400);
+                        $dateInfo = " (starts in {$daysUntil} days)";
                     } elseif ($now >= $claimStart && $now <= $claimEnd) {
-                        $status = 'active';
-                        $statusText = 'Active';
+                        $hoursLeft = ceil(($claimEnd - $now) / 3600);
+                        $dateInfo = " (ends in {$hoursLeft} hours)";
+                    } elseif ($now > $claimEnd) {
+                        $dateInfo = " (ended " . date('M j', $claimEnd) . ")";
                     }
                     ?>
                     <div class="sale-card" data-status="<?= $status ?>" data-created="<?= strtotime($sale['created_at']) ?>" data-title="<?= htmlspecialchars($sale['title']) ?>">
                         <div class="sale-header">
-                            <span class="sale-status status-<?= $status ?>"><?= $statusText ?></span>
+                            <span class="sale-status status-<?= $status ?>"><?= $statusText ?><?= $dateInfo ?></span>
                             <h3><?= htmlspecialchars($sale['title']) ?></h3>
                             <div class="sale-meta">
                                 Created <?= date('M j, Y', strtotime($sale['created_at'])) ?>
@@ -459,7 +479,7 @@ if ($createdSaleId) {
                             </div>
                             
                             <div class="sale-actions">
-                                <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-primary btn-small">View Public Page</a>
+                                <a href="/claims/sale?id=<?= $sale['id'] ?>" class="btn btn-primary btn-small">View Public Page</a>
                                 <a href="/seller/sale/<?= $sale['id'] ?>/items" class="btn btn-secondary btn-small">Manage Items</a>
                                 <?php if ($status === 'upcoming'): ?>
                                     <button class="btn btn-secondary btn-small" onclick="editSale(<?= $sale['id'] ?>)">Edit Sale</button>

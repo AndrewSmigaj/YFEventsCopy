@@ -50,6 +50,9 @@ mysql -u username -p dbname < modules/yfclaim/database/schema.sql
 # YFTheme - Theme system
 mysql -u username -p dbname < modules/yftheme/database/schema.sql
 
+# YFChat Subset - Admin-seller chat (simplified)
+mysql -u username -p dbname < database/yfchat_subset.sql
+
 # YFClassifieds - If using separate from YFClaim
 # mysql -u username -p dbname < modules/yfclassifieds/database/schema.sql
 ```

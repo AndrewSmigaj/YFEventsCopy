@@ -14,21 +14,21 @@ $saleModel = new SaleModel($pdo);
 $itemId = $_GET['id'] ?? 0;
 
 if (!$itemId) {
-    header('Location: /modules/yfclaim/www/');
+    header('Location: /claims');
     exit;
 }
 
 // Get item details with images
 $item = $itemModel->getWithImages($itemId);
 if (!$item) {
-    header('Location: /modules/yfclaim/www/');
+    header('Location: /claims');
     exit;
 }
 
 // Get sale details
 $sale = $saleModel->getWithSeller($item['sale_id']);
 if (!$sale) {
-    header('Location: /modules/yfclaim/www/');
+    header('Location: /claims');
     exit;
 }
 
@@ -93,8 +93,8 @@ $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
 <body>
     <div class="container">
         <div class="breadcrumb">
-            <a href="/modules/yfclaim/www/">Sales</a> /
-            <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>"><?= htmlspecialchars($sale['title']) ?></a> /
+            <a href="/claims">Sales</a> /
+            <a href="/claims/sale?id=<?= $sale['id'] ?>"><?= htmlspecialchars($sale['title']) ?></a> /
             <?= htmlspecialchars($item['title']) ?>
         </div>
 
@@ -102,7 +102,7 @@ $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
             <div class="item-images">
                 <div class="main-image">
                     <?php if (!empty($item['images'])): ?>
-                        <img src="/uploads/items/<?= htmlspecialchars($item['images'][0]['filename']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
+                        <img src="/uploads/yfclaim/items/<?= htmlspecialchars($item['images'][0]['filename']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
                     <?php else: ?>
                         <div class="no-image">📦</div>
                     <?php endif; ?>
@@ -110,7 +110,7 @@ $price = isset($item['price']) ? $item['price'] : $item['starting_price'];
                 <?php if (count($item['images']) > 1): ?>
                 <div class="image-thumbnails">
                     <?php foreach ($item['images'] as $image): ?>
-                        <img src="/uploads/items/<?= htmlspecialchars($image['filename']) ?>" class="thumbnail" alt="">
+                        <img src="/uploads/yfclaim/items/<?= htmlspecialchars($image['filename']) ?>" class="thumbnail" alt="">
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
