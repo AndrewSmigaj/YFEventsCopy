@@ -56,7 +56,6 @@ class NotificationRepository extends AbstractRepository implements NotificationR
             'user_id' => $notification->getUserId(),
             'conversation_id' => $notification->getChannelId(), // Map channel_id to conversation_id
             'message_id' => $notification->getMessageId(),
-            'type' => $notification->getType(),
             'is_read' => $notification->isRead() ? 1 : 0,
             'read_at' => $notification->getReadAt()?->format('Y-m-d H:i:s'),
             'created_at' => $notification->getCreatedAt()->format('Y-m-d H:i:s')
@@ -74,8 +73,8 @@ class NotificationRepository extends AbstractRepository implements NotificationR
             // Insert new notification
             unset($data['id']);
             $sql = "INSERT INTO {$this->getTableName()} 
-                    (user_id, conversation_id, message_id, type, is_read, created_at) 
-                    VALUES (:user_id, :conversation_id, :message_id, :type, :is_read, :created_at)";
+                    (user_id, conversation_id, message_id, is_read, created_at) 
+                    VALUES (:user_id, :conversation_id, :message_id, :is_read, :created_at)";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($data);
@@ -214,21 +213,21 @@ class NotificationRepository extends AbstractRepository implements NotificationR
         return $stmt->rowCount();
     }
     
-    public function createBatchNotifications(int $messageId, int $channelId, array $userIds, string $type = 'message'): bool
+    public function createBatchNotifications(int $messageId, int $channelId, array $userIds): bool
     {
         if (empty($userIds)) {
             return true;
         }
         
         $sql = "INSERT INTO {$this->getTableName()} 
-                (user_id, conversation_id, message_id, type, is_read, created_at) VALUES ";
+                (user_id, conversation_id, message_id, is_read, created_at) VALUES ";
         
         $placeholders = [];
         $values = [];
         $now = date('Y-m-d H:i:s');
         
         foreach ($userIds as $i => $userId) {
-            $placeholders[] = "(:user_id_{$i}, :conversation_id, :message_id, :type, 0, :created_at)";
+            $placeholders[] = "(:user_id_{$i}, :conversation_id, :message_id, 0, :created_at)";
             $values["user_id_{$i}"] = $userId;
         }
         
@@ -237,7 +236,6 @@ class NotificationRepository extends AbstractRepository implements NotificationR
         $stmt = $this->connection->prepare($sql);
         $values['conversation_id'] = $channelId;
         $values['message_id'] = $messageId;
-        $values['type'] = $type;
         $values['created_at'] = $now;
         
         return $stmt->execute($values);

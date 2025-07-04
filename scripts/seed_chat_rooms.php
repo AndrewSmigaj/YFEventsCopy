@@ -103,6 +103,83 @@ try {
         }
     }
     
+    // Add all existing sellers as participants in both channels
+    echo "\nAdding existing sellers to global channels...\n";
+    
+    // Get all users with claim_seller role
+    $stmt = $pdo->query("
+        SELECT u.id, u.username 
+        FROM yfa_auth_users u
+        JOIN yfa_auth_user_roles ur ON u.id = ur.user_id
+        JOIN yfa_auth_roles r ON ur.role_id = r.id
+        WHERE r.name = 'claim_seller' AND u.status = 'active'
+    ");
+    $sellers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (count($sellers) > 0) {
+        foreach ($channels as $channelId => $type) {
+            $addedCount = 0;
+            foreach ($sellers as $seller) {
+                $stmt = $pdo->prepare("
+                    INSERT INTO chat_participants (conversation_id, user_id, role, joined_at, is_active)
+                    SELECT ?, ?, 'member', NOW(), 1
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM chat_participants WHERE conversation_id = ? AND user_id = ?
+                    )
+                ");
+                $stmt->execute([$channelId, $seller['id'], $channelId, $seller['id']]);
+                
+                if ($stmt->rowCount() > 0) {
+                    $addedCount++;
+                }
+            }
+            
+            if ($addedCount > 0) {
+                echo "✓ Added $addedCount sellers to " . ($type === 'support' ? 'Support' : 'Selling Tips') . " Channel\n";
+            } else {
+                echo "- All sellers already in " . ($type === 'support' ? 'Support' : 'Selling Tips') . " Channel\n";
+            }
+        }
+    } else {
+        echo "- No active sellers found to add\n";
+    }
+    
+    // Also add other admin users
+    $stmt = $pdo->query("
+        SELECT u.id, u.username 
+        FROM yfa_auth_users u
+        JOIN yfa_auth_user_roles ur ON u.id = ur.user_id
+        JOIN yfa_auth_roles r ON ur.role_id = r.id
+        WHERE r.name IN ('super_admin', 'calendar_admin', 'shop_moderator') 
+        AND u.status = 'active'
+        AND u.id != 1
+    ");
+    $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (count($admins) > 0) {
+        foreach ($channels as $channelId => $type) {
+            $addedCount = 0;
+            foreach ($admins as $admin) {
+                $stmt = $pdo->prepare("
+                    INSERT INTO chat_participants (conversation_id, user_id, role, joined_at, is_active)
+                    SELECT ?, ?, 'admin', NOW(), 1
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM chat_participants WHERE conversation_id = ? AND user_id = ?
+                    )
+                ");
+                $stmt->execute([$channelId, $admin['id'], $channelId, $admin['id']]);
+                
+                if ($stmt->rowCount() > 0) {
+                    $addedCount++;
+                }
+            }
+            
+            if ($addedCount > 0) {
+                echo "✓ Added $addedCount additional admins to " . ($type === 'support' ? 'Support' : 'Selling Tips') . " Channel\n";
+            }
+        }
+    }
+    
     // Commit transaction
     $pdo->commit();
     
