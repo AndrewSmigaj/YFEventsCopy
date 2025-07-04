@@ -57,7 +57,13 @@ mysql -u username -p dbname < database/yfchat_subset.sql
 # mysql -u username -p dbname < modules/yfclassifieds/database/schema.sql
 ```
 
-### 5. Improvements (Optional)
+### 5. Seed Data
+```bash
+# Create the two global chat rooms (Support and Selling Tips)
+php scripts/seed_chat_rooms.php
+```
+
+### 6. Improvements (Optional)
 ```bash
 # Performance optimizations (indexes, etc.)
 mysql -u username -p dbname < database/performance_optimization.sql

@@ -13,27 +13,27 @@ interface MessageRepositoryInterface
 {
     public function findById(int $id): ?Message;
     
-    public function findByChannelId(int $channelId, int $limit = 50, int $offset = 0): array;
+    public function findByConversationId(int $conversationId, int $limit = 50, int $offset = 0): array;
     
     public function findByParentMessageId(int $parentMessageId, int $limit = 20): array;
     
     public function findByEmailMessageId(string $emailMessageId): ?Message;
     
-    public function findPinnedMessages(int $channelId): array;
+    public function findPinnedMessages(int $conversationId): array;
     
     
     
     public function countReplies(int $messageId): int;
     
-    public function searchMessages(int $channelId, string $query, int $limit = 50): array;
+    public function searchMessages(int $conversationId, string $query, int $limit = 50): array;
     
     public function findMentionsForUser(int $userId, int $limit = 20): array;
     
-    public function getUnreadCount(int $channelId, int $userId, int $lastReadMessageId): int;
+    public function getUnreadCount(int $conversationId, int $userId, int $lastReadMessageId): int;
     
-    public function findMessagesAfter(int $channelId, int $messageId, int $limit = 50): array;
+    public function findMessagesAfter(int $conversationId, int $messageId, int $limit = 50): array;
     
-    public function findMessagesBefore(int $channelId, int $messageId, int $limit = 50): array;
+    public function findMessagesBefore(int $conversationId, int $messageId, int $limit = 50): array;
     
     public function markAsDeleted(int $messageId): bool;
     
