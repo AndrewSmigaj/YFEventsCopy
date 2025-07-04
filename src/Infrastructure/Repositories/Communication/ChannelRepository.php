@@ -34,9 +34,20 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
      */
     protected function mapDbToEntity(array $data): array
     {
+        // Map our simplified DB types to domain ChannelType values
+        $typeMapping = [
+            'support' => 'public',  // Support channel is public
+            'tips' => 'public',     // Tips channel is public
+            'direct' => 'private'   // Direct messages are private
+        ];
+        
+        $dbType = $data['type'] ?? 'direct';
+        $domainType = $typeMapping[$dbType] ?? 'public';
+        
         // Map chat_conversations fields to Channel entity
         $data['name'] = $data['title'] ?? '';
-        $data['slug'] = $data['type'] ?? 'direct'; // Use type as slug for simplicity
+        $data['slug'] = strtolower(str_replace(' ', '-', $data['title'] ?? $dbType));
+        $data['type'] = $domainType;  // Use mapped domain type
         $data['created_by_user_id'] = $data['created_by'] ?? 1;
         $data['is_archived'] = !($data['is_active'] ?? true);
         $data['settings'] = isset($data['settings']) ? json_decode($data['settings'], true) : [];
@@ -56,9 +67,30 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
      */
     protected function mapEntityToDb(Channel $channel): array
     {
+        // Determine DB type based on channel properties
+        $domainType = $channel->getType()->getValue();
+        $channelName = strtolower($channel->getName());
+        
+        // Map domain types back to our DB types
+        if ($domainType === 'public') {
+            // Determine which public channel based on name
+            if (strpos($channelName, 'support') !== false) {
+                $dbType = 'support';
+            } elseif (strpos($channelName, 'tip') !== false || strpos($channelName, 'sell') !== false) {
+                $dbType = 'tips';
+            } else {
+                $dbType = 'support'; // Default public to support
+            }
+        } elseif ($domainType === 'private') {
+            $dbType = 'direct';
+        } else {
+            // For other types (vendor, event, etc), default to direct
+            $dbType = 'direct';
+        }
+        
         return [
             'id' => $channel->getId(),
-            'type' => $channel->getType()->getValue(),
+            'type' => $dbType,
             'title' => $channel->getName(),
             'description' => $channel->getDescription(),
             'created_by' => $channel->getCreatedByUserId(),
@@ -86,12 +118,20 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     
     public function findBySlug(string $slug): ?Channel
     {
-        // In our simplified schema, we use type as slug
-        $sql = "SELECT * FROM {$this->getTableName()} WHERE type = :type";
+        // Try to find by generated slug (from title)
+        $sql = "SELECT * FROM {$this->getTableName()} WHERE LOWER(REPLACE(title, ' ', '-')) = :slug";
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['type' => $slug]);
+        $stmt->execute(['slug' => strtolower($slug)]);
         
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$data) {
+            // Fallback: try to find by type for backward compatibility
+            $sql = "SELECT * FROM {$this->getTableName()} WHERE type = :type";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute(['type' => $slug]);
+            $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        }
+        
         if (!$data) {
             return null;
         }
