@@ -4,16 +4,20 @@
  */
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
-require_once __DIR__ . '/database.php';
 
 use YFEvents\Infrastructure\Container\Container;
 
 // Create container instance
 $container = new Container();
 
-// Bind PDO
-$container->bind(PDO::class, function() use ($pdo) {
-    return $pdo;
+// Load database configuration
+$dbConfig = require __DIR__ . '/database.php';
+$dbParams = $dbConfig['database'];
+
+// Bind PDO with lazy loading
+$container->bind(PDO::class, function() use ($dbParams) {
+    $dsn = "mysql:host={$dbParams['host']};dbname={$dbParams['name']};charset={$dbParams['charset']}";
+    return new PDO($dsn, $dbParams['username'], $dbParams['password'], $dbParams['options']);
 });
 
 // Load service configurations

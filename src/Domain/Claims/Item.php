@@ -210,10 +210,17 @@ class Item implements EntityInterface
 
     public static function fromArray(array $data): static
     {
+        // Map category to category_id (it's a string in DB)
+        $categoryId = 0;
+        if (!empty($data['category'])) {
+            // Simple hash to generate consistent numeric ID from category string
+            $categoryId = abs(crc32($data['category'])) % 1000;
+        }
+        
         return new self(
             id: $data['id'] ?? null,
             saleId: $data['sale_id'],
-            categoryId: $data['category_id'],
+            categoryId: $categoryId,
             title: $data['title'],
             description: $data['description'] ?? null,
             price: (float)($data['price'] ?? $data['starting_price'] ?? 0),

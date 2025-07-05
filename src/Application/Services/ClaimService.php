@@ -6,20 +6,21 @@ namespace YFEvents\Application\Services;
 
 use YFEvents\Domain\Claims\Sale;
 use YFEvents\Domain\Claims\Item;
-use YFEvents\Domain\Claims\Offer;
 use YFEvents\Domain\Claims\SaleRepositoryInterface;
 use YFEvents\Domain\Claims\ItemRepositoryInterface;
-use YFEvents\Domain\Claims\OfferRepositoryInterface;
 use YFEvents\Application\DTOs\PaginatedResult;
 use YFEvents\Infrastructure\Services\QRCodeService;
 use DateTime;
 
+/**
+ * Service for managing estate sales (claims)
+ * Note: Offer/bidding functionality has been removed
+ */
 class ClaimService
 {
     public function __construct(
         private readonly SaleRepositoryInterface $saleRepository,
         private readonly ItemRepositoryInterface $itemRepository,
-        private readonly OfferRepositoryInterface $offerRepository,
         private readonly QRCodeService $qrCodeService
     ) {}
 
@@ -190,24 +191,25 @@ class ClaimService
     }
 
     /**
-     * Get sale items with offers
+     * Get sale items
      */
-    public function getSaleItemsWithOffers(int $saleId): array
+    public function getSaleItems(int $saleId): array
     {
-        $items = $this->itemRepository->findWithOffers($saleId);
-        
-        foreach ($items as $item) {
-            $offers = $this->offerRepository->findByItemId($item->getId());
-            $item->setOffers($offers);
-        }
-        
-        return $items;
+        return $this->itemRepository->findBySaleId($saleId);
     }
 
     /**
-     * Submit offer
+     * Search items across all sales
      */
-    public function submitOffer(int $itemId, int $buyerId, float $amount, ?string $message = null): Offer
+    public function searchItems(string $query, int $limit = 20): array
+    {
+        return $this->itemRepository->search($query, null, $limit);
+    }
+
+    /**
+     * Mark item as claimed
+     */
+    public function claimItem(int $itemId, string $buyerInfo): Item
     {
         $item = $this->itemRepository->findById($itemId);
         
@@ -216,170 +218,76 @@ class ClaimService
         }
         
         if (!$item->isAvailable()) {
-            throw new \RuntimeException("Item is not available for offers");
+            throw new \RuntimeException("Item is not available");
         }
         
-        // Check if buyer already has an offer
-        if ($this->offerRepository->buyerHasOfferOnItem($buyerId, $itemId)) {
-            throw new \RuntimeException("You already have an offer on this item");
-        }
-        
-        // Validate offer amount
-        if ($amount < $item->getStartingPrice()) {
-            throw new \RuntimeException("Offer must be at least the starting price");
-        }
-        
-        $offer = Offer::fromArray([
-            'item_id' => $itemId,
-            'buyer_id' => $buyerId,
-            'amount' => $amount,
-            'message' => $message
+        $claimedItem = $item->update([
+            'status' => 'claimed',
+            'buyer_info' => $buyerInfo,
+            'claimed_at' => new DateTime()
         ]);
         
-        return $this->offerRepository->save($offer);
-    }
-
-    /**
-     * Accept offer
-     */
-    public function acceptOffer(int $offerId, ?string $sellerNotes = null): void
-    {
-        $offer = $this->offerRepository->findById($offerId);
-        
-        if (!$offer) {
-            throw new \RuntimeException("Offer not found: $offerId");
-        }
-        
-        // Accept the offer
-        $acceptedOffer = $offer->accept($sellerNotes);
-        $this->offerRepository->save($acceptedOffer);
-        
-        // Update item with winning offer
-        $item = $this->itemRepository->findById($offer->getItemId());
-        $soldItem = $item->acceptOffer($offerId);
-        $this->itemRepository->save($soldItem);
-        
-        // Reject other offers
-        $otherOffers = $this->offerRepository->findByItemId($offer->getItemId(), 'pending');
-        foreach ($otherOffers as $otherOffer) {
-            if ($otherOffer->getId() !== $offerId) {
-                $rejectedOffer = $otherOffer->reject('Another offer was accepted');
-                $this->offerRepository->save($rejectedOffer);
-            }
-        }
+        $saved = $this->itemRepository->save($claimedItem);
         
         // Update sale statistics
         $this->saleRepository->updateStatistics($item->getSaleId());
+        
+        return $saved;
     }
 
     /**
-     * Reject offer
+     * Get upcoming sales
      */
-    public function rejectOffer(int $offerId, ?string $reason = null): void
+    public function getUpcomingSales(int $days = 7): array
     {
-        $offer = $this->offerRepository->findById($offerId);
+        return $this->saleRepository->findUpcoming($days);
+    }
+
+    /**
+     * Get popular items across all active sales
+     */
+    public function getPopularItems(int $limit = 10): array
+    {
+        $activeSales = $this->saleRepository->findActive(100, 0);
+        $popularItems = [];
         
-        if (!$offer) {
-            throw new \RuntimeException("Offer not found: $offerId");
+        foreach ($activeSales as $sale) {
+            $salePopular = $this->itemRepository->getPopular($sale->getId(), 5);
+            $popularItems = array_merge($popularItems, $salePopular);
         }
         
-        $rejectedOffer = $offer->reject($reason);
-        $this->offerRepository->save($rejectedOffer);
-    }
-
-    /**
-     * Get buyer offers
-     */
-    public function getBuyerOffers(int $buyerId): array
-    {
-        return $this->offerRepository->findByBuyerId($buyerId);
-    }
-
-    /**
-     * Get sale report
-     */
-    public function getSaleReport(int $saleId): array
-    {
-        $sale = $this->getSaleDetails($saleId);
+        // Sort by price descending and limit
+        usort($popularItems, fn($a, $b) => $b->getPrice() <=> $a->getPrice());
         
-        if (!$sale) {
-            throw new \RuntimeException("Sale not found: $saleId");
+        return array_slice($popularItems, 0, $limit);
+    }
+
+    /**
+     * Delete sale and all its items
+     */
+    public function deleteSale(int $saleId): void
+    {
+        // Delete all items first
+        $this->itemRepository->deleteBySale($saleId);
+        
+        // Then delete the sale
+        $this->saleRepository->delete($saleId);
+    }
+
+    /**
+     * Delete item
+     */
+    public function deleteItem(int $itemId): void
+    {
+        $item = $this->itemRepository->findById($itemId);
+        
+        if (!$item) {
+            throw new \RuntimeException("Item not found: $itemId");
         }
         
-        $stats = $this->offerRepository->getSaleStatistics($saleId);
-        $winningOffers = $this->offerRepository->findWinningOffersBySale($saleId);
-        $soldItems = $this->itemRepository->findSold($saleId);
+        $this->itemRepository->delete($itemId);
         
-        return [
-            'sale' => $sale->toArray(),
-            'statistics' => $stats,
-            'winning_offers' => array_map(fn($o) => $o->toArray(), $winningOffers),
-            'sold_items' => array_map(fn($i) => $i->toArray(), $soldItems),
-            'total_sales' => array_sum(array_map(fn($o) => $o->getAmount(), $winningOffers))
-        ];
-    }
-
-    /**
-     * Search items
-     */
-    public function searchItems(string $query, ?int $saleId = null, int $limit = 20): array
-    {
-        return $this->itemRepository->search($query, $saleId, $limit);
-    }
-
-    /**
-     * Get popular items
-     */
-    public function getPopularItems(int $saleId, int $limit = 10): array
-    {
-        return $this->itemRepository->getPopular($saleId, $limit);
-    }
-
-    /**
-     * Activate sale
-     */
-    public function activateSale(int $saleId): Sale
-    {
-        $sale = $this->saleRepository->findById($saleId);
-        
-        if (!$sale) {
-            throw new \RuntimeException("Sale not found: $saleId");
-        }
-        
-        $activeSale = $sale->activate();
-        
-        return $this->saleRepository->save($activeSale);
-    }
-
-    /**
-     * Pause sale
-     */
-    public function pauseSale(int $saleId): Sale
-    {
-        $sale = $this->saleRepository->findById($saleId);
-        
-        if (!$sale) {
-            throw new \RuntimeException("Sale not found: $saleId");
-        }
-        
-        $pausedSale = $sale->pause();
-        
-        return $this->saleRepository->save($pausedSale);
-    }
-
-    /**
-     * Complete sale
-     */
-    public function completeSale(int $saleId): Sale
-    {
-        $sale = $this->saleRepository->findById($saleId);
-        
-        if (!$sale) {
-            throw new \RuntimeException("Sale not found: $saleId");
-        }
-        
-        $completedSale = $sale->complete();
-        
-        return $this->saleRepository->save($completedSale);
+        // Update sale statistics
+        $this->saleRepository->updateStatistics($item->getSaleId());
     }
 }

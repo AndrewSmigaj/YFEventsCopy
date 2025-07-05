@@ -81,9 +81,9 @@ $router->post('/api/shops/submit', ShopController::class, 'submitShop');
 
 // YFClaim estate sales routes (public)
 $router->get('/claims', ClaimsController::class, 'showClaimsPage');
-$router->get('/claims/upcoming', ClaimsController::class, 'showUpcomingClaimsPage');
 $router->get('/claims/sale', ClaimsController::class, 'showSale');
 $router->get('/claims/item/{id}', ClaimsController::class, 'showItem');
+$router->get('/claims/items', ClaimsController::class, 'showItemGallery');
 
 // YFClaim seller routes
 $router->get('/seller/register', ClaimsController::class, 'showSellerRegistration');
@@ -110,6 +110,7 @@ $router->post('/buyer/logout', ClaimsController::class, 'buyerLogout');
 $router->post('/api/claims/contact', ClaimsController::class, 'contactSeller');
 $router->post('/api/claims/item/{id}/claim', ClaimsController::class, 'claimItem');
 $router->get('/api/claims/sale/{id}/items', ClaimsController::class, 'getSaleItemsApi');
+$router->get('/api/claims/items', ClaimsController::class, 'getFilteredItems');
 $router->post('/api/claims/seller/items/add', ClaimsController::class, 'addSaleItem');
 $router->post('/api/claims/seller/items/{id}/update', ClaimsController::class, 'updateSaleItem');
 $router->post('/api/claims/seller/items/{id}/delete', ClaimsController::class, 'deleteSaleItem');

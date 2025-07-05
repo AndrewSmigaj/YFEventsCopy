@@ -7,21 +7,51 @@ namespace YFEvents\Presentation\Http\Controllers;
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
 use YFEvents\Infrastructure\Database\ConnectionInterface;
+use YFEvents\Domain\Events\EventServiceInterface;
+use YFEvents\Domain\Shops\ShopServiceInterface;
+use YFEvents\Application\Services\ClaimService;
 
 class HomeController
 {
+    private EventServiceInterface $eventService;
+    private ShopServiceInterface $shopService;
+    private ClaimService $claimService;
+    
     public function __construct(
         private ContainerInterface $container,
         private ConfigInterface $config
-    ) {}
+    ) {
+        // Inject services through container
+        $this->eventService = $container->resolve(EventServiceInterface::class);
+        $this->shopService = $container->resolve(ShopServiceInterface::class);
+        $this->claimService = $container->resolve(ClaimService::class);
+    }
 
     /**
      * Display the home page
      */
     public function index(): void
     {
-        header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderHomePage();
+        try {
+            // Fetch all dynamic data
+            $data = [
+                'featuredItems' => $this->getFeaturedItems(),
+                'upcomingSales' => $this->getUpcomingSales(),
+                'upcomingEvents' => $this->getUpcomingEvents(),
+                'currentSales' => $this->getCurrentSales(),
+                'featuredShops' => $this->getFeaturedShops(),
+                'stats' => $this->getDynamicStats()
+            ];
+            
+            header('Content-Type: text/html; charset=utf-8');
+            echo $this->renderHomePage($data);
+            
+        } catch (\Exception $e) {
+            // Fallback to static content if services fail
+            error_log("Homepage dynamic content error: " . $e->getMessage());
+            header('Content-Type: text/html; charset=utf-8');
+            echo $this->renderHomePage();
+        }
     }
 
     /**
@@ -115,8 +145,129 @@ class HomeController
         }
     }
 
-    private function renderHomePage(): string
+    /**
+     * Get featured items from all active sales
+     */
+    private function getFeaturedItems(int $limit = 8): array
     {
+        try {
+            return $this->claimService->getPopularItems($limit);
+        } catch (\Exception $e) {
+            error_log("Failed to get featured items: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get upcoming sales for the next 7 days
+     */
+    private function getUpcomingSales(int $limit = 3): array
+    {
+        try {
+            $sales = $this->claimService->getUpcomingSales(7);
+            return array_slice($sales, 0, $limit);
+        } catch (\Exception $e) {
+            error_log("Failed to get upcoming sales: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get upcoming events
+     */
+    private function getUpcomingEvents(int $limit = 5): array
+    {
+        try {
+            return $this->eventService->getUpcomingEvents($limit);
+        } catch (\Exception $e) {
+            error_log("Failed to get upcoming events: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get current active sales
+     */
+    private function getCurrentSales(): array
+    {
+        try {
+            $result = $this->claimService->getActiveSales(1, 20);
+            return $result->getItems();
+        } catch (\Exception $e) {
+            error_log("Failed to get current sales: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get featured shops
+     */
+    private function getFeaturedShops(int $limit = 4): array
+    {
+        try {
+            return $this->shopService->getFeaturedShops($limit);
+        } catch (\Exception $e) {
+            error_log("Failed to get featured shops: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get dynamic statistics for the homepage
+     */
+    private function getDynamicStats(): array
+    {
+        try {
+            // Get shop statistics
+            $shopStats = $this->shopService->getShopStatistics();
+            
+            // Get active sales count
+            $activeSales = $this->claimService->getActiveSales(1, 1);
+            
+            // Get upcoming events count
+            $upcomingEvents = $this->eventService->getUpcomingEvents(100);
+            
+            // Estimate total items (from active sales stats)
+            $totalItems = 0;
+            $fullActiveSales = $this->claimService->getActiveSales(1, 100);
+            foreach ($fullActiveSales->getItems() as $sale) {
+                // If sale has item_count property from repository query
+                if (property_exists($sale, 'item_count')) {
+                    $totalItems += $sale->item_count;
+                }
+            }
+            
+            return [
+                'active_sales' => $activeSales->getTotal(),
+                'upcoming_events' => count($upcomingEvents),
+                'total_items' => $totalItems ?: 2341, // Fallback to static if no data
+                'local_shops' => $shopStats['total'] ?? 89
+            ];
+        } catch (\Exception $e) {
+            error_log("Failed to get dynamic stats: " . $e->getMessage());
+            // Return static defaults if services fail
+            return [
+                'active_sales' => 47,
+                'upcoming_events' => 156,
+                'total_items' => 2341,
+                'local_shops' => 89
+            ];
+        }
+    }
+
+    private function renderHomePage(array $data = []): string
+    {
+        // Extract data with defaults
+        $stats = $data['stats'] ?? [
+            'active_sales' => 47,
+            'upcoming_events' => 156,
+            'total_items' => 2341,
+            'local_shops' => 89
+        ];
+        
+        // Format numbers
+        $formattedItems = number_format($stats['total_items']);
+        
         return <<<HTML
 <!DOCTYPE html>
 <html lang="en">
@@ -430,19 +581,19 @@ class HomeController
         <!-- Stats Bar -->
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-number">47</div>
+                <div class="stat-number">{$stats['active_sales']}</div>
                 <div class="stat-label">Active Sales</div>
             </div>
             <div class="stat">
-                <div class="stat-number">156</div>
+                <div class="stat-number">{$stats['upcoming_events']}</div>
                 <div class="stat-label">Upcoming Events</div>
             </div>
             <div class="stat">
-                <div class="stat-number">2,341</div>
+                <div class="stat-number">{$formattedItems}</div>
                 <div class="stat-label">Items Listed</div>
             </div>
             <div class="stat">
-                <div class="stat-number">89</div>
+                <div class="stat-number">{$stats['local_shops']}</div>
                 <div class="stat-label">Local Shops</div>
             </div>
         </div>

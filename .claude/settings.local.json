@@ -56,7 +56,9 @@
       "Bash(git add:*)",
       "Bash(git rm:*)",
       "Bash(git commit:*)",
-      "Bash(realpath:*)"
+      "Bash(realpath:*)",
+      "Bash(sudo tail:*)",
+      "Bash(/dev/null)"
     ],
     "deny": []
   }

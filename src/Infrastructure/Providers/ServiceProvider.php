@@ -19,6 +19,14 @@ use YFEvents\Domain\Shops\ShopServiceInterface;
 use YFEvents\Domain\Shops\ShopService;
 use YFEvents\Domain\Admin\AdminServiceInterface;
 use YFEvents\Domain\Admin\AdminService;
+use YFEvents\Domain\Claims\SaleRepositoryInterface;
+use YFEvents\Domain\Claims\ItemRepositoryInterface;
+use YFEvents\Domain\Claims\OfferRepositoryInterface;
+use YFEvents\Infrastructure\Repositories\Claims\SaleRepository;
+use YFEvents\Infrastructure\Repositories\Claims\ItemRepository;
+use YFEvents\Infrastructure\Repositories\Claims\OfferRepository;
+use YFEvents\Application\Services\ClaimService;
+use YFEvents\Infrastructure\Services\QRCodeService;
 
 /**
  * Main service provider for dependency injection
@@ -101,6 +109,19 @@ class ServiceProvider
         $this->container->bind(ShopRepositoryInterface::class, function ($container) {
             return new ShopRepository($container->resolve(ConnectionInterface::class));
         });
+        
+        // Claims repositories
+        $this->container->bind(SaleRepositoryInterface::class, function ($container) {
+            return new SaleRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        $this->container->bind(ItemRepositoryInterface::class, function ($container) {
+            return new ItemRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        $this->container->bind(OfferRepositoryInterface::class, function ($container) {
+            return new OfferRepository($container->resolve(ConnectionInterface::class));
+        });
     }
 
     /**
@@ -127,6 +148,20 @@ class ServiceProvider
                 $container->resolve(EventServiceInterface::class),
                 $container->resolve(ShopServiceInterface::class),
                 $container->resolve(ConnectionInterface::class)
+            );
+        });
+        
+        // QR Code Service
+        $this->container->singleton(QRCodeService::class, function ($container) {
+            return new QRCodeService($container->resolve(ConfigInterface::class));
+        });
+        
+        // Claim Service
+        $this->container->bind(ClaimService::class, function ($container) {
+            return new ClaimService(
+                $container->resolve(SaleRepositoryInterface::class),
+                $container->resolve(ItemRepositoryInterface::class),
+                $container->resolve(QRCodeService::class)
             );
         });
     }

@@ -431,8 +431,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <div class="header-content">
             <div class="logo">YFClaim Seller Portal</div>
             <nav class="nav-links">
-                <a href="/seller/dashboard">Dashboard</a>
-                <a href="/seller/sales">My Sales</a>
+                <a href="/modules/yfclaim/seller-dashboard">Dashboard</a>
+                <a href="/modules/yfclaim/seller-dashboard?section=sales">My Sales</a>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout">Logout</a>
             </nav>
         </div>
@@ -441,7 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <div class="container">
         <div class="page-header">
             <div class="breadcrumb">
-                <a href="/seller/dashboard">Dashboard</a> > <a href="/seller/sales">My Sales</a> > Manage Items
+                <a href="/modules/yfclaim/seller-dashboard">Dashboard</a> > <a href="/modules/yfclaim/seller-dashboard?section=sales">My Sales</a> > Manage Items
             </div>
             <h1>📦 Manage Items</h1>
             <?php if ($sale): ?>
@@ -465,7 +465,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <div class="no-sale-selected">
                 <h3>No Sale Selected</h3>
                 <p>Please select a sale to manage its items.</p>
-                <a href="/seller/sales" class="btn btn-primary">View My Sales</a>
+                <a href="/modules/yfclaim/seller-dashboard?section=sales" class="btn btn-primary">View My Sales</a>
             </div>
         <?php else: ?>
             <div class="content-grid">
@@ -621,7 +621,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <div id="quickActions">
                         <h3>Quick Actions</h3>
                         <a href="/claims/sale?id=<?= $sale['id'] ?>" class="btn btn-primary" target="_blank" style="width: 100%; margin-bottom: 0.5rem;">View Public Sale Page</a>
-                        <a href="/seller/sales" class="btn btn-secondary" style="width: 100%;">Back to Sales</a>
+                        <a href="/modules/yfclaim/seller-dashboard?section=sales" class="btn btn-secondary" style="width: 100%;">Back to Sales</a>
                     </div>
                 </div>
             </div>

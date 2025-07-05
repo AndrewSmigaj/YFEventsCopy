@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace YFEvents\Infrastructure\Services;
 
-use YFEvents\Infrastructure\Config\ConfigurationInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
 
 class QRCodeService
 {
@@ -12,7 +12,7 @@ class QRCodeService
     private int $size;
     
     public function __construct(
-        private readonly ConfigurationInterface $config
+        private readonly ConfigInterface $config
     ) {
         $this->baseUrl = $config->get('app.url', 'https://localhost');
         $this->size = $config->get('qr.size', 300);

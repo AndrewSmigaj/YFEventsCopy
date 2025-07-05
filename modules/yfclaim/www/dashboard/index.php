@@ -402,14 +402,14 @@ $unreadNotifications = 0; // $notificationModel->getUnreadCount($sellerId);
                 <div class="card-header">
                     <h3>Active Sales</h3>
                     <?php if (count($activeSales) > 0): ?>
-                        <a href="/seller/sales" class="btn">View All</a>
+                        <a href="/modules/yfclaim/seller-dashboard?section=sales" class="btn">View All</a>
                     <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <?php if (empty($activeSales)): ?>
                         <div class="empty-state">
                             <p>No active sales</p>
-                            <a href="/seller/sale/new" class="btn btn-success">Create Your First Sale</a>
+                            <a href="/modules/yfclaim/seller-dashboard?section=create-sale" class="btn btn-success">Create Your First Sale</a>
                         </div>
                     <?php else: ?>
                         <?php foreach (array_slice($activeSales, 0, 3) as $sale): ?>
@@ -433,14 +433,14 @@ $unreadNotifications = 0; // $notificationModel->getUnreadCount($sellerId);
                 <div class="card-header">
                     <h3>Recent Sales</h3>
                     <?php if (count($recentSales) > 3): ?>
-                        <a href="/seller/sales" class="btn">View All</a>
+                        <a href="/modules/yfclaim/seller-dashboard?section=sales" class="btn">View All</a>
                     <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <?php if (empty($recentSales)): ?>
                         <div class="empty-state">
                             <p>No sales yet</p>
-                            <a href="/seller/sale/new" class="btn btn-success">Create Your First Sale</a>
+                            <a href="/modules/yfclaim/seller-dashboard?section=create-sale" class="btn btn-success">Create Your First Sale</a>
                         </div>
                     <?php else: ?>
                         <?php foreach (array_slice($recentSales, 0, 5) as $sale): ?>

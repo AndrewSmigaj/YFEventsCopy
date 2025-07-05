@@ -356,8 +356,8 @@ if ($createdSaleId) {
         <div class="header-content">
             <div class="logo">YFClaim Seller Portal</div>
             <nav class="nav-links">
-                <a href="/seller/dashboard">Dashboard</a>
-                <a href="/seller/sales">My Sales</a>
+                <a href="/modules/yfclaim/seller-dashboard">Dashboard</a>
+                <a href="/modules/yfclaim/seller-dashboard?section=sales">My Sales</a>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout">Logout</a>
             </nav>
         </div>
@@ -369,7 +369,7 @@ if ($createdSaleId) {
                 <h1>🏷️ My Sales</h1>
                 <p>Manage your estate sales and track performance</p>
             </div>
-            <a href="/seller/sale/new" class="btn btn-success">+ Create New Sale</a>
+            <a href="/modules/yfclaim/seller-dashboard?section=create-sale" class="btn btn-success">+ Create New Sale</a>
         </div>
         
         <?php if ($successMessage): ?>
@@ -406,7 +406,7 @@ if ($createdSaleId) {
             <div class="empty-state">
                 <h3>No Sales Yet</h3>
                 <p>You haven't created any sales yet. Get started by creating your first estate sale!</p>
-                <a href="/seller/sale/new" class="btn btn-success">Create Your First Sale</a>
+                <a href="/modules/yfclaim/seller-dashboard?section=create-sale" class="btn btn-success">Create Your First Sale</a>
             </div>
         <?php else: ?>
             <div class="sales-grid" id="salesGrid">

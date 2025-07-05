@@ -1,0 +1,521 @@
+{
+    "timestamp": "2025-07-05 02:16:04",
+    "summary": {
+        "total_broken": 63,
+        "progress": "159\/225",
+        "categories": {
+            "php_variables": 25,
+            "removed_admin": 8,
+            "refactor_paths": 6,
+            "missing_modules": 4,
+            "relative_path_issues": 10,
+            "api_endpoints": 1,
+            "other": 9
+        }
+    },
+    "categorized": {
+        "php_variables": [
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/buyer\/<?= $basePath ?>\/css\/admin-theme.css",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/buyer\/auth.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/buyer\/<?= $basePath ?>\/claims",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/buyer\/auth.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/css\/admin-theme.css",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/events",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/shops",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/claims",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/seller\/login",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/buyer\/auth",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/seller\/register",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/<?= $basePath ?>\/claims\/sale?id=<?= $sale[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/claims.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/seller-legacy\/<?= $basePath ?>\/css\/admin-theme.css",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/seller-legacy\/login.php",
+                    "scripts\/..\/public\/seller-legacy\/register.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/seller-legacy\/<?= $basePath ?>\/seller\/register",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/seller-legacy\/login.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/seller-legacy\/<?= $basePath ?>\/claims",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/seller-legacy\/login.php",
+                    "scripts\/..\/public\/seller-legacy\/register.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/seller-legacy\/<?= $basePath ?>\/seller\/login",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/seller-legacy\/register.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/calendar\/<?= htmlspecialchars($shop[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/calendar\/shops.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/${event.external_url}",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/intelligent-scraper.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/<?= htmlspecialchars($source[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/scrapers.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/<?= htmlspecialchars($shop[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/shops.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/templates\/calendar\/${formData.external_url}",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/templates\/calendar\/event-submit.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfclaim\/www\/admin\/offers.php?buyer_id=<?= $buyer[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/buyers.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/modules\/yfclaim\/www\/admin\/<?= QRCodeGenerator::generateSaleQR($sale[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/qr-codes.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/modules\/yfclaim\/www\/admin\/<?= QRCodeGenerator::generateItemQR($item[",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/qr-codes.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/modules\/yfclaim\/www\/<?= htmlspecialchars($returnUrl) ?>",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/buyer-login.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfclaim\/uploads\/${item.primary_image}",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/buyer-portal.php"
+                ]
+            }
+        ],
+        "removed_admin": [
+            {
+                "url": "http:\/\/localhost\/admin\/theme-config.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/css-diagnostic.php",
+                    "scripts\/..\/modules\/yftheme\/install.php",
+                    "scripts\/..\/modules\/yftheme\/www\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/users.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/permissions.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/theme-config.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/system-status.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/logs.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/database.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/backup.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            }
+        ],
+        "refactor_paths": [
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/refactor\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/refactor\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/dashboard.php",
+                    "scripts\/..\/modules\/yfauth\/www\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/refactor\/shops",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/refactor\/admin\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/refactor\/shops\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/refactor\/shops\/submit\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/index.php"
+                ]
+            }
+        ],
+        "missing_modules": [
+            {
+                "url": "http:\/\/localhost\/modules\/yfauth\/www\/logout.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfauth\/www\/profile.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfauth\/www\/security.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfauth\/www\/forgot-password.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfauth\/www\/login.php"
+                ]
+            }
+        ],
+        "relative_path_issues": [
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/public\/$testUrl",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/public\/css-diagnostic.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/calendar\/..\/login.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/calendar\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/modules\/yfclaim\/www\/admin\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php",
+                    "scripts\/..\/www\/html\/admin\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/modules\/yfclaim\/www\/admin\/sellers.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/modules\/yfclaim\/www\/admin\/qr-codes.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/modules\/yfclaim\/www\/admin\/reports.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/modules\/yfauth\/www\/admin\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/modules\/yftheme\/www\/admin\/",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/www\/html\/admin\/..\/css-diagnostic.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/admin\/dashboard.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/scripts\/..\/modules\/yfclaim\/www\/admin\/..\/..\/..\/www\/html\/admin\/login.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/buyers.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/index.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/qr-codes.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/reports.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/sellers.php"
+                ]
+            }
+        ],
+        "api_endpoints": [
+            {
+                "url": "http:\/\/localhost\/api\/communication\/sync",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/communication\/service-worker.js"
+                ]
+            }
+        ],
+        "other": [
+            {
+                "url": "http:\/\/localhost\/yfclaim-simple.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/templates\/calendar\/calendar.php",
+                    "scripts\/..\/www\/html\/yfclaim-demo.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfclaim\/www\/admin\/offers.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/www\/html\/yfclaim-admin.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/buyers.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/reports.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/sales.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/sellers.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/admin\/login.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/buyers.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/debug-session.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/index.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/qr-codes.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/reports.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/sales.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/sellers.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/www\/html\/admin\/login.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/buyers.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/index.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/qr-codes.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/reports.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/sellers.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/modules\/yfclaim\/www\/admin\/inquiries.php",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/admin\/index.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/seller\/dashboard",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/create-sale.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/manage-items.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/sales.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/seller\/sales",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/create-sale.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/index.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/manage-items.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/sales.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/seller\/sale\/create",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/create-sale.php"
+                ]
+            },
+            {
+                "url": "http:\/\/localhost\/seller\/sale\/new",
+                "status": 0,
+                "sources": [
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/index.php",
+                    "scripts\/..\/modules\/yfclaim\/www\/dashboard\/sales.php"
+                ]
+            }
+        ]
+    },
+    "recommendations": {
+        "php_variables": [
+            "scripts\/..\/www\/html\/admin\/dashboard.php",
+            "scripts\/..\/modules\/yfauth\/www\/dashboard.php",
+            "scripts\/..\/modules\/yfauth\/www\/index.php"
+        ],
+        "removed_admin": [
+            "scripts\/..\/www\/html\/admin\/dashboard.php",
+            "scripts\/..\/modules\/yfauth\/www\/dashboard.php",
+            "scripts\/..\/modules\/yfauth\/www\/index.php"
+        ],
+        "refactor_paths": [
+            "scripts\/..\/www\/html\/admin\/dashboard.php",
+            "scripts\/..\/modules\/yfauth\/www\/dashboard.php",
+            "scripts\/..\/modules\/yfauth\/www\/index.php"
+        ]
+    }
+}

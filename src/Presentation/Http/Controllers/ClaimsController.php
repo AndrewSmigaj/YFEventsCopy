@@ -52,22 +52,6 @@ class ClaimsController extends BaseController
     }
 
     /**
-     * Show upcoming estate sales page
-     */
-    public function showUpcomingClaimsPage(): void
-    {
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath === '/') {
-            $basePath = '';
-        }
-
-        $upcomingSales = $this->getUpcomingSales();
-
-        header('Content-Type: text/html; charset=utf-8');
-        echo $this->renderUpcomingClaimsPage($basePath, $upcomingSales);
-    }
-
-    /**
      * Show individual sale page
      */
     public function showSale(): void
@@ -124,6 +108,76 @@ class ClaimsController extends BaseController
 
         header('Content-Type: text/html; charset=utf-8');
         echo $this->renderItemPage($basePath, $item);
+    }
+
+    /**
+     * Show item gallery across all active sales
+     */
+    public function showItemGallery(): void
+    {
+        $basePath = dirname($_SERVER['SCRIPT_NAME']);
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+
+        // Get filters from query parameters
+        $filters = [
+            'category_id' => $_GET['category'] ?? null,
+            'min_price' => $_GET['min_price'] ?? null,
+            'max_price' => $_GET['max_price'] ?? null,
+            'search' => $_GET['search'] ?? null,
+            'sort' => $_GET['sort'] ?? 'newest'
+        ];
+        
+        // Pagination
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 24; // 6 columns x 4 rows
+        $offset = ($page - 1) * $perPage;
+        
+        // Get items from repository
+        $itemRepository = $this->container->resolve(\YFEvents\Domain\Claims\ItemRepositoryInterface::class);
+        $items = $itemRepository->findAllWithImages($filters, $perPage, $offset);
+        $totalItems = $itemRepository->countAll($filters);
+        $categories = $itemRepository->getCategories();
+        
+        // Calculate pagination
+        $totalPages = (int)ceil($totalItems / $perPage);
+        
+        header('Content-Type: text/html; charset=utf-8');
+        echo $this->renderItemGallery($basePath, $items, $categories, $filters, $page, $totalPages, $totalItems);
+    }
+
+    /**
+     * API endpoint for filtered items (optional - for AJAX)
+     */
+    public function getFilteredItems(): void
+    {
+        header('Content-Type: application/json');
+        
+        // Get filters
+        $filters = [
+            'category_id' => $_GET['category'] ?? null,
+            'min_price' => $_GET['min_price'] ?? null,
+            'max_price' => $_GET['max_price'] ?? null,
+            'search' => $_GET['search'] ?? null,
+            'sort' => $_GET['sort'] ?? 'newest'
+        ];
+        
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 24;
+        $offset = ($page - 1) * $perPage;
+        
+        // Get items
+        $itemRepository = $this->container->resolve(\YFEvents\Domain\Claims\ItemRepositoryInterface::class);
+        $items = $itemRepository->findAllWithImages($filters, $perPage, $offset);
+        $total = $itemRepository->countAll($filters);
+        
+        echo json_encode([
+            'items' => $items, // Already arrays from repository
+            'total' => $total,
+            'page' => $page,
+            'pages' => (int)ceil($total / $perPage)
+        ]);
     }
 
     // ==== SELLER FUNCTIONALITY ====
@@ -803,13 +857,10 @@ class ClaimsController extends BaseController
     {
         $stmt = $this->pdo->prepare("
             SELECT s.*, sel.company_name, 
-                   COUNT(i.id) as item_count,
-                   COUNT(DISTINCT o.buyer_id) as buyer_count,
-                   COUNT(o.id) as offer_count
+                   COUNT(i.id) as item_count
             FROM yfc_sales s
             LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
             LEFT JOIN yfc_items i ON s.id = i.sale_id
-            LEFT JOIN yfc_offers o ON i.id = o.item_id
             WHERE s.status = 'active' 
             AND s.claim_start <= NOW() 
             AND s.claim_end >= NOW()
@@ -2668,5 +2719,289 @@ HTML;
             }
         }
         ';
+    }
+
+    /**
+     * Render item gallery page
+     */
+    private function renderItemGallery(string $basePath, array $items, array $categories, array $filters, int $page, int $totalPages, int $totalItems): string
+    {
+        $itemsHtml = $this->renderGalleryItems($items, $basePath);
+        $paginationHtml = $this->renderPagination($page, $totalPages, $filters);
+        
+        // Build filter values for form
+        $selectedCategory = $filters['category_id'] ?? '';
+        $minPrice = $filters['min_price'] ?? '';
+        $maxPrice = $filters['max_price'] ?? '';
+        $searchTerm = htmlspecialchars($filters['search'] ?? '');
+        $sortBy = $filters['sort'] ?? 'newest';
+        $perPage = 24;
+        
+        return <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Items - YFClaim Estate Sales</title>
+    <meta name="description" content="Browse all items from active estate sales across the Yakima Valley">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #333; line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 20px; text-align: center; }
+        .header h1 { font-size: 3rem; margin-bottom: 15px; font-weight: 700; }
+        .header p { font-size: 1.3rem; opacity: 0.95; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        .nav-link { display: inline-block; margin-bottom: 30px; color: #667eea; text-decoration: none; font-weight: 500; }
+        .nav-link:hover { text-decoration: underline; }
+        
+        /* Filter section */
+        .filters { background: white; padding: 30px; border-radius: 15px; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .filter-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-label { font-weight: 500; margin-bottom: 8px; color: #495057; }
+        .form-control { padding: 10px 15px; border: 1px solid #ced4da; border-radius: 8px; font-size: 1rem; }
+        .form-control:focus { outline: none; border-color: #667eea; }
+        .price-range { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-filter { background: #667eea; color: white; padding: 10px 30px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; }
+        .btn-filter:hover { background: #5a67d8; }
+        .btn-reset { background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; text-decoration: none; }
+        
+        /* Results info */
+        .results-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .results-count { font-size: 1.2rem; color: #495057; }
+        
+        /* Items grid - same as existing */
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        .item-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; }
+        .item-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .item-image { width: 100%; height: 200px; background: #e9ecef; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 3rem; overflow: hidden; }
+        .item-image img { width: 100%; height: 100%; object-fit: cover; }
+        .item-body { padding: 20px; }
+        .item-title { font-size: 1.2rem; font-weight: 600; color: #2c3e50; margin-bottom: 8px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .item-sale { font-size: 0.9rem; color: #6c757d; margin-bottom: 10px; }
+        .item-location { font-size: 0.85rem; color: #6c757d; margin-bottom: 12px; }
+        .item-price { font-size: 1.4rem; font-weight: bold; color: #28a745; margin-bottom: 15px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; text-decoration: none; display: block; text-align: center; transition: all 0.3s ease; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        
+        /* Pagination */
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 40px; }
+        .page-link { padding: 8px 16px; background: white; color: #667eea; text-decoration: none; border-radius: 8px; border: 1px solid #dee2e6; transition: all 0.3s ease; }
+        .page-link:hover { background: #667eea; color: white; }
+        .page-link.active { background: #667eea; color: white; }
+        .page-link.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+        
+        .empty-state { text-align: center; padding: 80px 20px; }
+        .empty-state h3 { font-size: 1.8rem; color: #495057; margin-bottom: 15px; }
+        .empty-state p { font-size: 1.1rem; color: #6c757d; }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .filter-form { grid-template-columns: 1fr; }
+            .items-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛍️ Browse All Items</h1>
+        <p>Discover treasures from estate sales across the Yakima Valley</p>
+    </div>
+    
+    <div class="container">
+        <a href="{$basePath}/claims" class="nav-link">← Back to Sales</a>
+        
+        <div class="filters">
+            <form method="get" action="{$basePath}/claims/items" class="filter-form">
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-control">
+                        <option value="">All Categories</option>
+                        {$this->renderCategoryOptions($categories, $selectedCategory)}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Price Range</label>
+                    <div class="price-range">
+                        <input type="number" name="min_price" placeholder="Min" value="{$minPrice}" class="form-control">
+                        <input type="number" name="max_price" placeholder="Max" value="{$maxPrice}" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" placeholder="Search items..." value="{$searchTerm}" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort" class="form-control">
+                        <option value="newest" {$this->selected($sortBy, 'newest')}>Newest First</option>
+                        <option value="price_low" {$this->selected($sortBy, 'price_low')}>Price: Low to High</option>
+                        <option value="price_high" {$this->selected($sortBy, 'price_high')}>Price: High to Low</option>
+                        <option value="ending_soon" {$this->selected($sortBy, 'ending_soon')}>Ending Soon</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" style="display: flex; flex-direction: row; gap: 10px;">
+                    <button type="submit" class="btn-filter">Apply Filters</button>
+                    <a href="{$basePath}/claims/items" class="btn-reset">Clear</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="results-info">
+            <div class="results-count">
+                Showing {$this->getShowingCount($page, $perPage, $totalItems)} of {$totalItems} items
+            </div>
+        </div>
+        
+        {$itemsHtml}
+        {$paginationHtml}
+    </div>
+</body>
+</html>
+HTML;
+    }
+
+    /**
+     * Render gallery items (simplified version of renderSaleItems)
+     */
+    private function renderGalleryItems(array $items, string $basePath): string
+    {
+        if (empty($items)) {
+            return '<div class="empty-state">
+                <h3>No Items Found</h3>
+                <p>Try adjusting your filters or check back later for new items.</p>
+            </div>';
+        }
+        
+        $html = '<div class="items-grid">';
+        foreach ($items as $item) {
+            $price = number_format((float)($item['price'] ?? 0), 2);
+            $imageHtml = !empty($item['primary_image'])
+                ? '<img src="/uploads/yfclaim/items/' . htmlspecialchars($item['primary_image']) . '" alt="' . htmlspecialchars($item['title']) . '">'
+                : '📦';
+            
+            $html .= <<<ITEM
+                <div class="item-card">
+                    <div class="item-image">{$imageHtml}</div>
+                    <div class="item-body">
+                        <h3 class="item-title" title="{$item['title']}">{$item['title']}</h3>
+                        <div class="item-sale">{$item['sale_title']}</div>
+                        <div class="item-location">{$item['city']}, {$item['state']}</div>
+                        <div class="item-price">\${$price}</div>
+                        <a href="{$basePath}/claims/item/{$item['id']}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+ITEM;
+        }
+        $html .= '</div>';
+        
+        return $html;
+    }
+
+    /**
+     * Render pagination controls
+     */
+    private function renderPagination(int $currentPage, int $totalPages, array $filters): string
+    {
+        if ($totalPages <= 1) {
+            return '';
+        }
+        
+        $html = '<div class="pagination">';
+        
+        // Build query string from filters
+        $queryParams = [];
+        foreach ($filters as $key => $value) {
+            if (!empty($value)) {
+                $queryParams[$key] = $value;
+            }
+        }
+        
+        // Previous page
+        if ($currentPage > 1) {
+            $queryParams['page'] = $currentPage - 1;
+            $prevUrl = '?' . http_build_query($queryParams);
+            $html .= '<a href="' . $prevUrl . '" class="page-link">← Previous</a>';
+        } else {
+            $html .= '<span class="page-link disabled">← Previous</span>';
+        }
+        
+        // Page numbers
+        $start = max(1, $currentPage - 2);
+        $end = min($totalPages, $currentPage + 2);
+        
+        if ($start > 1) {
+            $queryParams['page'] = 1;
+            $html .= '<a href="?' . http_build_query($queryParams) . '" class="page-link">1</a>';
+            if ($start > 2) {
+                $html .= '<span class="page-link disabled">...</span>';
+            }
+        }
+        
+        for ($i = $start; $i <= $end; $i++) {
+            if ($i == $currentPage) {
+                $html .= '<span class="page-link active">' . $i . '</span>';
+            } else {
+                $queryParams['page'] = $i;
+                $html .= '<a href="?' . http_build_query($queryParams) . '" class="page-link">' . $i . '</a>';
+            }
+        }
+        
+        if ($end < $totalPages) {
+            if ($end < $totalPages - 1) {
+                $html .= '<span class="page-link disabled">...</span>';
+            }
+            $queryParams['page'] = $totalPages;
+            $html .= '<a href="?' . http_build_query($queryParams) . '" class="page-link">' . $totalPages . '</a>';
+        }
+        
+        // Next page
+        if ($currentPage < $totalPages) {
+            $queryParams['page'] = $currentPage + 1;
+            $nextUrl = '?' . http_build_query($queryParams);
+            $html .= '<a href="' . $nextUrl . '" class="page-link">Next →</a>';
+        } else {
+            $html .= '<span class="page-link disabled">Next →</span>';
+        }
+        
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
+     * Render category options
+     */
+    private function renderCategoryOptions(array $categories, $selected): string
+    {
+        $html = '';
+        foreach ($categories as $category) {
+            $isSelected = $category['category_id'] == $selected ? 'selected' : '';
+            $html .= '<option value="' . $category['category_id'] . '" ' . $isSelected . '>' . htmlspecialchars($category['category']) . '</option>';
+        }
+        return $html;
+    }
+
+    /**
+     * Helper to mark selected option
+     */
+    private function selected($value, $check): string
+    {
+        return $value == $check ? 'selected' : '';
+    }
+
+    /**
+     * Get showing count text
+     */
+    private function getShowingCount(int $page, int $perPage, int $total): string
+    {
+        $start = ($page - 1) * $perPage + 1;
+        $end = min($page * $perPage, $total);
+        return $start . '-' . $end;
     }
 }

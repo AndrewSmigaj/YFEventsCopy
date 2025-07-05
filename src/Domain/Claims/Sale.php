@@ -319,25 +319,39 @@ class Sale implements EntityInterface
 
     public static function fromArray(array $data): static
     {
+        // Build location from address components if not provided
+        $location = $data['location'] ?? 
+                   ($data['address'] ?? '') . ', ' . 
+                   ($data['city'] ?? '') . ', ' . 
+                   ($data['state'] ?? '') . ' ' . 
+                   ($data['zip'] ?? '');
+        
+        // Handle different date column names from database
+        $previewStart = $data['preview_start_date'] ?? $data['preview_start'] ?? null;
+        $previewEnd = $data['preview_end_date'] ?? $data['preview_end'] ?? null;
+        $claimStart = $data['claim_start_date'] ?? $data['claim_start'] ?? null;
+        $claimEnd = $data['claim_end_date'] ?? $data['claim_end'] ?? null;
+        $pickupDate = $data['pickup_date'] ?? $data['pickup_start'] ?? $claimEnd ?? null;
+        
         return new self(
             id: $data['id'] ?? null,
-            sellerId: $data['seller_id'],
-            title: $data['title'],
+            sellerId: (int)($data['seller_id'] ?? 0),
+            title: $data['title'] ?? '',
             description: $data['description'] ?? null,
-            location: $data['location'],
-            latitude: $data['latitude'] ?? null,
-            longitude: $data['longitude'] ?? null,
-            previewStartDate: new DateTime($data['preview_start_date']),
-            previewEndDate: new DateTime($data['preview_end_date']),
-            claimStartDate: new DateTime($data['claim_start_date']),
-            claimEndDate: new DateTime($data['claim_end_date']),
-            pickupDate: new DateTime($data['pickup_date']),
+            location: $location,
+            latitude: $data['latitude'] !== null ? (float)$data['latitude'] : null,
+            longitude: $data['longitude'] !== null ? (float)$data['longitude'] : null,
+            previewStartDate: $previewStart ? new DateTime($previewStart) : new DateTime(),
+            previewEndDate: $previewEnd ? new DateTime($previewEnd) : new DateTime(),
+            claimStartDate: $claimStart ? new DateTime($claimStart) : new DateTime(),
+            claimEndDate: $claimEnd ? new DateTime($claimEnd) : new DateTime(),
+            pickupDate: $pickupDate ? new DateTime($pickupDate) : new DateTime(),
             pickupInstructions: $data['pickup_instructions'] ?? null,
             status: $data['status'] ?? 'draft',
             qrCode: $data['qr_code'] ?? null,
             accessCode: $data['access_code'] ?? null,
-            requireAuth: $data['require_auth'] ?? true,
-            settings: $data['settings'] ?? [],
+            requireAuth: (bool)($data['require_auth'] ?? true),
+            settings: isset($data['settings']) && is_string($data['settings']) ? json_decode($data['settings'], true) : [],
             createdAt: isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime(),
             updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at']) : null
         );

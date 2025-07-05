@@ -305,8 +305,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="header-content">
             <div class="logo">YFClaim Seller Portal</div>
             <nav class="nav-links">
-                <a href="/seller/dashboard">Dashboard</a>
-                <a href="/seller/sales">My Sales</a>
+                <a href="/modules/yfclaim/seller-dashboard">Dashboard</a>
+                <a href="/modules/yfclaim/seller-dashboard?section=sales">My Sales</a>
                 <a href="/modules/yfclaim/www/api/seller-auth.php?action=logout">Logout</a>
             </nav>
         </div>
@@ -455,7 +455,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 
                 <div class="form-actions">
-                    <a href="/seller/dashboard" class="btn btn-secondary">Cancel</a>
+                    <a href="/modules/yfclaim/seller-dashboard" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create Sale</button>
                 </div>
             </form>
