@@ -1,6 +1,21 @@
 <?php
 session_start();
 
+// Check if embedded mode
+$isEmbedded = isset($_GET['embedded']) && $_GET['embedded'] === 'true';
+$sellerId = $_GET['seller_id'] ?? null;
+
+// If embedded, ensure seller is authenticated
+if ($isEmbedded && $sellerId) {
+    // Check if user is logged in as a seller
+    if (!isset($_SESSION['claim_seller_id']) || $_SESSION['claim_seller_id'] != $sellerId) {
+        // Also check if they're logged in via YFAuth
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'seller') {
+            die('Unauthorized access');
+        }
+    }
+}
+
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: /login.php');
@@ -52,7 +67,7 @@ $userRole = $_SESSION['user_role'] ?? 'user';
     <?php endif; ?>
 </head>
 <body class="<?php echo $isMobile ? 'mobile-view' : 'desktop-view'; ?>" data-device="<?php echo $deviceType; ?>">
-    <?php if ($isMobile): ?>
+    <?php if ($isMobile && !$isEmbedded): ?>
     <!-- Mobile Header -->
     <div class="mobile-header">
         <button class="header-action" onclick="toggleMobileDrawer()">
@@ -106,6 +121,7 @@ $userRole = $_SESSION['user_role'] ?? 'user';
     <div class="communication-hub">
         <div class="row g-0 h-100">
             <!-- Channel Sidebar (Desktop only) -->
+            <?php if (!$isEmbedded): ?>
             <div class="col-md-3 col-lg-2 border-end" id="channelSidebar">
                 <div class="sidebar h-100 d-flex flex-column">
                     <div class="sidebar-header p-3 border-bottom">
@@ -174,9 +190,10 @@ $userRole = $_SESSION['user_role'] ?? 'user';
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
             
             <!-- Main Chat Area -->
-            <div class="col-md-9 col-lg-10">
+            <div class="<?php echo $isEmbedded ? 'col-12' : 'col-md-9 col-lg-10'; ?>">
                 <div class="chat-area h-100 d-flex flex-column">
                     <!-- Channel Header -->
                     <div class="channel-header p-3 border-bottom" id="channel-header">

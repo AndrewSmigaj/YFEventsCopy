@@ -21,7 +21,7 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
     
     protected function getTableName(): string
     {
-        return 'chat_participants';
+        return 'communication_participants';
     }
     
     protected function getEntityClass(): string
@@ -34,18 +34,7 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
      */
     protected function mapDbToEntity(array $data): array
     {
-        // Map conversation_id to channel_id for the Participant entity
-        if (isset($data['conversation_id'])) {
-            $data['channel_id'] = $data['conversation_id'];
-            unset($data['conversation_id']);
-        }
-        
-        // Set defaults for fields we don't use
-        $data['is_muted'] = false;
-        $data['notification_preference'] = 'all';
-        $data['email_digest_frequency'] = 'never';
-        $data['last_read_at'] = $data['last_seen'] ?? null;
-        
+        // Database fields now match entity fields
         return $data;
     }
     
@@ -54,16 +43,8 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
      */
     protected function mapEntityToDb(Participant $participant): array
     {
-        return [
-            'id' => $participant->getId(),
-            'conversation_id' => $participant->getChannelId(), // Map channel_id to conversation_id
-            'user_id' => $participant->getUserId(),
-            'role' => $participant->getRole(),
-            'joined_at' => $participant->getJoinedAt()->format('Y-m-d H:i:s'),
-            'is_active' => true,
-            'last_read_message_id' => $participant->getLastReadMessageId(),
-            'last_seen' => $participant->getLastReadAt()?->format('Y-m-d H:i:s')
-        ];
+        // Use entity's toArray method which already has correct field names
+        return $participant->toArray();
     }
     
     public function findById(int $id): ?Participant
@@ -83,10 +64,10 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
     public function findByChannelIdAndUserId(int $channelId, int $userId): ?Participant
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id AND user_id = :user_id";
+                WHERE channel_id = :channel_id AND user_id = :user_id";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
-            'conversation_id' => $channelId,
+            'channel_id' => $channelId,
             'user_id' => $userId
         ]);
         
@@ -98,18 +79,16 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         return Participant::fromArray($this->mapDbToEntity($data));
     }
     
-    public function findByChannelId(int $channelId, int $limit = 100, int $offset = 0): array
+    public function findByChannelId(int $channelId, bool $activeOnly = true): array
     {
-        $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id 
-                ORDER BY joined_at ASC 
-                LIMIT :limit OFFSET :offset";
-                
+        $sql = "SELECT * FROM {$this->getTableName()} WHERE channel_id = :channel_id";
+        if ($activeOnly) {
+            $sql .= " AND is_active = 1";
+        }
+        $sql .= " ORDER BY joined_at ASC";
+        
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':conversation_id', $channelId, \PDO::PARAM_INT);
-        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute(['channel_id' => $channelId]);
         
         $results = [];
         while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -119,11 +98,12 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         return $results;
     }
     
-    public function findByUserId(int $userId, bool $includeMuted = false): array
+    public function findByUserId(int $userId, bool $activeOnly = true): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} WHERE user_id = :user_id";
-        
-        // Note: is_muted field doesn't exist in our schema, always include all
+        if ($activeOnly) {
+            $sql .= " AND is_active = 1";
+        }
         $sql .= " ORDER BY joined_at DESC";
         
         $stmt = $this->connection->prepare($sql);
@@ -137,9 +117,6 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         return $results;
     }
     
-    /**
-     * Save a participant
-     */
     public function save(Participant $participant): Participant
     {
         $data = $this->mapEntityToDb($participant);
@@ -148,8 +125,10 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
             // Insert new participant
             unset($data['id']);
             $sql = "INSERT INTO {$this->getTableName()} 
-                    (conversation_id, user_id, role, joined_at, is_active, last_read_message_id, last_seen) 
-                    VALUES (:conversation_id, :user_id, :role, :joined_at, :is_active, :last_read_message_id, :last_seen)";
+                    (channel_id, user_id, role, joined_at, last_read_message_id, last_read_at,
+                     notification_preference, email_digest_frequency, is_muted) 
+                    VALUES (:channel_id, :user_id, :role, :joined_at, :last_read_message_id, :last_read_at,
+                            :notification_preference, :email_digest_frequency, :is_muted)";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($data);
@@ -159,16 +138,19 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         } else {
             // Update existing participant
             $sql = "UPDATE {$this->getTableName()} 
-                    SET role = :role, is_active = :is_active, 
-                        last_read_message_id = :last_read_message_id, last_seen = :last_seen 
+                    SET role = :role, last_read_message_id = :last_read_message_id, 
+                        last_read_at = :last_read_at, notification_preference = :notification_preference,
+                        email_digest_frequency = :email_digest_frequency, is_muted = :is_muted
                     WHERE id = :id";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute([
                 'role' => $data['role'],
-                'is_active' => $data['is_active'],
                 'last_read_message_id' => $data['last_read_message_id'],
-                'last_seen' => $data['last_seen'],
+                'last_read_at' => $data['last_read_at'],
+                'notification_preference' => $data['notification_preference'],
+                'email_digest_frequency' => $data['email_digest_frequency'],
+                'is_muted' => $data['is_muted'],
                 'id' => $data['id']
             ]);
             
@@ -176,86 +158,68 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         }
     }
     
-    public function deleteByChannelIdAndUserId(int $channelId, int $userId): bool
-    {
-        $sql = "DELETE FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id AND user_id = :user_id";
-        $stmt = $this->connection->prepare($sql);
-        return $stmt->execute([
-            'conversation_id' => $channelId,
-            'user_id' => $userId
-        ]);
-    }
-    
-    public function countByChannelId(int $channelId): int
-    {
-        $sql = "SELECT COUNT(*) FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id";
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['conversation_id' => $channelId]);
-        return (int) $stmt->fetchColumn();
-    }
-    
-    public function findChannelAdmins(int $channelId): array
-    {
-        $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id AND role = :role 
-                ORDER BY joined_at ASC";
-                
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute([
-            'conversation_id' => $channelId,
-            'role' => Participant::ROLE_ADMIN
-        ]);
-        
-        $results = [];
-        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $results[] = Participant::fromArray($this->mapDbToEntity($data));
-        }
-        
-        return $results;
-    }
-    
     public function isUserInChannel(int $channelId, int $userId): bool
     {
         $sql = "SELECT COUNT(*) FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id AND user_id = :user_id";
+                WHERE channel_id = :channel_id AND user_id = :user_id";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
-            'conversation_id' => $channelId,
+            'channel_id' => $channelId,
             'user_id' => $userId
         ]);
-        return (int)$stmt->fetchColumn() > 0;
+        
+        return (int) $stmt->fetchColumn() > 0;
     }
     
-    public function updateLastRead(int $channelId, int $userId, int $messageId): bool
+    public function countByChannelId(int $channelId, bool $activeOnly = true): int
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->getTableName()} WHERE channel_id = :channel_id";
+        if ($activeOnly) {
+            $sql .= " AND is_active = 1";
+        }
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['channel_id' => $channelId]);
+        
+        return (int) $stmt->fetchColumn();
+    }
+    
+    public function updateLastReadMessage(int $channelId, int $userId, int $messageId): bool
     {
         $sql = "UPDATE {$this->getTableName()} 
-                SET last_read_message_id = :message_id, last_seen = NOW() 
-                WHERE conversation_id = :conversation_id AND user_id = :user_id";
+                SET last_read_message_id = :message_id, last_read_at = CURRENT_TIMESTAMP 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
+        
         $stmt = $this->connection->prepare($sql);
         return $stmt->execute([
             'message_id' => $messageId,
-            'conversation_id' => $channelId,
+            'channel_id' => $channelId,
             'user_id' => $userId
         ]);
     }
     
-    public function findForDigest(string $frequency): array
+    public function updateNotificationPreference(int $channelId, int $userId, string $preference): bool
     {
-        // Email digest not supported in simplified chat
-        return [];
-    }
-    
-    public function findUsersToNotify(int $channelId, string $notificationType = 'all'): array
-    {
-        // In our simplified schema, all active participants get notifications
-        $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id 
-                AND is_active = 1";
+        $sql = "UPDATE {$this->getTableName()} 
+                SET notification_preference = :preference 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
         
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['conversation_id' => $channelId]);
+        return $stmt->execute([
+            'preference' => $preference,
+            'channel_id' => $channelId,
+            'user_id' => $userId
+        ]);
+    }
+    
+    public function findAdmins(int $channelId): array
+    {
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE channel_id = :channel_id AND role = 'admin' 
+                ORDER BY joined_at ASC";
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['channel_id' => $channelId]);
         
         $results = [];
         while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -263,5 +227,57 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         }
         
         return $results;
+    }
+    
+    public function removeFromChannel(int $channelId, int $userId): bool
+    {
+        $sql = "DELETE FROM {$this->getTableName()} 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
+        
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute([
+            'channel_id' => $channelId,
+            'user_id' => $userId
+        ]);
+    }
+    
+    public function updateRole(int $channelId, int $userId, string $role): bool
+    {
+        $sql = "UPDATE {$this->getTableName()} 
+                SET role = :role 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
+        
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute([
+            'role' => $role,
+            'channel_id' => $channelId,
+            'user_id' => $userId
+        ]);
+    }
+    
+    public function muteChannel(int $channelId, int $userId): bool
+    {
+        $sql = "UPDATE {$this->getTableName()} 
+                SET is_muted = 1 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
+        
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute([
+            'channel_id' => $channelId,
+            'user_id' => $userId
+        ]);
+    }
+    
+    public function unmuteChannel(int $channelId, int $userId): bool
+    {
+        $sql = "UPDATE {$this->getTableName()} 
+                SET is_muted = 0 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
+        
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute([
+            'channel_id' => $channelId,
+            'user_id' => $userId
+        ]);
     }
 }

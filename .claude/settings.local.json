@@ -52,7 +52,11 @@
       "Bash(apache2ctl:*)",
       "Bash(curl -s \"http://localhost:8000/claims/sale?id=2\")",
       "Bash(cat:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit:*)",
+      "Bash(realpath:*)"
     ],
     "deny": []
   }

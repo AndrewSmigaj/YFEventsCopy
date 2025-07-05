@@ -11,8 +11,9 @@ YFEvents is a modern PHP application built with Clean Architecture principles, p
 - **Estate Sales** - Complete estate sale management system (YFClaim module)
 - **Event Scraping** - Automated collection from multiple sources
 - **Unified Authentication** - Centralized auth system for all modules
+- **Real-time Chat** - Integrated communication system for sellers and admins
 
-**Version**: 2.1.0  
+**Version**: 2.2.0  
 **Status**: Production Ready  
 **License**: MIT
 
@@ -50,10 +51,39 @@ YFEvents is a modern PHP application built with Clean Architecture principles, p
 
 ## 🚀 Quick Start
 
+### Option 1: Automated Deployment (Recommended)
+
+Deploy to a fresh Ubuntu 22.04 server (e.g., Digital Ocean droplet):
+
+```bash
+# SSH into your server
+ssh root@your-server-ip
+
+# Download and run setup script
+wget https://raw.githubusercontent.com/AndrewSmigaj/YFEventsCopy/main/scripts/deploy/setup-server.sh
+chmod +x setup-server.sh
+sudo ./setup-server.sh
+
+# Download and run deployment script
+wget https://raw.githubusercontent.com/AndrewSmigaj/YFEventsCopy/main/scripts/deploy/deploy.sh
+chmod +x deploy.sh
+sudo ./deploy.sh https://github.com/AndrewSmigaj/YFEventsCopy.git
+```
+
+The deployment script will:
+- Clone the repository to `/var/www/yfevents`
+- Install all dependencies
+- Configure the database
+- Set up Apache with SSL
+- Create your first admin user
+- Configure automated event scraping
+
+### Option 2: Manual Installation
+
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-org/yfevents.git
-cd yfevents
+git clone https://github.com/AndrewSmigaj/YFEventsCopy.git
+cd YFEventsCopy
 ```
 
 2. **Install dependencies**
@@ -64,13 +94,16 @@ composer install
 3. **Configure environment**
 ```bash
 cp .env.example .env
-# Edit .env with your database credentials and API keys
+# Edit .env with your settings
 ```
 
 4. **Import database**
 ```bash
-# See database/INSTALL_ORDER.md for detailed instructions
+# Run in order (see database/INSTALL_ORDER.md)
 mysql -u root -p your_database < database/calendar_schema.sql
+mysql -u root -p your_database < database/shop_claim_system.sql
+mysql -u root -p your_database < database/communication_schema_fixed.sql
+mysql -u root -p your_database < database/seed_communication_channels.sql
 mysql -u root -p your_database < modules/yfauth/database/schema.sql
 mysql -u root -p your_database < modules/yfclaim/database/schema.sql
 ```
@@ -105,7 +138,8 @@ src/
 modules/
 ├── yfauth/         # Authentication system
 ├── yfclaim/        # Estate sales system
-└── yftheme/        # Theme customization
+├── yftheme/        # Theme customization
+└── Communication/  # Chat system (in Domain layer)
 ```
 
 For detailed architecture documentation, see [architecture.yaml](architecture.yaml).
@@ -151,6 +185,7 @@ Modules can be configured in their respective directories:
 - [architecture.yaml](architecture.yaml) - System architecture
 - [database/INSTALL_ORDER.md](database/INSTALL_ORDER.md) - Database setup
 - [modules/README.md](modules/README.md) - Module development
+- [docs/CHAT_SYSTEM_DOCUMENTATION.md](docs/CHAT_SYSTEM_DOCUMENTATION.md) - Chat system implementation
 
 ## 🔌 API Reference
 
@@ -173,6 +208,15 @@ GET  /api/admin/events        # Admin: list events
 POST /api/admin/events/{id}   # Admin: update event
 ```
 
+### Communication Endpoints (Authenticated)
+
+```
+GET  /api/communication/unread-count      # Get unread message count
+GET  /communication/?embedded=true        # Embedded chat interface
+```
+
+For full chat API documentation, see [Chat System Documentation](docs/CHAT_SYSTEM_DOCUMENTATION.md).
+
 ## 🛠️ Development
 
 ### Code Style
@@ -188,6 +232,7 @@ php tests/run_all_tests.php
 # Test specific components
 php tests/test_core_functionality.php
 php tests/test_web_interfaces.php
+php tests/test_chat_system_updated.php
 ```
 
 ### Adding Features
@@ -198,14 +243,29 @@ php tests/test_web_interfaces.php
 
 ## 🚀 Deployment
 
-1. Set `APP_ENV=production` in `.env`
-2. Run `composer install --no-dev -o`
-3. Set up cron for event scraping:
-   ```cron
-   0 */6 * * * /usr/bin/php /path/to/yfevents/cron/scrape-events.php
-   ```
-4. Configure proper file permissions
-5. Enable OPcache for performance
+YFEvents includes automated deployment scripts for production servers.
+
+### Prerequisites
+- Ubuntu 22.04 server (e.g., Digital Ocean droplet with 2GB+ RAM)
+- Root access to the server
+- Domain name pointed to server IP
+
+### Automated Deployment
+
+See the [Quick Start](#-quick-start) section above for the automated deployment process.
+
+### Post-Deployment
+
+1. Configure Google Maps API key in `.env`
+2. Set up email credentials for notifications
+3. Monitor logs at `/var/www/yfevents/storage/logs/`
+4. Access admin panel to manage events and users
+
+### Maintenance
+
+- Event scraping runs automatically via cron
+- Logs rotate daily
+- Run health check: `php scripts/deploy/health-check.php`
 
 ## 🤝 Contributing
 

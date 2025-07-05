@@ -471,6 +471,10 @@ if (isset($_GET['action'])) {
             <a href="#sales" class="nav-item" onclick="showSection('sales')">🏪 My Sales</a>
             <a href="#offers" class="nav-item" onclick="showSection('offers')">💰 Recent Offers</a>
             <a href="#analytics" class="nav-item" onclick="showSection('analytics')">📈 Analytics</a>
+            <a href="#chat" class="nav-item" onclick="showSection('chat')">
+                💬 Messages
+                <span id="unread-badge" class="badge bg-danger ms-1" style="display: none;">0</span>
+            </a>
             <a href="/modules/yfclaim/www/admin/" class="nav-item">⚙️ Full Admin</a>
         </div>
     </nav>
@@ -618,6 +622,28 @@ if (isset($_GET['action'])) {
         </div>
 
         <!-- Other sections (offers, analytics) would be implemented similarly -->
+        
+        <!-- Chat Section -->
+        <div id="chat-section" class="section" style="display: none;">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-1">💬 Communication Hub</h3>
+                        <p class="text-muted mb-0">Connect with admins and get support</p>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" onclick="openChatInNewWindow()">
+                        <i class="fa fa-external-link-alt"></i> Open in New Window
+                    </button>
+                </div>
+                <div class="card-body p-0" style="background: #f8f9fa;">
+                    <iframe id="chat-iframe" 
+                            src="/communication/?embedded=true&seller_id=<?= htmlspecialchars($seller['id']) ?>" 
+                            style="width: 100%; height: calc(100vh - 300px); min-height: 500px; border: none;"
+                            allow="camera; microphone">
+                    </iframe>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -711,6 +737,51 @@ if (isset($_GET['action'])) {
             });
             event.target.classList.add('active');
         }
+        
+        // Function to open chat in new window
+        function openChatInNewWindow() {
+            window.open('/communication/', 'YFEventsChat', 'width=800,height=600');
+        }
+        
+        // Check for unread messages
+        async function checkUnreadMessages() {
+            try {
+                const response = await fetch('/api/communication/unread-count', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                const badge = document.getElementById('unread-badge');
+                if (data.unread > 0) {
+                    badge.textContent = data.unread;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to fetch unread count:', error);
+            }
+        }
+        
+        // Check unread messages every 30 seconds
+        setInterval(checkUnreadMessages, 30000);
+        checkUnreadMessages(); // Initial check
+        
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            // Verify origin for security
+            if (event.origin !== window.location.origin) return;
+            
+            if (event.data.type === 'unread-count') {
+                const badge = document.getElementById('unread-badge');
+                if (event.data.count > 0) {
+                    badge.textContent = event.data.count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        });
     </script>
 </body>
 </html>

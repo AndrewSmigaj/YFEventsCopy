@@ -285,6 +285,16 @@ class ClaimsController extends BaseController
                 $_SESSION['yfclaim_seller_id'] = $result['seller']['id'];
                 $_SESSION['yfclaim_seller_name'] = $result['seller']['company_name'];
                 
+                // Ensure seller is in global chat channels
+                try {
+                    $container = require __DIR__ . '/../../../../config/container.php';
+                    $adminSellerChat = $container->resolve(\YFEvents\Application\Services\Communication\AdminSellerChatService::class);
+                    $adminSellerChat->ensureUserInGlobalChannels($result['auth_user']['id'], 'seller');
+                } catch (Exception $chatEx) {
+                    // Log but don't fail login if chat setup fails
+                    error_log('Failed to add seller to chat channels: ' . $chatEx->getMessage());
+                }
+                
                 echo json_encode([
                     'success' => true,
                     'redirect' => '/modules/yfclaim/www/dashboard/'

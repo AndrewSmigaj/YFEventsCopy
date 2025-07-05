@@ -21,7 +21,7 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
     
     protected function getTableName(): string
     {
-        return 'chat_messages';
+        return 'communication_messages';
     }
     
     protected function getEntityClass(): string
@@ -34,22 +34,10 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
      */
     protected function mapDbToEntity(array $data): array
     {
-        // Map conversation_id to channel_id for the Message entity
-        if (isset($data['conversation_id'])) {
-            $data['channel_id'] = $data['conversation_id'];
-            unset($data['conversation_id']);
+        // Database fields now match entity fields, just handle JSON
+        if (isset($data['metadata']) && is_string($data['metadata'])) {
+            $data['metadata'] = json_decode($data['metadata'], true) ?? [];
         }
-        
-        // Set defaults for fields we don't use
-        $data['parent_message_id'] = null;
-        $data['content_type'] = 'text';
-        $data['is_pinned'] = false;
-        $data['is_edited'] = false;
-        $data['yfclaim_item_id'] = null;
-        $data['metadata'] = '{}';
-        $data['email_message_id'] = null;
-        $data['reply_count'] = 0;
-        $data['reaction_count'] = 0;
         
         return $data;
     }
@@ -59,15 +47,8 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
      */
     protected function mapEntityToDb(Message $message): array
     {
-        return [
-            'id' => $message->getId(),
-            'conversation_id' => $message->getChannelId(), // Map channel_id to conversation_id
-            'user_id' => $message->getUserId(),
-            'content' => $message->getContent(),
-            'is_deleted' => $message->isDeleted() ? 1 : 0,
-            'deleted_at' => $message->getDeletedAt()?->format('Y-m-d H:i:s'),
-            'created_at' => $message->getCreatedAt()->format('Y-m-d H:i:s')
-        ];
+        // Use entity's toArray method which already has correct field names
+        return $message->toArray();
     }
     
     /**
@@ -81,8 +62,12 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
             // Insert new message
             unset($data['id']);
             $sql = "INSERT INTO {$this->getTableName()} 
-                    (conversation_id, user_id, content, is_deleted, created_at) 
-                    VALUES (:conversation_id, :user_id, :content, :is_deleted, :created_at)";
+                    (channel_id, user_id, parent_message_id, content, content_type, 
+                     is_pinned, is_edited, is_deleted, yfclaim_item_id, metadata, 
+                     email_message_id, reply_count, reaction_count, created_at, updated_at) 
+                    VALUES (:channel_id, :user_id, :parent_message_id, :content, :content_type,
+                            :is_pinned, :is_edited, :is_deleted, :yfclaim_item_id, :metadata,
+                            :email_message_id, :reply_count, :reaction_count, :created_at, :updated_at)";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($data);
@@ -92,14 +77,17 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         } else {
             // Update existing message
             $sql = "UPDATE {$this->getTableName()} 
-                    SET content = :content, is_deleted = :is_deleted, deleted_at = :deleted_at 
+                    SET content = :content, is_edited = :is_edited, is_deleted = :is_deleted, 
+                        deleted_at = :deleted_at, updated_at = :updated_at
                     WHERE id = :id";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute([
                 'content' => $data['content'],
+                'is_edited' => $data['is_edited'],
                 'is_deleted' => $data['is_deleted'],
                 'deleted_at' => $data['deleted_at'],
+                'updated_at' => $data['updated_at'],
                 'id' => $data['id']
             ]);
             
@@ -121,15 +109,15 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         return Message::fromArray($this->mapDbToEntity($data));
     }
     
-    public function findByConversationId(int $conversationId, int $limit = 50, int $offset = 0): array
+    public function findByChannelId(int $channelId, int $limit = 50, int $offset = 0): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id AND is_deleted = 0 
+                WHERE channel_id = :channel_id AND is_deleted = 0 
                 ORDER BY created_at DESC 
                 LIMIT :limit OFFSET :offset";
                 
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':conversation_id', $conversationId, \PDO::PARAM_INT);
+        $stmt->bindValue(':channel_id', $channelId, \PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
         $stmt->execute();
@@ -143,43 +131,79 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         return array_reverse($results);
     }
     
-    // Thread replies not supported in simplified chat
     public function findByParentMessageId(int $parentMessageId, int $limit = 20): array
     {
-        return [];
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE parent_message_id = :parent_message_id AND is_deleted = 0 
+                ORDER BY created_at ASC 
+                LIMIT :limit";
+                
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindValue(':parent_message_id', $parentMessageId, \PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $results = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $results[] = Message::fromArray($this->mapDbToEntity($data));
+        }
+        
+        return $results;
     }
     
-    // Email integration not supported in simplified chat
     public function findByEmailMessageId(string $emailMessageId): ?Message
     {
-        return null;
+        $sql = "SELECT * FROM {$this->getTableName()} WHERE email_message_id = :email_message_id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['email_message_id' => $emailMessageId]);
+        
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if (!$data) {
+            return null;
+        }
+        
+        return Message::fromArray($this->mapDbToEntity($data));
     }
     
-    // Pinned messages not supported in simplified chat
-    public function findPinnedMessages(int $conversationId): array
-    {
-        return [];
-    }
-    
-    
-    
-    // Thread replies not supported in simplified chat
-    public function countReplies(int $messageId): int
-    {
-        return 0;
-    }
-    
-    public function searchMessages(int $conversationId, string $query, int $limit = 50): array
+    public function findPinnedMessages(int $channelId): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id 
+                WHERE channel_id = :channel_id AND is_pinned = 1 AND is_deleted = 0 
+                ORDER BY created_at DESC";
+                
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['channel_id' => $channelId]);
+        
+        $results = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $results[] = Message::fromArray($this->mapDbToEntity($data));
+        }
+        
+        return $results;
+    }
+    
+    public function countReplies(int $messageId): int
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->getTableName()} 
+                WHERE parent_message_id = :message_id AND is_deleted = 0";
+                
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['message_id' => $messageId]);
+        
+        return (int) $stmt->fetchColumn();
+    }
+    
+    public function searchMessages(int $channelId, string $query, int $limit = 50): array
+    {
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE channel_id = :channel_id 
                 AND is_deleted = 0 
                 AND content LIKE :query
                 ORDER BY created_at DESC 
                 LIMIT :limit";
                 
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':conversation_id', $conversationId, \PDO::PARAM_INT);
+        $stmt->bindValue(':channel_id', $channelId, \PDO::PARAM_INT);
         $stmt->bindValue(':query', '%' . $query . '%');
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->execute();
@@ -192,23 +216,38 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         return $results;
     }
     
-    // Mentions not supported in simplified chat
     public function findMentionsForUser(int $userId, int $limit = 20): array
     {
-        return [];
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE is_deleted = 0 
+                AND content LIKE :mention
+                ORDER BY created_at DESC 
+                LIMIT :limit";
+                
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindValue(':mention', '%@user' . $userId . '%');
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $results = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $results[] = Message::fromArray($this->mapDbToEntity($data));
+        }
+        
+        return $results;
     }
     
-    public function getUnreadCount(int $conversationId, int $userId, int $lastReadMessageId): int
+    public function getUnreadCount(int $channelId, int $userId, int $lastReadMessageId): int
     {
         $sql = "SELECT COUNT(*) FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id 
+                WHERE channel_id = :channel_id 
                 AND id > :last_read_id 
                 AND user_id != :user_id 
                 AND is_deleted = 0";
                 
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
-            'conversation_id' => $conversationId,
+            'channel_id' => $channelId,
             'last_read_id' => $lastReadMessageId,
             'user_id' => $userId
         ]);
@@ -216,17 +255,17 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         return (int) $stmt->fetchColumn();
     }
     
-    public function findMessagesAfter(int $conversationId, int $messageId, int $limit = 50): array
+    public function findMessagesAfter(int $channelId, int $messageId, int $limit = 50): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id 
+                WHERE channel_id = :channel_id 
                 AND id > :message_id 
                 AND is_deleted = 0 
                 ORDER BY id ASC 
                 LIMIT :limit";
                 
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':conversation_id', $conversationId, \PDO::PARAM_INT);
+        $stmt->bindValue(':channel_id', $channelId, \PDO::PARAM_INT);
         $stmt->bindValue(':message_id', $messageId, \PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->execute();
@@ -239,17 +278,17 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         return $results;
     }
     
-    public function findMessagesBefore(int $conversationId, int $messageId, int $limit = 50): array
+    public function findMessagesBefore(int $channelId, int $messageId, int $limit = 50): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id 
+                WHERE channel_id = :channel_id 
                 AND id < :message_id 
                 AND is_deleted = 0 
                 ORDER BY id DESC 
                 LIMIT :limit";
                 
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':conversation_id', $conversationId, \PDO::PARAM_INT);
+        $stmt->bindValue(':channel_id', $channelId, \PDO::PARAM_INT);
         $stmt->bindValue(':message_id', $messageId, \PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->execute();
@@ -272,14 +311,21 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         return $stmt->execute(['id' => $messageId]);
     }
     
-    // Reply/reaction counts not supported in simplified chat
     public function updateReplyCount(int $messageId, int $count): bool
     {
-        return true;
+        $sql = "UPDATE {$this->getTableName()} 
+                SET reply_count = :count 
+                WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute(['count' => $count, 'id' => $messageId]);
     }
     
     public function updateReactionCount(int $messageId, int $count): bool
     {
-        return true;
+        $sql = "UPDATE {$this->getTableName()} 
+                SET reaction_count = :count 
+                WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute(['count' => $count, 'id' => $messageId]);
     }
 }

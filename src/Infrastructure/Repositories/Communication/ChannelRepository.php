@@ -21,7 +21,7 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     
     protected function getTableName(): string
     {
-        return 'chat_conversations';
+        return 'communication_channels';
     }
     
     protected function getEntityClass(): string
@@ -34,30 +34,10 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
      */
     protected function mapDbToEntity(array $data): array
     {
-        // Map our simplified DB types to domain ChannelType values
-        $typeMapping = [
-            'support' => 'public',  // Support channel is public
-            'tips' => 'public',     // Tips channel is public
-            'direct' => 'private'   // Direct messages are private
-        ];
-        
-        $dbType = $data['type'] ?? 'direct';
-        $domainType = $typeMapping[$dbType] ?? 'public';
-        
-        // Map chat_conversations fields to Channel entity
-        $data['name'] = $data['title'] ?? '';
-        $data['slug'] = strtolower(str_replace(' ', '-', $data['title'] ?? $dbType));
-        $data['type'] = $domainType;  // Use mapped domain type
-        $data['created_by_user_id'] = $data['created_by'] ?? 1;
-        $data['is_archived'] = !($data['is_active'] ?? true);
-        $data['settings'] = isset($data['settings']) ? json_decode($data['settings'], true) : [];
-        $data['message_count'] = 0;
-        $data['participant_count'] = 0;
-        $data['last_activity_at'] = $data['last_activity'] ?? null;
-        
-        // Set defaults for fields not in our schema
-        $data['event_id'] = null;
-        $data['shop_id'] = null;
+        // Database fields now match entity fields, just handle JSON
+        if (isset($data['settings']) && is_string($data['settings'])) {
+            $data['settings'] = json_decode($data['settings'], true) ?? [];
+        }
         
         return $data;
     }
@@ -67,39 +47,8 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
      */
     protected function mapEntityToDb(Channel $channel): array
     {
-        // Determine DB type based on channel properties
-        $domainType = $channel->getType()->getValue();
-        $channelName = strtolower($channel->getName());
-        
-        // Map domain types back to our DB types
-        if ($domainType === 'public') {
-            // Determine which public channel based on name
-            if (strpos($channelName, 'support') !== false) {
-                $dbType = 'support';
-            } elseif (strpos($channelName, 'tip') !== false || strpos($channelName, 'sell') !== false) {
-                $dbType = 'tips';
-            } else {
-                $dbType = 'support'; // Default public to support
-            }
-        } elseif ($domainType === 'private') {
-            $dbType = 'direct';
-        } else {
-            // For other types (vendor, event, etc), default to direct
-            $dbType = 'direct';
-        }
-        
-        return [
-            'id' => $channel->getId(),
-            'type' => $dbType,
-            'title' => $channel->getName(),
-            'description' => $channel->getDescription(),
-            'created_by' => $channel->getCreatedByUserId(),
-            'is_active' => !$channel->isArchived(),
-            'last_message_id' => null,
-            'last_activity' => $channel->getLastActivityAt()?->format('Y-m-d H:i:s'),
-            'created_at' => $channel->getCreatedAt()->format('Y-m-d H:i:s'),
-            'updated_at' => $channel->getUpdatedAt()->format('Y-m-d H:i:s')
-        ];
+        // Use entity's toArray method which already has correct field names
+        return $channel->toArray();
     }
     
     public function findById(int $id): ?Channel
@@ -177,7 +126,7 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
         $archivedCondition = $includeArchived ? '' : 'AND c.is_archived = 0';
         
         $sql = "SELECT c.* FROM {$this->getTableName()} c
-                INNER JOIN chat_participants p ON c.id = p.conversation_id
+                INNER JOIN communication_participants p ON c.id = p.channel_id
                 WHERE p.user_id = :user_id {$archivedCondition}
                 ORDER BY c.last_activity DESC, c.created_at DESC";
                 
@@ -196,20 +145,20 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     
     public function countParticipants(int $channelId): int
     {
-        $sql = "SELECT COUNT(*) FROM chat_participants WHERE conversation_id = :conversation_id";
+        $sql = "SELECT COUNT(*) FROM communication_participants WHERE channel_id = :channel_id";
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['conversation_id' => $channelId]);
+        $stmt->execute(['channel_id' => $channelId]);
         
         return (int) $stmt->fetchColumn();
     }
     
     public function isUserParticipant(int $channelId, int $userId): bool
     {
-        $sql = "SELECT COUNT(*) FROM chat_participants 
-                WHERE conversation_id = :conversation_id AND user_id = :user_id";
+        $sql = "SELECT COUNT(*) FROM communication_participants 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
-            'conversation_id' => $channelId,
+            'channel_id' => $channelId,
             'user_id' => $userId
         ]);
         

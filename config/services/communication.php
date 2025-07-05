@@ -34,33 +34,33 @@ use YFEvents\Presentation\Api\Controllers\Communication\NotificationApiControlle
 return function (Container $container) {
     
     // Register repository interfaces
-    $container->register(ChannelRepositoryInterface::class, function($container) {
+    $container->bind(ChannelRepositoryInterface::class, function($container) {
         return new ChannelRepository(
             $container->resolve(ConnectionInterface::class)
         );
     });
     
-    $container->register(MessageRepositoryInterface::class, function($container) {
+    $container->bind(MessageRepositoryInterface::class, function($container) {
         return new MessageRepository(
             $container->resolve(ConnectionInterface::class)
         );
     });
     
-    $container->register(ParticipantRepositoryInterface::class, function($container) {
+    $container->bind(ParticipantRepositoryInterface::class, function($container) {
         return new ParticipantRepository(
             $container->resolve(ConnectionInterface::class)
         );
     });
     
     // Register domain services
-    $container->register(ChannelService::class, function($container) {
+    $container->bind(ChannelService::class, function($container) {
         return new ChannelService(
             $container->resolve(ChannelRepositoryInterface::class),
             $container->resolve(ParticipantRepositoryInterface::class)
         );
     });
     
-    $container->register(MessageService::class, function($container) {
+    $container->bind(MessageService::class, function($container) {
         return new MessageService(
             $container->resolve(MessageRepositoryInterface::class),
             $container->resolve(ChannelRepositoryInterface::class),
@@ -68,7 +68,7 @@ return function (Container $container) {
         );
     });
     
-    $container->register(AnnouncementService::class, function($container) {
+    $container->bind(AnnouncementService::class, function($container) {
         return new AnnouncementService(
             $container->resolve(ChannelRepositoryInterface::class),
             $container->resolve(MessageRepositoryInterface::class),
@@ -78,7 +78,7 @@ return function (Container $container) {
     });
     
     // Register application service
-    $container->register(CommunicationService::class, function($container) {
+    $container->bind(CommunicationService::class, function($container) {
         return new CommunicationService(
             $container->resolve(ChannelService::class),
             $container->resolve(MessageService::class),
@@ -87,25 +87,25 @@ return function (Container $container) {
     });
     
     // Register API controllers
-    $container->register(ChannelApiController::class, function($container) {
+    $container->bind(ChannelApiController::class, function($container) {
         return new ChannelApiController(
             $container->resolve(CommunicationService::class)
         );
     });
     
-    $container->register(MessageApiController::class, function($container) {
+    $container->bind(MessageApiController::class, function($container) {
         return new MessageApiController(
             $container->resolve(CommunicationService::class)
         );
     });
     
-    $container->register(AnnouncementApiController::class, function($container) {
+    $container->bind(AnnouncementApiController::class, function($container) {
         return new AnnouncementApiController(
             $container->resolve(CommunicationService::class)
         );
     });
     
-    $container->register(NotificationApiController::class, function($container) {
+    $container->bind(NotificationApiController::class, function($container) {
         return new NotificationApiController(
             $container->resolve(CommunicationService::class)
         );

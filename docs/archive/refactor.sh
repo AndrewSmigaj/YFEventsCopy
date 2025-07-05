@@ -1,7 +1,9 @@
 #!/bin/bash
-# YFEvents Refactoring Script
-# This script helps automate the refactoring process
-# Run with: bash refactor.sh
+# ARCHIVED: YFEvents Refactoring Script
+# This script was used for the initial refactoring to Clean Architecture
+# Archived on: $(date)
+# Status: COMPLETED - Do not run this script
+# This file is kept for historical reference only
 
 set -e  # Exit on error
 

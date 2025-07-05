@@ -25,6 +25,7 @@
 # OS
 .DS_Store
 Thumbs.db
+*.Zone.Identifier
 
 # Testing
 .phpunit.result.cache
@@ -60,3 +61,8 @@ coverage/
 # Architecture documentation
 # Track this file - it documents our system design
 # architecture.yaml
+
+# Removed directories (prevent accidental recreation)
+/var/
+/bin/
+/logs/

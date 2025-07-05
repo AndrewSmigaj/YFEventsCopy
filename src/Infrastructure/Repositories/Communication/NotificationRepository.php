@@ -21,7 +21,7 @@ class NotificationRepository extends AbstractRepository implements NotificationR
     
     protected function getTableName(): string
     {
-        return 'chat_notifications';
+        return 'communication_notifications';
     }
     
     protected function getEntityClass(): string
@@ -34,14 +34,10 @@ class NotificationRepository extends AbstractRepository implements NotificationR
      */
     protected function mapDbToEntity(array $data): array
     {
-        // Map conversation_id to channel_id for the Notification entity
-        if (isset($data['conversation_id'])) {
-            $data['channel_id'] = $data['conversation_id'];
-            unset($data['conversation_id']);
+        // Database fields now match entity fields, just handle JSON
+        if (isset($data['metadata']) && is_string($data['metadata'])) {
+            $data['metadata'] = json_decode($data['metadata'], true) ?? [];
         }
-        
-        // Our schema doesn't have metadata, set empty
-        $data['metadata'] = [];
         
         return $data;
     }
@@ -51,15 +47,8 @@ class NotificationRepository extends AbstractRepository implements NotificationR
      */
     protected function mapEntityToDb(Notification $notification): array
     {
-        return [
-            'id' => $notification->getId(),
-            'user_id' => $notification->getUserId(),
-            'conversation_id' => $notification->getChannelId(), // Map channel_id to conversation_id
-            'message_id' => $notification->getMessageId(),
-            'is_read' => $notification->isRead() ? 1 : 0,
-            'read_at' => $notification->getReadAt()?->format('Y-m-d H:i:s'),
-            'created_at' => $notification->getCreatedAt()->format('Y-m-d H:i:s')
-        ];
+        // Use entity's toArray method which already has correct field names
+        return $notification->toArray();
     }
     
     /**
@@ -73,8 +62,8 @@ class NotificationRepository extends AbstractRepository implements NotificationR
             // Insert new notification
             unset($data['id']);
             $sql = "INSERT INTO {$this->getTableName()} 
-                    (user_id, conversation_id, message_id, is_read, created_at) 
-                    VALUES (:user_id, :conversation_id, :message_id, :is_read, :created_at)";
+                    (user_id, channel_id, message_id, is_read, created_at) 
+                    VALUES (:user_id, :channel_id, :message_id, :is_read, :created_at)";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($data);
@@ -138,12 +127,12 @@ class NotificationRepository extends AbstractRepository implements NotificationR
     public function findByChannelIdAndUserId(int $channelId, int $userId, int $limit = 20): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE conversation_id = :conversation_id AND user_id = :user_id 
+                WHERE channel_id = :channel_id AND user_id = :user_id 
                 ORDER BY created_at DESC 
                 LIMIT :limit";
                 
         $stmt = $this->connection->prepare($sql);
-        $stmt->bindValue(':conversation_id', $channelId, \PDO::PARAM_INT);
+        $stmt->bindValue(':channel_id', $channelId, \PDO::PARAM_INT);
         $stmt->bindValue(':user_id', $userId, \PDO::PARAM_INT);
         $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
         $stmt->execute();
@@ -193,12 +182,12 @@ class NotificationRepository extends AbstractRepository implements NotificationR
     {
         $sql = "UPDATE {$this->getTableName()} 
                 SET is_read = 1, read_at = CURRENT_TIMESTAMP 
-                WHERE conversation_id = :conversation_id 
+                WHERE channel_id = :channel_id 
                 AND user_id = :user_id 
                 AND is_read = 0";
         $stmt = $this->connection->prepare($sql);
         return $stmt->execute([
-            'conversation_id' => $channelId,
+            'channel_id' => $channelId,
             'user_id' => $userId
         ]);
     }
@@ -220,21 +209,21 @@ class NotificationRepository extends AbstractRepository implements NotificationR
         }
         
         $sql = "INSERT INTO {$this->getTableName()} 
-                (user_id, conversation_id, message_id, is_read, created_at) VALUES ";
+                (user_id, channel_id, message_id, is_read, created_at) VALUES ";
         
         $placeholders = [];
         $values = [];
         $now = date('Y-m-d H:i:s');
         
         foreach ($userIds as $i => $userId) {
-            $placeholders[] = "(:user_id_{$i}, :conversation_id, :message_id, 0, :created_at)";
+            $placeholders[] = "(:user_id_{$i}, :channel_id, :message_id, 0, :created_at)";
             $values["user_id_{$i}"] = $userId;
         }
         
         $sql .= implode(', ', $placeholders);
         
         $stmt = $this->connection->prepare($sql);
-        $values['conversation_id'] = $channelId;
+        $values['channel_id'] = $channelId;
         $values['message_id'] = $messageId;
         $values['created_at'] = $now;
         
