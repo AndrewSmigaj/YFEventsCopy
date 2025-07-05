@@ -13,7 +13,7 @@ YFEvents is a modern PHP application built with Clean Architecture principles, p
 - **Unified Authentication** - Centralized auth system for all modules
 - **Real-time Chat** - Integrated communication system for sellers and admins
 
-**Version**: 2.2.0  
+**Version**: 2.3.0  
 **Status**: Production Ready  
 **License**: MIT
 
@@ -25,6 +25,8 @@ YFEvents is a modern PHP application built with Clean Architecture principles, p
 - Event search and filtering by category/location
 - Mobile-optimized interface with GPS support
 - Community event submission
+- Estate sale item gallery with advanced filtering
+- Dynamic homepage with real-time stats
 
 ### Administrative Features
 - Advanced admin dashboard
@@ -266,6 +268,22 @@ See the [Quick Start](#-quick-start) section above for the automated deployment 
 - Event scraping runs automatically via cron
 - Logs rotate daily
 - Run health check: `php scripts/deploy/health-check.php`
+
+## 📝 Recent Updates
+
+### Version 2.3.0 (July 2025)
+- **Homepage Overhaul**: Dynamic content with real-time stats
+- **Item Gallery**: Browse all estate sale items across sales
+  - Advanced filtering by category, price range, search
+  - Sort by newest, price, ending soon
+  - Responsive grid layout with pagination
+- **Improved UX**: Better navigation and discovery features
+- **Bug Fixes**: Database column mappings, repository registration
+
+### Version 2.2.0
+- **Chat System**: Real-time communication for sellers and admins
+- **Authentication**: Unified auth system via YFAuth module
+- **YFClaim**: Refactored to remove bidding, focus on contact forms
 
 ## 🤝 Contributing
 
