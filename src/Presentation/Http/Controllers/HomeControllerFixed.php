@@ -213,6 +213,94 @@ trait HomeControllerFixed
         }
         
         
+        /* Week Calendar */
+        .week-calendar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .week-calendar h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            padding: 8px 4px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        
+        .calendar-day:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+        
+        .calendar-day.today {
+            background: #e7f3ff;
+        }
+        
+        .day-name {
+            font-size: 0.75rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .day-number {
+            font-size: 1rem;
+            margin: 4px 0;
+            font-weight: 500;
+        }
+        
+        .day-dots {
+            height: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .dot.sales {
+            background: #764ba2;
+        }
+        
+        .dot.events {
+            background: #667eea;
+        }
+        
+        .dot.empty {
+            background: #e0e0e0;
+        }
+        
+        .calendar-link {
+            display: block;
+            text-align: center;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .calendar-link:hover {
+            text-decoration: underline;
+        }
+        
         /* Quick Actions */
         .quick-actions {
             background: white;
@@ -512,6 +600,9 @@ trait HomeControllerFixed
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/calendar.css">
+    <script src="/js/calendar.js"></script>
+    <script src="/calendar-init.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -578,6 +669,9 @@ trait HomeControllerFixed
                         </div>
                     <?php endif; ?>
                 </div>
+                <div class="section-footer">
+                    <a href="/claims/items" class="view-all-link">Browse All Items →</a>
+                </div>
             </section>
             
             <!-- Spotlight Sidebar -->
@@ -588,6 +682,34 @@ trait HomeControllerFixed
                     <div class="weekend-stats">
                         <?= $stats['active_sales'] ?> Active Sales • <?= $stats['upcoming_events'] ?> Upcoming Events
                     </div>
+                </div>
+                
+                <!-- Full Month Calendar -->
+                <div class="month-calendar-widget">
+                    <h4>This Month's Calendar</h4>
+                    <div class="month-view" style="background: white; padding: 15px; border-radius: 8px;">
+                        <div class="month-grid">
+                            <div class="month-header" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 10px;">
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Sun</div>
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Mon</div>
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Tue</div>
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Wed</div>
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Thu</div>
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Fri</div>
+                                <div class="day-header" style="text-align: center; font-weight: 600; font-size: 0.85rem; color: #6c757d;">Sat</div>
+                            </div>
+                            <div id="mini-month-calendar" class="month-calendar" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+                                <!-- Calendar will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 0.85rem;">
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <span><span style="display: inline-block; width: 10px; height: 10px; background: #667eea; border-radius: 2px;"></span> Events</span>
+                            <span><span style="display: inline-block; width: 10px; height: 10px; background: #764ba2; border-radius: 2px;"></span> Estate Sales</span>
+                        </div>
+                    </div>
+                    <a href="/calendar" class="calendar-link">View Full Calendar →</a>
                 </div>
                 
                 <!-- Quick Actions -->
@@ -714,10 +836,95 @@ trait HomeControllerFixed
             <p>&copy; <?= date('Y') ?> YakimaFinds. All rights reserved.</p>
             <div class="footer-links">
                 <a href="/admin/login">Admin Login</a>
-                <a href="/health">System Status</a>
+                <a href="/api/health">System Status</a>
             </div>
         </div>
     </footer>
+    <script>
+    // Initialize mini calendar on homepage
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize a mini version of the calendar
+        const miniCalendar = new YakimaCalendar({
+            apiEndpoint: '/api/events',
+            unifiedEndpoint: '/api/calendar/unified',
+            shopsEndpoint: '/api/shops',
+            currentDate: new Date(),
+            defaultView: 'month',
+            includeEstateSales: true,
+            containerSelector: '#mini-month-calendar',
+            miniMode: true
+        });
+        
+        // Custom render for mini calendar
+        miniCalendar.renderMiniMonth = function() {
+            const container = document.getElementById('mini-month-calendar');
+            if (!container) return;
+            
+            const year = this.currentDate.getFullYear();
+            const month = this.currentDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startPadding = firstDay.getDay();
+            
+            container.innerHTML = '';
+            
+            // Add padding days
+            for (let i = 0; i < startPadding; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                container.appendChild(emptyDay);
+            }
+            
+            // Add month days
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.style.cssText = 'min-height: 40px; border: 1px solid #e0e0e0; border-radius: 4px; padding: 4px; font-size: 0.8rem; cursor: pointer; position: relative;';
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const today = new Date();
+                if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                    dayEl.style.backgroundColor = '#e7f3ff';
+                }
+                
+                dayEl.innerHTML = `<div style="font-weight: 500;">${day}</div>`;
+                
+                // Add event/sale indicators
+                const dayEvents = this.calendarItems.filter(item => {
+                    const itemDate = new Date(item.start);
+                    return itemDate.getFullYear() === year && 
+                           itemDate.getMonth() === month && 
+                           itemDate.getDate() === day;
+                });
+                
+                if (dayEvents.length > 0) {
+                    const indicators = document.createElement('div');
+                    indicators.style.cssText = 'display: flex; gap: 2px; margin-top: 2px;';
+                    
+                    const hasEvents = dayEvents.some(item => item.type === 'event');
+                    const hasSales = dayEvents.some(item => item.type === 'sale');
+                    
+                    if (hasEvents) {
+                        indicators.innerHTML += '<span style="display: block; width: 6px; height: 6px; background: #667eea; border-radius: 50%;"></span>';
+                    }
+                    if (hasSales) {
+                        indicators.innerHTML += '<span style="display: block; width: 6px; height: 6px; background: #764ba2; border-radius: 50%;"></span>';
+                    }
+                    
+                    dayEl.appendChild(indicators);
+                }
+                
+                dayEl.onclick = () => window.location.href = `/calendar#${dateStr}`;
+                container.appendChild(dayEl);
+            }
+        };
+        
+        // Load and render
+        miniCalendar.loadEvents().then(() => {
+            miniCalendar.renderMiniMonth();
+        });
+    });
+    </script>
 </body>
 </html>
         <?php

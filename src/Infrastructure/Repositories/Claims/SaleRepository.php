@@ -358,4 +358,51 @@ class SaleRepository implements SaleRepositoryInterface
         
         return $code;
     }
+
+    /**
+     * Find sales by date range
+     * Returns sales that have any activity (preview or active) within the date range
+     */
+    public function findByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT s.*, sel.company_name, 
+                   COUNT(DISTINCT i.id) as item_count
+            FROM yfc_sales s
+            LEFT JOIN yfc_sellers sel ON s.seller_id = sel.id
+            LEFT JOIN yfc_items i ON s.id = i.sale_id
+            WHERE s.status = 'active'
+            AND (
+                -- Sale is active during the date range
+                (s.claim_start <= :end_date1 AND s.claim_end >= :start_date1)
+                OR
+                -- Preview is active during the date range
+                (s.preview_start IS NOT NULL AND s.preview_start <= :end_date2 AND 
+                 COALESCE(s.preview_end, s.claim_start) >= :start_date2)
+            )
+            GROUP BY s.id
+            ORDER BY s.claim_start ASC
+        ");
+        
+        $stmt->execute([
+            'start_date1' => $startDate->format('Y-m-d H:i:s'),
+            'end_date1' => $endDate->format('Y-m-d H:i:s'),
+            'start_date2' => $startDate->format('Y-m-d H:i:s'),
+            'end_date2' => $endDate->format('Y-m-d H:i:s')
+        ]);
+        
+        $rows = $stmt->fetchAll();
+        $sales = [];
+        foreach ($rows as $row) {
+            $sale = Sale::fromArray($row);
+            // Include extra data from the query
+            $sale->setStats([
+                'seller_name' => $row['company_name'] ?? '',
+                'item_count' => (int)($row['item_count'] ?? 0)
+            ]);
+            $sales[] = $sale;
+        }
+        
+        return $sales;
+    }
 }

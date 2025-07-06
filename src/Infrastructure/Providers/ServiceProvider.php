@@ -26,6 +26,7 @@ use YFEvents\Infrastructure\Repositories\Claims\SaleRepository;
 use YFEvents\Infrastructure\Repositories\Claims\ItemRepository;
 use YFEvents\Infrastructure\Repositories\Claims\OfferRepository;
 use YFEvents\Application\Services\ClaimService;
+use YFEvents\Application\Services\CalendarService;
 use YFEvents\Infrastructure\Services\QRCodeService;
 
 /**
@@ -162,6 +163,14 @@ class ServiceProvider
                 $container->resolve(SaleRepositoryInterface::class),
                 $container->resolve(ItemRepositoryInterface::class),
                 $container->resolve(QRCodeService::class)
+            );
+        });
+        
+        // Calendar Service
+        $this->container->bind(CalendarService::class, function ($container) {
+            return new CalendarService(
+                $container->resolve(EventServiceInterface::class),
+                $container->resolve(ClaimService::class)
             );
         });
     }

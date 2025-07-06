@@ -1,13 +1,14 @@
 # YFEvents Architecture Documentation
-# Last Updated: Routing System Fixed, Homepage Rendering Resolved
+# Last Updated: Routing System Fully Documented
 
 project:
   name: YFEvents
-  version: 2.4.0
+  version: 2.0.0
   description: Community Events Platform with Clean Architecture
   namespace: YFEvents
   status: production-ready
-  completion: 98%  # Routing system fixed, homepage rendering resolved
+  completion: 98%  # Routing system fully documented, architecture updated
+  php_version: "^8.1"  # Core requirement, some modules require 8.2
 
 architecture:
   pattern: Clean Architecture (Hexagonal)
@@ -43,9 +44,11 @@ structure:
           - Shops/        # Shop/business listings
           - Users/        # User management
           - Claims/       # Estate sale claims
-          - Communication/ # Real-time chat and messaging system
+          - Communication/ # Real-time chat and messaging system (NOT a module)
           - Scrapers/     # Web scraping interfaces
           - Common/       # Shared interfaces
+        notes:
+          - Communication is integrated into core, not a separate module
         
       application:
         path: src/Application/
@@ -67,6 +70,23 @@ structure:
           - Services/     # Infrastructure services
           - Http/         # HTTP handling (Router, ErrorHandler)
           - Utils/        # Utilities (EnvLoader, etc.)
+        details:
+          http:
+            router:
+              - Handles route registration (get, post, put, delete)
+              - Converts {param} patterns to regex capture groups
+              - Extracts path parameters to $_GET array
+              - No middleware system implemented
+              - Direct superglobal usage (no Request/Response objects)
+            error_handler:
+              - Handles 404 (not found)
+              - Handles 405 (method not allowed)
+              - Handles 500 (internal server error)
+          container:
+            - Supports bind(), singleton(), and instance() methods
+            - Lazy loading via closures
+            - Constructor-based resolution with reflection
+            - No auto-wiring capabilities
           
       presentation:
         path: src/Presentation/
@@ -74,6 +94,22 @@ structure:
         components:
           - Api/          # API controllers
           - Http/         # Web controllers
+        details:
+          controller_patterns:
+            - All controllers receive ContainerInterface and ConfigInterface
+            - Manual service resolution in constructors
+            - BaseController provides JSON response methods
+            - No action injection or parameter binding
+          view_rendering:
+            - No template engine (Blade/Twig)
+            - HomeControllerFixed trait uses output buffering
+            - Direct HTML generation in controllers
+            - JSON responses for API endpoints
+          api_structure:
+            - Separate Api\Controllers namespace
+            - EventApiController and ShopApiController implemented
+            - CORS headers set in constructor
+            - RESTful resource methods (index, show, store, etc.)
         notes:
           - HomeControllerFixed trait added for reliable rendering
 
@@ -95,7 +131,7 @@ modules:
         
     yfclaim:
       namespace: YFEvents\Modules\YFClaim
-      description: Estate sale system (offers/bidding removed)
+      description: Estate sale system with contact-based inquiries
       status: active
       components:
         - src/Models/
@@ -104,10 +140,11 @@ modules:
         - database/schema.sql
         - www/          # Module web files
       changes:
-        - Removed: Offer/bidding functionality
-        - Added: Contact form system for inquiries
+        - Removed: Offer/bidding functionality (migration exists but module.json outdated)
+        - Added: Contact form system for inquiries (pending implementation)
         - Modified: Sellers authenticate via YFAuth
         - Database: password_hash column now nullable
+      note: module.json still contains outdated auction/bidding references
         
     yftheme:
       namespace: YFEvents\Modules\YFTheme
@@ -119,30 +156,6 @@ modules:
         - database/schema.sql
         - www/          # Module web files
 
-    yfchat:
-      namespace: YFEvents\Domain\Communication
-      description: Real-time chat and messaging system
-      status: completed
-      components:
-        - src/Domain/Communication/       # Entities, ValueObjects, Interfaces
-        - src/Application/Services/Communication/  # Services
-        - src/Infrastructure/Repositories/Communication/ # Repositories
-        - src/Presentation/Api/Controllers/Communication/ # API Controllers
-        - database/communication_schema_fixed.sql
-        - www/html/communication/         # Web interface files
-      features:
-        - Global admin-seller chat rooms (Support, Selling Tips)
-        - Direct messaging capability
-        - File attachments
-        - Message reactions and threading
-        - Email integration
-        - Real-time notifications
-        - PWA support with offline capability
-      architecture:
-        - Clean Architecture implementation
-        - Domain-driven design
-        - Repository pattern
-        - Service layer orchestration
         
     yfclassifieds:
       namespace: YFEvents\Modules\YFClassifieds
@@ -166,6 +179,12 @@ configuration:
     file: public/index.php
     bootstrap: YFEvents\Application\Bootstrap
     router: YFEvents\Infrastructure\Http\Router
+    flow:
+      - Bootstrap::boot() creates Container instance
+      - ServiceProvider registers all bindings
+      - Router instance created with container
+      - Route files loaded via closure scope
+      - Router::dispatch() handles request
 
 routing_system:
   status: fully_functional
@@ -181,6 +200,12 @@ routing_system:
     - RESTful route patterns with parameter extraction
     - Legacy URLs handled via route definitions
     - No direct file access in production
+    - Router converts {param} patterns to regex capture groups
+    - Parameters extracted to $_GET array for controller access
+    - Controllers instantiated with container and config in executeRoute()
+    - No route caching or compilation
+    - No route groups or prefixes
+    - Direct method calls for route registration
   
   recent_fixes:
     - Confirmed Apache DocumentRoot points to /public/
@@ -251,10 +276,20 @@ database:
 
 testing:
   structure:
-    - tests/Unit/          # Unit tests
-    - tests/Feature/       # Feature tests
-    - tests/Integration/   # Integration tests
-    - tests/Scripts/       # Migrated script tests
+    - tests/             # Root directory with custom test scripts
+    - tests/Unit/        # Unit tests directory (exists but mostly unused)
+    - tests/Feature/     # Feature tests directory (exists but mostly unused)
+    - tests/Integration/ # Integration tests directory (exists but mostly unused)
+    - tests/Scripts/     # Custom test scripts
+  approach:
+    - Custom PHP test scripts (not PHPUnit framework)
+    - Manual test execution
+    - No formal test framework actively used despite PHPUnit in composer.json
+  main_scripts:
+    - tests/run_all_tests.php
+    - tests/test_core_functionality.php
+    - tests/test_web_interfaces.php
+    - tests/test_yfclaim.php
 
 deployment:
   composer:

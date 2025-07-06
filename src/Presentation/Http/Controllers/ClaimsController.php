@@ -63,8 +63,11 @@ class ClaimsController extends BaseController
 
         $saleId = (int)($_GET['id'] ?? 0);
         if (!$saleId) {
-            http_response_code(404);
-            echo "Sale not found";
+            http_response_code(400); // Bad Request, not 404
+            header('Content-Type: text/html; charset=utf-8');
+            echo "<h1>Error: Sale ID Required</h1>";
+            echo "<p>Usage: /claims/sale?id=123</p>";
+            echo "<p><a href='/claims'>Browse all sales</a></p>";
             return;
         }
 
@@ -370,15 +373,7 @@ class ClaimsController extends BaseController
      */
     public function showSellerDashboard(): void
     {
-        session_start();
-        
-        // Ensure session compatibility between systems
-        if (isset($_SESSION['yfclaim_seller_id']) && !isset($_SESSION['claim_seller_id'])) {
-            $_SESSION['claim_seller_logged_in'] = true;
-            $_SESSION['claim_seller_id'] = $_SESSION['yfclaim_seller_id'];
-            $_SESSION['seller_name'] = $_SESSION['yfclaim_seller_name'];
-            $_SESSION['company_name'] = $_SESSION['yfclaim_seller_name'];
-        }
+        if (!$this->requireSellerAuth()) return;
         
         // Use the module dashboard
         require BASE_PATH . '/modules/yfclaim/www/dashboard/index.php';
@@ -389,8 +384,7 @@ class ClaimsController extends BaseController
      */
     public function showSellerSales(): void
     {
-        session_start();
-        $this->ensureSessionCompatibility();
+        if (!$this->requireSellerAuth()) return;
         require BASE_PATH . '/modules/yfclaim/www/dashboard/sales.php';
     }
 
@@ -399,8 +393,7 @@ class ClaimsController extends BaseController
      */
     public function showCreateSale(): void
     {
-        session_start();
-        $this->ensureSessionCompatibility();
+        if (!$this->requireSellerAuth()) return;
         require BASE_PATH . '/modules/yfclaim/www/dashboard/create-sale.php';
     }
 
@@ -832,6 +825,37 @@ class ClaimsController extends BaseController
     }
 
     // ==== HELPER METHODS FOR DATA RETRIEVAL ====
+
+    /**
+     * Check if seller is authenticated
+     * @return bool True if authenticated, false if API error response sent
+     */
+    private function requireSellerAuth(): bool
+    {
+        // Safe session start
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Check YFClaim session variables
+        if (!isset($_SESSION['yfclaim_seller_id']) && 
+            !isset($_SESSION['claim_seller_id'])) {
+            
+            // API endpoints return JSON
+            if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+                $this->errorResponse('Authentication required', 401);
+                return false;
+            }
+            
+            // Web pages redirect
+            header('Location: /seller/login');
+            exit;
+        }
+        
+        // Ensure compatibility
+        $this->ensureSessionCompatibility();
+        return true;
+    }
 
     /**
      * Ensure session variables are compatible between both systems
@@ -2223,8 +2247,7 @@ ITEM;
     // Additional stub methods for completeness
     public function manageSaleItems(): void 
     {
-        session_start();
-        $this->ensureSessionCompatibility();
+        if (!$this->requireSellerAuth()) return;
         
         // Map route parameter to expected GET parameter
         if (isset($_GET['id'])) {
@@ -2233,12 +2256,27 @@ ITEM;
         
         require BASE_PATH . '/modules/yfclaim/www/dashboard/manage-items.php';
     }
-    public function showEditSale(): void { echo "Edit sale - coming soon"; }
-    public function updateSale(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
+    public function showEditSale(): void { 
+        if (!$this->requireSellerAuth()) return;
+        echo "Edit sale - coming soon"; 
+    }
+    public function updateSale(): void { 
+        if (!$this->requireSellerAuth()) return;
+        echo json_encode(['success' => false, 'error' => 'Not implemented yet']); 
+    }
     public function getSaleItemsApi(): void { echo json_encode(['items' => []]); }
-    public function addSaleItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
-    public function updateSaleItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
-    public function deleteSaleItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
+    public function addSaleItem(): void { 
+        if (!$this->requireSellerAuth()) return;
+        echo json_encode(['success' => false, 'error' => 'Not implemented yet']); 
+    }
+    public function updateSaleItem(): void { 
+        if (!$this->requireSellerAuth()) return;
+        echo json_encode(['success' => false, 'error' => 'Not implemented yet']); 
+    }
+    public function deleteSaleItem(): void { 
+        if (!$this->requireSellerAuth()) return;
+        echo json_encode(['success' => false, 'error' => 'Not implemented yet']); 
+    }
     public function claimItem(): void { echo json_encode(['success' => false, 'error' => 'Not implemented yet']); }
 
     /**

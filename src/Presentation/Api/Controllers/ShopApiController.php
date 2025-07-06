@@ -201,6 +201,13 @@ class ShopApiController extends BaseController
 
     /**
      * Handle GET /api/shops/nearby
+     * 
+     * Parameters:
+     * - lat (required): Latitude as float
+     * - lng (required): Longitude as float  
+     * - radius (optional): Search radius in km, default 10
+     * 
+     * Example: /api/shops/nearby?lat=46.6021&lng=-120.5059&radius=5
      */
     public function nearby(): void
     {

@@ -262,10 +262,12 @@
         // Initialize calendar with configuration
         document.addEventListener('DOMContentLoaded', function() {
             const calendar = new YakimaCalendar({
-                apiEndpoint: '/api/events-simple.php',
+                apiEndpoint: '/api/events',
+                unifiedEndpoint: '/api/calendar/unified',
                 shopsEndpoint: '/api/shops',
                 currentDate: new Date(),
-                defaultView: 'day',
+                defaultView: 'month',
+                includeEstateSales: true,
                 userLocation: null,
                 categories: <?= json_encode($categories ?? []) ?>,
                 mapOptions: {

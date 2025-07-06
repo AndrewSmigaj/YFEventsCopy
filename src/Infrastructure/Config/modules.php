@@ -67,7 +67,7 @@ return [
         'yfclassifieds' => [
             'name' => 'YF Classifieds',
             'description' => 'Local classified ads with photos, descriptions and in-store pickup',
-            'enabled' => true,
+            'enabled' => false,
             'version' => '1.0.0',
             'icon' => '🛍️',
             'routes' => [

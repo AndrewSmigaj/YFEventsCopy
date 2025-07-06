@@ -7,11 +7,13 @@ class YakimaCalendar {
     constructor(options = {}) {
         this.options = {
             apiEndpoint: '/api/events',
+            unifiedEndpoint: '/api/calendar/unified',
             shopsEndpoint: '/api/shops',
             currentDate: new Date(),
-            defaultView: 'day',
+            defaultView: 'month',
             userLocation: null,
             categories: [],
+            includeEstateSales: true,
             mapOptions: {
                 center: { lat: 46.600825, lng: -120.503357 }, // Yakima Finds: 111 S. 2nd St
                 zoom: 12
@@ -22,6 +24,8 @@ class YakimaCalendar {
         this.currentView = this.options.defaultView;
         this.currentDate = new Date(this.options.currentDate);
         this.events = [];
+        this.sales = [];
+        this.calendarItems = [];
         this.shops = [];
         this.map = null;
         this.dailyMap = null;
@@ -353,18 +357,27 @@ class YakimaCalendar {
             
             // Date range based on current view
             const { startDate, endDate } = this.getDateRange();
-            params.append('start_date', startDate);
-            params.append('end_date', endDate);
+            params.append('start', startDate);
+            params.append('end', endDate);
+            
+            // Include both events and sales by default
+            const types = [];
+            if (this.options.includeEstateSales) {
+                types.push('event', 'sale');
+            } else {
+                types.push('event');
+            }
+            params.append('types', types.join(','));
             
             // Add filters
-            const categoryFilter = document.getElementById('category-filter').value;
-            if (categoryFilter) {
-                params.append('category', categoryFilter);
+            const categoryFilter = document.getElementById('category-filter');
+            if (categoryFilter && categoryFilter.value) {
+                params.append('category', categoryFilter.value);
             }
             
-            const searchQuery = document.getElementById('search-input').value.trim();
-            if (searchQuery) {
-                params.append('search', searchQuery);
+            const searchQuery = document.getElementById('search-input');
+            if (searchQuery && searchQuery.value.trim()) {
+                params.append('search', searchQuery.value.trim());
             }
             
             // Add location if available
@@ -374,10 +387,14 @@ class YakimaCalendar {
                 params.append('radius', 50); // 50 miles radius
             }
             
-            const response = await fetch(`${this.options.apiEndpoint}?${params}`);
+            const response = await fetch(`${this.options.unifiedEndpoint}?${params}`);
             const data = await response.json();
             
-            this.events = data.events || [];
+            // Process unified calendar data
+            this.calendarItems = data || [];
+            this.events = this.calendarItems.filter(item => item.type === 'event');
+            this.sales = this.calendarItems.filter(item => item.type === 'sale');
+            
             this.renderCurrentView();
             
         } catch (error) {

@@ -70,4 +70,9 @@ interface SaleRepositoryInterface
      * Generate unique access code
      */
     public function generateUniqueAccessCode(): string;
+
+    /**
+     * Find sales by date range
+     */
+    public function findByDateRange(\DateTimeInterface $startDate, \DateTimeInterface $endDate): array;
 }

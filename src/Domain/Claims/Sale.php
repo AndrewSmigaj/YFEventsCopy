@@ -12,6 +12,10 @@ class Sale implements EntityInterface
 {
     private array $items = [];
     private array $stats = [];
+    private ?string $address = null;
+    private ?string $city = null;
+    private ?string $state = null;
+    private ?string $zip = null;
 
     public function __construct(
         private ?int $id,
@@ -21,8 +25,8 @@ class Sale implements EntityInterface
         private string $location,
         private ?float $latitude,
         private ?float $longitude,
-        private DateTimeInterface $previewStartDate,
-        private DateTimeInterface $previewEndDate,
+        private ?DateTimeInterface $previewStartDate,
+        private ?DateTimeInterface $previewEndDate,
         private DateTimeInterface $claimStartDate,
         private DateTimeInterface $claimEndDate,
         private DateTimeInterface $pickupDate,
@@ -71,12 +75,12 @@ class Sale implements EntityInterface
         return $this->longitude;
     }
 
-    public function getPreviewStartDate(): DateTimeInterface
+    public function getPreviewStartDate(): ?DateTimeInterface
     {
         return $this->previewStartDate;
     }
 
-    public function getPreviewEndDate(): DateTimeInterface
+    public function getPreviewEndDate(): ?DateTimeInterface
     {
         return $this->previewEndDate;
     }
@@ -162,11 +166,44 @@ class Sale implements EntityInterface
         $this->stats = $stats;
     }
 
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function getZip(): ?string
+    {
+        return $this->zip;
+    }
+
+    public function getSellerName(): ?string
+    {
+        return $this->stats['seller_name'] ?? null;
+    }
+
+    public function getItemCount(): int
+    {
+        return $this->stats['item_count'] ?? 0;
+    }
+
     /**
      * Check if sale is in preview phase
      */
     public function isInPreview(): bool
     {
+        if (!$this->previewStartDate || !$this->previewEndDate) {
+            return false;
+        }
         $now = new DateTime();
         return $now >= $this->previewStartDate && $now <= $this->previewEndDate;
     }
@@ -204,7 +241,7 @@ class Sale implements EntityInterface
     {
         $now = new DateTime();
         
-        if ($now < $this->previewStartDate) {
+        if ($this->previewStartDate && $now < $this->previewStartDate) {
             return 'upcoming';
         } elseif ($this->isInPreview()) {
             return 'preview';
@@ -296,10 +333,14 @@ class Sale implements EntityInterface
             'title' => $this->title,
             'description' => $this->description,
             'location' => $this->location,
+            'address' => $this->address,
+            'city' => $this->city,
+            'state' => $this->state,
+            'zip' => $this->zip,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
-            'preview_start_date' => $this->previewStartDate->format('Y-m-d H:i:s'),
-            'preview_end_date' => $this->previewEndDate->format('Y-m-d H:i:s'),
+            'preview_start_date' => $this->previewStartDate ? $this->previewStartDate->format('Y-m-d H:i:s') : null,
+            'preview_end_date' => $this->previewEndDate ? $this->previewEndDate->format('Y-m-d H:i:s') : null,
             'claim_start_date' => $this->claimStartDate->format('Y-m-d H:i:s'),
             'claim_end_date' => $this->claimEndDate->format('Y-m-d H:i:s'),
             'pickup_date' => $this->pickupDate->format('Y-m-d H:i:s'),
@@ -333,7 +374,7 @@ class Sale implements EntityInterface
         $claimEnd = $data['claim_end_date'] ?? $data['claim_end'] ?? null;
         $pickupDate = $data['pickup_date'] ?? $data['pickup_start'] ?? $claimEnd ?? null;
         
-        return new self(
+        $sale = new self(
             id: $data['id'] ?? null,
             sellerId: (int)($data['seller_id'] ?? 0),
             title: $data['title'] ?? '',
@@ -341,8 +382,8 @@ class Sale implements EntityInterface
             location: $location,
             latitude: $data['latitude'] !== null ? (float)$data['latitude'] : null,
             longitude: $data['longitude'] !== null ? (float)$data['longitude'] : null,
-            previewStartDate: $previewStart ? new DateTime($previewStart) : new DateTime(),
-            previewEndDate: $previewEnd ? new DateTime($previewEnd) : new DateTime(),
+            previewStartDate: $previewStart ? new DateTime($previewStart) : null,
+            previewEndDate: $previewEnd ? new DateTime($previewEnd) : null,
             claimStartDate: $claimStart ? new DateTime($claimStart) : new DateTime(),
             claimEndDate: $claimEnd ? new DateTime($claimEnd) : new DateTime(),
             pickupDate: $pickupDate ? new DateTime($pickupDate) : new DateTime(),
@@ -355,5 +396,13 @@ class Sale implements EntityInterface
             createdAt: isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime(),
             updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at']) : null
         );
+        
+        // Set the separate address components
+        $sale->address = $data['address'] ?? null;
+        $sale->city = $data['city'] ?? null;
+        $sale->state = $data['state'] ?? null;
+        $sale->zip = $data['zip'] ?? null;
+        
+        return $sale;
     }
 }

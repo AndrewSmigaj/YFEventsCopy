@@ -12,6 +12,7 @@ use YFEvents\Presentation\Http\Controllers\HomeController;
 use YFEvents\Presentation\Http\Controllers\AuthController;
 use YFEvents\Presentation\Http\Controllers\ClaimsController;
 use YFEvents\Presentation\Http\Controllers\ClassifiedsController;
+use YFEvents\Presentation\Http\Controllers\CalendarApiController;
 
 /**
  * Web routes for the application
@@ -22,11 +23,11 @@ use YFEvents\Presentation\Http\Controllers\ClassifiedsController;
 // Home route
 $router->get('/', HomeController::class, 'index');
 
-// Debug route
-$router->get('/debug', HomeController::class, 'debug');
-
 // Combined map view
 $router->get('/map', HomeController::class, 'showCombinedMap');
+
+// Calendar route
+$router->get('/calendar', EventController::class, 'showCalendarPage');
 
 // Authentication routes
 $router->get('/admin/login', AuthController::class, 'showAdminLogin');
@@ -52,6 +53,10 @@ $router->get('/api/events/upcoming', EventController::class, 'getUpcomingEvents'
 $router->get('/api/events/{id}', EventController::class, 'getEvent');
 $router->get('/api/events/nearby', EventController::class, 'getEventsNearLocation');
 $router->post('/api/events/submit', EventController::class, 'submitEvent');
+
+// Unified Calendar API routes
+$router->get('/api/calendar/unified', CalendarApiController::class, 'getUnifiedCalendar');
+$router->get('/api/calendar/monthly', CalendarApiController::class, 'getMonthlyCalendar');
 
 // Admin event routes
 $router->get('/admin/events', AdminEventController::class, 'getAllEvents');
@@ -153,10 +158,6 @@ $router->get('/admin/sales/{id}', AdminDashboardController::class, 'getSaleDetai
 $router->post('/admin/sales/{id}/approve', AdminDashboardController::class, 'approveSale');
 $router->post('/admin/sales/{id}/feature', AdminDashboardController::class, 'featureSale');
 
-// Classifieds routes (module-based)
-$router->get('/classifieds', ClassifiedsController::class, 'showClassifiedsPage');
-$router->get('/classifieds/item/{id}', ClassifiedsController::class, 'showItemPage');
-$router->get('/classifieds/category/{slug}', ClassifiedsController::class, 'showCategoryPage');
 // ===== MODULE ROUTES =====
 
 // YFAuth Module Routes (if controllers exist)
@@ -167,13 +168,9 @@ $router->get('/classifieds/category/{slug}', ClassifiedsController::class, 'show
 // YFClaim Module Routes
 // Using existing ClaimsController
 $router->get('/estate-sales', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showClaimsPage');
-$router->get('/estate-sales/upcoming', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showUpcomingClaimsPage');
 $router->get('/estate-sales/sale/{id}', \YFEvents\Presentation\Http\Controllers\ClaimsController::class, 'showSale');
 
 // YFTheme Module Routes (if ThemeController exists)
 $router->get('/theme/editor', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'showEditor');
 $router->post('/theme/api/save', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'saveTheme');
 
-// YFClassifieds Module Routes (if ClassifiedsController exists)
-$router->get('/classifieds', \YFEvents\Presentation\Http\Controllers\ClassifiedsController::class, 'index');
-$router->get('/classifieds/item/{id}', \YFEvents\Presentation\Http\Controllers\ClassifiedsController::class, 'showItem');

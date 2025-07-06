@@ -290,4 +290,13 @@ class ClaimService
         // Update sale statistics
         $this->saleRepository->updateStatistics($item->getSaleId());
     }
+
+    /**
+     * Get sales for calendar display within date range
+     * Includes sales that are active, upcoming, or in preview during the date range
+     */
+    public function getSalesForCalendar(\DateTimeInterface $startDate, \DateTimeInterface $endDate): array
+    {
+        return $this->saleRepository->findByDateRange($startDate, $endDate);
+    }
 }

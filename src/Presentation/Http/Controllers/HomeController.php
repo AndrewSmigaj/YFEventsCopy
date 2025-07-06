@@ -42,7 +42,8 @@ class HomeController
                 'currentSales' => $this->getCurrentSales(),
                 'featuredShops' => $this->getFeaturedShops(),
                 'stats' => $this->getDynamicStats(),
-                'hotItem' => $this->getHotItem()
+                'hotItem' => $this->getHotItem(),
+                'weekCalendar' => $this->getWeekCalendarData()
             ];
             
             header('Content-Type: text/html; charset=utf-8');
@@ -282,6 +283,76 @@ class HomeController
     {
         $featured = $this->getFeaturedItems(1);
         return !empty($featured) ? $featured[0] : null;
+    }
+    
+    /**
+     * Get week calendar data
+     */
+    private function getWeekCalendarData(): array
+    {
+        try {
+            // Get start and end of current week
+            $startOfWeek = new \DateTime('last Sunday');
+            if (date('w') == 0) { // If today is Sunday
+                $startOfWeek = new \DateTime('today');
+            }
+            $endOfWeek = clone $startOfWeek;
+            $endOfWeek->modify('+6 days');
+            
+            // Initialize calendar array
+            $calendar = [];
+            for ($i = 0; $i < 7; $i++) {
+                $date = clone $startOfWeek;
+                $date->modify("+$i days");
+                $calendar[$date->format('Y-m-d')] = [
+                    'date' => $date,
+                    'events' => 0,
+                    'sales' => 0
+                ];
+            }
+            
+            // Count events per day (already converted to arrays)
+            $events = $this->getUpcomingEvents(50);
+            foreach ($events as $event) {
+                if (isset($event['event_date'])) {
+                    $eventDate = date('Y-m-d', strtotime($event['event_date']));
+                    if (isset($calendar[$eventDate])) {
+                        $calendar[$eventDate]['events']++;
+                    }
+                }
+            }
+            
+            // Count sales per day (already converted to arrays)
+            $sales = $this->getCurrentSales();
+            foreach ($sales as $sale) {
+                if (!empty($sale['start_date']) && !empty($sale['end_date'])) {
+                    $startDate = new \DateTime($sale['start_date']);
+                    $endDate = new \DateTime($sale['end_date']);
+                    
+                    foreach ($calendar as $dateStr => &$day) {
+                        $checkDate = new \DateTime($dateStr);
+                        if ($checkDate >= $startDate && $checkDate <= $endDate) {
+                            $day['sales']++;
+                        }
+                    }
+                }
+            }
+            
+            return array_values($calendar);
+        } catch (\Exception $e) {
+            error_log("Failed to get week calendar data: " . $e->getMessage());
+            // Return empty week on error
+            $calendar = [];
+            for ($i = 0; $i < 7; $i++) {
+                $date = new \DateTime("+$i days");
+                $calendar[] = [
+                    'date' => $date,
+                    'events' => 0,
+                    'sales' => 0
+                ];
+            }
+            return $calendar;
+        }
     }
     
     /**

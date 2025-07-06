@@ -1202,3 +1202,115 @@ body {
     font-size: 0.7rem;
     margin-right: 0.25rem;
 }
+
+/* Event and Estate Sale Type Styling */
+.calendar-event {
+    background-color: #667eea !important;
+    border-color: #5a67d8 !important;
+    color: white !important;
+}
+
+.calendar-sale {
+    background-color: #764ba2 !important;
+    border-color: #694092 !important;
+    color: white !important;
+}
+
+.calendar-sale-preview {
+    background-color: #9f7aea !important;
+    border-color: #8b68cd !important;
+}
+
+.calendar-sale-active {
+    background-color: #48bb78 !important;
+    border-color: #38a169 !important;
+}
+
+.calendar-sale-upcoming {
+    background-color: #4299e1 !important;
+    border-color: #3182ce !important;
+}
+
+/* Month view event/sale indicators */
+.month-day .event-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 1px;
+}
+
+.month-day .event-indicator.event {
+    background-color: #667eea;
+}
+
+.month-day .event-indicator.sale {
+    background-color: #764ba2;
+}
+
+/* Calendar item styling */
+.calendar-item {
+    padding: 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.calendar-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.calendar-item.event {
+    background-color: #e0e7ff;
+    border-left: 4px solid #667eea;
+}
+
+.calendar-item.sale {
+    background-color: #ede9fe;
+    border-left: 4px solid #764ba2;
+}
+
+/* Legend styling */
+.calendar-legend {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 0.9rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-dot.event {
+    background-color: #667eea;
+}
+
+.legend-dot.sale {
+    background-color: #764ba2;
+}
+
+.legend-dot.sale-preview {
+    background-color: #9f7aea;
+}
+
+.legend-dot.sale-active {
+    background-color: #48bb78;
+}
+
+.legend-dot.sale-upcoming {
+    background-color: #4299e1;
+}
