@@ -33,7 +33,6 @@ class Shop implements EntityInterface
         private bool $verified = false,
         private ?int $ownerId = null,
         private string $status = 'pending',
-        private bool $active = true,
         private ?DateTimeInterface $createdAt = null,
         private ?DateTimeInterface $updatedAt = null
     ) {}
@@ -135,7 +134,7 @@ class Shop implements EntityInterface
 
     public function isActive(): bool
     {
-        return $this->active;
+        return $this->status === 'active';
     }
 
     public function getCreatedAt(): ?DateTimeInterface
@@ -155,14 +154,12 @@ class Shop implements EntityInterface
     public function approve(): void
     {
         $this->status = 'active';
-        $this->active = true;
         $this->updatedAt = new DateTime();
     }
 
     public function reject(): void
     {
         $this->status = 'inactive';
-        $this->active = false;
         $this->updatedAt = new DateTime();
     }
 
@@ -192,14 +189,12 @@ class Shop implements EntityInterface
 
     public function deactivate(): void
     {
-        $this->active = false;
         $this->status = 'inactive';
         $this->updatedAt = new DateTime();
     }
 
     public function activate(): void
     {
-        $this->active = true;
         $this->status = 'active';
         $this->updatedAt = new DateTime();
     }
@@ -211,7 +206,7 @@ class Shop implements EntityInterface
 
     public function isOpen(): bool
     {
-        return $this->status === 'active' && $this->active;
+        return $this->status === 'active';
     }
 
     public function acceptsPaymentMethod(string $method): bool
@@ -277,8 +272,7 @@ class Shop implements EntityInterface
         ?bool $featured = null,
         ?bool $verified = null,
         ?int $ownerId = null,
-        ?string $status = null,
-        ?bool $active = null
+        ?string $status = null
     ): void {
         if ($name !== null) $this->name = $name;
         if ($description !== null) $this->description = $description;
@@ -298,7 +292,6 @@ class Shop implements EntityInterface
         if ($verified !== null) $this->verified = $verified;
         if ($ownerId !== null) $this->ownerId = $ownerId;
         if ($status !== null) $this->status = $status;
-        if ($active !== null) $this->active = $active;
 
         $this->updatedAt = new DateTime();
     }
@@ -325,7 +318,6 @@ class Shop implements EntityInterface
             'verified' => $this->verified,
             'owner_id' => $this->ownerId,
             'status' => $this->status,
-            'active' => $this->active,
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];
@@ -374,7 +366,6 @@ class Shop implements EntityInterface
             verified: (bool) ($data['verified'] ?? false),
             ownerId: isset($data['owner_id']) ? (int) $data['owner_id'] : null,
             status: $data['status'] ?? 'pending',
-            active: (bool) ($data['active'] ?? true),
             createdAt: isset($data['created_at']) ? new DateTime($data['created_at']) : null,
             updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at']) : null
         );

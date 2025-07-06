@@ -1162,19 +1162,29 @@ HTML;
                 ? round($hoursLeft / 24) . ' days left'
                 : $hoursLeft . ' hours left';
             
+            $pickupText = 'TBD';
+            if (!empty($sale['pickup_start']) && !empty($sale['pickup_end'])) {
+                $pickupText = date('M j', strtotime($sale['pickup_start'])) . ' - ' . date('M j', strtotime($sale['pickup_end']));
+            }
+            
             return [
                 'icon' => '⏰',
                 'text' => $timeText,
-                'pickup' => date('M j', strtotime($sale['pickup_start'])) . ' - ' . date('M j', strtotime($sale['pickup_end']))
+                'pickup' => $pickupText
             ];
         } else {
             $claimStart = strtotime($sale['claim_start']);
             $daysUntil = round(($claimStart - $now) / 86400);
             
+            $pickupText = 'TBD';
+            if (!empty($sale['pickup_start']) && !empty($sale['pickup_end'])) {
+                $pickupText = date('M j', strtotime($sale['pickup_start'])) . ' - ' . date('M j', strtotime($sale['pickup_end']));
+            }
+            
             return [
                 'icon' => '🔓',
                 'text' => 'Claims open in ' . $daysUntil . ' day' . ($daysUntil != 1 ? 's' : ''),
-                'pickup' => date('M j', strtotime($sale['pickup_start'])) . ' - ' . date('M j', strtotime($sale['pickup_end']))
+                'pickup' => $pickupText
             ];
         }
     }

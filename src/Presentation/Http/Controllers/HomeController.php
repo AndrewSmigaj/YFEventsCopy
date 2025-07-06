@@ -13,6 +13,7 @@ use YFEvents\Application\Services\ClaimService;
 
 class HomeController
 {
+    use HomeControllerFixed;
     private EventServiceInterface $eventService;
     private ShopServiceInterface $shopService;
     private ClaimService $claimService;
@@ -40,17 +41,19 @@ class HomeController
                 'upcomingEvents' => $this->getUpcomingEvents(),
                 'currentSales' => $this->getCurrentSales(),
                 'featuredShops' => $this->getFeaturedShops(),
-                'stats' => $this->getDynamicStats()
+                'stats' => $this->getDynamicStats(),
+                'hotItem' => $this->getHotItem()
             ];
             
             header('Content-Type: text/html; charset=utf-8');
-            echo $this->renderHomePage($data);
+            echo $this->renderHomePageFixed($data);
             
         } catch (\Exception $e) {
             // Fallback to static content if services fail
             error_log("Homepage dynamic content error: " . $e->getMessage());
+            error_log("Error trace: " . $e->getTraceAsString());
             header('Content-Type: text/html; charset=utf-8');
-            echo $this->renderHomePage();
+            echo $this->renderHomePageFixed();
         }
     }
 
@@ -148,10 +151,18 @@ class HomeController
     /**
      * Get featured items from all active sales
      */
-    private function getFeaturedItems(int $limit = 8): array
+    private function getFeaturedItems(int $limit = 12): array
     {
         try {
-            return $this->claimService->getPopularItems($limit);
+            $items = $this->claimService->getPopularItems($limit);
+            
+            // Convert Item objects to arrays for the view
+            $itemArrays = [];
+            foreach ($items as $item) {
+                $itemArrays[] = $item->toArray();
+            }
+            
+            return $itemArrays;
         } catch (\Exception $e) {
             error_log("Failed to get featured items: " . $e->getMessage());
             return [];
@@ -213,6 +224,15 @@ class HomeController
     }
     
     /**
+     * Get single hot item for sidebar spotlight
+     */
+    private function getHotItem(): ?array
+    {
+        $featured = $this->getFeaturedItems(1);
+        return !empty($featured) ? $featured[0] : null;
+    }
+    
+    /**
      * Get dynamic statistics for the homepage
      */
     private function getDynamicStats(): array
@@ -257,6 +277,8 @@ class HomeController
 
     private function renderHomePage(array $data = []): string
     {
+        error_log("DEBUG: renderHomePage called with data keys: " . implode(', ', array_keys($data)));
+        
         // Extract data with defaults
         $stats = $data['stats'] ?? [
             'active_sales' => 47,
@@ -265,10 +287,24 @@ class HomeController
             'local_shops' => 89
         ];
         
+        // Extract other data arrays
+        $featuredItems = $data['featuredItems'] ?? [];
+        $currentSales = $data['currentSales'] ?? [];
+        $upcomingEvents = $data['upcomingEvents'] ?? [];
+        $hotItem = $data['hotItem'] ?? null;
+        
+        error_log("DEBUG: Extracted featuredItems count: " . count($featuredItems));
+        
         // Format numbers
         $formattedItems = number_format($stats['total_items']);
         
-        return <<<HTML
+        error_log("DEBUG: About to start HTML generation");
+        
+        // Break heredoc into pieces to find issue
+        $html = '';
+        
+        // Part 1: DOCTYPE to start of body
+        $html .= <<<HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -526,6 +562,249 @@ class HomeController
             opacity: 0.9;
         }
         
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 65% 35%;
+            gap: 30px;
+            margin: 60px 0;
+        }
+        
+        .lower-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        /* Featured Items Section */
+        .featured-items {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        .featured-items h2 {
+            color: #1B2951;
+            margin-bottom: 25px;
+            font-size: 2rem;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .item-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .item-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #f8f9fa;
+        }
+        
+        .no-image-placeholder {
+            width: 100%;
+            height: 200px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .item-details {
+            padding: 15px;
+            background: white;
+        }
+        
+        .item-title {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #1B2951;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .item-price {
+            font-size: 1.2rem;
+            color: #B87333;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .item-sale {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Spotlight Sidebar */
+        .spotlight-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .weekend-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        
+        .weekend-box h3 {
+            color: #1B2951;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .weekend-stats {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        .hot-item {
+            border-top: 1px solid #e9ecef;
+            padding-top: 20px;
+        }
+        
+        .hot-item h4 {
+            color: #B87333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        
+        .quick-actions a {
+            display: block;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            color: #1B2951;
+            text-decoration: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s ease;
+        }
+        
+        .quick-actions a:hover {
+            background: #e9ecef;
+        }
+        
+        .quick-actions a.primary {
+            background: #B87333;
+            color: white;
+        }
+        
+        .quick-actions a.primary:hover {
+            background: #8B4513;
+        }
+        
+        /* Active Sales & Events Sections */
+        .active-sales, .upcoming-events {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 25px;
+        }
+        
+        .active-sales h2, .upcoming-events h2 {
+            color: #1B2951;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .sales-list, .events-list {
+            list-style: none;
+        }
+        
+        .sale-entry, .event-entry {
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .sale-entry:last-child, .event-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .sale-title, .event-title {
+            font-size: 1.1rem;
+            color: #1B2951;
+            margin-bottom: 5px;
+        }
+        
+        .sale-details, .event-details {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        /* Tools Bar */
+        .tools-bar {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 40px 0;
+            text-align: center;
+        }
+        
+        .tools-bar a {
+            display: inline-block;
+            margin: 0 15px;
+            color: #6c757d;
+            text-decoration: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .tools-bar a:hover {
+            color: #B87333;
+        }
+        
+        /* Section Footers */
+        .section-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .section-footer a {
+            color: #B87333;
+            text-decoration: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: color 0.3s ease;
+        }
+        
+        .section-footer a:hover {
+            color: #8B4513;
+            text-decoration: underline;
+        }
+        
         /* Footer */
         .footer {
             background: #f8f9fa;
@@ -542,6 +821,12 @@ class HomeController
         }
         
         /* Responsive */
+        @media (max-width: 1024px) {
+            .items-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         @media (max-width: 768px) {
             .hero h1 {
                 font-size: 2.5rem;
@@ -560,6 +845,20 @@ class HomeController
             
             .stat:last-child {
                 border-bottom: none;
+            }
+            
+            .dashboard-grid,
+            .lower-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .items-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tools-bar a {
+                display: block;
+                margin: 5px 0;
             }
         }
     </style>
@@ -598,84 +897,235 @@ class HomeController
             </div>
         </div>
         
-        <!-- Services Grid -->
-        <div class="services">
-            <!-- Estate Sales -->
-            <div class="service-card estate-sales">
-                <div class="service-icon">🏛️</div>
-                <h2 class="service-title">Estate Sales</h2>
-                <p class="service-desc">
-                    Discover unique treasures from estate sales across Yakima Valley. 
-                    Browse antiques, collectibles, furniture, and more.
-                </p>
-                <ul class="service-links">
-                    <li><a href="/claims">Browse Current Sales</a></li>
-                    <li><a href="/claims/upcoming">Upcoming Sales</a></li>
-                    <li><a href="/admin/login">Admin Login (Sellers)</a></li>
-                </ul>
-            </div>
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Featured Items Section -->
+            <section class="featured-items">
+                <h2>Featured Estate Sale Finds</h2>
+                <div class="items-grid">
+HTML;
+        
+        // Debug: Check if we reach this point
+        error_log("DEBUG: About to render featured items. Count: " . count($featuredItems));
+        
+        // Add featured items
+        if (!empty($featuredItems)) {
+            foreach (array_slice($featuredItems, 0, 12) as $item) {
+                $itemId = $item['id'] ?? '';
+                $title = htmlspecialchars($item['title'] ?? 'Untitled Item');
+                $price = isset($item['price']) ? '$' . number_format($item['price'], 2) : 'Price TBD';
+                $saleId = $item['sale_id'] ?? '';
+                
+                // TODO: Get sale name from sale data
+                $saleName = 'Estate Sale';
+                
+                $html .= <<<HTML
+                    <div class="item-card" onclick="window.location.href='/claims/item/{$itemId}'">
+HTML;
+                
+                if (!empty($item['primary_image'])) {
+                    $imagePath = htmlspecialchars($item['primary_image']);
+                    $html .= <<<HTML
+                        <img src="/uploads/yfclaim/items/{$imagePath}" 
+                             alt="{$title}" 
+                             class="item-image">
+HTML;
+                } else {
+                    $html .= <<<HTML
+                        <div class="no-image-placeholder">No Image Available</div>
+HTML;
+                }
+                
+                $html .= <<<HTML
+                        <div class="item-details">
+                            <div class="item-title">{$title}</div>
+                            <div class="item-price">{$price}</div>
+                            <div class="item-sale">{$saleName}</div>
+                        </div>
+                    </div>
+HTML;
+            }
+            error_log("DEBUG: Completed rendering " . count($featuredItems) . " items");
+        } else {
+            // Show placeholder if no items
+            $html .= <<<HTML
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
+                        <p>No featured items available at this time.</p>
+                        <p>Check back soon for new estate sale finds!</p>
+                    </div>
+HTML;
+        }
+        
+        $html .= <<<HTML
+                </div>
+                <div class="section-footer">
+                    <a href="/claims/items">Browse All Items →</a>
+                </div>
+            </section>
             
-            <!-- Local Events -->
-            <div class="service-card events">
-                <div class="service-icon">📅</div>
-                <h2 class="service-title">Local Events</h2>
-                <p class="service-desc">
-                    Stay connected with community events, festivals, markets, 
-                    and gatherings happening around Yakima Valley.
-                </p>
-                <ul class="service-links">
-                    <li><a href="/events">Event Calendar</a></li>
-                    <li><a href="/events/featured">Featured Events</a></li>
-                    <li><a href="/events/upcoming">This Weekend</a></li>
-                    <li><a href="/events/submit">Submit Your Event</a></li>
-                </ul>
-            </div>
+            <!-- Spotlight Sidebar -->
+            <aside class="spotlight-sidebar">
+                <!-- Weekend Box -->
+                <div class="weekend-box">
+                    <h3>This Weekend</h3>
+                    <div class="weekend-stats">
+                        {$stats['active_sales']} Active Sales • {$stats['upcoming_events']} Upcoming Events
+                    </div>
+HTML;
+        
+        // Add hot item if available
+        if ($hotItem) {
+            $hotItemId = $hotItem['id'] ?? '';
+            $hotItemTitle = htmlspecialchars($hotItem['title'] ?? 'Featured Item');
+            $hotItemPrice = isset($hotItem['price']) ? '$' . number_format($hotItem['price'], 2) : 'Price TBD';
             
-            <!-- Local Shops -->
-            <div class="service-card shops">
-                <div class="service-icon">🏪</div>
-                <h2 class="service-title">Local Shops</h2>
-                <p class="service-desc">
-                    Support local businesses! Find antique stores, vintage shops, 
-                    and specialty retailers in your area.
-                </p>
-                <ul class="service-links">
-                    <li><a href="/shops">Business Directory</a></li>
-                    <li><a href="/shops/map">Shop Locations</a></li>
-                    <li><a href="/shops/featured">Featured Shops</a></li>
-                    <li><a href="/shops/submit">Add Your Business</a></li>
-                </ul>
-            </div>
+            $html .= <<<HTML
+                    <div class="hot-item">
+                        <h4>Hot Item</h4>
+                        <div onclick="window.location.href='/claims/item/{$hotItemId}'" style="cursor: pointer;">
+HTML;
             
-            <!-- Seller Hub -->
-            <div class="service-card sellers">
-                <div class="service-icon">💼</div>
-                <h2 class="service-title">Seller Hub</h2>
-                <p class="service-desc">
-                    Professional tools for estate sale companies to manage 
-                    listings and track interested buyers.
-                </p>
-                <ul class="service-links">
-                    <li><a href="/admin/login">Seller Login</a></li>
-                    <li><span style="color: #6c757d;">💼 Seller Dashboard (Login Required)</span></li>
-                    <li><span style="color: #6c757d;">📱 Seller Chat (Coming Soon)</span></li>
-                    <li><span style="color: #6c757d;">📝 Contact Forms (Coming Soon)</span></li>
-                </ul>
-            </div>
+            if (!empty($hotItem['primary_image'])) {
+                $hotImagePath = htmlspecialchars($hotItem['primary_image']);
+                $html .= <<<HTML
+                            <img src="/uploads/yfclaim/items/{$hotImagePath}" 
+                                 alt="{$hotItemTitle}" 
+                                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;">
+HTML;
+            }
+            
+            $html .= <<<HTML
+                            <div class="item-title" style="font-size: 1.1rem; margin-bottom: 5px;">{$hotItemTitle}</div>
+                            <div class="item-price" style="font-size: 1.3rem;">{$hotItemPrice}</div>
+                        </div>
+                    </div>
+HTML;
+        }
+        
+        $html .= <<<HTML
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="/seller/login" class="primary">Seller Portal</a>
+                    <a href="/claims">View All Sales</a>
+                    <a href="/shops/map">Business Directory</a>
+                    <a href="#">Get Email Alerts</a>
+                </div>
+            </aside>
         </div>
         
-        <!-- API & Developer Section (simplified) -->
-        <div class="service-card" style="margin-top: 30px;">
-            <div class="service-icon">🔧</div>
-            <h2 class="service-title">Developer Resources</h2>
-            <p class="service-desc">
-                Access our APIs and integrate with the YFEvents platform.
-            </p>
-            <ul class="service-links">
-                <li><a href="/api/events">Events API</a></li>
-                <li><a href="/api/shops">Shops API</a></li>
-                <li><a href="/api/health">System Status</a></li>
-            </ul>
+        <!-- Lower Grid -->
+        <div class="lower-grid">
+            <!-- Active Sales Section -->
+            <section class="active-sales">
+                <h2>Current Estate Sales</h2>
+                <div class="sales-list">
+HTML;
+        
+        // Add current sales
+        if (!empty($currentSales)) {
+            $salesCount = 0;
+            foreach ($currentSales as $sale) {
+                if ($salesCount >= 5) break;
+                
+                // Handle both object and array formats
+                if (is_object($sale)) {
+                    $saleTitle = htmlspecialchars($sale->getTitle());
+                    $saleCity = htmlspecialchars($sale->getCity());
+                    $saleId = $sale->getId();
+                    // Format dates if methods exist
+                    $dates = 'Dates TBD';
+                } else {
+                    $saleTitle = htmlspecialchars($sale['title'] ?? 'Estate Sale');
+                    $saleCity = htmlspecialchars($sale['city'] ?? '');
+                    $saleId = $sale['id'] ?? '';
+                    $dates = 'Dates TBD';
+                }
+                
+                $html .= <<<HTML
+                    <div class="sale-entry">
+                        <div class="sale-title">
+                            <a href="/claims/sale/{$saleId}" style="color: inherit; text-decoration: none;">
+                                {$saleTitle}
+                            </a>
+                        </div>
+                        <div class="sale-details">
+                            {$dates} • {$saleCity}
+                        </div>
+                    </div>
+HTML;
+                $salesCount++;
+            }
+        } else {
+            $html .= <<<HTML
+                    <p style="color: #6c757d; text-align: center; padding: 20px;">
+                        No active sales at this time.
+                    </p>
+HTML;
+        }
+        
+        $html .= <<<HTML
+                </div>
+                <div class="section-footer">
+                    <a href="/claims">View All Sales →</a>
+                </div>
+            </section>
+            
+            <!-- Upcoming Events Section -->
+            <section class="upcoming-events">
+                <h2>This Week's Events</h2>
+                <div class="events-list">
+HTML;
+        
+        // Add upcoming events
+        if (!empty($upcomingEvents)) {
+            foreach ($upcomingEvents as $event) {
+                // Handle both object and array formats
+                if (is_object($event)) {
+                    $eventTitle = htmlspecialchars($event->getTitle());
+                    $eventDate = $event->getDate() ? $event->getDate()->format('M j') : 'Date TBD';
+                    $eventTime = $event->getTime() ?? '';
+                } else {
+                    $eventTitle = htmlspecialchars($event['title'] ?? 'Community Event');
+                    $eventDate = isset($event['date']) ? date('M j', strtotime($event['date'])) : 'Date TBD';
+                    $eventTime = $event['time'] ?? '';
+                }
+                
+                $html .= <<<HTML
+                    <div class="event-entry">
+                        <div class="event-title">{$eventTitle}</div>
+                        <div class="event-details">{$eventDate} • {$eventTime}</div>
+                    </div>
+HTML;
+            }
+        } else {
+            $html .= <<<HTML
+                    <p style="color: #6c757d; text-align: center; padding: 20px;">
+                        No upcoming events scheduled.
+                    </p>
+HTML;
+        }
+        
+        $html .= <<<HTML
+                </div>
+                <div class="section-footer">
+                    <a href="/events">View Full Calendar →</a>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Tools Bar -->
+        <div class="tools-bar">
+            <a href="/api/events">Integration & APIs</a>
+            <span style="color: #dee2e6;">•</span>
+            <a href="/shops/map">Business Directory & Map</a>
+            <span style="color: #dee2e6;">•</span>
+            <a href="/admin/login">Seller Resources</a>
+            <span style="color: #dee2e6;">•</span>
+            <a href="/events/submit">Submit Event</a>
+            <span style="color: #dee2e6;">•</span>
+            <a href="/api/health">System Status</a>
         </div>
     </div>
     
