@@ -106,7 +106,18 @@ class SaleRepository implements SaleRepositoryInterface
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         
-        return array_map(fn($row) => Sale::fromArray($row), $stmt->fetchAll());
+        $rows = $stmt->fetchAll();
+        $sales = [];
+        foreach ($rows as $row) {
+            $sale = Sale::fromArray($row);
+            // Preserve query data that isn't part of the entity
+            $sale->setStats([
+                'company_name' => $row['company_name'] ?? '',
+                'item_count' => (int)($row['item_count'] ?? 0)
+            ]);
+            $sales[] = $sale;
+        }
+        return $sales;
     }
 
     /**
@@ -158,7 +169,18 @@ class SaleRepository implements SaleRepositoryInterface
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         
-        return array_map(fn($row) => Sale::fromArray($row), $stmt->fetchAll());
+        $rows = $stmt->fetchAll();
+        $sales = [];
+        foreach ($rows as $row) {
+            $sale = Sale::fromArray($row);
+            // Preserve query data that isn't part of the entity
+            $sale->setStats([
+                'company_name' => $row['company_name'] ?? '',
+                'item_count' => (int)($row['item_count'] ?? 0)
+            ]);
+            $sales[] = $sale;
+        }
+        return $sales;
     }
 
     /**

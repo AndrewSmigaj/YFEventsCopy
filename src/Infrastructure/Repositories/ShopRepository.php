@@ -36,7 +36,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
     public function findFeatured(int $limit = 10): array
     {
         return $this->findBy(
-            ['featured' => 1, 'status' => 'active', 'active' => 1],
+            ['featured' => 1, 'status' => 'active'],
             ['name' => 'ASC'],
             $limit
         );
@@ -45,7 +45,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
     public function findVerified(int $limit = 100): array
     {
         return $this->findBy(
-            ['verified' => 1, 'status' => 'active', 'active' => 1],
+            ['verified' => 1, 'status' => 'active'],
             ['name' => 'ASC'],
             $limit
         );
@@ -59,7 +59,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
                 sin(radians(:lat)) * sin(radians(latitude)))) AS distance 
                 FROM {$this->getTableName()} 
                 WHERE latitude IS NOT NULL AND longitude IS NOT NULL
-                AND status = 'active' AND active = 1
+                AND status = 'active'
                 HAVING distance <= :radius 
                 ORDER BY distance ASC, name ASC";
 
@@ -109,10 +109,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
             $params['verified'] = $filters['verified'] ? 1 : 0;
         }
 
-        if (isset($filters['active'])) {
-            $sql .= " AND active = :active";
-            $params['active'] = $filters['active'] ? 1 : 0;
-        }
+        // Note: 'active' is handled by status filter
 
         if (isset($filters['category_id'])) {
             $sql .= " AND category_id = :category_id";
@@ -205,7 +202,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
 
         $sql = "SELECT * FROM {$this->getTableName()} 
                 WHERE (" . implode(' OR ', $conditions) . ")
-                AND status = 'active' AND active = 1
+                AND status = 'active'
                 ORDER BY featured DESC, name ASC";
 
         $stmt = $this->connection->prepare($sql);
@@ -239,7 +236,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
 
         $sql = "SELECT * FROM {$this->getTableName()} 
                 WHERE (" . implode(' AND ', $conditions) . ")
-                AND status = 'active' AND active = 1
+                AND status = 'active'
                 ORDER BY featured DESC, name ASC";
 
         $stmt = $this->connection->prepare($sql);
@@ -260,7 +257,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
                 WHERE latitude IS NOT NULL AND longitude IS NOT NULL
-                AND status = 'active' AND active = 1";
+                AND status = 'active'";
         
         $params = [];
 
@@ -315,7 +312,7 @@ class ShopRepository extends AbstractRepository implements ShopRepositoryInterfa
                     SUM(CASE WHEN featured = 1 THEN 1 ELSE 0 END) as featured_count,
                     SUM(CASE WHEN verified = 1 THEN 1 ELSE 0 END) as verified_count,
                     SUM(CASE WHEN latitude IS NOT NULL AND longitude IS NOT NULL THEN 1 ELSE 0 END) as geocoded_count,
-                    SUM(CASE WHEN active = 1 THEN 1 ELSE 0 END) as active_count
+                    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_count
                 FROM {$this->getTableName()}";
         
         $stmt = $this->connection->execute($sql);

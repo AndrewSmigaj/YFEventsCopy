@@ -189,7 +189,9 @@ class HomeController
     private function getUpcomingEvents(int $limit = 5): array
     {
         try {
-            return $this->eventService->getUpcomingEvents($limit);
+            $events = $this->eventService->getUpcomingEvents($limit);
+            // Convert Event objects to arrays for the view
+            return array_map(fn($event) => $event->toArray(), $events);
         } catch (\Exception $e) {
             error_log("Failed to get upcoming events: " . $e->getMessage());
             return [];
@@ -203,10 +205,60 @@ class HomeController
     {
         try {
             $result = $this->claimService->getActiveSales(1, 20);
-            return $result->getItems();
+            $sales = [];
+            foreach ($result->getItems() as $sale) {
+                $saleArray = $sale->toArray();
+                // Add some additional fields for the view
+                // company_name is now in stats from the repository
+                $saleArray['company_name'] = $saleArray['stats']['company_name'] ?? 'Estate Sale Company';
+                $saleArray['start_date'] = $saleArray['claim_start_date'] ?? null;
+                $saleArray['end_date'] = $saleArray['claim_end_date'] ?? null;
+                $saleArray['hours'] = '9am-5pm'; // Default hours
+                $locationParts = explode(',', $saleArray['location'] ?? '');
+                $saleArray['address'] = trim($locationParts[0] ?? '');
+                $saleArray['city'] = trim($locationParts[1] ?? 'Yakima');
+                // item_count is in stats from repository
+                $saleArray['item_count'] = $saleArray['stats']['item_count'] ?? 0;
+                $sales[] = $saleArray;
+            }
+            
+            // Enrich sales with item previews
+            $sales = $this->enrichSalesWithItemPreviews($sales);
+            
+            return $sales;
         } catch (\Exception $e) {
             error_log("Failed to get current sales: " . $e->getMessage());
             return [];
+        }
+    }
+    
+    /**
+     * Enrich sales with item preview images
+     */
+    private function enrichSalesWithItemPreviews(array $sales): array
+    {
+        if (empty($sales)) {
+            return $sales;
+        }
+        
+        try {
+            // Get item repository
+            $itemRepo = $this->container->resolve(\YFEvents\Infrastructure\Repositories\Claims\ItemRepository::class);
+            
+            // Fetch previews for each sale
+            foreach ($sales as &$sale) {
+                if (isset($sale['id'])) {
+                    $sale['item_previews'] = $itemRepo->getItemPreviews((int)$sale['id'], 4);
+                } else {
+                    $sale['item_previews'] = [];
+                }
+            }
+            
+            return $sales;
+        } catch (\Exception $e) {
+            error_log("Failed to enrich sales with item previews: " . $e->getMessage());
+            // Return sales without previews rather than failing completely
+            return $sales;
         }
     }
     

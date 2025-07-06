@@ -58,7 +58,10 @@
       "Bash(git commit:*)",
       "Bash(realpath:*)",
       "Bash(sudo tail:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(printf:*)",
+      "Bash(kill:*)",
+      "Bash(sudo a2enmod:*)"
     ],
     "deny": []
   }

@@ -118,6 +118,20 @@ class Item implements EntityInterface
 
 
     /**
+     * Get primary image from images array
+     */
+    public function getPrimaryImage(): ?array
+    {
+        foreach ($this->images as $image) {
+            if (!empty($image['is_primary'])) {
+                return $image;
+            }
+        }
+        // Return first image if no primary designated
+        return !empty($this->images) ? $this->images[0] : null;
+    }
+
+    /**
      * Check if item is available for offers
      */
     public function isAvailable(): bool
@@ -190,7 +204,7 @@ class Item implements EntityInterface
 
     public function toArray(): array
     {
-        return [
+        $array = [
             'id' => $this->id,
             'sale_id' => $this->saleId,
             'category_id' => $this->categoryId,
@@ -206,6 +220,14 @@ class Item implements EntityInterface
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
             'images' => $this->images
         ];
+        
+        // Add primary_image field for backward compatibility
+        $primaryImage = $this->getPrimaryImage();
+        if ($primaryImage) {
+            $array['primary_image'] = $primaryImage['filename'];
+        }
+        
+        return $array;
     }
 
     public static function fromArray(array $data): static
@@ -217,7 +239,7 @@ class Item implements EntityInterface
             $categoryId = abs(crc32($data['category'])) % 1000;
         }
         
-        return new self(
+        $item = new self(
             id: $data['id'] ?? null,
             saleId: $data['sale_id'],
             categoryId: $categoryId,
@@ -232,5 +254,16 @@ class Item implements EntityInterface
             createdAt: isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime(),
             updatedAt: isset($data['updated_at']) ? new DateTime($data['updated_at']) : null
         );
+        
+        // Handle primary_image if it exists in the data
+        if (!empty($data['primary_image'])) {
+            $item->addImage([
+                'filename' => $data['primary_image'],
+                'is_primary' => true,
+                'file_path' => '/uploads/yfclaim/items/' . $data['primary_image']
+            ]);
+        }
+        
+        return $item;
     }
 }

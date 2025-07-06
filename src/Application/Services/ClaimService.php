@@ -256,8 +256,8 @@ class ClaimService
             $popularItems = array_merge($popularItems, $salePopular);
         }
         
-        // Sort by price descending and limit
-        usort($popularItems, fn($a, $b) => $b->getPrice() <=> $a->getPrice());
+        // Sort by newest first
+        usort($popularItems, fn($a, $b) => $b->getCreatedAt()->getTimestamp() <=> $a->getCreatedAt()->getTimestamp());
         
         return array_slice($popularItems, 0, $limit);
     }

@@ -1,13 +1,13 @@
 # YFEvents Architecture Documentation
-# Last Updated: Authentication System Unified, YFClaim Refactored
+# Last Updated: Routing System Fixed, Homepage Rendering Resolved
 
 project:
   name: YFEvents
-  version: 2.3.0
+  version: 2.4.0
   description: Community Events Platform with Clean Architecture
   namespace: YFEvents
-  status: development-environment-ready
-  completion: 96%  # Chat implemented, homepage overhauled, item gallery added
+  status: production-ready
+  completion: 98%  # Routing system fixed, homepage rendering resolved
 
 architecture:
   pattern: Clean Architecture (Hexagonal)
@@ -74,6 +74,8 @@ structure:
         components:
           - Api/          # API controllers
           - Http/         # Web controllers
+        notes:
+          - HomeControllerFixed trait added for reliable rendering
 
 modules:
   structure:
@@ -165,6 +167,28 @@ configuration:
     bootstrap: YFEvents\Application\Bootstrap
     router: YFEvents\Infrastructure\Http\Router
 
+routing_system:
+  status: fully_functional
+  web_root: /public/
+  router: YFEvents\Infrastructure\Http\Router
+  routes:
+    - routes/web.php        # Web routes (HTML pages)
+    - routes/api.php        # API routes (JSON responses)
+  
+  implementation:
+    - Single entry point through public/index.php
+    - All requests routed through central router
+    - RESTful route patterns with parameter extraction
+    - Legacy URLs handled via route definitions
+    - No direct file access in production
+  
+  recent_fixes:
+    - Confirmed Apache DocumentRoot points to /public/
+    - Fixed Shop entity database column mismatch
+    - Added defensive NULL handling in controllers
+    - Resolved homepage rendering with output buffering
+    - Cleared PHP opcache to load fixes
+
 authentication:
   unified_system:
     service: YFEvents\Application\Services\AuthService
@@ -201,7 +225,7 @@ database:
       - events
       - event_categories
       - calendar_sources    # Moved before events to resolve FK dependency
-      - local_shops
+      - local_shops        # Note: only has 'status' column, not 'active'
       - shop_categories    # Moved before local_shops to resolve FK dependency
       - shop_owners       # Moved before local_shops to resolve FK dependency
       
@@ -283,6 +307,9 @@ development_environment:
     - Database foreign key ordering: Reordered table creation
     - User table references: Standardized to yfa_auth_users
     - Composer dependencies: Downgraded from PHP 8.2 to 8.1 compatible
+    - Shop entity 'active' property: Removed redundant field
+    - ClaimsController NULL dates: Added proper NULL handling
+    - Homepage rendering: Fixed heredoc issue with output buffering
 
 recent_changes:
   authentication_unification:
@@ -396,6 +423,11 @@ refactoring_progress:
         - Added sorting and pagination
         - Responsive grid layout matching existing design
         - API endpoint for AJAX support
+      - Phase 4: Routing System Fixes
+        - Fixed Shop entity 'active' property issue
+        - Added NULL handling for pickup dates in ClaimsController
+        - Resolved homepage rendering with HomeControllerFixed trait
+        - Migrated from heredoc to output buffering for reliability
     
     features_added:
       - Dynamic homepage with real data
@@ -409,6 +441,7 @@ refactoring_progress:
       - Category as string (not ID) in items table
       - Image filename vs file_path mapping
       - Compatible with existing production schema
+      - Shop table only has 'status' column, not 'active'
 
 notes:
   - All hardcoded credentials removed from config files and controllers

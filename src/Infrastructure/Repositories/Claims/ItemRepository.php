@@ -288,7 +288,7 @@ class ItemRepository implements ItemRepositoryInterface
                 SELECT 1 FROM yfc_item_images 
                 WHERE item_id = i.id
             )
-            ORDER BY i.price DESC
+            ORDER BY i.created_at DESC
             LIMIT :limit
         ");
         
@@ -440,5 +440,29 @@ class ItemRepository implements ItemRepositoryInterface
         $stmt->execute($params);
         
         return (int)$stmt->fetchColumn();
+    }
+    
+    /**
+     * Get item previews for a sale (first N items with images)
+     */
+    public function getItemPreviews(int $saleId, int $limit = 4): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT i.id, i.title, i.price,
+                   (SELECT filename FROM yfc_item_images 
+                    WHERE item_id = i.id 
+                    ORDER BY is_primary DESC, sort_order ASC 
+                    LIMIT 1) as primary_image
+            FROM yfc_items i
+            WHERE i.sale_id = :sale_id
+            AND i.status = 'available'
+            ORDER BY i.created_at DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':sale_id', $saleId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll();
     }
 }
