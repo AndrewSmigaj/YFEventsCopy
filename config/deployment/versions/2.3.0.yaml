@@ -1,0 +1,77 @@
+# Version 2.3.0 Specific Configuration
+# Release Date: January 2025
+
+version:
+  number: "2.3.0"
+  codename: "Unified Communication"
+  release_date: "2025-01-07"
+  
+features:
+  # New features in this version
+  added:
+    - "Integrated real-time chat system"
+    - "Unified calendar system"
+    - "Estate sales with contact forms"
+    - "PWA support with service worker"
+    - "Bootstrap 5.1.3 UI framework"
+    
+  # Removed features
+  removed:
+    - "YFClaim bidding/offer system"
+    - "Legacy hardcoded authentication"
+    - "YFClassifieds module"
+    
+  # Modified features
+  changed:
+    - "Authentication fully centralized via YFAuth"
+    - "Seller authentication migrated to YFAuth"
+    - "Routing system secured with auth checks"
+    
+migrations:
+  # Database changes required for this version
+  required:
+    - "ALTER TABLE yfc_sellers MODIFY password_hash VARCHAR(255) NULL"
+    - "INSERT INTO communication_channels (name, type) VALUES ('Support', 'public'), ('Selling Tips', 'public')"
+    
+  # Optional migrations
+  optional:
+    - "database/performance_optimization.sql"
+    - "database/security_improvements.sql"
+    
+dependencies:
+  # Updated dependencies for this version
+  composer:
+    require:
+      "php": "^8.1"
+      "guzzlehttp/guzzle": "^7.5"
+      "monolog/monolog": "^2.8"
+      "vlucas/phpdotenv": "^5.5"
+      "nesbot/carbon": "^2.66"
+      "phpmailer/phpmailer": "^6.7"
+      "firebase/php-jwt": "^6.4"
+      "bacon/bacon-qr-code": "^3.0"
+      "tecnickcom/tcpdf": "^6.7"
+      
+compatibility:
+  # Breaking changes
+  breaking_changes:
+    - "YFClaim API endpoints changed for contact forms"
+    - "Session structure standardized"
+    - "Router group() method removed"
+    
+  # Upgrade notes
+  upgrade_from:
+    "2.2.x":
+      - "Run yfc_sellers migration before deployment"
+      - "Clear all sessions after deployment"
+      - "Update any custom YFClaim integrations"
+    "2.1.x":
+      - "Full database backup recommended"
+      - "Review custom authentication code"
+      - "Test chat system integration"
+      
+deployment_notes:
+  - "Ensure communication_schema_fixed.sql is used (not subset)"
+  - "Global channels must be created post-deployment"
+  - "Clear PHP opcache after deployment"
+  - "Test seller dashboard chat integration"

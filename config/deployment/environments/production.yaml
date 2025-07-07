@@ -1,0 +1,56 @@
+# Production Environment Configuration
+# Overrides for production deployments
+
+environment: production
+
+deployment:
+  repository:
+    branch: "main"  # Always use stable branch/tag for production
+    
+  database:
+    host: "localhost"
+    backup_before_migration: true
+    
+  installation:
+    mode: "production"
+    interactive: false  # No prompts in production
+    
+  directories:
+    permissions:
+      # Stricter permissions in production
+      directories:
+        "755":
+          - "storage"
+          - "public/uploads"
+        "770":  # Only web server can write
+          - "storage/cache"
+          - "storage/logs"
+          - "storage/sessions"
+          - "storage/uploads"
+          
+  apache:
+    ssl:
+      enabled: true
+      force_https: true
+      hsts: true  # HTTP Strict Transport Security
+      
+  logging:
+    level: "error"
+    channels:
+      - "file"
+      - "syslog"
+      
+  cache:
+    enabled: true
+    driver: "file"
+    ttl: 3600
+    
+  debug:
+    enabled: false
+    show_errors: false
+    
+  monitoring:
+    enabled: true
+    services:
+      - "health_check"
+      - "error_tracking"

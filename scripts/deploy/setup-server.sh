@@ -4,7 +4,10 @@
 # This script sets up a fresh Ubuntu 22.04 droplet with all required dependencies
 # Run as root or with sudo
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+
+# Trap for better error reporting
+trap 'echo "Error occurred in setup-server.sh at line $LINENO. Exit code: $?" >&2' ERR
 
 # Color codes for output
 RED='\033[0;31m'
@@ -57,7 +60,6 @@ apt install -y \
     php8.1-json \
     php8.1-xml \
     php8.1-gd \
-    libapache2-mod-php8.1 \
     mysql-server \
     composer \
     git \
@@ -66,12 +68,22 @@ apt install -y \
     unzip \
     curl
 
+# Ensure services are enabled for auto-start on boot
+print_status "Enabling services for auto-start..."
+systemctl enable apache2
+systemctl enable mysql
+systemctl enable fail2ban
+systemctl enable php8.1-fpm
+
 # Enable Apache modules
 print_status "Enabling Apache modules..."
 a2enmod rewrite
 a2enmod headers
 a2enmod expires
 a2enmod ssl
+a2enmod proxy_fcgi setenvif
+a2enconf php8.1-fpm
+systemctl restart php8.1-fpm
 
 # Configure PHP
 print_status "Configuring PHP..."
@@ -159,6 +171,24 @@ if ! id -u yfevents >/dev/null 2>&1; then
     useradd -m -s /bin/bash yfevents
     usermod -aG www-data yfevents
     print_warning "Remember to set up SSH keys for the yfevents user"
+fi
+
+# Verify services are running
+print_status "Verifying services..."
+services=("apache2" "mysql" "fail2ban" "php8.1-fpm")
+all_good=true
+for service in "${services[@]}"; do
+    if systemctl is-active --quiet "$service"; then
+        echo "  ✓ $service is running"
+    else
+        echo "  ✗ $service is NOT running" >&2
+        all_good=false
+    fi
+done
+
+if [ "$all_good" = false ]; then
+    print_error "Some services are not running properly. Please check the logs."
+    exit 1
 fi
 
 # Final instructions

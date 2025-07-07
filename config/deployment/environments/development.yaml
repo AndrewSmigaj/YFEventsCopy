@@ -1,0 +1,54 @@
+# Development Environment Configuration
+# Overrides for local development
+
+environment: development
+
+deployment:
+  repository:
+    branch: "${YFEVENTS_BRANCH:-develop}"  # Allow branch override
+    
+  database:
+    host: "localhost"
+    name: "yakima_finds_dev"
+    backup_before_migration: false
+    
+  installation:
+    mode: "development"
+    interactive: true  # Allow interactive prompts
+    
+  directories:
+    permissions:
+      # More permissive in development
+      directories:
+        "777":
+          - "storage"
+          - "storage/cache"
+          - "storage/logs"
+          - "storage/sessions"
+          - "storage/uploads"
+          - "public/uploads"
+          
+  apache:
+    ssl:
+      enabled: false  # Optional in development
+      force_https: false
+      
+  logging:
+    level: "debug"
+    channels:
+      - "file"
+      - "stdout"
+      
+  cache:
+    enabled: false  # Disable caching in development
+    
+  debug:
+    enabled: true
+    show_errors: true
+    verbose: true
+    
+  # Additional development tools
+  development:
+    enable_profiler: true
+    enable_query_log: true
+    mock_external_apis: true

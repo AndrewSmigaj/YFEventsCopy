@@ -1,0 +1,226 @@
+# YFEvents Deployment Configuration
+# Version: 2.3.0
+# Last Updated: 2025-01-07
+
+deployment:
+  version: "2.3.0"
+  name: "YFEvents"
+  description: "Community Events Platform with integrated real-time communication"
+  
+  repository:
+    # These can be overridden by environment variables
+    url: "${YFEVENTS_REPO_URL:-git@github.com:YourOrg/YFEvents.git}"
+    branch: "${YFEVENTS_BRANCH:-main}"
+    deploy_key: "${YFEVENTS_DEPLOY_KEY:-}"  # Optional SSH key path
+    
+  requirements:
+    php:
+      version: "^8.1"
+      extensions:
+        - mysql
+        - curl
+        - mbstring
+        - json
+        - xml
+        - gd
+        - fileinfo
+    mysql:
+      version: "^8.0"
+      charset: "utf8mb4"
+      collation: "utf8mb4_unicode_ci"
+    apache:
+      version: "^2.4"
+      modules:
+        - rewrite
+        - headers
+        - expires
+        - ssl
+    composer:
+      version: "^2.0"
+      
+  database:
+    host: "${DB_HOST:-localhost}"
+    name: "${DB_DATABASE:-yakima_finds}"
+    user: "${DB_USERNAME:-yfevents}"
+    password: "${DB_PASSWORD}"  # Must be provided
+    
+    # Schema files in execution order
+    schemas:
+      # Core tables (required)
+      core:
+        - path: "database/calendar_schema.sql"
+          description: "Calendar and events system"
+          required: true
+        - path: "database/shop_claim_system.sql"
+          description: "Shop system"
+          required: true
+        - path: "database/modules_schema.sql"
+          description: "Module support system"
+          required: true
+          
+      # Communication system
+      communication:
+        enabled: true
+        type: "full"  # Options: full, subset, none
+        schemas:
+          full: "database/communication_schema_fixed.sql"
+          subset: "database/yfchat_subset.sql"
+          
+      # System features
+      features:
+        - path: "database/batch_processing_schema.sql"
+          description: "Batch processing"
+          required: false
+        - path: "database/intelligent_scraper_schema.sql"
+          description: "Intelligent scraper"
+          required: false
+          
+      # Module schemas
+      modules:
+        - path: "modules/yfauth/database/schema.sql"
+          description: "YFAuth authentication"
+          module: "yfauth"
+        - path: "modules/yfclaim/database/schema.sql"
+          description: "YFClaim estate sales"
+          module: "yfclaim"
+        - path: "modules/yftheme/database/schema.sql"
+          description: "YFTheme customization"
+          module: "yftheme"
+          
+      # Optional improvements
+      improvements:
+        - path: "database/performance_optimization.sql"
+          description: "Performance optimizations"
+          required: false
+        - path: "database/security_improvements.sql"
+          description: "Security improvements"
+          required: false
+        - path: "database/audit_logging.sql"
+          description: "Audit logging"
+          required: false
+          
+  modules:
+    # Active modules to be installed/enabled
+    active:
+      - yfauth     # Authentication (required)
+      - yfclaim    # Estate sales
+      - yftheme    # Theme customization
+      
+    # Disabled modules
+    inactive:
+      - yfclassifieds  # Disabled due to overlap with yfclaim
+      
+  # Installation modes (for installer.php)
+  installation:
+    default_mode: "production"
+    components:
+      production:
+        - core
+        - admin
+        - api
+        - scraping
+        - geocoding
+        - shops
+        - modules
+        - yfauth
+        - yfclaim
+      development:
+        - core
+        - admin
+        - api
+        - scraping
+        - geocoding
+        - shops
+        - modules
+        - yfauth
+        - yfclaim
+        - yftheme
+        
+  # Directory structure
+  directories:
+    # Directories to create
+    create:
+      - "storage"
+      - "storage/cache"
+      - "storage/logs"
+      - "storage/sessions"
+      - "storage/uploads"
+      - "public/uploads"
+      - "public/uploads/events"
+      - "public/uploads/shops"
+      - "public/uploads/claims"
+      
+    # Permission settings
+    permissions:
+      directories:
+        "755":
+          - "storage"
+          - "storage/cache"
+          - "storage/logs"
+          - "storage/sessions"
+          - "storage/uploads"
+          - "public/uploads"
+        "775":  # For directories that need write access
+          - "public/uploads/events"
+          - "public/uploads/shops"
+          - "public/uploads/claims"
+      files:
+        "644":
+          - "**/*.php"
+          - "**/*.js"
+          - "**/*.css"
+        "600":
+          - ".env"
+        "755":
+          - "cron/scrape-events.php"
+          - "scripts/deploy/*.sh"
+          - "scripts/deploy/*.php"
+          
+  # Apache configuration
+  apache:
+    document_root: "/var/www/yfevents/public"
+    server_admin: "${SSL_EMAIL}"
+    ssl:
+      enabled: true
+      certbot: true
+      
+  # Cron jobs
+  cron:
+    jobs:
+      - name: "Event Scraping"
+        schedule: "0 */6 * * *"  # Every 6 hours
+        command: "cd /var/www/yfevents && /usr/bin/php cron/scrape-events.php >> storage/logs/cron.log 2>&1"
+        user: "www-data"
+        
+  # Health checks
+  health_checks:
+    - name: "Database Connection"
+      type: "database"
+    - name: "File Permissions"
+      type: "permissions"
+    - name: "PHP Extensions"
+      type: "php_extensions"
+    - name: "Apache Modules"
+      type: "apache_modules"
+    - name: "Application Routes"
+      type: "http"
+      endpoints:
+        - "/"
+        - "/api/health"
+        - "/admin/login"
+        
+  # Deployment hooks
+  hooks:
+    pre_deploy: []
+    post_deploy:
+      - "composer dump-autoload -o"
+      - "php artisan cache:clear 2>/dev/null || true"
+      
+  # Rollback configuration
+  rollback:
+    enabled: true
+    keep_backups: 3
+    backup_items:
+      - ".env"
+      - "storage/logs"
+      - "public/uploads"

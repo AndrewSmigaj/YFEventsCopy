@@ -1,0 +1,153 @@
+# YFEvents Deployment Configuration Example
+# Copy this file to deployment.yaml and update with your settings
+
+deployment:
+  version: "2.3.0"
+  name: "YFEvents"
+  description: "Community Events Platform"
+  
+  repository:
+    # Your git repository URL
+    url: "git@github.com:YOUR_ORG/YFEvents.git"
+    # Branch to deploy
+    branch: "main"
+    
+  requirements:
+    php:
+      version: "^8.1"
+      extensions:
+        - mysql
+        - curl
+        - mbstring
+        - json
+        - xml
+        - gd
+        - fileinfo
+    mysql:
+      version: "^8.0"
+      charset: "utf8mb4"
+      collation: "utf8mb4_unicode_ci"
+    apache:
+      version: "^2.4"
+      modules:
+        - rewrite
+        - headers
+        - expires
+        - ssl
+    composer:
+      version: "^2.0"
+      
+  database:
+    host: "localhost"
+    name: "yakima_finds"
+    user: "yfevents"
+    # Password will be loaded from environment or prompted
+    password: "${DB_PASSWORD}"
+    
+    schemas:
+      # Core tables (required)
+      core:
+        - path: "database/calendar_schema.sql"
+          description: "Calendar and events system"
+          required: true
+        - path: "database/shop_claim_system.sql"
+          description: "Shop system"
+          required: true
+        - path: "database/modules_schema.sql"
+          description: "Module support system"
+          required: true
+          
+      # Communication system
+      communication:
+        enabled: true
+        type: "full"  # Options: full, subset, none
+        schemas:
+          full: "database/communication_schema_fixed.sql"
+          subset: "database/yfchat_subset.sql"
+          
+      # Module schemas
+      modules:
+        - path: "modules/yfauth/database/schema.sql"
+          description: "YFAuth authentication"
+          module: "yfauth"
+        - path: "modules/yfclaim/database/schema.sql"
+          description: "YFClaim estate sales"
+          module: "yfclaim"
+        - path: "modules/yftheme/database/schema.sql"
+          description: "YFTheme customization"
+          module: "yftheme"
+          
+  modules:
+    # Active modules to be installed/enabled
+    active:
+      - yfauth     # Authentication (required)
+      - yfclaim    # Estate sales
+      - yftheme    # Theme customization
+      
+    # Disabled modules
+    inactive:
+      - yfclassifieds  # Disabled due to overlap with yfclaim
+      
+  # Directory structure
+  directories:
+    # Directories to create
+    create:
+      - "storage"
+      - "storage/cache"
+      - "storage/logs"
+      - "storage/sessions"
+      - "storage/uploads"
+      - "public/uploads"
+      - "public/uploads/events"
+      - "public/uploads/shops"
+      - "public/uploads/claims"
+      
+    # Permission settings
+    permissions:
+      directories:
+        "755":
+          - "storage"
+          - "storage/cache"
+          - "storage/logs"
+          - "storage/sessions"
+          - "storage/uploads"
+          - "public/uploads"
+        "775":  # For directories that need write access
+          - "public/uploads/events"
+          - "public/uploads/shops"
+          - "public/uploads/claims"
+      files:
+        "644":
+          - "**/*.php"
+          - "**/*.js"
+          - "**/*.css"
+        "600":
+          - ".env"
+        "755":
+          - "cron/scrape-events.php"
+          - "scripts/deploy/*.sh"
+          - "scripts/deploy/*.php"
+          
+  # Apache configuration
+  apache:
+    # Your domain name
+    server_name: "example.com"
+    server_admin: "admin@example.com"
+    document_root: "/var/www/yfevents/public"
+    ssl:
+      enabled: true
+      certbot: true
+      
+  # Cron jobs
+  cron:
+    jobs:
+      - name: "Event Scraping"
+        schedule: "0 */6 * * *"  # Every 6 hours
+        command: "cd /var/www/yfevents && /usr/bin/php cron/scrape-events.php >> storage/logs/cron.log 2>&1"
+        user: "www-data"
+        
+  # Deployment hooks
+  hooks:
+    pre_deploy: []
+    post_deploy:
+      - "composer dump-autoload -o"

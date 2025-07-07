@@ -1,13 +1,13 @@
 # YFEvents Architecture Documentation
-# Last Updated: Routing System Fully Documented
+# Last Updated: January 2025 - Complete Chat System Integration
 
 project:
   name: YFEvents
-  version: 2.0.0
-  description: Community Events Platform with Clean Architecture
+  version: 2.3.0
+  description: Community Events Platform with integrated real-time communication
   namespace: YFEvents
   status: production-ready
-  completion: 98%  # Routing system fully documented, architecture updated
+  completion: 99%  # Chat system fully integrated, all routes secured
   php_version: "^8.1"  # Core requirement, some modules require 8.2
 
 architecture:
@@ -21,18 +21,19 @@ architecture:
 
 structure:
   root:
-    - config/          # Configuration files (database, app, email, services)
-    - database/        # SQL schemas and migrations
+    - .claude/        # Claude Code configuration
+    - config/         # Configuration files (database, app, email, services)
+    - database/       # SQL schemas and migrations
     - docs/           # Project documentation
     - modules/        # Independent feature modules
     - public/         # Web root (minimal exposure)
     - resources/      # Views, assets, templates
     - routes/         # Route definitions
     - scripts/        # Utility and maintenance scripts
-    - src/           # Core application code
-    - storage/       # Runtime storage (logs, cache, sessions)
-    - tests/         # Test suites
-    - vendor/        # Composer dependencies
+    - src/            # Core application code
+    - storage/        # Runtime storage (logs, cache, sessions)
+    - tests/          # Test suites
+    - vendor/         # Composer dependencies
 
   src:
     layers:
@@ -44,17 +45,25 @@ structure:
           - Shops/        # Shop/business listings
           - Users/        # User management
           - Claims/       # Estate sale claims
-          - Communication/ # Real-time chat and messaging system (NOT a module)
+          - Communication/ # Real-time chat and messaging system
+          - YFClaim/      # YFClaim-specific domain entities
           - Scrapers/     # Web scraping interfaces
           - Common/       # Shared interfaces
         notes:
-          - Communication is integrated into core, not a separate module
+          - Communication is integrated into core domain layer
+          - YFClaim domain entities added for inquiries
         
       application:
         path: src/Application/
         description: Use cases and application services
         components:
-          - Services/     # Application services (includes unified AuthService)
+          - Services/     # Application services
+            - AuthService.php        # Unified authentication wrapper
+            - Communication/         # Chat system services
+              - CommunicationService.php      # Main orchestrator
+              - AdminSellerChatService.php    # Seller-specific logic
+            - YFClaim/              # YFClaim services
+              - InquiryService.php  # Contact/inquiry handling
           - Controllers/  # Admin controllers
           - Validation/   # Input validation
           - Bootstrap.php # Application initialization
@@ -67,6 +76,15 @@ structure:
           - Container/    # Dependency injection
           - Database/     # Database connections
           - Repositories/ # Repository implementations
+            - Communication/  # Chat system repositories
+              - ChannelRepository.php
+              - MessageRepository.php
+              - ParticipantRepository.php
+              - NotificationRepository.php
+            - Claims/        # Estate sale repositories
+              - SellerRepository.php
+            - YFClaim/       # YFClaim repositories
+              - InquiryRepository.php
           - Services/     # Infrastructure services
           - Http/         # HTTP handling (Router, ErrorHandler)
           - Utils/        # Utilities (EnvLoader, etc.)
@@ -93,7 +111,18 @@ structure:
         description: User interface layer
         components:
           - Api/          # API controllers
+            - Controllers/
+              - Communication/  # Chat API endpoints
+                - ChannelApiController.php
+                - MessageApiController.php
+                - NotificationApiController.php
+                - AnnouncementApiController.php
+              - YFClaim/       # YFClaim API endpoints
+                - InquiryApiController.php
           - Http/         # Web controllers
+            - Controllers/
+              - CommunicationController.php  # Chat web interface
+              - SellerDashboardTrait.php    # Seller dashboard helper
         details:
           controller_patterns:
             - All controllers receive ContainerInterface and ConfigInterface
@@ -126,8 +155,9 @@ modules:
         - database/schema.sql
         - www/          # Module web files
       notes:
-        - Now used by all modules via unified AuthService
-        - Handles all user authentication (admin, sellers, buyers)
+        - Central authentication provider for entire system
+        - Handles all user types (admin, sellers, buyers)
+        - RBAC (Role-Based Access Control) implemented
         
     yfclaim:
       namespace: YFEvents\Modules\YFClaim
@@ -140,10 +170,14 @@ modules:
         - database/schema.sql
         - www/          # Module web files
       changes:
-        - Removed: Offer/bidding functionality (migration exists but module.json outdated)
-        - Added: Contact form system for inquiries (pending implementation)
+        - Removed: Offer/bidding functionality completely
+        - Added: Inquiry system for contact forms
         - Modified: Sellers authenticate via YFAuth
         - Database: password_hash column now nullable
+      integration:
+        - Chat system embedded in seller dashboard
+        - Unread message badge on navigation
+        - Auto-join support and tips channels
       note: module.json still contains outdated auction/bidding references
         
     yftheme:
@@ -155,13 +189,88 @@ modules:
         - src/Services/
         - database/schema.sql
         - www/          # Module web files
-
         
     yfclassifieds:
       namespace: YFEvents\Modules\YFClassifieds
       description: Classified listings
-      status: inactive  # Overlaps with YFClaim
+      status: inactive  # Disabled due to overlap with YFClaim
       note: Functionality merged into YFClaim
+
+communication_system:
+  description: Integrated real-time chat and messaging
+  location: Core domain (not a module)
+  status: fully-functional
+  
+  architecture:
+    domain_layer:
+      entities:
+        - Channel: Chat rooms/channels
+        - Message: Individual messages
+        - Participant: Channel membership
+        - Notification: User notifications
+        - Attachment: File attachments
+      value_objects:
+        - ChannelType: public, private, event, vendor, announcement
+        - MessageType: text, system, announcement
+      services:
+        - ChannelService: Channel management logic
+        - MessageService: Message handling logic
+        - AnnouncementService: System announcements
+        
+    infrastructure_layer:
+      repositories:
+        - ChannelRepository: Fixed SQL column mappings
+        - MessageRepository: Message persistence
+        - ParticipantRepository: Membership management
+        - NotificationRepository: Notification tracking
+      database:
+        - communication_channels
+        - communication_messages
+        - communication_participants
+        - communication_notifications
+        - communication_attachments
+        - communication_email_addresses
+        - communication_reactions
+        
+    application_layer:
+      services:
+        - CommunicationService: Main orchestration
+        - AdminSellerChatService: Seller-specific features
+          
+    presentation_layer:
+      web:
+        - CommunicationController: Standalone and embedded views
+        - Routes: /communication, /communication/embedded
+        - Assets: /public/assets/communication/
+      api:
+        - ChannelApiController: Channel management
+        - MessageApiController: Message operations
+        - NotificationApiController: Notification preferences
+        - AnnouncementApiController: Admin announcements
+        
+  features:
+    - Real-time messaging with @mentions
+    - File attachments and reactions
+    - Unread message tracking
+    - Email notifications
+    - PWA support with service worker
+    - Mobile-responsive design
+    - Bootstrap 5.1.3 UI framework
+    
+  integration:
+    - Authentication via YFAuth module
+    - Embedded iframe in seller dashboard
+    - Session-based access control
+    - YFClaim item references in messages
+    - Auto-join channels on seller login
+    
+  recent_fixes:
+    - Fixed JavaScript errors preventing UI visibility
+    - Added missing UI functions (toggleSidebar, etc.)
+    - Improved mobile responsive CSS
+    - Fixed SQL column name mismatches
+    - Added Bootstrap CSS integration
+    - Created global Support and Tips channels
 
 configuration:
   environment:
@@ -187,7 +296,7 @@ configuration:
       - Router::dispatch() handles request
 
 routing_system:
-  status: fully_functional
+  status: fully_functional_and_secured
   web_root: /public/
   router: YFEvents\Infrastructure\Http\Router
   routes:
@@ -207,12 +316,22 @@ routing_system:
     - No route groups or prefixes
     - Direct method calls for route registration
   
+  security_improvements:
+    - All seller routes now require authentication
+    - Added requireSellerAuth() method to ClaimsController
+    - Proper error responses for API vs web requests
+    - Clear parameter validation messages
+    - Removed unnecessary/duplicate routes
+    - Disabled YFClassifieds module
+  
   recent_fixes:
     - Confirmed Apache DocumentRoot points to /public/
     - Fixed Shop entity database column mismatch
     - Added defensive NULL handling in controllers
     - Resolved homepage rendering with output buffering
     - Cleared PHP opcache to load fixes
+    - Secured all seller dashboard routes
+    - Fixed confusing error messages
 
 authentication:
   unified_system:
@@ -234,6 +353,11 @@ authentication:
         - session_id
         - login_time
         - last_activity
+      # YFClaim maintains separate session for compatibility
+      yfclaim_seller_id: # Legacy seller session
+      seller:
+        - seller_id
+        - auth_user_id
   
   deprecated:
     - Legacy admin authentication (hardcoded credentials)
@@ -290,6 +414,11 @@ testing:
     - tests/test_core_functionality.php
     - tests/test_web_interfaces.php
     - tests/test_yfclaim.php
+  chat_system_tests:
+    - tests/test_communication_api.php
+    - tests/test_communication_controller.php
+    - tests/test_chat_ui_fix.html
+    - tests/verify_dom_state.html
 
 deployment:
   composer:
@@ -299,29 +428,79 @@ deployment:
     autoload-dev:
       "YFEvents\\Tests\\": "tests/"
       
-  commands:
-    - composer install
-    - composer dump-autoload -o
-    - cp .env.example .env
-    - # Configure .env with actual values
-    - # Run database import: ./scripts/import_database.sh
-  
+  configuration:
+    location: config/deployment/
+    structure:
+      - deployment.yaml      # Main deployment configuration
+      - environments/        # Environment-specific overrides
+        - production.yaml
+        - staging.yaml
+        - development.yaml
+      - versions/           # Version-specific requirements
+        - 2.3.0.yaml
+        - latest.yaml       # Symlink to current version
+    approach: Configuration-driven deployment with environment awareness
+      
   automated_deployment:
     location: scripts/deploy/
     target_platform: Digital Ocean (Ubuntu 22.04)
+    supported_environments:
+      - production (SSL, optimized)
+      - staging (testing)
+      - development (local)
+    
     process:
-      - wget deployment scripts from GitHub
-      - Run setup-server.sh to prepare LAMP stack
-      - Run deploy.sh with repository URL
-      - Script clones to /var/www/yfevents
-      - Configures Apache, SSL, database, and cron
+      - Load deployment configuration from config/deployment/
+      - Validate environment requirements
+      - Clone/update repository (configurable branch)
+      - Run installer.php with environment-specific components
+      - Execute database schemas based on configuration
+      - Configure Apache with SSL (production only)
+      - Set up cron jobs for event scraping
+      - Run health checks to verify deployment
+      
     scripts:
-      setup-server.sh: Installs LAMP stack and dependencies
-      deploy.sh: Main deployment orchestrator
-      create-admin.php: Interactive admin user creation
-      health-check.php: Verifies installation health
-      run-sql-files.php: Executes database schemas in order
-      apache-vhost.conf: Virtual host template
+      core:
+        setup-server.sh: Initial server provisioning (LAMP stack)
+        deploy.sh: Main deployment orchestrator (config-driven)
+        update.sh: Update existing deployment
+        rollback.sh: Rollback to previous version
+      utilities:
+        create-admin.php: Create admin users via YFAuth
+        health-check.php: Comprehensive deployment validation
+        run-sql-files.php: Database schema management
+      configuration:
+        apache-vhost.conf: Apache virtual host template
+        lib/: Shared function libraries
+          - config.sh: Configuration loader
+          - database.sh: Database operations
+          - validation.sh: Pre-flight checks
+          - common.sh: Shared utilities
+          
+    requirements:
+      server:
+        - Ubuntu 22.04 LTS
+        - 2GB RAM minimum
+        - 20GB storage
+      software:
+        - PHP 8.1+ with extensions
+        - MySQL 8.0+
+        - Apache 2.4+
+        - Composer 2.0+
+        - Git
+        - Certbot (for SSL)
+        
+    database_setup:
+      schemas_order:
+        1. Core tables (calendar, shops, modules)
+        2. Communication system (full schema recommended)
+        3. Module schemas (YFAuth, YFClaim, YFTheme)
+        4. Optional improvements (performance, security, audit)
+      configuration:
+        - Database name: yakima_finds
+        - User: yfevents
+        - Character set: utf8mb4
+        - Collation: utf8mb4_unicode_ci
 
 development_environment:
   platform: Ubuntu 22.04 LTS (WSL2)
@@ -345,6 +524,7 @@ development_environment:
     - Shop entity 'active' property: Removed redundant field
     - ClaimsController NULL dates: Added proper NULL handling
     - Homepage rendering: Fixed heredoc issue with output buffering
+    - Chat UI visibility: Fixed JavaScript errors and CSS issues
 
 recent_changes:
   authentication_unification:
@@ -361,12 +541,13 @@ recent_changes:
     - Fixed price field naming (price vs starting_price)
     - Added proper POST routes for form submissions
     - Implemented RESTful seller routes with parameter mapping
-    - Contact form system to replace bidding (pending implementation)
+    - Added inquiry system for contact forms (replacing bidding)
     
   database_updates:
     - yfc_sellers.password_hash made nullable
     - Column naming standardized to match actual schema
     - No new migrations needed (working with existing schema)
+    - Added auth_user_id to sellers table for YFAuth integration
     
   deprecated_features:
     - YFClaim offer/bidding system
@@ -375,37 +556,13 @@ recent_changes:
     - Hardcoded credentials
     - Non-RESTful route patterns
 
-refactoring_progress:
-  completed:
-    - Phase 1: Preparation and Planning
-    - Phase 2: Create Clean Directory Structure
-    - Phase 3: Migrate to Clean Architecture
-    - Phase 4: Move Assets and Admin
-    - Phase 5: Module Integration
-    - Phase 6: Database Schema Consolidation (documented, not merged)
-    - Phase 7: Clean Up (removed old refactor, organized tests)
-    - Phase 8: Configuration Updates
-      - Updated composer.json namespaces
-      - Created comprehensive .env.example
-      - Updated config files to use env vars
-      - Fixed entry point paths
-    - Phase 9: Namespace Updates
-      - Updated all PHP files from YakimaFinds to YFEvents namespace
-      - Fixed EnvLoader namespace to YFEvents\Infrastructure\Utils
-      - Updated use statements and fully qualified class names
-      - 383 references updated to 30 (remaining are string literals)
-      
-  in_progress:
-    - Development Environment Setup:
-      - LAMP stack installed and configured
-      - Database partially imported (19 tables)
-      - Application accessible at http://localhost
-      - Chat system fully implemented with communication_* tables
-      
-  pending:
-    - Phase 10: Testing & Verification
-    - Phase 11: Final Review
-    - Phase 12: Post-Refactor Setup
+  routing_security_fixes:
+    - Removed unnecessary routes (/health moved to API only)
+    - Disabled YFClassifieds module (duplicate functionality)
+    - Added authentication to all seller routes
+    - Improved error messages for missing parameters
+    - Fixed route testing inaccuracies
+    - 100% of seller routes now secured
 
   chat_system_implementation:
     completed:
@@ -416,6 +573,10 @@ refactoring_progress:
       - Container registration with dependency injection
       - Database schema using communication_* tables
       - Seed script for global Support and Selling Tips channels
+      - Web interface with Bootstrap 5.1.3
+      - Mobile responsive design with sidebar toggle
+      - PWA support with service worker
+      - Fixed all UI visibility issues
     
     architecture_decisions:
       - Used communication_schema_fixed.sql for advanced features
@@ -424,19 +585,16 @@ refactoring_progress:
       - Repository pattern with simplified field mapping
       - Service layer for business logic orchestration
       - PWA support with service worker for offline capability
+      - Bootstrap CSS for consistent UI styling
     
     integration:
       - Authentication via YFAuth module
       - Session management standardized
       - Role-based access control
       - YFClaim item references in messages
-    
-    integration_complete:
-      - Seller dashboard integration via iframe
-      - Real-time unread badge updates
+      - Embedded iframe in seller dashboard
+      - Real-time unread count updates
       - Auto-join channels on seller login
-      - API endpoint /api/communication/unread-count
-      - Full documentation at docs/CHAT_SYSTEM_DOCUMENTATION.md
 
   homepage_overhaul:
     completed:
@@ -486,10 +644,13 @@ notes:
   - Backwards compatibility maintained where possible
   - Security improvements implemented (unified auth, session management)
   - Production database schema preserved (with minor nullable adjustments)
-  - YFClassifieds module skipped (overlaps with YFClaim)
+  - YFClassifieds module disabled (overlaps with YFClaim)
   - Router simplified to not require group() method
   - Database schemas reordered to resolve dependencies
   - Authentication fully centralized through AuthService
   - YFClaim simplified to focus on sales without bidding complexity
   - RESTful routing patterns implemented for seller workflows
   - Session variables standardized across all modules
+  - Chat system fully integrated with seller dashboard
+  - All routes secured with proper authentication
+  - Mobile-responsive design with Bootstrap integration
