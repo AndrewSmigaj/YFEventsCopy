@@ -40,12 +40,9 @@ When prompted, provide:
 ### Step 2: Clone the Repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
+# Clone the repository with the correct branch
+git clone -b refactor/unified-structure https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
 cd /var/www/yfevents
-
-# For a specific branch (e.g., refactor/unified-structure)
-git checkout refactor/unified-structure
 ```
 
 ### Step 3: Configure Deployment
@@ -54,27 +51,27 @@ The deployment system uses YAML configuration files located in `config/deploymen
 
 1. **Review main configuration**: `config/deployment/deployment.yaml`
 2. **Check environment settings**: `config/deployment/environments/production.yaml`
-3. **Update repository settings** in deployment.yaml:
+3. **Repository settings are pre-configured** in deployment.yaml:
    ```yaml
    repository:
-     url: "git@github.com:YOUR_ORG/YFEvents.git"
-     branch: "main"  # or your preferred branch
+     url: "https://github.com/AndrewSmigaj/YFEventsCopy.git"
+     branch: "refactor/unified-structure"
    ```
 
 ### Step 4: Run Deployment
 
 ```bash
-# Basic deployment
-sudo ./scripts/deploy/deploy-new.sh
+# Basic deployment (uses production environment by default)
+sudo ./scripts/deploy/deploy.sh
 
 # With specific environment
-sudo ./scripts/deploy/deploy-new.sh --environment production
+sudo ./scripts/deploy/deploy.sh --environment production
 
-# Skip validation checks (not recommended)
-sudo ./scripts/deploy/deploy-new.sh --skip-validation
+# Dry run to see what would happen
+sudo ./scripts/deploy/deploy.sh --dry-run
 
-# Skip backup (for fresh installs)
-sudo ./scripts/deploy/deploy-new.sh --skip-backup
+# Verbose output for debugging
+sudo ./scripts/deploy/deploy.sh --verbose
 ```
 
 ### Step 5: Create Admin User
