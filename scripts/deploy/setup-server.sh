@@ -48,18 +48,33 @@ read -p "Enter your email for SSL certificate: " SSL_EMAIL
 print_status "Updating system packages..."
 apt update && apt upgrade -y
 
+# Detect available PHP version
+print_status "Detecting available PHP version..."
+PHP_VERSION=""
+for version in 8.3 8.2 8.1; do
+    if apt-cache show php${version} &>/dev/null; then
+        PHP_VERSION=$version
+        print_status "Found PHP ${PHP_VERSION} available"
+        break
+    fi
+done
+
+if [ -z "$PHP_VERSION" ]; then
+    print_error "No supported PHP version (8.1+) found in repositories"
+    exit 1
+fi
+
 # Install required packages
-print_status "Installing Apache, PHP 8.1, and MySQL..."
+print_status "Installing Apache, PHP ${PHP_VERSION}, and MySQL..."
 apt install -y \
     apache2 \
-    php8.1 \
-    php8.1-fpm \
-    php8.1-mysql \
-    php8.1-curl \
-    php8.1-mbstring \
-    php8.1-json \
-    php8.1-xml \
-    php8.1-gd \
+    php${PHP_VERSION} \
+    php${PHP_VERSION}-fpm \
+    php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-curl \
+    php${PHP_VERSION}-mbstring \
+    php${PHP_VERSION}-xml \
+    php${PHP_VERSION}-gd \
     mysql-server \
     composer \
     git \
