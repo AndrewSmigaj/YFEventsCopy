@@ -8,9 +8,9 @@ deployment:
   
   repository:
     # Your git repository URL
-    url: "git@github.com:YOUR_ORG/YFEvents.git"
+    url: "https://github.com/AndrewSmigaj/YFEventsCopy.git"
     # Branch to deploy
-    branch: "main"
+    branch: "refactor/unified-structure"
     
   requirements:
     php:

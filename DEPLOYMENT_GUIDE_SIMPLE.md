@@ -27,7 +27,7 @@ For a fresh server, run the setup script:
 
 ```bash
 # Download and run server setup
-wget https://raw.githubusercontent.com/YOUR_ORG/YFEvents/main/scripts/deploy/setup-server.sh
+wget https://raw.githubusercontent.com/AndrewSmigaj/YFEventsCopy/main/scripts/deploy/setup-server.sh
 chmod +x setup-server.sh
 sudo ./setup-server.sh
 ```
@@ -40,12 +40,12 @@ When prompted, provide:
 ### Step 2: Clone the Repository
 
 ```bash
-# Clone your repository
-git clone YOUR_REPOSITORY_URL /var/www/yfevents
+# Clone the repository
+git clone https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
 cd /var/www/yfevents
 
-# For a specific branch
-git checkout YOUR_BRANCH_NAME
+# For a specific branch (e.g., refactor/unified-structure)
+git checkout refactor/unified-structure
 ```
 
 ### Step 3: Configure Deployment
