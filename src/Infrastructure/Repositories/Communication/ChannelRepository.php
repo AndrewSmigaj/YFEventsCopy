@@ -67,8 +67,8 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     
     public function findBySlug(string $slug): ?Channel
     {
-        // Try to find by generated slug (from title)
-        $sql = "SELECT * FROM {$this->getTableName()} WHERE LOWER(REPLACE(title, ' ', '-')) = :slug";
+        // Try to find by generated slug (from name)
+        $sql = "SELECT * FROM {$this->getTableName()} WHERE LOWER(REPLACE(name, ' ', '-')) = :slug";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['slug' => strtolower($slug)]);
         
@@ -102,10 +102,10 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     
     public function findPublicChannels(int $limit = 50, int $offset = 0): array
     {
-        // In our schema, 'support' and 'tips' are the public channels
+        // In our schema, public channels with specific slugs are the global channels
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE type IN ('support', 'tips') AND is_active = 1 
-                ORDER BY last_activity DESC, created_at DESC 
+                WHERE (type = 'public' OR slug IN ('support', 'tips')) AND is_archived = 0 
+                ORDER BY last_activity_at DESC, created_at DESC 
                 LIMIT :limit OFFSET :offset";
                 
         $stmt = $this->connection->prepare($sql);
@@ -128,7 +128,7 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
         $sql = "SELECT c.* FROM {$this->getTableName()} c
                 INNER JOIN communication_participants p ON c.id = p.channel_id
                 WHERE p.user_id = :user_id {$archivedCondition}
-                ORDER BY c.last_activity DESC, c.created_at DESC";
+                ORDER BY c.last_activity_at DESC, c.created_at DESC";
                 
         $stmt = $this->connection->prepare($sql);
         $stmt->execute(['user_id' => $userId]);
@@ -180,7 +180,7 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     public function updateLastActivity(int $channelId): bool
     {
         $sql = "UPDATE {$this->getTableName()} 
-                SET last_activity = CURRENT_TIMESTAMP 
+                SET last_activity_at = CURRENT_TIMESTAMP 
                 WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
         return $stmt->execute(['id' => $channelId]);
@@ -189,11 +189,11 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     public function searchChannels(string $query, int $limit = 20): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} 
-                WHERE (title LIKE :query OR description LIKE :query) 
-                AND is_active = 1 
+                WHERE (name LIKE :query OR description LIKE :query) 
+                AND is_archived = 0 
                 ORDER BY 
-                    CASE WHEN title LIKE :exact THEN 0 ELSE 1 END,
-                    last_activity DESC 
+                    CASE WHEN name LIKE :exact THEN 0 ELSE 1 END,
+                    last_activity_at DESC 
                 LIMIT :limit";
                 
         $stmt = $this->connection->prepare($sql);
@@ -213,7 +213,7 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
     /**
      * Save a channel
      */
-    public function save(Channel $channel): Channel
+    public function save(\YFEvents\Domain\Common\EntityInterface $channel): \YFEvents\Domain\Common\EntityInterface
     {
         $data = $this->mapEntityToDb($channel);
         
@@ -221,8 +221,8 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
             // Insert new channel
             unset($data['id']);
             $sql = "INSERT INTO {$this->getTableName()} 
-                    (type, title, description, created_by, is_active, created_at, updated_at) 
-                    VALUES (:type, :title, :description, :created_by, :is_active, :created_at, :updated_at)";
+                    (type, name, description, created_by_user_id, is_archived, created_at, updated_at) 
+                    VALUES (:type, :name, :description, :created_by_user_id, :is_archived, :created_at, :updated_at)";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($data);
@@ -232,15 +232,15 @@ class ChannelRepository extends AbstractRepository implements ChannelRepositoryI
         } else {
             // Update existing channel
             $sql = "UPDATE {$this->getTableName()} 
-                    SET title = :title, description = :description, is_active = :is_active, 
+                    SET name = :name, description = :description, is_archived = :is_archived, 
                         updated_at = :updated_at 
                     WHERE id = :id";
             
             $stmt = $this->connection->prepare($sql);
             $stmt->execute([
-                'title' => $data['title'],
+                'name' => $data['name'],
                 'description' => $data['description'],
-                'is_active' => $data['is_active'],
+                'is_archived' => $data['is_archived'] ?? 0,
                 'updated_at' => $data['updated_at'],
                 'id' => $data['id']
             ]);

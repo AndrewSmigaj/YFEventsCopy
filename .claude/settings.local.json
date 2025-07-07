@@ -61,7 +61,8 @@
       "Bash(/dev/null)",
       "Bash(printf:*)",
       "Bash(kill:*)",
-      "Bash(sudo a2enmod:*)"
+      "Bash(sudo a2enmod:*)",
+      "Bash(sudo systemctl status:*)"
     ],
     "deny": []
   }

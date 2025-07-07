@@ -22,12 +22,28 @@ use YFEvents\Domain\Admin\AdminService;
 use YFEvents\Domain\Claims\SaleRepositoryInterface;
 use YFEvents\Domain\Claims\ItemRepositoryInterface;
 use YFEvents\Domain\Claims\OfferRepositoryInterface;
+use YFEvents\Domain\Claims\SellerRepositoryInterface;
 use YFEvents\Infrastructure\Repositories\Claims\SaleRepository;
 use YFEvents\Infrastructure\Repositories\Claims\ItemRepository;
 use YFEvents\Infrastructure\Repositories\Claims\OfferRepository;
+use YFEvents\Infrastructure\Repositories\Claims\SellerRepository;
 use YFEvents\Application\Services\ClaimService;
 use YFEvents\Application\Services\CalendarService;
 use YFEvents\Infrastructure\Services\QRCodeService;
+use YFEvents\Domain\Communication\Repositories\ChannelRepositoryInterface;
+use YFEvents\Domain\Communication\Repositories\MessageRepositoryInterface;
+use YFEvents\Domain\Communication\Repositories\ParticipantRepositoryInterface;
+use YFEvents\Infrastructure\Repositories\Communication\ChannelRepository;
+use YFEvents\Infrastructure\Repositories\Communication\MessageRepository;
+use YFEvents\Infrastructure\Repositories\Communication\ParticipantRepository;
+use YFEvents\Domain\Communication\Services\ChannelService;
+use YFEvents\Domain\Communication\Services\MessageService;
+use YFEvents\Domain\Communication\Services\AnnouncementService;
+use YFEvents\Application\Services\Communication\CommunicationService;
+use YFEvents\Application\Services\Communication\AdminSellerChatService;
+use YFEvents\Application\Services\YFClaim\InquiryService;
+use YFEvents\Domain\YFClaim\Repositories\InquiryRepositoryInterface;
+use YFEvents\Infrastructure\Repositories\YFClaim\InquiryRepository;
 
 /**
  * Main service provider for dependency injection
@@ -96,6 +112,12 @@ class ServiceProvider
                 options: $config->get('database.options', [])
             );
         });
+        
+        // Register PDO for services that need it directly
+        $this->container->singleton(\PDO::class, function ($container) {
+            $connection = $container->resolve(ConnectionInterface::class);
+            return $connection->getConnection();
+        });
     }
 
     /**
@@ -122,6 +144,28 @@ class ServiceProvider
         
         $this->container->bind(OfferRepositoryInterface::class, function ($container) {
             return new OfferRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        $this->container->bind(SellerRepositoryInterface::class, function ($container) {
+            return new SellerRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        // Communication repositories
+        $this->container->bind(ChannelRepositoryInterface::class, function ($container) {
+            return new ChannelRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        $this->container->bind(MessageRepositoryInterface::class, function ($container) {
+            return new MessageRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        $this->container->bind(ParticipantRepositoryInterface::class, function ($container) {
+            return new ParticipantRepository($container->resolve(ConnectionInterface::class));
+        });
+        
+        // YFClaim repositories
+        $this->container->bind(InquiryRepositoryInterface::class, function ($container) {
+            return new InquiryRepository($container->resolve(ConnectionInterface::class));
         });
     }
 
@@ -171,6 +215,56 @@ class ServiceProvider
             return new CalendarService(
                 $container->resolve(EventServiceInterface::class),
                 $container->resolve(ClaimService::class)
+            );
+        });
+        
+        // Communication domain services
+        $this->container->bind(ChannelService::class, function ($container) {
+            return new ChannelService(
+                $container->resolve(ChannelRepositoryInterface::class),
+                $container->resolve(ParticipantRepositoryInterface::class)
+            );
+        });
+        
+        $this->container->bind(MessageService::class, function ($container) {
+            return new MessageService(
+                $container->resolve(MessageRepositoryInterface::class),
+                $container->resolve(ChannelRepositoryInterface::class),
+                $container->resolve(ParticipantRepositoryInterface::class)
+            );
+        });
+        
+        $this->container->bind(AnnouncementService::class, function ($container) {
+            return new AnnouncementService(
+                $container->resolve(ChannelRepositoryInterface::class),
+                $container->resolve(MessageRepositoryInterface::class),
+                $container->resolve(ParticipantRepositoryInterface::class),
+                $container->resolve(MessageService::class)
+            );
+        });
+        
+        // Communication application service
+        $this->container->bind(CommunicationService::class, function ($container) {
+            return new CommunicationService(
+                $container->resolve(ChannelService::class),
+                $container->resolve(MessageService::class),
+                $container->resolve(AnnouncementService::class)
+            );
+        });
+        
+        // YFClaim services
+        $this->container->bind(InquiryService::class, function ($container) {
+            $connection = $container->resolve(ConnectionInterface::class);
+            return new InquiryService(
+                $container->resolve(InquiryRepositoryInterface::class),
+                $connection->getConnection()
+            );
+        });
+        
+        // Auth Service
+        $this->container->singleton(\YFEvents\Application\Services\AuthService::class, function ($container) {
+            return new \YFEvents\Application\Services\AuthService(
+                $container->resolve(\PDO::class)
             );
         });
     }

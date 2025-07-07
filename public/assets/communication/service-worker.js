@@ -1,10 +1,11 @@
 // Service Worker for YFEvents Communication Hub
 const CACHE_NAME = 'yfcomm-v1';
 const urlsToCache = [
-  '/communication/',
-  '/communication/css/communication.css',
-  '/communication/css/mobile.css',
-  '/communication/js/communication.js',
+  '/communication',
+  '/assets/communication/css/communication.css',
+  '/assets/communication/css/mobile.css',
+  '/assets/communication/js/communication.js',
+  '/assets/communication/offline.html',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
 ];
@@ -63,7 +64,7 @@ self.addEventListener('fetch', event => {
       .catch(() => {
         // Offline fallback
         if (event.request.destination === 'document') {
-          return caches.match('/communication/offline.html');
+          return caches.match('/assets/communication/offline.html');
         }
       })
   );
@@ -90,8 +91,8 @@ self.addEventListener('activate', event => {
 self.addEventListener('push', event => {
   const options = {
     body: event.data ? event.data.text() : 'New message in YFComm',
-    icon: '/communication/icons/icon-192x192.png',
-    badge: '/communication/icons/badge-72x72.png',
+    icon: '/assets/communication/icons/icon-192x192.png',
+    badge: '/assets/communication/icons/badge-72x72.png',
     vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
@@ -109,7 +110,7 @@ self.addEventListener('notificationclick', event => {
   event.notification.close();
 
   event.waitUntil(
-    clients.openWindow('/communication/')
+    clients.openWindow('/communication')
   );
 });
 

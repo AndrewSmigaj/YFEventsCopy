@@ -54,7 +54,7 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
     /**
      * Save a message
      */
-    public function save(Message $message): Message
+    public function save(\YFEvents\Domain\Common\EntityInterface $message): \YFEvents\Domain\Common\EntityInterface
     {
         $data = $this->mapEntityToDb($message);
         
@@ -214,6 +214,12 @@ class MessageRepository extends AbstractRepository implements MessageRepositoryI
         }
         
         return $results;
+    }
+    
+    // Alias for interface compatibility (conversationId = channelId)
+    public function findByConversationId(int $conversationId, int $limit = 50, int $offset = 0): array
+    {
+        return $this->findByChannelId($conversationId, $limit, $offset);
     }
     
     public function findMentionsForUser(int $userId, int $limit = 20): array

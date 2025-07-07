@@ -106,8 +106,34 @@ abstract class BaseController
      */
     protected function requireAuth(): bool
     {
-        session_start();
-        return isset($_SESSION['user_id']) || isset($_SESSION['admin_logged_in']);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        return isset($_SESSION['user_id']) || isset($_SESSION['admin_logged_in']) || 
+               isset($_SESSION['auth']['user_id']);
+    }
+    
+    /**
+     * Get authenticated user ID
+     */
+    protected function getAuthenticatedUserId(): ?int
+    {
+        if (!$this->requireAuth()) {
+            return null;
+        }
+        
+        // Check YFAuth session first
+        if (isset($_SESSION['auth']['user_id'])) {
+            return (int) $_SESSION['auth']['user_id'];
+        }
+        
+        // Check legacy session
+        if (isset($_SESSION['user_id'])) {
+            return (int) $_SESSION['user_id'];
+        }
+        
+        // Admin sessions don't have user_id
+        return null;
     }
 
     /**

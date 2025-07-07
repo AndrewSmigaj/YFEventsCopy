@@ -4,18 +4,26 @@ declare(strict_types=1);
 
 namespace YFEvents\Presentation\Api\Controllers\Communication;
 
+use YFEvents\Presentation\Http\Controllers\BaseController;
 use YFEvents\Application\Services\Communication\CommunicationService;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use Exception;
 
 /**
  * Channel API controller
  */
-class ChannelApiController
+class ChannelApiController extends BaseController
 {
     private CommunicationService $communicationService;
     
-    public function __construct(CommunicationService $communicationService)
+    public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
-        $this->communicationService = $communicationService;
+        parent::__construct($container, $config);
+        $this->communicationService = $container->resolve(CommunicationService::class);
+        
+        // Set CORS headers for API
+        $this->setCorsHeaders();
     }
     
     /**
@@ -24,7 +32,11 @@ class ChannelApiController
     public function index(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
             
             $channelsWithUnread = $this->communicationService->getUserChannelsWithUnread($userId);
             
@@ -45,12 +57,12 @@ class ChannelApiController
                 ];
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $data
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -60,12 +72,18 @@ class ChannelApiController
     public function store(): void
     {
         try {
-            $data = $this->getJsonInput();
-            $data['created_by_user_id'] = $this->getCurrentUserId();
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            
+            $data = $this->getInput();
+            $data['created_by_user_id'] = $userId;
             
             $channel = $this->communicationService->createChannel($data);
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => [
                     'id' => $channel->getId(),
@@ -75,28 +93,38 @@ class ChannelApiController
                     'description' => $channel->getDescription()
                 ]
             ], 201);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Get channel details
      */
-    public function show(int $id): void
+    public function show(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
             
             // This method would need to be added to CommunicationService
             $channel = $this->communicationService->getChannelById($id, $userId);
             
             if (!$channel) {
-                $this->sendErrorResponse('Channel not found', 404);
+                $this->errorResponse('Channel not found', 404);
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => [
                     'id' => $channel->getId(),
@@ -112,29 +140,38 @@ class ChannelApiController
                     'updated_at' => $channel->getUpdatedAt()->format('c')
                 ]
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Update channel
      */
-    public function update(int $id): void
+    public function update(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $data = $this->getJsonInput();
-            
-            // This method would need to be added to CommunicationService
-            $channel = $this->communicationService->updateChannel($id, $userId, $data);
-            
-            if (!$channel) {
-                $this->sendErrorResponse('Channel not found or access denied', 404);
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
                 return;
             }
             
-            $this->sendJsonResponse([
+            // This method would need to be added to CommunicationService
+            $channel = $this->communicationService->updateChannel($id, $userId, $input);
+            
+            if (!$channel) {
+                $this->errorResponse('Channel not found or access denied', 404);
+                return;
+            }
+            
+            $this->jsonResponse([
                 'success' => true,
                 'data' => [
                     'id' => $channel->getId(),
@@ -142,132 +179,202 @@ class ChannelApiController
                     'description' => $channel->getDescription()
                 ]
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Delete channel
      */
-    public function delete(int $id): void
+    public function delete(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
             
             // This method would need to be added to CommunicationService
             $result = $this->communicationService->deleteChannel($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Channel not found or access denied', 404);
+                $this->errorResponse('Channel not found or access denied', 404);
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => 'Channel deleted successfully'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Join a channel
      */
-    public function join(int $id): void
+    public function join(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
             
             $participant = $this->communicationService->joinChannel($id, $userId);
             
             if (!$participant) {
-                $this->sendErrorResponse('Already a member of this channel');
+                $this->errorResponse('Already a member of this channel');
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => 'Successfully joined channel'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Leave a channel
      */
-    public function leave(int $id): void
+    public function leave(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
             
             $result = $this->communicationService->leaveChannel($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Not a member of this channel');
+                $this->errorResponse('Not a member of this channel');
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => 'Successfully left channel'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
-     * Get current user ID from session
+     * Mark channel as read
      */
-    private function getCurrentUserId(): int
+    public function markAsRead(): void
     {
-        session_start();
-        
-        if (!isset($_SESSION['user_id'])) {
-            throw new \RuntimeException('Not authenticated');
+        try {
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            
+            // This method would need to be added to CommunicationService
+            $result = $this->communicationService->markChannelAsRead($id, $userId);
+            
+            if (!$result) {
+                $this->errorResponse('Channel not found or access denied', 404);
+                return;
+            }
+            
+            $this->jsonResponse([
+                'success' => true,
+                'message' => 'Channel marked as read'
+            ]);
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
-        
-        return (int)$_SESSION['user_id'];
     }
     
     /**
-     * Get JSON input from request
+     * Get total unread message count for user
      */
-    private function getJsonInput(): array
+    public function unreadCount(): void
     {
-        $json = file_get_contents('php://input');
-        $data = json_decode($json, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Invalid JSON input');
+        try {
+            $userId = $this->getAuthenticatedUserId();
+            if (!$userId) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            
+            // Get all channels with unread counts
+            $channelsWithUnread = $this->communicationService->getUserChannelsWithUnread($userId);
+            
+            // Calculate total unread
+            $totalUnread = 0;
+            foreach ($channelsWithUnread as $item) {
+                $totalUnread += $item['unread_count'];
+            }
+            
+            $this->jsonResponse([
+                'success' => true,
+                'unread' => $totalUnread,
+                'data' => [
+                    'total_unread' => $totalUnread,
+                    'channels' => array_map(function($item) {
+                        return [
+                            'channel_id' => $item['channel']->getId(),
+                            'channel_name' => $item['channel']->getName(),
+                            'unread_count' => $item['unread_count']
+                        ];
+                    }, $channelsWithUnread)
+                ]
+            ]);
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
+    }
+    
+    /**
+     * Set CORS headers for API access
+     */
+    private function setCorsHeaders(): void
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
         
-        return $data ?? [];
-    }
-    
-    /**
-     * Send JSON response
-     */
-    private function sendJsonResponse(array $data, int $statusCode = 200): void
-    {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-    
-    /**
-     * Send error response
-     */
-    private function sendErrorResponse(string $message, int $statusCode = 400): void
-    {
-        $this->sendJsonResponse([
-            'success' => false,
-            'error' => $message
-        ], $statusCode);
+        // Handle preflight requests
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            exit;
+        }
     }
 }

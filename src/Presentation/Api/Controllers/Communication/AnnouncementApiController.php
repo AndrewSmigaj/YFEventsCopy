@@ -4,18 +4,26 @@ declare(strict_types=1);
 
 namespace YFEvents\Presentation\Api\Controllers\Communication;
 
+use YFEvents\Presentation\Http\Controllers\BaseController;
 use YFEvents\Application\Services\Communication\CommunicationService;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use Exception;
 
 /**
  * Announcement API controller
  */
-class AnnouncementApiController
+class AnnouncementApiController extends BaseController
 {
     private CommunicationService $communicationService;
     
-    public function __construct(CommunicationService $communicationService)
+    public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
-        $this->communicationService = $communicationService;
+        parent::__construct($container, $config);
+        $this->communicationService = $container->resolve(CommunicationService::class);
+        
+        // Set CORS headers for API
+        $this->setCorsHeaders();
     }
     
     /**
@@ -24,9 +32,18 @@ class AnnouncementApiController
     public function index(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $page = (int)($_GET['page'] ?? 1);
-            $limit = (int)($_GET['limit'] ?? 20);
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
+            $input = $this->getInput();
+            $page = (int) ($input['page'] ?? 1);
+            $limit = min(50, max(1, (int) ($input['limit'] ?? 20)));
             $offset = ($page - 1) * $limit;
             
             $announcements = $this->communicationService->getUserAnnouncements($userId, $limit, $offset);
@@ -50,7 +67,7 @@ class AnnouncementApiController
                 ];
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $formattedAnnouncements,
                 'pagination' => [
@@ -58,8 +75,8 @@ class AnnouncementApiController
                     'limit' => $limit
                 ]
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -69,12 +86,20 @@ class AnnouncementApiController
     public function create(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $data = $this->getJsonInput();
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
+            $data = $this->getInput();
             
             // Check if user has permission to create announcements
             if (!$this->userCanCreateAnnouncements($userId)) {
-                $this->sendErrorResponse('Insufficient permissions', 403);
+                $this->errorResponse('Insufficient permissions', 403);
                 return;
             }
             
@@ -90,39 +115,53 @@ class AnnouncementApiController
                 }, $results)
             ];
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $summary,
                 'message' => sprintf('Announcement posted to %d channels', count($results))
             ], 201);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Get announcement statistics
      */
-    public function stats(int $id): void
+    public function stats(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            if (!isset($input['id'])) {
+                $this->errorResponse('Announcement ID is required');
+                return;
+            }
+            $id = (int) $input['id'];
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
             
             // Check if user has permission to view stats
             if (!$this->userCanViewAnnouncementStats($userId)) {
-                $this->sendErrorResponse('Insufficient permissions', 403);
+                $this->errorResponse('Insufficient permissions', 403);
                 return;
             }
             
             // This method would need to be added to the service
             $stats = $this->communicationService->getAnnouncementStats($id);
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $stats
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -148,8 +187,7 @@ class AnnouncementApiController
     {
         // In practice, this would check user roles/permissions
         // For now, we'll use a simple check
-        session_start();
-        return isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'editor']);
+        return isset($_SESSION['auth']['role']) && in_array($_SESSION['auth']['role'], ['admin', 'editor']);
     }
     
     /**
@@ -157,58 +195,22 @@ class AnnouncementApiController
      */
     private function userCanViewAnnouncementStats(int $userId): bool
     {
-        session_start();
-        return isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'editor']);
+        return isset($_SESSION['auth']['role']) && in_array($_SESSION['auth']['role'], ['admin', 'editor']);
     }
     
     /**
-     * Get current user ID from session
+     * Set CORS headers for API access
      */
-    private function getCurrentUserId(): int
+    private function setCorsHeaders(): void
     {
-        session_start();
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
         
-        if (!isset($_SESSION['user_id'])) {
-            throw new \RuntimeException('Not authenticated');
+        // Handle preflight requests
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            exit;
         }
-        
-        return (int)$_SESSION['user_id'];
-    }
-    
-    /**
-     * Get JSON input from request
-     */
-    private function getJsonInput(): array
-    {
-        $json = file_get_contents('php://input');
-        $data = json_decode($json, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Invalid JSON input');
-        }
-        
-        return $data ?? [];
-    }
-    
-    /**
-     * Send JSON response
-     */
-    private function sendJsonResponse(array $data, int $statusCode = 200): void
-    {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-    
-    /**
-     * Send error response
-     */
-    private function sendErrorResponse(string $message, int $statusCode = 400): void
-    {
-        $this->sendJsonResponse([
-            'success' => false,
-            'error' => $message
-        ], $statusCode);
     }
 }

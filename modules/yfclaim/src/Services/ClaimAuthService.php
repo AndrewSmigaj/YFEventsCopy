@@ -27,10 +27,10 @@ class ClaimAuthService {
             return $authResult;
         }
         
-        // Check if user has claim_seller role
+        // Check if user has seller role (was claim_seller)
         $hasClaimRole = false;
         foreach ($authResult['user']['roles'] as $role) {
-            if ($role['name'] === 'claim_seller') {
+            if ($role['name'] === 'seller' || $role['name'] === 'claim_seller') {
                 $hasClaimRole = true;
                 break;
             }
@@ -87,10 +87,10 @@ class ClaimAuthService {
             return null;
         }
         
-        // Check claim_seller role
+        // Check seller role (was claim_seller)
         $hasClaimRole = false;
         foreach ($user['roles'] as $role) {
-            if ($role['name'] === 'claim_seller') {
+            if ($role['name'] === 'seller' || $role['name'] === 'claim_seller') {
                 $hasClaimRole = true;
                 break;
             }

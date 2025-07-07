@@ -4,29 +4,54 @@ declare(strict_types=1);
 
 namespace YFEvents\Presentation\Api\Controllers\Communication;
 
+use YFEvents\Presentation\Http\Controllers\BaseController;
 use YFEvents\Application\Services\Communication\CommunicationService;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use Exception;
 
 /**
  * Message API controller
  */
-class MessageApiController
+class MessageApiController extends BaseController
 {
     private CommunicationService $communicationService;
     
-    public function __construct(CommunicationService $communicationService)
+    public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
-        $this->communicationService = $communicationService;
+        parent::__construct($container, $config);
+        $this->communicationService = $container->resolve(CommunicationService::class);
+        
+        // Set CORS headers for API
+        $this->setCorsHeaders();
     }
     
     /**
      * Get messages for a channel
      */
-    public function index(int $channelId): void
+    public function index(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $page = (int)($_GET['page'] ?? 1);
-            $limit = (int)($_GET['limit'] ?? 50);
+            $input = $this->getInput();
+            
+            if (!isset($input['channel_id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            
+            $channelId = (int) $input['channel_id'];
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
+            
+            $page = (int) ($input['page'] ?? 1);
+            $limit = min(100, max(1, (int) ($input['limit'] ?? 50)));
             $offset = ($page - 1) * $limit;
             
             $result = $this->communicationService->getChannelMessages($channelId, $userId, $limit, $offset);
@@ -36,7 +61,7 @@ class MessageApiController
                 $messages[] = $this->formatMessage($message);
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $messages,
                 'pagination' => [
@@ -47,46 +72,61 @@ class MessageApiController
                 ],
                 'unread_count' => $result['unread_count']
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Send a message to a channel
      */
-    public function store(int $channelId): void
+    public function store(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $data = $this->getJsonInput();
+            $input = $this->getInput();
+            
+            if (!isset($input['channel_id'])) {
+                $this->errorResponse('Channel ID is required');
+                return;
+            }
+            
+            $channelId = (int) $input['channel_id'];
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
             
             $messageData = [
                 'channel_id' => $channelId,
                 'user_id' => $userId,
-                'content' => $data['content'] ?? '',
-                'parent_message_id' => $data['parent_message_id'] ?? null,
-                'yfclaim_item_id' => $data['yfclaim_item_id'] ?? null
+                'content' => $input['content'] ?? '',
+                'parent_message_id' => $input['parent_message_id'] ?? null,
+                'yfclaim_item_id' => $input['yfclaim_item_id'] ?? null
             ];
             
             // Handle attachments if provided
-            if (!empty($data['attachments'])) {
-                $messageData['attachments'] = $data['attachments'];
+            if (!empty($input['attachments'])) {
+                $messageData['attachments'] = $input['attachments'];
             }
             
             $message = $this->communicationService->sendMessage($messageData);
             
             if (!$message) {
-                $this->sendErrorResponse('Failed to send message');
+                $this->errorResponse('Failed to send message');
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $this->formatMessage($message)
             ], 201);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -115,8 +155,8 @@ class MessageApiController
                 'success' => true,
                 'data' => $this->formatMessage($message)
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -131,7 +171,7 @@ class MessageApiController
             $result = $this->communicationService->deleteMessage($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Message not found or access denied', 404);
+                $this->errorResponse('Message not found or access denied', 404);
                 return;
             }
             
@@ -139,8 +179,8 @@ class MessageApiController
                 'success' => true,
                 'message' => 'Message deleted successfully'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -166,63 +206,95 @@ class MessageApiController
                 $formattedMessages[] = $this->formatMessage($message);
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $formattedMessages,
                 'query' => $query
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Pin a message
      */
-    public function pin(int $id): void
+    public function pin(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            
+            if (!isset($input['id'])) {
+                $this->errorResponse('Message ID is required');
+                return;
+            }
+            
+            $id = (int) $input['id'];
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
             
             // This method would need to be added to CommunicationService
             $result = $this->communicationService->pinMessage($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Message not found or access denied', 404);
+                $this->errorResponse('Message not found or access denied', 404);
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => 'Message pinned successfully'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
     /**
      * Unpin a message
      */
-    public function unpin(int $id): void
+    public function unpin(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            $input = $this->getInput();
+            
+            if (!isset($input['id'])) {
+                $this->errorResponse('Message ID is required');
+                return;
+            }
+            
+            $id = (int) $input['id'];
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
             
             // This method would need to be added to CommunicationService
             $result = $this->communicationService->unpinMessage($id, $userId);
             
             if (!$result) {
-                $this->sendErrorResponse('Message not found or access denied', 404);
+                $this->errorResponse('Message not found or access denied', 404);
                 return;
             }
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => 'Message unpinned successfully'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -257,53 +329,18 @@ class MessageApiController
     }
     
     /**
-     * Get current user ID from session
+     * Set CORS headers for API access
      */
-    private function getCurrentUserId(): int
+    private function setCorsHeaders(): void
     {
-        session_start();
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
         
-        if (!isset($_SESSION['user_id'])) {
-            throw new \RuntimeException('Not authenticated');
+        // Handle preflight requests
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            exit;
         }
-        
-        return (int)$_SESSION['user_id'];
-    }
-    
-    /**
-     * Get JSON input from request
-     */
-    private function getJsonInput(): array
-    {
-        $json = file_get_contents('php://input');
-        $data = json_decode($json, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Invalid JSON input');
-        }
-        
-        return $data ?? [];
-    }
-    
-    /**
-     * Send JSON response
-     */
-    private function sendJsonResponse(array $data, int $statusCode = 200): void
-    {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-    
-    /**
-     * Send error response
-     */
-    private function sendErrorResponse(string $message, int $statusCode = 400): void
-    {
-        $this->sendJsonResponse([
-            'success' => false,
-            'error' => $message
-        ], $statusCode);
     }
 }

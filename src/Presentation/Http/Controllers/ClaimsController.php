@@ -6,15 +6,20 @@ namespace YFEvents\Presentation\Http\Controllers;
 
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
-use YFEvents\Modules\YFClaim\Services\ClaimAuthService;
+use YFEvents\Domain\Claims\SellerRepositoryInterface;
+use YFEvents\Domain\Claims\Seller;
+use YFEvents\Application\Services\ClaimService;
 use PDO;
 use Exception;
+use DateTime;
 
 /**
  * Claims controller for YFClaim estate sales - COMPLETE IMPLEMENTATION
  */
 class ClaimsController extends BaseController
 {
+    use SellerDashboardTrait;
+    
     private PDO $pdo;
 
     public function __construct(ContainerInterface $container, ConfigInterface $config)
@@ -291,8 +296,8 @@ class ClaimsController extends BaseController
     {
         session_start();
         
-        // Check if already logged in
-        if (isset($_SESSION['claim_seller_logged_in']) && $_SESSION['claim_seller_logged_in'] === true) {
+        // Check if already logged in using NEW session structure
+        if (isset($_SESSION['auth']['user_id']) && isset($_SESSION['seller']['seller_id'])) {
             header('Location: /seller/dashboard');
             exit;
         }
@@ -322,31 +327,55 @@ class ClaimsController extends BaseController
                 throw new Exception('Username and password are required');
             }
 
-            // Initialize auth service
-            $authService = new ClaimAuthService($this->pdo);
-            
-            // Authenticate using the service
-            $result = $authService->authenticateSeller($username, $password);
+            // Use the unified AuthService
+            $authService = $this->container->resolve(\YFEvents\Application\Services\AuthService::class);
+            $result = $authService->login($username, $password);
             
             if ($result['success']) {
-                // Set session variables (ClaimAuthService already sets most of these)
-                $_SESSION['claim_seller_logged_in'] = true;
-                $_SESSION['claim_seller_id'] = $result['seller']['id'];
-                $_SESSION['claim_auth_user_id'] = $result['auth_user']['id'];
-                $_SESSION['claim_session_id'] = $result['session_id'];
-                $_SESSION['seller_email'] = $result['seller']['email'];
-                $_SESSION['seller_name'] = $result['seller']['contact_name'];
-                $_SESSION['company_name'] = $result['seller']['company_name'];
+                // Check if user has seller role
+                $hasSellerRole = false;
+                $userRoles = $_SESSION['auth']['roles'] ?? [];
+                if (in_array('seller', $userRoles) || in_array('claim_seller', $userRoles) || in_array('admin', $userRoles)) {
+                    $hasSellerRole = true;
+                }
                 
-                // Also set legacy session variables for compatibility
-                $_SESSION['yfclaim_seller_id'] = $result['seller']['id'];
-                $_SESSION['yfclaim_seller_name'] = $result['seller']['company_name'];
+                if (!$hasSellerRole) {
+                    $authService->logout();
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'You do not have permission to access the seller portal.'
+                    ]);
+                    return;
+                }
+                
+                // Get seller record from database
+                $sellerRepo = $this->container->resolve(SellerRepositoryInterface::class);
+                $seller = $sellerRepo->findByEmail($_SESSION['auth']['email']);
+                
+                if (!$seller) {
+                    // Create seller profile if it doesn't exist
+                    $seller = Seller::fromArray([
+                        'auth_user_id' => $_SESSION['auth']['user_id'],
+                        'email' => $_SESSION['auth']['email'],
+                        'contact_name' => $_SESSION['auth']['username'],
+                        'company_name' => $_SESSION['auth']['username'] . "'s Sales",
+                        'phone' => '',
+                        'status' => 'active'
+                    ]);
+                    $seller = $sellerRepo->save($seller);
+                }
+                
+                // Store seller-specific data in session
+                $_SESSION['seller'] = [
+                    'seller_id' => $seller->getId(),
+                    'company_name' => $seller->getCompanyName(),
+                    'contact_name' => $seller->getContactName()
+                ];
                 
                 // Ensure seller is in global chat channels
                 try {
-                    $container = require __DIR__ . '/../../../../config/container.php';
-                    $adminSellerChat = $container->resolve(\YFEvents\Application\Services\Communication\AdminSellerChatService::class);
-                    $adminSellerChat->ensureUserInGlobalChannels($result['auth_user']['id'], 'seller');
+                    $adminSellerChat = $this->container->resolve(\YFEvents\Application\Services\Communication\AdminSellerChatService::class);
+                    $adminSellerChat->ensureUserInGlobalChannels($_SESSION['auth']['user_id'], 'seller');
                 } catch (Exception $chatEx) {
                     // Log but don't fail login if chat setup fails
                     error_log('Failed to add seller to chat channels: ' . $chatEx->getMessage());
@@ -354,7 +383,7 @@ class ClaimsController extends BaseController
                 
                 echo json_encode([
                     'success' => true,
-                    'redirect' => '/modules/yfclaim/www/dashboard/'
+                    'redirect' => '/seller/dashboard'
                 ]);
             } else {
                 echo json_encode($result);
@@ -375,8 +404,126 @@ class ClaimsController extends BaseController
     {
         if (!$this->requireSellerAuth()) return;
         
-        // Use the module dashboard
-        require BASE_PATH . '/modules/yfclaim/www/dashboard/index.php';
+        $sellerId = (int)$_SESSION['seller']['seller_id'];
+        
+        // Get services from container
+        $sellerRepo = $this->container->resolve(SellerRepositoryInterface::class);
+        $claimService = $this->container->resolve(ClaimService::class);
+        
+        // Get seller entity
+        $seller = $sellerRepo->findById($sellerId);
+        if (!$seller) {
+            header('Location: /seller/login');
+            exit;
+        }
+        
+        // Get statistics
+        $stats = $sellerRepo->getStatistics($sellerId);
+        
+        // Get all sales for this seller (high limit to get all)
+        $salesResult = $claimService->getSellerSales($sellerId, 1, 100);
+        $allSales = $salesResult->getItems();
+        
+        // Categorize sales
+        $now = new DateTime();
+        $activeSales = [];
+        $upcomingSales = [];
+        $recentSales = [];
+        
+        // Get seller user ID (not seller ID) for inquiries
+        $sellerUserId = (int)$_SESSION['auth']['user_id'];
+        
+        foreach ($allSales as $sale) {
+            $saleArray = $sale->toArray();
+            
+            // Get item count for this sale
+            $itemRepo = $this->container->resolve(\YFEvents\Domain\Claims\ItemRepositoryInterface::class);
+            $items = $itemRepo->findBySaleId($sale->getId());
+            $saleArray['item_count'] = count($items);
+            $saleArray['offer_count'] = 0; // Offers have been removed from the system
+            
+            // Get inquiry count for this sale
+            $inquiryCount = 0;
+            if ($sellerUserId) {
+                try {
+                    $stmt = $this->pdo->prepare("
+                        SELECT COUNT(*) as count 
+                        FROM yfc_inquiries i
+                        JOIN yfc_items it ON i.item_id = it.id
+                        WHERE it.sale_id = ? AND i.seller_user_id = ?
+                    ");
+                    $stmt->execute([$sale->getId(), $sellerUserId]);
+                    $result = $stmt->fetch();
+                    $inquiryCount = $result['count'] ?? 0;
+                } catch (\Exception $e) {
+                    // Silent fail
+                }
+            }
+            $saleArray['inquiry_count'] = $inquiryCount;
+            
+            // Get dates (already DateTime objects)
+            $claimStart = $sale->getClaimStartDate();
+            $claimEnd = $sale->getClaimEndDate();
+            
+            // Categorize based on status and dates
+            if ($sale->getStatus() === 'active' && $now >= $claimStart && $now <= $claimEnd) {
+                $activeSales[] = $saleArray;
+            } elseif ($now < $claimStart) {
+                $upcomingSales[] = $saleArray;
+            }
+            
+            // Add to recent sales regardless
+            $recentSales[] = $saleArray;
+        }
+        
+        // Sort recent sales by created date (newest first)
+        usort($recentSales, function($a, $b) {
+            return strtotime($b['created_at'] ?? '0') - strtotime($a['created_at'] ?? '0');
+        });
+        
+        // Get inquiry data
+        $recentInquiries = [];
+        $unreadInquiryCount = 0;
+        if ($sellerUserId) {
+            try {
+                $inquiryService = $this->container->resolve(\YFEvents\Application\Services\YFClaim\InquiryService::class);
+                $inquiryEntities = $inquiryService->getSellerInquiries($sellerUserId, ['limit' => 10]);
+                
+                // Convert entities to arrays and enrich with item data
+                foreach ($inquiryEntities as $inquiry) {
+                    $inquiryArray = $inquiry->toArray();
+                    
+                    // Get item info if inquiry is about a specific item
+                    if ($inquiry->getItemId()) {
+                        $stmt = $this->pdo->prepare("SELECT title, price FROM yfc_items WHERE id = ?");
+                        $stmt->execute([$inquiry->getItemId()]);
+                        $itemInfo = $stmt->fetch();
+                        if ($itemInfo) {
+                            $inquiryArray['item_title'] = $itemInfo['title'];
+                            $inquiryArray['item_price'] = $itemInfo['price'];
+                        }
+                    }
+                    
+                    $recentInquiries[] = $inquiryArray;
+                }
+                
+                $unreadInquiryCount = $inquiryService->getUnreadCount($sellerUserId);
+            } catch (\Exception $e) {
+                // Log error but don't break dashboard
+                error_log('Failed to load inquiries: ' . $e->getMessage());
+            }
+        }
+        
+        // Render dashboard using trait
+        echo $this->renderSellerDashboard([
+            'seller' => $seller->toArray(),
+            'stats' => $stats,
+            'activeSales' => $activeSales,
+            'upcomingSales' => $upcomingSales,
+            'recentSales' => array_slice($recentSales, 0, 10), // Show only recent 10
+            'recentInquiries' => $recentInquiries,
+            'unreadInquiryCount' => $unreadInquiryCount
+        ]);
     }
 
     /**
@@ -483,16 +630,12 @@ class ClaimsController extends BaseController
      */
     public function sellerLogout(): void
     {
-        session_start();
+        // Use unified AuthService logout
+        $authService = $this->container->resolve(\YFEvents\Application\Services\AuthService::class);
+        $authService->logout();
         
-        // Clear all seller session variables
-        unset($_SESSION['yfclaim_seller_id']);
-        unset($_SESSION['yfclaim_seller_name']);
-        unset($_SESSION['claim_seller_logged_in']);
-        unset($_SESSION['claim_seller_id']);
-        unset($_SESSION['seller_email']);
-        unset($_SESSION['seller_name']);
-        unset($_SESSION['company_name']);
+        // Also clear seller-specific session data
+        unset($_SESSION['seller']);
         
         $basePath = dirname($_SERVER['SCRIPT_NAME']);
         if ($basePath === '/') {
@@ -731,89 +874,31 @@ class ClaimsController extends BaseController
         }
         
         try {
-            // Get form data
-            $itemId = (int)($_POST['item_id'] ?? 0);
-            $buyerName = trim($_POST['buyer_name'] ?? '');
-            $buyerEmail = trim($_POST['buyer_email'] ?? '');
-            $buyerPhone = trim($_POST['buyer_phone'] ?? '');
-            $message = trim($_POST['message'] ?? '');
+            // Use InquiryService to create inquiry
+            $inquiryService = $this->container->resolve(\YFEvents\Application\Services\YFClaim\InquiryService::class);
             
-            // Validate required fields
-            if (!$itemId || !$buyerName || !$buyerEmail || !$message) {
-                throw new Exception('Please fill in all required fields');
-            }
+            $inquiry = $inquiryService->createInquiry([
+                'item_id' => $_POST['item_id'] ?? '',
+                'buyer_name' => $_POST['buyer_name'] ?? '',
+                'buyer_email' => $_POST['buyer_email'] ?? '',
+                'buyer_phone' => $_POST['buyer_phone'] ?? '',
+                'message' => $_POST['message'] ?? '',
+                'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null
+            ]);
             
-            // Validate email
-            if (!filter_var($buyerEmail, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception('Please provide a valid email address');
-            }
-            
-            // Rate limiting check (1 per minute per IP)
+            // Rate limiting - update cache file after successful creation
             $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-            $cacheKey = 'contact_' . md5($ip . $itemId);
+            $cacheKey = 'contact_' . md5($ip . $inquiry->getItemId());
             $cacheFile = sys_get_temp_dir() . '/' . $cacheKey;
-            
-            if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < 60)) {
-                throw new Exception('Please wait a minute before sending another message');
-            }
-            
-            // Get item and seller info
-            $stmt = $this->pdo->prepare("
-                SELECT i.*, s.id as sale_id, s.title as sale_title,
-                       sel.id as seller_id, sel.email as seller_email, 
-                       sel.company_name, sel.contact_name
-                FROM yfc_items i
-                JOIN yfc_sales s ON i.sale_id = s.id
-                JOIN yfc_sellers sel ON s.seller_id = sel.id
-                WHERE i.id = ?
-            ");
-            $stmt->execute([$itemId]);
-            $item = $stmt->fetch();
-            
-            if (!$item) {
-                throw new Exception('Item not found');
-            }
-            
-            // Send email to seller
-            $subject = "Inquiry about {$item['title']} - {$item['sale_title']}";
-            $emailBody = "You have received a new inquiry about an item in your sale.\n\n";
-            $emailBody .= "Item: {$item['title']}\n";
-            $emailBody .= "Sale: {$item['sale_title']}\n";
-            $emailBody .= "Price: $" . number_format($item['price'], 2) . "\n\n";
-            $emailBody .= "From: {$buyerName}\n";
-            $emailBody .= "Email: {$buyerEmail}\n";
-            if ($buyerPhone) {
-                $emailBody .= "Phone: {$buyerPhone}\n";
-            }
-            $emailBody .= "\nMessage:\n{$message}\n\n";
-            $emailBody .= "Please respond directly to the buyer's email address.";
-            
-            $headers = "From: noreply@yakimafinds.com\r\n";
-            $headers .= "Reply-To: {$buyerEmail}\r\n";
-            $headers .= "X-Mailer: PHP/" . phpversion();
-            
-            if (!mail($item['seller_email'], $subject, $emailBody, $headers)) {
-                throw new Exception('Failed to send message. Please try again later.');
-            }
-            
-            // Update rate limit cache
             file_put_contents($cacheFile, time());
             
-            // Log notification
-            if (class_exists('YFEvents\Modules\YFClaim\Models\NotificationModel')) {
-                $notificationModel = new \YFEvents\Modules\YFClaim\Models\NotificationModel($this->pdo);
-                $notificationModel->create([
-                    'seller_id' => $item['seller_id'],
-                    'sale_id' => $item['sale_id'],
-                    'type' => 'item_inquiry',
-                    'title' => 'New inquiry for ' . $item['title'],
-                    'message' => "From: {$buyerName} ({$buyerEmail})"
-                ]);
-            }
             
             echo json_encode([
                 'success' => true,
-                'message' => 'Your message has been sent to the seller!'
+                'message' => 'Your inquiry has been sent successfully!',
+                'inquiry_id' => $inquiry->getId(),
+                'reference_number' => 'INQ-' . str_pad((string)$inquiry->getId(), 6, '0', STR_PAD_LEFT)
             ]);
             
         } catch (Exception $e) {
@@ -837,9 +922,8 @@ class ClaimsController extends BaseController
             session_start();
         }
         
-        // Check YFClaim session variables
-        if (!isset($_SESSION['yfclaim_seller_id']) && 
-            !isset($_SESSION['claim_seller_id'])) {
+        // Check if user is authenticated with new structure
+        if (!isset($_SESSION['auth']['user_id']) || !isset($_SESSION['seller']['seller_id'])) {
             
             // API endpoints return JSON
             if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
@@ -852,8 +936,22 @@ class ClaimsController extends BaseController
             exit;
         }
         
-        // Ensure compatibility
-        $this->ensureSessionCompatibility();
+        // Verify user still has seller role
+        $userRoles = $_SESSION['auth']['roles'] ?? [];
+        if (!in_array('seller', $userRoles) && !in_array('claim_seller', $userRoles) && !in_array('admin', $userRoles)) {
+            // Lost seller role, logout
+            $authService = $this->container->resolve(\YFEvents\Application\Services\AuthService::class);
+            $authService->logout();
+            
+            if (strpos($_SERVER['REQUEST_URI'], '/api/') !== false) {
+                $this->errorResponse('Seller access required', 403);
+                return false;
+            }
+            
+            header('Location: /seller/login');
+            exit;
+        }
+        
         return true;
     }
 
@@ -1671,7 +1769,11 @@ HTML;
                         const result = await response.json();
                         
                         if (result.success) {
-                            showAlert('Message sent successfully! The seller will contact you soon.', 'success');
+                            let successMessage = result.message || 'Message sent successfully!';
+                            if (result.reference_number) {
+                                successMessage += ' Your reference number is: ' + result.reference_number;
+                            }
+                            showAlert(successMessage, 'success');
                             contactForm.reset();
                         } else {
                             showAlert(result.error || 'Failed to send message.', 'error');
@@ -2144,8 +2246,11 @@ HTML;
 HTML;
     }
 
-    private function formatDateRange(string $start, string $end): string
+    private function formatDateRange(?string $start, ?string $end): string
     {
+        if (empty($start) || empty($end)) {
+            return 'TBD';
+        }
         return date('M j', strtotime($start)) . ' - ' . date('M j, Y', strtotime($end));
     }
     
@@ -2177,9 +2282,18 @@ HTML;
             $escapedTitle = substr($escapedTitle, 1, -1);
             $escapedDescription = substr($escapedDescription, 1, -1);
             
+            // Handle image display
+            $imageHtml = '';
+            if (!empty($item['primary_image'])) {
+                $imagePath = '/uploads/yfclaim/items/' . htmlspecialchars($item['primary_image']);
+                $imageHtml = '<img src="' . $imagePath . '" alt="' . htmlspecialchars($item['title']) . '" style="width: 100%; height: 100%; object-fit: cover;">';
+            } else {
+                $imageHtml = '📦';
+            }
+            
             $html .= <<<ITEM
                 <div class="item-card">
-                    <div class="item-image">📦</div>
+                    <div class="item-image">{$imageHtml}</div>
                     <div class="item-body">
                         <h3 class="item-title">{$item['title']}</h3>
                         <p class="item-description">{$item['description']}</p>
@@ -2305,6 +2419,17 @@ ITEM;
         <div class="welcome-text">
             <h3>Welcome back!</h3>
             <p>Sign in to manage your estate sales, upload items, and connect with buyers.</p>
+        </div>
+        
+        <div style="background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <h4 style="margin: 0 0 10px 0; color: #1976d2;">🔐 Test Credentials</h4>
+            <p style="margin: 5px 0; font-family: monospace; font-size: 14px;">
+                <strong>Username:</strong> estate_pros<br>
+                <strong>Password:</strong> test123
+            </p>
+            <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+                ⚠️ These are test credentials for development only
+            </p>
         </div>
         
         <div id="alerts"></div>
@@ -3051,5 +3176,49 @@ ITEM;
         $start = ($page - 1) * $perPage + 1;
         $end = min($page * $perPage, $total);
         return $start . '-' . $end;
+    }
+
+    /**
+     * Update sale status (AJAX endpoint)
+     */
+    public function updateSaleStatus(): void
+    {
+        header('Content-Type: application/json');
+        
+        // Check authentication
+        $this->ensureSellerLoggedIn();
+        $sellerId = $_SESSION['seller']['id'];
+        
+        // Get parameters
+        $saleId = (int)($_POST['sale_id'] ?? 0);
+        $newStatus = $_POST['status'] ?? '';
+        
+        // Validate status
+        $validStatuses = ['draft', 'active', 'closed', 'cancelled'];
+        if (!in_array($newStatus, $validStatuses)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid status']);
+            return;
+        }
+        
+        // Verify ownership and update
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE yfc_sales 
+                SET status = ? 
+                WHERE id = ? AND seller_id = ?
+            ");
+            $stmt->execute([$newStatus, $saleId, $sellerId]);
+            
+            if ($stmt->rowCount() > 0) {
+                echo json_encode(['success' => true, 'status' => $newStatus]);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Sale not found or unauthorized']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Database error']);
+        }
     }
 }

@@ -18,8 +18,8 @@ use YFEvents\Domain\Communication\Entities\Participant;
  */
 class AdminSellerChatService
 {
-    private const SUPPORT_CHANNEL_TITLE = 'Support Channel';
-    private const TIPS_CHANNEL_TITLE = 'Selling Tips';
+    private const SUPPORT_CHANNEL_TITLE = 'Support';
+    private const TIPS_CHANNEL_TITLE = 'Tips & Tricks';
     
     public function __construct(
         private CommunicationService $communicationService,

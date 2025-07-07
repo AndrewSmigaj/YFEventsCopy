@@ -100,3 +100,57 @@ $router->put('/api/social/settings', ThemeController::class, 'updateSocialMediaS
 $router->get('/api/admin/events', AdminEventController::class, 'getAllEvents');
 $router->get('/api/admin/shops', AdminShopController::class, 'getAllShops');
 $router->get('/api/admin/shops/statistics', AdminShopController::class, 'getShopStatistics');
+
+// Communication API routes
+use YFEvents\Presentation\Api\Controllers\Communication\ChannelApiController;
+use YFEvents\Presentation\Api\Controllers\Communication\MessageApiController;
+use YFEvents\Presentation\Api\Controllers\Communication\AnnouncementApiController;
+use YFEvents\Presentation\Api\Controllers\Communication\NotificationApiController;
+use YFEvents\Presentation\Api\Controllers\YFClaim\InquiryApiController;
+
+// Channel management
+$router->get('/api/communication/channels', ChannelApiController::class, 'index');
+$router->post('/api/communication/channels', ChannelApiController::class, 'store');
+$router->get('/api/communication/channels/{id}', ChannelApiController::class, 'show');
+$router->put('/api/communication/channels/{id}', ChannelApiController::class, 'update');
+$router->delete('/api/communication/channels/{id}', ChannelApiController::class, 'delete');
+
+// Unread count
+$router->get('/api/communication/unread-count', ChannelApiController::class, 'unreadCount');
+
+// Channel participation
+$router->post('/api/communication/channels/{id}/join', ChannelApiController::class, 'join');
+$router->delete('/api/communication/channels/{id}/leave', ChannelApiController::class, 'leave');
+$router->post('/api/communication/channels/{id}/read', ChannelApiController::class, 'markAsRead');
+
+// Channel messages
+$router->get('/api/communication/channels/{channel_id}/messages', MessageApiController::class, 'index');
+$router->post('/api/communication/channels/{channel_id}/messages', MessageApiController::class, 'store');
+$router->get('/api/communication/channels/{channel_id}/messages/search', MessageApiController::class, 'search');
+
+// Message management
+$router->put('/api/communication/messages/{id}', MessageApiController::class, 'update');
+$router->delete('/api/communication/messages/{id}', MessageApiController::class, 'delete');
+$router->post('/api/communication/messages/{id}/pin', MessageApiController::class, 'pin');
+$router->delete('/api/communication/messages/{id}/pin', MessageApiController::class, 'unpin');
+
+// Announcements
+$router->get('/api/communication/announcements', AnnouncementApiController::class, 'index');
+$router->post('/api/communication/announcements', AnnouncementApiController::class, 'create');
+$router->get('/api/communication/announcements/{id}/stats', AnnouncementApiController::class, 'stats');
+
+// Notifications
+$router->get('/api/communication/notifications', NotificationApiController::class, 'index');
+$router->put('/api/communication/notifications/read', NotificationApiController::class, 'markRead');
+$router->get('/api/communication/notifications/count', NotificationApiController::class, 'count');
+$router->put('/api/communication/notifications/preferences', NotificationApiController::class, 'updatePreferences');
+
+// YFClaim Inquiry routes
+// Public endpoint - no auth required
+$router->post('/api/yfclaim/inquiries', InquiryApiController::class, 'create');
+
+// Seller endpoints - auth required
+$router->get('/api/yfclaim/seller/inquiries', InquiryApiController::class, 'index');
+$router->get('/api/yfclaim/seller/inquiries/unread-count', InquiryApiController::class, 'unreadCount');
+$router->put('/api/yfclaim/seller/inquiries/{id}/read', InquiryApiController::class, 'markRead');
+$router->put('/api/yfclaim/seller/inquiries/{id}/notes', InquiryApiController::class, 'updateNotes');

@@ -79,16 +79,18 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         return Participant::fromArray($this->mapDbToEntity($data));
     }
     
-    public function findByChannelId(int $channelId, bool $activeOnly = true): array
+    public function findByChannelId(int $channelId, int $limit = 100, int $offset = 0): array
     {
         $sql = "SELECT * FROM {$this->getTableName()} WHERE channel_id = :channel_id";
-        if ($activeOnly) {
-            $sql .= " AND is_active = 1";
-        }
+        $sql .= " AND is_active = 1";
         $sql .= " ORDER BY joined_at ASC";
+        $sql .= " LIMIT :limit OFFSET :offset";
         
         $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['channel_id' => $channelId]);
+        $stmt->bindValue(':channel_id', $channelId, \PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
+        $stmt->execute();
         
         $results = [];
         while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
@@ -117,7 +119,7 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
         return $results;
     }
     
-    public function save(Participant $participant): Participant
+    public function save(\YFEvents\Domain\Common\EntityInterface $participant): \YFEvents\Domain\Common\EntityInterface
     {
         $data = $this->mapEntityToDb($participant);
         
@@ -196,6 +198,12 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
             'channel_id' => $channelId,
             'user_id' => $userId
         ]);
+    }
+    
+    // Alias for interface compatibility
+    public function updateLastRead(int $channelId, int $userId, int $messageId): bool
+    {
+        return $this->updateLastReadMessage($channelId, $userId, $messageId);
     }
     
     public function updateNotificationPreference(int $channelId, int $userId, string $preference): bool
@@ -279,5 +287,76 @@ class ParticipantRepository extends AbstractRepository implements ParticipantRep
             'channel_id' => $channelId,
             'user_id' => $userId
         ]);
+    }
+    
+    public function deleteByChannelIdAndUserId(int $channelId, int $userId): bool
+    {
+        $sql = "DELETE FROM {$this->getTableName()} 
+                WHERE channel_id = :channel_id AND user_id = :user_id";
+        
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute([
+            'channel_id' => $channelId,
+            'user_id' => $userId
+        ]);
+    }
+    
+    public function findChannelAdmins(int $channelId): array
+    {
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE channel_id = :channel_id 
+                AND role = 'admin' 
+                AND is_active = 1
+                ORDER BY joined_at ASC";
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['channel_id' => $channelId]);
+        
+        $results = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $results[] = Participant::fromArray($this->mapDbToEntity($data));
+        }
+        
+        return $results;
+    }
+    
+    public function findForDigest(string $frequency): array
+    {
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE email_digest_frequency = :frequency 
+                AND is_active = 1
+                AND last_digest_at < DATE_SUB(NOW(), INTERVAL 1 DAY)";
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute(['frequency' => $frequency]);
+        
+        $results = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $results[] = Participant::fromArray($this->mapDbToEntity($data));
+        }
+        
+        return $results;
+    }
+    
+    public function findUsersToNotify(int $channelId, string $notificationType = 'all'): array
+    {
+        $sql = "SELECT * FROM {$this->getTableName()} 
+                WHERE channel_id = :channel_id 
+                AND is_active = 1
+                AND notification_preference IN (:type, 'all')
+                AND is_muted = 0";
+        
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([
+            'channel_id' => $channelId,
+            'type' => $notificationType
+        ]);
+        
+        $results = [];
+        while ($data = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $results[] = Participant::fromArray($this->mapDbToEntity($data));
+        }
+        
+        return $results;
     }
 }

@@ -2,61 +2,61 @@
   "name": "YFEvents Communication Hub",
   "short_name": "YFComm",
   "description": "YFEvents Communication and Messaging Platform",
-  "start_url": "/communication/",
+  "start_url": "/communication",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
   "orientation": "portrait-primary",
-  "scope": "/communication/",
+  "scope": "/",
   "lang": "en-US",
   "dir": "ltr",
   "categories": ["business", "communication", "social"],
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/communication/icons/icon-72x72.png",
+      "src": "/assets/communication/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-96x96.png",
+      "src": "/assets/communication/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-128x128.png",
+      "src": "/assets/communication/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-144x144.png",
+      "src": "/assets/communication/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-152x152.png",
+      "src": "/assets/communication/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-192x192.png",
+      "src": "/assets/communication/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-384x384.png",
+      "src": "/assets/communication/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/communication/icons/icon-512x512.png",
+      "src": "/assets/communication/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -64,14 +64,14 @@
   ],
   "screenshots": [
     {
-      "src": "/communication/screenshots/desktop.png",
+      "src": "/assets/communication/screenshots/desktop.png",
       "sizes": "1280x720",
       "type": "image/png",
       "platform": "wide",
       "label": "Desktop view of YFEvents Communication Hub"
     },
     {
-      "src": "/communication/screenshots/mobile.png",
+      "src": "/assets/communication/screenshots/mobile.png",
       "sizes": "750x1334",
       "type": "image/png",
       "platform": "narrow",
@@ -83,10 +83,10 @@
       "name": "General Discussion",
       "short_name": "General",
       "description": "Open General Discussion channel",
-      "url": "/communication/?channel=general",
+      "url": "/communication?channel=general",
       "icons": [
         {
-          "src": "/communication/icons/general-96x96.png",
+          "src": "/assets/communication/icons/general-96x96.png",
           "sizes": "96x96"
         }
       ]
@@ -95,17 +95,17 @@
       "name": "Announcements",
       "short_name": "News",
       "description": "View announcements",
-      "url": "/communication/?channel=announcements",
+      "url": "/communication?channel=announcements",
       "icons": [
         {
-          "src": "/communication/icons/announce-96x96.png",
+          "src": "/assets/communication/icons/announce-96x96.png",
           "sizes": "96x96"
         }
       ]
     }
   ],
   "share_target": {
-    "action": "/communication/share",
+    "action": "/api/communication/share",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {

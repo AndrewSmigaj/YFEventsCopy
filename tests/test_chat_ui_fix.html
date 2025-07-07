@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Chat UI Fix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        iframe { width: 100%; height: 600px; border: 2px solid #007bff; }
+        #results { margin-top: 20px; }
+        .result-item { margin: 10px 0; padding: 10px; background: #f8f9fa; }
+        @media (max-width: 768px) {
+            iframe { height: 80vh; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat UI Fix Test</h1>
+    
+    <div class="test-section">
+        <h2>Communication Hub Test</h2>
+        <iframe id="chat-frame" src="/communication/embedded?seller_id=1"></iframe>
+    </div>
+    
+    <div id="results">
+        <h3>Test Results:</h3>
+    </div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(test, passed, details) {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `
+                <strong>${test}:</strong> 
+                <span class="${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span>
+                ${details ? `<br><small>${details}</small>` : ''}
+            `;
+            results.appendChild(div);
+        }
+        
+        document.getElementById('chat-frame').onload = function() {
+            const iframe = this;
+            const iframeDoc = iframe.contentDocument;
+            const iframeWindow = iframe.contentWindow;
+            
+            // Wait for app to initialize
+            setTimeout(() => {
+                // Test 1: Check if CommunicationApp exists
+                const appExists = typeof iframeWindow.CommunicationApp !== 'undefined';
+                addResult('CommunicationApp loaded', appExists);
+                
+                if (appExists) {
+                    // Test 2: Check if channels loaded
+                    const channelsLoaded = iframeWindow.CommunicationApp.channels.length > 0;
+                    addResult('Channels loaded', channelsLoaded, 
+                        `Found ${iframeWindow.CommunicationApp.channels.length} channels`);
+                    
+                    // Test 3: Check essential elements exist
+                    const elements = {
+                        'message-form': 'Message form',
+                        'message-input': 'Message input',
+                        'message-input-wrapper': 'Input wrapper',
+                        'channel-header': 'Channel header',
+                        'sidebar': 'Sidebar',
+                        'messages-area': 'Messages area'
+                    };
+                    
+                    Object.entries(elements).forEach(([id, name]) => {
+                        const el = iframeDoc.getElementById(id);
+                        addResult(`${name} exists`, !!el);
+                    });
+                    
+                    // Test 4: Try selecting a channel
+                    if (channelsLoaded) {
+                        const firstChannel = iframeWindow.CommunicationApp.channels[0];
+                        iframeWindow.CommunicationApp.selectChannel(firstChannel);
+                        
+                        // Wait for channel selection
+                        setTimeout(() => {
+                            // Test 5: Check if input wrapper is visible
+                            const inputWrapper = iframeDoc.getElementById('message-input-wrapper');
+                            const isVisible = inputWrapper && 
+                                window.getComputedStyle(inputWrapper).display !== 'none';
+                            addResult('Input wrapper visible after channel selection', isVisible,
+                                `Display: ${inputWrapper ? window.getComputedStyle(inputWrapper).display : 'N/A'}`);
+                            
+                            // Test 6: Check if send button exists
+                            const sendButton = iframeDoc.querySelector('#message-form button[type="submit"]');
+                            addResult('Send button exists', !!sendButton);
+                            
+                            // Test 7: Check if channel header is visible
+                            const channelHeader = iframeDoc.getElementById('channel-header');
+                            const headerVisible = channelHeader && 
+                                window.getComputedStyle(channelHeader).display !== 'none';
+                            addResult('Channel header visible', headerVisible);
+                            
+                            // Test 8: Check mobile toggle button
+                            const toggleButton = iframeDoc.querySelector('.mobile-only');
+                            addResult('Mobile toggle button exists', !!toggleButton);
+                            
+                            // Test 9: Test sidebar toggle
+                            if (iframeWindow.innerWidth <= 768) {
+                                const sidebar = iframeDoc.getElementById('sidebar');
+                                iframeWindow.CommunicationApp.toggleSidebar();
+                                setTimeout(() => {
+                                    const hasShowClass = sidebar.classList.contains('show');
+                                    addResult('Sidebar toggle works', hasShowClass);
+                                }, 400);
+                            }
+                            
+                        }, 500);
+                    }
+                }
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

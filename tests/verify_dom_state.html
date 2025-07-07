@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DOM State Verifier</title>
+    <style>
+        .result { margin: 10px; padding: 10px; border: 1px solid #ccc; font-family: monospace; }
+        .found { background: #d4edda; }
+        .hidden { background: #fff3cd; }
+        .missing { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>DOM State Verification</h1>
+    <div id="results"></div>
+    
+    <h2>Chat Interface</h2>
+    <iframe id="chat-iframe" src="/communication/embedded?seller_id=1" style="width: 100%; height: 600px; border: 2px solid blue;"></iframe>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(text, status = 'info') {
+            const div = document.createElement('div');
+            div.className = `result ${status}`;
+            div.textContent = text;
+            results.appendChild(div);
+        }
+        
+        function getComputedStyles(element) {
+            const styles = window.getComputedStyle(element);
+            return {
+                display: styles.display,
+                visibility: styles.visibility,
+                opacity: styles.opacity,
+                position: styles.position,
+                top: styles.top,
+                left: styles.left,
+                width: styles.width,
+                height: styles.height,
+                zIndex: styles.zIndex,
+                overflow: styles.overflow
+            };
+        }
+        
+        function checkElementVisibility(doc, selector, name) {
+            const element = doc.querySelector(selector);
+            
+            if (!element) {
+                addResult(`${name} (${selector}): NOT FOUND`, 'missing');
+                return null;
+            }
+            
+            addResult(`${name} (${selector}): FOUND`, 'found');
+            
+            // Get computed styles
+            const styles = getComputedStyles(element);
+            
+            // Check visibility issues
+            const issues = [];
+            
+            if (styles.display === 'none') {
+                issues.push('display: none');
+            }
+            
+            if (styles.visibility === 'hidden') {
+                issues.push('visibility: hidden');
+            }
+            
+            if (parseFloat(styles.opacity) === 0) {
+                issues.push('opacity: 0');
+            }
+            
+            if (styles.position === 'absolute' || styles.position === 'fixed') {
+                const top = parseFloat(styles.top);
+                const left = parseFloat(styles.left);
+                if (top < -1000 || left < -1000) {
+                    issues.push(`positioned off-screen (top: ${styles.top}, left: ${styles.left})`);
+                }
+            }
+            
+            // Check if element is actually visible
+            const rect = element.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) {
+                issues.push('zero dimensions');
+            }
+            
+            // Check parent visibility
+            let parent = element.parentElement;
+            while (parent && parent !== doc.body) {
+                const parentStyles = getComputedStyles(parent);
+                if (parentStyles.display === 'none') {
+                    issues.push(`parent #${parent.id || parent.className} has display: none`);
+                    break;
+                }
+                parent = parent.parentElement;
+            }
+            
+            if (issues.length > 0) {
+                addResult(`  Visibility issues: ${issues.join(', ')}`, 'hidden');
+            } else {
+                addResult(`  Fully visible`, 'found');
+            }
+            
+            // Log detailed info
+            console.log(`${name} styles:`, styles);
+            console.log(`${name} rect:`, rect);
+            
+            return { element, styles, issues };
+        }
+        
+        document.getElementById('chat-iframe').onload = async function() {
+            const iframe = this;
+            const iframeDoc = iframe.contentDocument;
+            const iframeWindow = iframe.contentWindow;
+            
+            addResult('=== Initial DOM State ===');
+            
+            // Check all critical elements
+            const elements = [
+                { selector: '#message-form', name: 'Message Form' },
+                { selector: '#message-input', name: 'Message Input' },
+                { selector: '#message-input-wrapper', name: 'Message Input Wrapper' },
+                { selector: '#message-form button[type="submit"]', name: 'Send Button' },
+                { selector: '.btn.btn-primary', name: 'Primary Button' },
+                { selector: '#channel-header', name: 'Channel Header' },
+                { selector: '#messages-area', name: 'Messages Area' },
+                { selector: '.sidebar', name: 'Sidebar' },
+                { selector: '.content-wrapper', name: 'Content Wrapper' },
+                { selector: '.main-content', name: 'Main Content' }
+            ];
+            
+            const elementStates = {};
+            
+            elements.forEach(({ selector, name }) => {
+                const result = checkElementVisibility(iframeDoc, selector, name);
+                if (result) {
+                    elementStates[selector] = result;
+                }
+            });
+            
+            // Wait for app initialization and channel selection
+            addResult('\n=== After 3 seconds (channel selection) ===');
+            
+            setTimeout(() => {
+                // Simulate channel selection if app is loaded
+                if (iframeWindow.CommunicationApp && iframeWindow.CommunicationApp.channels.length > 0) {
+                    const firstChannel = iframeWindow.CommunicationApp.channels[0];
+                    iframeWindow.CommunicationApp.selectChannel(firstChannel);
+                    
+                    addResult(`Selected channel: ${firstChannel.name}`);
+                    
+                    // Re-check visibility after channel selection
+                    setTimeout(() => {
+                        addResult('\n=== After Channel Selection ===');
+                        
+                        elements.forEach(({ selector, name }) => {
+                            checkElementVisibility(iframeDoc, selector, name);
+                        });
+                        
+                        // Generate JSON report
+                        const report = {
+                            element_presence: {},
+                            visibility_issues: {},
+                            explanation: []
+                        };
+                        
+                        for (const [selector, state] of Object.entries(elementStates)) {
+                            report.element_presence[selector] = !!state.element;
+                            if (state.issues.length > 0) {
+                                report.visibility_issues[selector] = state.issues.join('; ');
+                            }
+                        }
+                        
+                        // Add specific checks
+                        const wrapper = iframeDoc.getElementById('message-input-wrapper');
+                        const header = iframeDoc.getElementById('channel-header');
+                        
+                        if (wrapper && wrapper.style.display === 'none') {
+                            report.explanation.push('message-input-wrapper still has inline style display: none after channel selection');
+                        }
+                        
+                        if (header && header.style.display === 'none') {
+                            report.explanation.push('channel-header still has inline style display: none after channel selection');
+                        }
+                        
+                        console.log('DOM State Report:', JSON.stringify(report, null, 2));
+                        
+                        addResult('\n=== JSON Report (check console) ===');
+                        addResult(JSON.stringify(report, null, 2));
+                        
+                    }, 500);
+                } else {
+                    addResult('No channels available or app not loaded');
+                }
+            }, 3000);
+        };
+    </script>
+</body>
+</html>

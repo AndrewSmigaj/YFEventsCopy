@@ -27,36 +27,51 @@ const CommunicationApp = {
      */
     bindEvents() {
         // Message form
-        document.getElementById('message-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.sendMessage();
-        });
-        
-        // Enter key to send (Shift+Enter for new line)
-        document.getElementById('message-input').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+        const messageForm = document.getElementById('message-form');
+        if (messageForm) {
+            messageForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.sendMessage();
-            }
-        });
+            });
+        }
         
-        // Create channel form
-        document.getElementById('create-channel-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.createChannel();
-        });
+        // Enter key to send (Shift+Enter for new line)
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+        }
         
-        // Search form
-        document.getElementById('search-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.searchMessages();
-        });
+        // Create channel form (in modal)
+        const createChannelForm = document.getElementById('create-channel-form');
+        if (createChannelForm) {
+            createChannelForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.createChannel();
+            });
+        }
         
-        // Preferences form
-        document.getElementById('preferences-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.updatePreferences();
-        });
+        // Search form (in modal)
+        const searchForm = document.getElementById('search-form');
+        if (searchForm) {
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.searchMessages();
+            });
+        }
+        
+        // Preferences form (in modal)
+        const preferencesForm = document.getElementById('preferences-form');
+        if (preferencesForm) {
+            preferencesForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.updatePreferences();
+            });
+        }
     },
     
     /**
@@ -89,10 +104,10 @@ const CommunicationApp = {
         const announcementChannels = document.getElementById('announcement-channels');
         
         // Clear existing
-        publicChannels.innerHTML = '';
-        eventChannels.innerHTML = '';
+        if (publicChannels) publicChannels.innerHTML = '';
+        if (eventChannels) eventChannels.innerHTML = '';
         if (vendorChannels) vendorChannels.innerHTML = '';
-        announcementChannels.innerHTML = '';
+        if (announcementChannels) announcementChannels.innerHTML = '';
         
         // Group channels by type
         this.channels.forEach(channel => {
@@ -100,16 +115,16 @@ const CommunicationApp = {
             
             switch (channel.type) {
                 case 'public':
-                    publicChannels.appendChild(channelElement);
+                    if (publicChannels) publicChannels.appendChild(channelElement);
                     break;
                 case 'event':
-                    eventChannels.appendChild(channelElement);
+                    if (eventChannels) eventChannels.appendChild(channelElement);
                     break;
                 case 'vendor':
                     if (vendorChannels) vendorChannels.appendChild(channelElement);
                     break;
                 case 'announcement':
-                    announcementChannels.appendChild(channelElement);
+                    if (announcementChannels) announcementChannels.appendChild(channelElement);
                     break;
             }
         });
@@ -177,13 +192,16 @@ const CommunicationApp = {
         document.getElementById('channel-name').textContent = `${this.getChannelIcon(channel.type)} ${channel.name}`;
         document.getElementById('channel-description').textContent = channel.description || '';
         
-        // Show channel actions
-        document.getElementById('btn-pinned').style.display = 'inline-block';
-        document.getElementById('btn-search').style.display = 'inline-block';
-        document.getElementById('btn-info').style.display = 'inline-block';
+        // Show channel header
+        document.getElementById('channel-header').style.display = 'block';
+        
+        // Show channel actions (commented out - these elements don't exist in HTML)
+        // document.getElementById('btn-pinned').style.display = 'inline-block';
+        // document.getElementById('btn-search').style.display = 'inline-block';
+        // document.getElementById('btn-info').style.display = 'inline-block';
         
         // Show message input
-        document.getElementById('message-input-area').style.display = 'block';
+        document.getElementById('message-input-wrapper').style.display = 'block';
         
         // Load messages
         await this.loadMessages();
@@ -198,7 +216,7 @@ const CommunicationApp = {
     async loadMessages() {
         if (!this.currentChannel) return;
         
-        const container = document.getElementById('messages-container');
+        const container = document.getElementById('messages-area');
         container.innerHTML = '<div class="loading"><div class="loading-spinner"></div></div>';
         
         try {
@@ -227,7 +245,7 @@ const CommunicationApp = {
      * Render messages
      */
     renderMessages() {
-        const container = document.getElementById('messages-container');
+        const container = document.getElementById('messages-area');
         container.innerHTML = '';
         
         if (this.messages.length === 0) {
@@ -520,6 +538,8 @@ const CommunicationApp = {
         if (!this.currentChannel) return;
         
         const searchInput = document.getElementById('search-input');
+        if (!searchInput) return;
+        
         const query = searchInput.value.trim();
         
         if (query.length < 3) {
@@ -775,6 +795,71 @@ const CommunicationApp = {
         // You could implement a toast notification here
         console.log(message);
         alert(message);
+    },
+    
+    /**
+     * Toggle notifications panel
+     */
+    toggleNotifications() {
+        // Placeholder for notifications feature
+        alert('Notifications feature coming soon');
+    },
+    
+    /**
+     * Show settings
+     */
+    showSettings() {
+        // Redirect to theme settings for now
+        window.location.href = '/communication/theme';
+    },
+    
+    /**
+     * Show create channel modal
+     */
+    showCreateChannel() {
+        const modal = document.getElementById('createChannelModal');
+        if (modal) {
+            new bootstrap.Modal(modal).show();
+        } else {
+            alert('Create channel feature coming soon');
+        }
+    },
+    
+    /**
+     * Toggle channel info
+     */
+    toggleChannelInfo() {
+        alert('Channel info feature coming soon');
+    },
+    
+    /**
+     * Toggle sidebar on mobile
+     */
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.classList.toggle('show');
+            
+            // Toggle mobile overlay if it exists
+            const overlay = document.querySelector('.mobile-overlay');
+            if (overlay) {
+                overlay.classList.toggle('show');
+            }
+        }
+    },
+    
+    /**
+     * Show emoji picker
+     */
+    showEmojiPicker() {
+        alert('Emoji picker coming soon');
+    },
+    
+    /**
+     * Attach file
+     */
+    attachFile() {
+        alert('File attachment feature coming soon');
     }
 };
 

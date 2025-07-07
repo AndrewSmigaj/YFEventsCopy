@@ -15,7 +15,7 @@ class Seller implements EntityInterface
 
     public function __construct(
         private ?int $id,
-        private int $userId,
+        private ?int $userId,
         private string $companyName,
         private ?string $contactName,
         private string $email,
@@ -40,7 +40,7 @@ class Seller implements EntityInterface
         return $this->id;
     }
 
-    public function getUserId(): int
+    public function getUserId(): ?int
     {
         return $this->userId;
     }
@@ -307,15 +307,15 @@ class Seller implements EntityInterface
     {
         return new self(
             id: $data['id'] ?? null,
-            userId: $data['user_id'],
+            userId: $data['user_id'] ?? null,  // Make nullable to handle missing field
             companyName: $data['company_name'],
             contactName: $data['contact_name'] ?? null,
             email: $data['email'],
-            phone: $data['phone'],
+            phone: $data['phone'] ?? '',
             address: $data['address'] ?? null,
             city: $data['city'] ?? null,
             state: $data['state'] ?? null,
-            zipCode: $data['zip_code'] ?? null,
+            zipCode: $data['zip'] ?? $data['zip_code'] ?? null,  // Handle both column names
             website: $data['website'] ?? null,
             description: $data['description'] ?? null,
             logo: $data['logo'] ?? null,

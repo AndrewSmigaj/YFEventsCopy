@@ -4,18 +4,26 @@ declare(strict_types=1);
 
 namespace YFEvents\Presentation\Api\Controllers\Communication;
 
+use YFEvents\Presentation\Http\Controllers\BaseController;
 use YFEvents\Application\Services\Communication\CommunicationService;
+use YFEvents\Infrastructure\Container\ContainerInterface;
+use YFEvents\Infrastructure\Config\ConfigInterface;
+use Exception;
 
 /**
  * Notification API controller
  */
-class NotificationApiController
+class NotificationApiController extends BaseController
 {
     private CommunicationService $communicationService;
     
-    public function __construct(CommunicationService $communicationService)
+    public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
-        $this->communicationService = $communicationService;
+        parent::__construct($container, $config);
+        $this->communicationService = $container->resolve(CommunicationService::class);
+        
+        // Set CORS headers for API
+        $this->setCorsHeaders();
     }
     
     /**
@@ -24,16 +32,25 @@ class NotificationApiController
     public function index(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $unreadOnly = isset($_GET['unread_only']) && $_GET['unread_only'] === 'true';
-            $page = (int)($_GET['page'] ?? 1);
-            $limit = (int)($_GET['limit'] ?? 20);
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
+            $input = $this->getInput();
+            $unreadOnly = isset($input['unread_only']) && $input['unread_only'] === 'true';
+            $page = (int) ($input['page'] ?? 1);
+            $limit = min(50, max(1, (int) ($input['limit'] ?? 20)));
             $offset = ($page - 1) * $limit;
             
             // This would need to be implemented in the service/repository
             $notifications = $this->getNotifications($userId, $unreadOnly, $limit, $offset);
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => $notifications,
                 'pagination' => [
@@ -41,8 +58,8 @@ class NotificationApiController
                     'limit' => $limit
                 ]
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -52,23 +69,31 @@ class NotificationApiController
     public function markRead(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $data = $this->getJsonInput();
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
+            $data = $this->getInput();
             
             if (empty($data['notification_ids']) || !is_array($data['notification_ids'])) {
-                $this->sendErrorResponse('notification_ids array is required');
+                $this->errorResponse('notification_ids array is required');
                 return;
             }
             
             // This would need to be implemented
             $count = $this->markNotificationsAsRead($userId, $data['notification_ids']);
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => sprintf('%d notifications marked as read', $count)
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -78,8 +103,16 @@ class NotificationApiController
     public function updatePreferences(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
-            $data = $this->getJsonInput();
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
+            $data = $this->getInput();
             
             // Validate preferences
             $validPreferences = ['all', 'mentions', 'none'];
@@ -87,25 +120,25 @@ class NotificationApiController
             
             if (isset($data['notification_preference']) && 
                 !in_array($data['notification_preference'], $validPreferences)) {
-                $this->sendErrorResponse('Invalid notification preference');
+                $this->errorResponse('Invalid notification preference');
                 return;
             }
             
             if (isset($data['email_digest_frequency']) && 
                 !in_array($data['email_digest_frequency'], $validFrequencies)) {
-                $this->sendErrorResponse('Invalid email digest frequency');
+                $this->errorResponse('Invalid email digest frequency');
                 return;
             }
             
             // This would need to be implemented
             $this->updateUserPreferences($userId, $data);
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'message' => 'Preferences updated successfully'
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -115,19 +148,27 @@ class NotificationApiController
     public function count(): void
     {
         try {
-            $userId = $this->getCurrentUserId();
+            if (!$this->requireAuth()) {
+                $this->errorResponse('Authentication required', 401);
+                return;
+            }
+            $userId = (int) ($_SESSION['auth']['user_id'] ?? $_SESSION['user_id'] ?? 0);
+            if (!$userId) {
+                $this->errorResponse('Invalid session', 401);
+                return;
+            }
             
             // This would need to be implemented
             $unreadCount = $this->getUnreadNotificationCount($userId);
             
-            $this->sendJsonResponse([
+            $this->jsonResponse([
                 'success' => true,
                 'data' => [
                     'unread_count' => $unreadCount
                 ]
             ]);
-        } catch (\Exception $e) {
-            $this->sendErrorResponse($e->getMessage());
+        } catch (Exception $e) {
+            $this->errorResponse($e->getMessage(), 500);
         }
     }
     
@@ -183,53 +224,18 @@ class NotificationApiController
     }
     
     /**
-     * Get current user ID from session
+     * Set CORS headers for API access
      */
-    private function getCurrentUserId(): int
+    private function setCorsHeaders(): void
     {
-        session_start();
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
         
-        if (!isset($_SESSION['user_id'])) {
-            throw new \RuntimeException('Not authenticated');
+        // Handle preflight requests
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            http_response_code(200);
+            exit;
         }
-        
-        return (int)$_SESSION['user_id'];
-    }
-    
-    /**
-     * Get JSON input from request
-     */
-    private function getJsonInput(): array
-    {
-        $json = file_get_contents('php://input');
-        $data = json_decode($json, true);
-        
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Invalid JSON input');
-        }
-        
-        return $data ?? [];
-    }
-    
-    /**
-     * Send JSON response
-     */
-    private function sendJsonResponse(array $data, int $statusCode = 200): void
-    {
-        http_response_code($statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
-    
-    /**
-     * Send error response
-     */
-    private function sendErrorResponse(string $message, int $statusCode = 400): void
-    {
-        $this->sendJsonResponse([
-            'success' => false,
-            'error' => $message
-        ], $statusCode);
     }
 }

@@ -3,7 +3,7 @@
 
 // Generate placeholder icons for PWA
 $sizes = [72, 96, 128, 144, 152, 192, 384, 512];
-$iconDir = __DIR__ . '/../www/html/communication/icons/';
+$iconDir = __DIR__ . '/../public/assets/communication/icons/';
 
 if (!is_dir($iconDir)) {
     mkdir($iconDir, 0755, true);

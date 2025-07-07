@@ -13,6 +13,7 @@ use YFEvents\Presentation\Http\Controllers\AuthController;
 use YFEvents\Presentation\Http\Controllers\ClaimsController;
 use YFEvents\Presentation\Http\Controllers\ClassifiedsController;
 use YFEvents\Presentation\Http\Controllers\CalendarApiController;
+use YFEvents\Presentation\Http\Controllers\CommunicationController;
 
 /**
  * Web routes for the application
@@ -98,6 +99,7 @@ $router->post('/seller/login', ClaimsController::class, 'processSellerLogin');
 $router->get('/seller/dashboard', ClaimsController::class, 'showSellerDashboard');
 $router->get('/seller/sales', ClaimsController::class, 'showSellerSales');
 $router->get('/seller/sale/new', ClaimsController::class, 'showCreateSale');
+$router->post('/seller/sale/update-status', ClaimsController::class, 'updateSaleStatus');
 $router->post('/seller/sale/create', ClaimsController::class, 'createSale');
 $router->get('/seller/sale/{id}/edit', ClaimsController::class, 'showEditSale');
 $router->post('/seller/sale/{id}/update', ClaimsController::class, 'updateSale');
@@ -173,4 +175,10 @@ $router->get('/estate-sales/sale/{id}', \YFEvents\Presentation\Http\Controllers\
 // YFTheme Module Routes (if ThemeController exists)
 $router->get('/theme/editor', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'showEditor');
 $router->post('/theme/api/save', \YFEvents\Presentation\Http\Controllers\ThemeController::class, 'saveTheme');
+
+// Communication routes
+$router->get('/communication', CommunicationController::class, 'index');
+$router->get('/communication/embedded', CommunicationController::class, 'embedded');
+$router->get('/communication/theme', CommunicationController::class, 'themeSwitcher');
+$router->post('/communication/theme', CommunicationController::class, 'themeSwitcher');
 
