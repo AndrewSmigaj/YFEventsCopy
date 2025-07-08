@@ -1,0 +1,57 @@
+YFEVENTS QUICK DEPLOYMENT GUIDE FOR UBUNTU 22.04
+================================================
+
+STEP 1: DOWNLOAD AND RUN SERVER SETUP
+-------------------------------------
+
+# Download the setup script
+wget https://raw.githubusercontent.com/AndrewSmigaj/YFEventsCopy/refactor/unified-structure/scripts/deploy/setup-server.sh
+
+# Make it executable
+chmod +x setup-server.sh
+
+# Run the setup
+sudo ./setup-server.sh
+
+When prompted, provide:
+- Domain name: smigaj.com (or your domain)
+- Email for SSL: smigaja@gmail.com 
+- MySQL password for yfevents user: Choose a secure password and remember it!
+
+
+STEP 2: CLONE AND DEPLOY
+------------------------
+
+# Clone the repository with the correct branch
+git clone -b refactor/unified-structure https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
+
+# Navigate to the directory
+cd /var/www/yfevents
+
+# Pull latest fixes (important!)
+git pull origin refactor/unified-structure
+
+# Create deployment config from example
+cp config/deployment/deployment.yaml.example config/deployment/deployment.yaml
+
+# Run the deployment
+./scripts/deploy/deploy.sh
+
+
+STEP 3: WHEN PROMPTED DURING DEPLOYMENT
+---------------------------------------
+
+The deploy script will ask for:
+- Database password: Use the same password you created in Step 1
+- Admin user: Create your admin account when prompted
+
+
+THAT'S IT!
+----------
+
+Your site should be available at https://smigaj.com once DNS propagates.
+
+Notes:
+- The setup script handles Apache, PHP 8.1, MySQL, SSL certificates automatically
+- The deployment script will set up the database, configure the app, and create cron jobs
+- If you see any errors, just let me know!
