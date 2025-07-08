@@ -103,7 +103,7 @@ load_yaml_config() {
                         local var_name="${BASH_REMATCH[1]}"
                         local default_val="${BASH_REMATCH[3]}"
                         
-                        if [ -n "${!var_name}" ]; then
+                        if [ -n "${!var_name:-}" ]; then
                             value="${!var_name}"
                         elif [ -n "$default_val" ]; then
                             value="$default_val"

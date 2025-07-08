@@ -5,7 +5,8 @@ environment: production
 
 deployment:
   repository:
-    branch: "main"  # Always use stable branch/tag for production
+    # Always use stable branch/tag for production
+    branch: "main"
     
   database:
     host: "localhost"
