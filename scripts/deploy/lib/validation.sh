@@ -3,8 +3,8 @@
 # Pre-flight checks and post-deployment validation
 
 # Source common functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common.sh"
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$LIB_DIR/common.sh"
 
 # Validation results
 declare -A VALIDATION_RESULTS

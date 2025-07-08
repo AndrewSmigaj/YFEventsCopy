@@ -3,8 +3,8 @@
 # Handles database connections, migrations, and schema management
 
 # Source common functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common.sh"
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$LIB_DIR/common.sh"
 
 # Database connection parameters (set by config.sh)
 DB_HOST="${DB_HOST:-localhost}"
