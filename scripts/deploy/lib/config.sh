@@ -35,38 +35,91 @@ load_yaml_config() {
         return 1
     fi
     
-    # Simple YAML parser (handles basic key: value pairs)
-    while IFS=': ' read -r key value; do
-        # Skip comments and empty lines
-        [[ "$key" =~ ^#.*$ ]] && continue
-        [[ -z "$key" ]] && continue
+    # Initialize variables for nested YAML parsing
+    local line key value prev_key=""
+    local -a parent_keys=()
+    local current_indent=0
+    local prev_indent=0
+    
+    # Process YAML file line by line
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty lines and comments
+        [[ -z "$line" ]] && continue
+        [[ "$line" =~ ^[[:space:]]*# ]] && continue
         
-        # Remove leading/trailing whitespace
-        key=$(echo "$key" | xargs)
-        value=$(echo "$value" | xargs)
-        
-        # Handle environment variable substitution
-        if [[ "$value" =~ \$\{([^}]+)\} ]]; then
-            var_name="${BASH_REMATCH[1]}"
-            # Extract variable name and default value
-            if [[ "$var_name" =~ ([^:-]+)(:-(.+))? ]]; then
-                actual_var="${BASH_REMATCH[1]}"
-                default_val="${BASH_REMATCH[3]}"
-                
-                # Get environment variable or use default
-                if [ -n "${!actual_var}" ]; then
-                    value="${!actual_var}"
-                elif [ -n "$default_val" ]; then
-                    value="$default_val"
-                fi
-            fi
+        # Count leading spaces for indentation
+        local indent=0
+        if [[ "$line" =~ ^([[:space:]]*) ]]; then
+            indent=${#BASH_REMATCH[1]}
         fi
         
-        # Store in associative array
-        if [ -n "$key" ] && [ -n "$value" ]; then
-            # Convert nested keys to dot notation
-            current_key=$(echo "$key" | sed 's/  */./g')
-            config_array["$current_key"]="$value"
+        # Extract key and value
+        if [[ "$line" =~ ^[[:space:]]*([^:]+):[[:space:]]*(.*)$ ]]; then
+            key="${BASH_REMATCH[1]}"
+            value="${BASH_REMATCH[2]}"
+            
+            # Trim whitespace from key
+            key=$(echo "$key" | xargs)
+            
+            # Handle indentation changes
+            if (( indent < current_indent )); then
+                # Moving back up the hierarchy
+                local levels_up=$(( (current_indent - indent) / 2 ))
+                for ((i=0; i<levels_up && ${#parent_keys[@]} > 0; i++)); do
+                    unset 'parent_keys[-1]'
+                done
+            elif (( indent > current_indent )); then
+                # Moving deeper into hierarchy - the previous key becomes a parent
+                if [ -n "$prev_key" ]; then
+                    parent_keys+=("$prev_key")
+                fi
+            fi
+            current_indent=$indent
+            
+            # Skip list items (starting with -)
+            [[ "$key" =~ ^- ]] && continue
+            
+            # Build the full key path
+            local full_key=""
+            if [ ${#parent_keys[@]} -gt 0 ]; then
+                full_key=$(IFS=.; echo "${parent_keys[*]}")
+                full_key="${full_key}.${key}"
+            else
+                full_key="$key"
+            fi
+            
+            # Only store if we have a value
+            if [ -n "$value" ]; then
+                # Remove quotes from value
+                value="${value%\"}"
+                value="${value#\"}"
+                value="${value%\'}"
+                value="${value#\'}"
+                
+                # Handle environment variable substitution
+                if [[ "$value" =~ \$\{([^}]+)\} ]]; then
+                    local var_expr="${BASH_REMATCH[1]}"
+                    if [[ "$var_expr" =~ ([^:-]+)(:-(.+))? ]]; then
+                        local var_name="${BASH_REMATCH[1]}"
+                        local default_val="${BASH_REMATCH[3]}"
+                        
+                        if [ -n "${!var_name}" ]; then
+                            value="${!var_name}"
+                        elif [ -n "$default_val" ]; then
+                            value="$default_val"
+                        else
+                            value=""
+                        fi
+                    fi
+                fi
+                
+                # Store in array
+                config_array["$full_key"]="$value"
+                print_debug "Loaded config: $full_key = $value"
+            fi
+            
+            # Remember this key for potential parent use
+            prev_key="$key"
         fi
     done < "$file"
     
@@ -98,9 +151,22 @@ load_all_configs() {
     
     print_info "Loading deployment configurations..."
     
+    # Enable debug mode if requested
+    if [ "${VERBOSE:-false}" = true ] || [ "${DEBUG:-false}" = true ]; then
+        export DEBUG=true
+    fi
+    
     # Load main configuration
     if load_yaml_config "$MAIN_CONFIG" CONFIG; then
         print_status "Loaded main configuration"
+        
+        # Show loaded values in debug mode
+        if [ "${DEBUG:-false}" = true ]; then
+            echo "  Main config keys loaded: ${#CONFIG[@]}"
+            echo "  Sample values:"
+            echo "    deployment.version = ${CONFIG[deployment.version]:-<not set>}"
+            echo "    deployment.repository.url = ${CONFIG[deployment.repository.url]:-<not set>}"
+        fi
     else
         print_error "Failed to load main configuration"
         return 1
