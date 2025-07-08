@@ -22,11 +22,21 @@ When prompted, provide:
 - MySQL password for yfevents user: Choose a secure password and remember it!
 
 
-STEP 2: CLONE AND DEPLOY
+STEP 2: COMPLETE MYSQL SETUP (if needed)
+----------------------------------------
+
+# If the setup script failed before asking for MySQL password, run:
+cd /var/www/yfevents
+./scripts/deploy/fix-mysql-setup.sh
+
+# Enter your chosen MySQL password when prompted
+
+
+STEP 3: CLONE AND DEPLOY
 ------------------------
 
-# Stay in your home directory (or any directory - doesn't matter)
-# The clone command will create /var/www/yfevents automatically
+# If not already done in Step 2, clone the repository:
+# (The clone command will create /var/www/yfevents automatically)
 
 # Clone the repository with the correct branch
 git clone -b refactor/unified-structure https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
@@ -44,11 +54,11 @@ cp config/deployment/deployment.yaml.example config/deployment/deployment.yaml
 ./scripts/deploy/deploy.sh
 
 
-STEP 3: WHEN PROMPTED DURING DEPLOYMENT
+STEP 4: WHEN PROMPTED DURING DEPLOYMENT
 ---------------------------------------
 
 The deploy script will ask for:
-- Database password: Use the same password you created in Step 1
+- Database password: Use the same password you created in Step 1 or 2
 - Admin user: Create your admin account when prompted
 
 

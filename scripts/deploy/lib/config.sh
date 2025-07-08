@@ -80,10 +80,10 @@ get_config() {
     local default="${2:-}"
     
     # Check environment-specific config first
-    if [ -n "${ENV_CONFIG_DATA[$key]}" ]; then
+    if [[ -v ENV_CONFIG_DATA[$key] ]] && [ -n "${ENV_CONFIG_DATA[$key]}" ]; then
         echo "${ENV_CONFIG_DATA[$key]}"
     # Then check main config
-    elif [ -n "${CONFIG[$key]}" ]; then
+    elif [[ -v CONFIG[$key] ]] && [ -n "${CONFIG[$key]}" ]; then
         echo "${CONFIG[$key]}"
     # Return default
     else

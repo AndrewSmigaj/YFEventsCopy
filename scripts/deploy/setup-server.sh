@@ -88,7 +88,7 @@ print_status "Enabling services for auto-start..."
 systemctl enable apache2
 systemctl enable mysql
 systemctl enable fail2ban
-systemctl enable php8.1-fpm
+systemctl enable php${PHP_VERSION}-fpm
 
 # Enable Apache modules
 print_status "Enabling Apache modules..."
@@ -97,27 +97,52 @@ a2enmod headers
 a2enmod expires
 a2enmod ssl
 a2enmod proxy_fcgi setenvif
-a2enconf php8.1-fpm
-systemctl restart php8.1-fpm
+a2enconf php${PHP_VERSION}-fpm
+systemctl restart php${PHP_VERSION}-fpm
 
 # Configure PHP
 print_status "Configuring PHP..."
 # Increase PHP limits for production
-sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 50M/g' /etc/php/8.1/apache2/php.ini
-sed -i 's/post_max_size = 8M/post_max_size = 50M/g' /etc/php/8.1/apache2/php.ini
-sed -i 's/memory_limit = 128M/memory_limit = 256M/g' /etc/php/8.1/apache2/php.ini
-sed -i 's/max_execution_time = 30/max_execution_time = 300/g' /etc/php/8.1/apache2/php.ini
+# Configure PHP-FPM settings
+PHP_INI="/etc/php/${PHP_VERSION}/fpm/php.ini"
+if [ -f "$PHP_INI" ]; then
+    sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 50M/g' "$PHP_INI"
+    sed -i 's/post_max_size = 8M/post_max_size = 50M/g' "$PHP_INI"
+    sed -i 's/memory_limit = 128M/memory_limit = 256M/g' "$PHP_INI"
+    sed -i 's/max_execution_time = 30/max_execution_time = 300/g' "$PHP_INI"
+    systemctl restart php${PHP_VERSION}-fpm
+else
+    print_warning "PHP-FPM configuration file not found at $PHP_INI"
+fi
 
 # Secure MySQL installation
 print_status "Securing MySQL installation..."
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'temp_root_pass';"
+
+# Detect MySQL access method
+if mysql -e "SELECT 1" >/dev/null 2>&1; then
+    MYSQL_CMD="mysql"
+    print_status "MySQL access confirmed (auth_socket)"
+elif sudo mysql -e "SELECT 1" >/dev/null 2>&1; then
+    MYSQL_CMD="sudo mysql"
+    print_status "MySQL access confirmed (sudo)"
+else
+    # Try setting a temporary password
+    mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'temp_root_pass';" 2>/dev/null || true
+    if mysql -u root -ptemp_root_pass -e "SELECT 1" >/dev/null 2>&1; then
+        MYSQL_CMD="mysql -u root -ptemp_root_pass"
+        print_status "MySQL access confirmed (password)"
+    else
+        print_error "Cannot access MySQL. Please check MySQL installation."
+        exit 1
+    fi
+fi
 
 # Create database and user
 print_status "Creating YFEvents database and user..."
 read -sp "Enter password for MySQL yfevents user: " DB_PASSWORD
 echo ""
 
-mysql -u root -ptemp_root_pass <<EOF
+$MYSQL_CMD <<EOF
 CREATE DATABASE IF NOT EXISTS yakima_finds CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'yfevents'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
 GRANT ALL PRIVILEGES ON yakima_finds.* TO 'yfevents'@'localhost';
@@ -190,7 +215,7 @@ fi
 
 # Verify services are running
 print_status "Verifying services..."
-services=("apache2" "mysql" "fail2ban" "php8.1-fpm")
+services=("apache2" "mysql" "fail2ban" "php${PHP_VERSION}-fpm")
 all_good=true
 for service in "${services[@]}"; do
     if systemctl is-active --quiet "$service"; then
