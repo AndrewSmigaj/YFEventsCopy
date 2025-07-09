@@ -1,10 +1,17 @@
 YFEVENTS QUICK DEPLOYMENT GUIDE FOR UBUNTU 22.04
 ================================================
 
+PREREQUISITES
+-------------
+- Fresh Ubuntu 22.04 server (2GB RAM minimum)
+- Domain name pointed to your server's IP address
+- Root or sudo access to the server
+
+
 STEP 1: DOWNLOAD AND RUN SERVER SETUP
 -------------------------------------
 
-# You can run this from any directory (typically your home directory after SSH login)
+# SSH into your server and run from your home directory
 cd ~
 
 # Download the setup script
@@ -17,17 +24,17 @@ chmod +x setup-server.sh
 sudo ./setup-server.sh
 
 When prompted, provide:
-- Domain name: smigaj.com (or your domain)
-- Email for SSL: smigaja@gmail.com 
+- Domain name: yourdomain.com (use your actual domain)
+- Email for SSL: your-email@example.com (for Let's Encrypt certificates)
 - MySQL password for yfevents user: Choose a secure password and remember it!
 
 
 STEP 2: COMPLETE MYSQL SETUP (if needed)
 ----------------------------------------
 
-# If the setup script failed before asking for MySQL password, run:
+# If the setup script had issues with MySQL, run the fix script:
 cd /var/www/yfevents
-./scripts/deploy/fix-mysql-setup.sh
+sudo ./scripts/deploy/fix-mysql-setup.sh
 
 # Enter your chosen MySQL password when prompted
 
@@ -35,39 +42,96 @@ cd /var/www/yfevents
 STEP 3: CLONE AND DEPLOY
 ------------------------
 
-# If not already done in Step 2, clone the repository:
-# (The clone command will create /var/www/yfevents automatically)
-
 # Clone the repository with the correct branch
-git clone -b refactor/unified-structure https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
+sudo git clone -b refactor/unified-structure https://github.com/AndrewSmigaj/YFEventsCopy.git /var/www/yfevents
 
 # Navigate to the cloned directory
 cd /var/www/yfevents
 
-# Pull latest fixes (important!)
-git pull origin refactor/unified-structure
-
 # Create deployment config from example
-cp config/deployment/deployment.yaml.example config/deployment/deployment.yaml
+sudo cp config/deployment/deployment.yaml.example config/deployment/deployment.yaml
 
-# Run the deployment (from the yfevents directory)
-./scripts/deploy/deploy.sh
+# Edit the configuration file
+sudo nano config/deployment/deployment.yaml
+
+# Update these values in the file:
+# - server_name: yourdomain.com (line ~134)
+# - server_admin: admin@yourdomain.com (line ~135)
+# Save and exit (Ctrl+X, Y, Enter)
+
+# Run the deployment
+sudo ./scripts/deploy/deploy.sh
 
 
-STEP 4: WHEN PROMPTED DURING DEPLOYMENT
----------------------------------------
+STEP 4: FOLLOW DEPLOYMENT PROMPTS
+---------------------------------
 
 The deploy script will ask for:
-- Database password: Use the same password you created in Step 1 or 2
-- Admin user: Create your admin account when prompted
+- Database password: Use the same password from Step 1
+- Admin user details: Create your admin account
+  - Username (e.g., admin)
+  - Email (e.g., admin@yourdomain.com)
+  - Password (choose a secure password)
 
 
-THAT'S IT!
-----------
+POST-DEPLOYMENT TASKS
+--------------------
 
-Your site should be available at https://smigaj.com once DNS propagates.
+1. Install Modules (Required):
+   cd /var/www/yfevents
+   sudo -u www-data php modules/install.php yfauth
+   sudo -u www-data php modules/install.php yfclaim
+   sudo -u www-data php modules/install.php yftheme
 
-Notes:
-- The setup script handles Apache, PHP 8.1, MySQL, SSL certificates automatically
-- The deployment script will set up the database, configure the app, and create cron jobs
-- If you see any errors, just let me know!
+2. Verify Installation:
+   # Check site health
+   sudo -u www-data php scripts/deploy/health-check.php
+   
+   # Verify cron job was added
+   sudo crontab -u www-data -l
+
+3. Configure Google Maps (Optional):
+   # Edit .env file to add your Google Maps API key
+   sudo nano .env
+   # Add: GOOGLE_MAPS_API_KEY=your-api-key-here
+
+
+ACCESS YOUR SITE
+----------------
+
+- Main site: https://yourdomain.com
+- Admin panel: https://yourdomain.com/admin/
+- Event calendar: https://yourdomain.com/calendar.php
+- Local shops: https://yourdomain.com/calendar.php#shops
+
+
+QUICK TROUBLESHOOTING
+--------------------
+
+Permission errors:
+  sudo chown -R www-data:www-data /var/www/yfevents
+  sudo chmod -R 755 storage/
+
+MySQL connection issues:
+  cd /var/www/yfevents
+  sudo ./scripts/deploy/fix-mysql-setup.sh
+
+Check error logs:
+  sudo tail -f /var/log/apache2/error.log
+  sudo tail -f /var/www/yfevents/storage/logs/yfevents.log
+
+SSL certificate issues:
+  sudo certbot renew --dry-run  # Test renewal
+  sudo certbot renew --force-renewal  # Force renewal
+
+Module not working:
+  # Check if module is registered
+  mysql -u yfevents -p yakima_finds -e "SELECT * FROM modules;"
+
+
+NOTES
+-----
+- The setup script installs Apache, PHP 8.x, MySQL, and all dependencies
+- SSL certificates are automatically configured via Let's Encrypt
+- Event scraping runs automatically every 6 hours via cron
+- For detailed deployment options, see DEPLOYMENT_GUIDE.md
