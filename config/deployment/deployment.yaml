@@ -10,7 +10,7 @@ deployment:
   repository:
     # These can be overridden by environment variables
     url: "${YFEVENTS_REPO_URL:-https://github.com/AndrewSmigaj/YFEventsCopy.git}"
-    branch: "${YFEVENTS_BRANCH:-refactor/unified-structure}"
+    branch: "${YFEVENTS_BRANCH:-main}"
     deploy_key: "${YFEVENTS_DEPLOY_KEY:-}"  # Optional SSH key path
     
   requirements:

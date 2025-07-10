@@ -1,0 +1,49 @@
+# API Keys and Secrets
+config/api_keys.php
+config/email.php
+config/backup.php
+*.key
+*.pem
+*.p12
+.env
+
+# Backup files with potentially sensitive data
+config/backup_*.json
+config/config_backup.php
+
+# Log files
+logs/
+*.log
+
+# Database backups
+storage/backups/
+*.sql
+*.dump
+
+# Email storage
+storage/emails/
+
+# Temporary files
+tmp/
+temp/
+cache/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vendor dependencies
+vendor/
+
+# Node modules
+node_modules/
+
+# Build artifacts
+dist/
+build/
