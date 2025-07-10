@@ -248,7 +248,7 @@ export_config_env() {
     
     # Repository configuration
     export REPO_URL=$(get_config "deployment.repository.url")
-    export REPO_BRANCH=$(get_config "deployment.repository.branch" "main")
+    export REPO_BRANCH=$(get_config "deployment.repository.branch" "refactor/unified-structure")
     
     # Application configuration
     export APP_VERSION=$(get_config "deployment.version")

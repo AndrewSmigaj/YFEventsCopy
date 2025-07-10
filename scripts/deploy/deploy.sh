@@ -229,7 +229,7 @@ main() {
 # Deploy application code
 deploy_application_code() {
     local repo_url=$(get_config "deployment.repository.url")
-    local repo_branch=$(get_config "deployment.repository.branch" "main")
+    local repo_branch=$(get_config "deployment.repository.branch" "refactor/unified-structure")
     
     if [ -z "$repo_url" ] || [ "$repo_url" = "local" ]; then
         print_info "Using local deployment mode"
