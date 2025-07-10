@@ -126,7 +126,7 @@ print_info "Password saved to /root/.yfevents_db_pass"
 # Test connection
 print_status "Testing database connection..."
 if mysql -u yfevents -p"${DB_PASSWORD}" yakima_finds -e "SELECT 1;" >/dev/null 2>&1; then
-    print_success "✓ Database connection successful!"
+    print_status "Database connection successful!"
 else
     print_error "Database connection failed. Please check the configuration."
     exit 1

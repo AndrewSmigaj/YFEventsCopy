@@ -1,5 +1,40 @@
 # YFEvents Comprehensive Deployment Guide
 
+## Quick Start (Correct Order!)
+
+```bash
+# 1. Clone repository
+git clone https://github.com/yourusername/yfevents.git /var/www/yfevents
+cd /var/www/yfevents
+
+# 2. Make scripts executable (ALWAYS NEEDED!)
+chmod +x scripts/deploy/*.sh
+
+# 3. Run server setup
+./scripts/deploy/setup-server.sh
+
+# 4. Configure MySQL (CRITICAL - Do this BEFORE deploy.sh!)
+./scripts/deploy/fix-mysql-setup.sh
+# This will show you the password - copy it or note the export command shown
+
+# 5. Configure deployment
+cp config/deployment/deployment.yaml.example config/deployment/deployment.yaml
+nano config/deployment/deployment.yaml  # Edit with your domain
+
+# 6. Deploy application (use the password from step 4)
+export DB_PASSWORD=$(cat /root/.yfevents_db_pass)
+./scripts/deploy/deploy.sh
+
+# 7. Install modules
+php modules/install.php yfauth
+php modules/install.php yfclaim
+
+# 8. Configure SSL (after domain is working)
+certbot --apache -d yourdomain.com -d www.yourdomain.com
+```
+
+**Note**: On DigitalOcean as root, no 'sudo' needed
+
 ## Table of Contents
 1. [Overview](#overview)
 2. [Prerequisites](#prerequisites)
@@ -82,13 +117,21 @@ sudo ./setup-server.sh
 The setup script creates:
 - Database: `yakima_finds`
 - User: `yfevents`
-- Password: User-provided during setup
+- Password: Must be configured before deployment
 
-If MySQL setup fails, use the recovery script:
+**IMPORTANT - Do this BEFORE running deploy.sh:**
 ```bash
 cd /var/www/yfevents
-sudo ./scripts/deploy/fix-mysql-setup.sh
+./scripts/deploy/fix-mysql-setup.sh
 ```
+
+This script will:
+- Create the database and user if they don't exist
+- Generate a secure random password
+- Update the .env file automatically
+- Test the connection
+
+**Note**: On DigitalOcean as root, omit 'sudo' from commands.
 
 ## Application Deployment Phase
 
@@ -125,6 +168,14 @@ apache:
   server_name: "yourdomain.com"
   server_admin: "admin@yourdomain.com"
 ```
+
+### Pre-Deployment Checklist
+
+**Before running deploy.sh, ensure:**
+
+1. ✅ MySQL is configured (run fix-mysql-setup.sh first - see above)
+2. ✅ Domain is pointed to your server's IP
+3. ✅ You've edited deployment.yaml with your domain info
 
 ## Module Installation
 
@@ -199,6 +250,74 @@ DB_PASSWORD=your_password
 GOOGLE_MAPS_API_KEY=your_api_key_here
 ```
 
+## Firewall Configuration
+
+### Check Open Ports:
+```bash
+# Check UFW status and rules
+sudo ufw status verbose
+
+# List all UFW rules with numbers
+sudo ufw status numbered
+
+# Check if specific port is allowed
+sudo ufw status | grep 80
+sudo ufw status | grep 443
+sudo ufw status | grep 22
+
+# Alternative: Check with iptables directly
+sudo iptables -L -n -v
+
+# Check listening ports
+sudo netstat -tlnp
+# or
+sudo ss -tlnp
+```
+
+### Common Required Ports:
+- **22** - SSH (should be limited to specific IPs if possible)
+- **80** - HTTP (required for web access and Let's Encrypt)
+- **443** - HTTPS (required for SSL)
+- **3306** - MySQL (only if remote database access needed)
+
+### Configure Firewall:
+
+**WARNING**: Before enabling UFW, ensure SSH (port 22) is allowed to avoid locking yourself out!
+
+```bash
+# If UFW is inactive, set up rules BEFORE enabling
+# First, allow SSH to prevent lockout
+sudo ufw allow 22/tcp
+
+# Allow other essential ports
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+
+# THEN enable UFW
+sudo ufw enable
+
+# Allow from specific IP only (more secure for SSH)
+sudo ufw allow from YOUR_IP_ADDRESS to any port 22
+
+# Deny a port
+sudo ufw deny 3306
+
+# Delete a rule
+sudo ufw delete allow 80/tcp
+```
+
+### If Firewall is Inactive:
+```bash
+# Check current iptables rules (even if UFW is inactive)
+sudo iptables -L -n -v
+
+# If you need to check what's actually accessible, scan from another machine
+nmap -p 22,80,443,3306 YOUR_SERVER_IP
+
+# Or check locally what's listening
+sudo netstat -tlnp | grep LISTEN
+```
+
 ## SSL Certificates
 
 SSL certificates are managed by Certbot (Let's Encrypt):
@@ -257,6 +376,52 @@ sudo -u www-data php cron/scrape-events.php
 ## Troubleshooting
 
 ### Common Issues and Solutions:
+
+#### Missing .env.example Error
+```bash
+# If you get "[✗] No .env.example found"
+# Create it manually:
+cat > /var/www/yfevents/.env.example << 'EOF'
+# YFEvents Environment Configuration
+APP_NAME="YFEvents"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=http://yourdomain.com
+
+# Database Configuration
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=yakima_finds
+DB_USERNAME=yfevents
+DB_PASSWORD=your_password_here
+DB_CHARSET=utf8mb4
+
+# Google Maps API
+GOOGLE_MAPS_API_KEY=your_api_key_here
+
+# Mail Configuration
+MAIL_DRIVER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
+MAIL_FROM_NAME="YFEvents"
+
+# Session Configuration
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+SESSION_SECURE_COOKIE=true
+
+# Logging
+LOG_CHANNEL=daily
+LOG_LEVEL=warning
+EOF
+
+# Then retry deployment
+```
 
 #### MySQL Connection Errors
 ```bash
