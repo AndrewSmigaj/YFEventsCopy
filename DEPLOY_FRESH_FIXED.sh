@@ -1,7 +1,7 @@
 #!/bin/bash
-# YFEvents Fresh Deployment Script - Ultra Simple Version
+# YFEvents Fresh Deployment Script - Ultra Simple Version (FIXED)
 # This script deploys YFEvents Clean Architecture on a fresh Ubuntu server
-# Usage: sudo ./DEPLOY_FRESH.sh
+# Usage: sudo ./DEPLOY_FRESH_FIXED.sh
 
 set -e  # Exit on any error
 
