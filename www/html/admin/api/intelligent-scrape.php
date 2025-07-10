@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../../config/database.php';
 
-use YFEvents\Scrapers\Intelligent\LLMScraper;
+use YakimaFinds\Scrapers\Intelligent\LLMScraper;
 
 header('Content-Type: application/json');
 

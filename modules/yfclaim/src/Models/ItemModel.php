@@ -3,14 +3,13 @@ namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
 use Exception;
-use YFEvents\Domain\Common\BaseModel;
 
 class ItemModel extends BaseModel {
     protected $table = 'yfc_items';
     protected $fillable = [
-        'sale_id', 'title', 'description', 'price',
-        'buy_now_price', 'category', 'condition_rating', 'dimensions', 'weight',
-        'item_number', 'sort_order', 'status', 'qr_code'
+        'sale_id', 'title', 'description', 'starting_price', 'category_id',
+        'current_high_offer', 'offer_count', 'primary_image', 'images',
+        'condition_notes', 'measurements', 'sort_order', 'status', 'featured', 'qr_code'
     ];
     
     /**
@@ -108,25 +107,70 @@ class ItemModel extends BaseModel {
     }
     
     /**
-     * Update item status
+     * Get offer count for item
      */
-    public function updateStatus($itemId, $status) {
-        return $this->update($itemId, ['status' => $status]);
+    public function getOfferCount($itemId) {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_offers WHERE item_id = ? AND status = 'active'");
+        $stmt->execute([$itemId]);
+        return $stmt->fetchColumn();
     }
     
     /**
-     * Mark item as sold
+     * Get price range for display
      */
-    public function markAsSold($itemId) {
-        return $this->updateStatus($itemId, 'sold');
+    public function getPriceRange($itemId) {
+        $sql = "
+            SELECT 
+                MIN(offer_amount) as min_offer,
+                MAX(offer_amount) as max_offer,
+                COUNT(*) as offer_count
+            FROM yfc_offers 
+            WHERE item_id = ? AND status = 'active'
+        ";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$itemId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result['offer_count'] == 0) {
+            return null;
+        }
+        
+        return $result;
     }
     
     /**
-     * Check if item is available
+     * Mark item as claimed
      */
-    public function isAvailable($itemId) {
-        $item = $this->find($itemId);
-        return $item && $item['status'] === 'available';
+    public function markClaimed($itemId, $winningOfferId) {
+        $this->beginTransaction();
+        
+        try {
+            // Update item status
+            $this->update($itemId, [
+                'status' => 'claimed',
+                'winning_offer_id' => $winningOfferId
+            ]);
+            
+            // Update winning offer
+            $stmt = $this->db->prepare("UPDATE yfc_offers SET status = 'winning' WHERE id = ?");
+            $stmt->execute([$winningOfferId]);
+            
+            // Mark other offers as outbid
+            $stmt = $this->db->prepare("
+                UPDATE yfc_offers 
+                SET status = 'outbid' 
+                WHERE item_id = ? AND id != ? AND status = 'active'
+            ");
+            $stmt->execute([$itemId, $winningOfferId]);
+            
+            $this->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->rollback();
+            throw $e;
+        }
     }
     
     /**

@@ -1,308 +1,458 @@
-# YFEvents - Community Events Platform
+# Yakima Finds Event Calendar
 
-A comprehensive event calendar system with local business directory, estate sales management, and automated event scraping capabilities.
+A comprehensive event calendar system designed for yakimafinds.com that integrates event scraping, local business directory, interactive maps, and administrative management.
 
-## 🚀 Overview
+## Features
 
-YFEvents is a modern PHP application built with Clean Architecture principles, providing:
+### Public Interface
+- **Responsive Calendar Views**: Month, week, list, and interactive map views
+- **Event Discovery**: Search, filter by category, location-based finding
+- **Interactive Maps**: Google Maps integration showing events and local shops
+- **Mobile Optimized**: Touch-friendly interface with GPS location services
+- **Event Submission**: Public form for community event submissions
+- **Map Controls**: Toggle event pins, shop pins, and Yakima Finds marker
 
-- **Event Calendar** - Multi-view calendar with Google Maps integration
-- **Shop Directory** - Local business listings with geocoding
-- **Estate Sales** - Complete estate sale management system (YFClaim module)
-- **Event Scraping** - Automated collection from multiple sources
-- **Unified Authentication** - Centralized auth system for all modules
-- **Real-time Chat** - Integrated communication system for sellers and admins
+### Administrative Interface
+- **Advanced Admin Dashboard**: Enhanced UI for event, source, and shop management
+- **Event Management**: Approve, edit, and manage submitted events with bulk actions
+- **Source Management**: Configure and monitor automated scraping sources with testing
+- **Local Business Directory**: Manage shops and businesses with images and geocoding
+- **Scraper Dashboard**: Manual scraping, view logs, manage sources
+- **YFClaim Module**: Facebook-style claim sale platform for estate sales
+- **Geocoding Tools**: Verify and fix location coordinates for events and shops
+- **Authentication**: Secure admin access with session management
 
-**Version**: 2.3.0  
-**Status**: Production Ready  
-**License**: MIT
+### Automated Features
+- **Multi-Source Scraping**: Support for iCal, HTML, JSON, Yakima Valley format
+- **Smart Date Parsing**: Handles date ranges like "May 23 - 25"
+- **Geocoding**: Automatic address-to-coordinates conversion
+- **Duplicate Detection**: Smart filtering to prevent duplicate events
+- **Category Mapping**: Automatic event categorization from source data
 
-## 🎯 Key Features
+## Technology Stack
 
-### Public Features
-- Responsive calendar views (month, week, list, map)
-- Interactive Google Maps with event/shop pins
-- Event search and filtering by category/location
-- Mobile-optimized interface with GPS support
-- Community event submission
-- Estate sale item gallery with advanced filtering
-- Dynamic homepage with real-time stats
+- **Backend**: PHP 8.2+ with PDO
+- **Database**: MySQL with spatial indexing
+- **Frontend**: Vanilla JavaScript with Google Maps API
+- **Styling**: CSS Grid/Flexbox with responsive design
+- **Integration**: Designed to extend existing CMS systems
 
-### Administrative Features
-- Advanced admin dashboard
-- Event approval and management
-- Automated event scraping from multiple sources
-- Shop/business directory management
-- Estate sale system for sellers
-- Geocoding verification tools
-
-### Technical Features
-- Clean Architecture (Hexagonal/DDD)
-- Modular system architecture
-- RESTful API design
-- Unified authentication via YFAuth
-- No framework dependencies
-
-## 📋 Requirements
-
-- PHP 8.1+ with extensions: pdo_mysql, curl, mbstring, json, xml
-- MySQL 8.0+ or MariaDB 10.3+
-- Apache 2.4+ with mod_rewrite or Nginx
-- Composer 2.x
-- Google Maps API key
-
-## 🚀 Quick Start
-
-### Option 1: Automated Deployment (Recommended)
-
-Deploy to a fresh Ubuntu 22.04 server (e.g., Digital Ocean droplet):
-
-```bash
-# SSH into your server
-ssh root@your-server-ip
-
-# Download and run setup script
-wget https://raw.githubusercontent.com/AndrewSmigaj/YFEventsCopy/main/scripts/deploy/setup-server.sh
-chmod +x setup-server.sh
-sudo ./setup-server.sh
-
-# Download and run deployment script
-wget https://raw.githubusercontent.com/AndrewSmigaj/YFEventsCopy/main/scripts/deploy/deploy.sh
-chmod +x deploy.sh
-sudo ./deploy.sh https://github.com/AndrewSmigaj/YFEventsCopy.git
-```
-
-The deployment script will:
-- Clone the repository to `/var/www/yfevents`
-- Install all dependencies
-- Configure the database
-- Set up Apache with SSL
-- Create your first admin user
-- Configure automated event scraping
-
-### Option 2: Manual Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/AndrewSmigaj/YFEventsCopy.git
-cd YFEventsCopy
-```
-
-2. **Install dependencies**
-```bash
-composer install
-```
-
-3. **Configure environment**
-```bash
-cp .env.example .env
-# Edit .env with your settings
-```
-
-4. **Import database**
-```bash
-# Run in order (see database/INSTALL_ORDER.md)
-mysql -u root -p your_database < database/calendar_schema.sql
-mysql -u root -p your_database < database/shop_claim_system.sql
-mysql -u root -p your_database < database/communication_schema_fixed.sql
-mysql -u root -p your_database < database/seed_communication_channels.sql
-mysql -u root -p your_database < modules/yfauth/database/schema.sql
-mysql -u root -p your_database < modules/yfclaim/database/schema.sql
-```
-
-5. **Configure web server**
-```apache
-<VirtualHost *:80>
-    DocumentRoot /path/to/yfevents/public
-    <Directory /path/to/yfevents/public>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-```
-
-6. **Access the application**
-- Main site: http://your-domain.com
-- Admin panel: http://your-domain.com/admin
-- API endpoints: http://your-domain.com/api/
-
-## 🏗️ Architecture
-
-YFEvents follows Clean Architecture principles:
-
-```
-src/
-├── Domain/          # Business logic and entities
-├── Application/     # Use cases and services
-├── Infrastructure/  # External implementations
-└── Presentation/    # Controllers and views
-
-modules/
-├── yfauth/         # Authentication system
-├── yfclaim/        # Estate sales system
-├── yftheme/        # Theme customization
-└── Communication/  # Chat system (in Domain layer)
-```
-
-For detailed architecture documentation, see [architecture.yaml](architecture.yaml).
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Key configuration in `.env`:
-
-```env
-# Application
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://your-domain.com
-
-# Database
-DB_HOST=localhost
-DB_NAME=yakima_finds
-DB_USER=your_user
-DB_PASS=your_password
-
-# API Keys
-GOOGLE_MAPS_API_KEY=your_api_key
-SEGMIND_API_KEY=your_api_key  # For AI scraping
-
-# Email
-MAIL_HOST=smtp.example.com
-MAIL_USERNAME=your_email
-MAIL_PASSWORD=your_password
-```
-
-### Module Configuration
-
-Modules can be configured in their respective directories:
-- Authentication: `modules/yfauth/config/`
-- Estate Sales: `modules/yfclaim/config/`
-
-## 📚 Documentation
-
-- [CLAUDE.md](CLAUDE.md) - AI assistant guidelines
-- [SECURITY.md](SECURITY.md) - Security best practices
-- [architecture.yaml](architecture.yaml) - System architecture
-- [database/INSTALL_ORDER.md](database/INSTALL_ORDER.md) - Database setup
-- [modules/README.md](modules/README.md) - Module development
-- [docs/CHAT_SYSTEM_DOCUMENTATION.md](docs/CHAT_SYSTEM_DOCUMENTATION.md) - Chat system implementation
-
-## 🔌 API Reference
-
-### Public Endpoints
-
-```
-GET  /api/events              # List events
-GET  /api/events/{id}         # Get event details
-GET  /api/shops               # List shops
-GET  /api/shops/{id}          # Get shop details
-POST /api/events/submit       # Submit new event
-```
-
-### Authenticated Endpoints
-
-```
-POST /api/auth/login          # User login
-POST /api/auth/logout         # User logout
-GET  /api/admin/events        # Admin: list events
-POST /api/admin/events/{id}   # Admin: update event
-```
-
-### Communication Endpoints (Authenticated)
-
-```
-GET  /api/communication/unread-count      # Get unread message count
-GET  /communication/?embedded=true        # Embedded chat interface
-```
-
-For full chat API documentation, see [Chat System Documentation](docs/CHAT_SYSTEM_DOCUMENTATION.md).
-
-## 🛠️ Development
-
-### Code Style
-- PSR-12 coding standards
-- Type declarations required
-- Clean Architecture principles
-
-### Testing
-```bash
-# Run all tests
-php tests/run_all_tests.php
-
-# Test specific components
-php tests/test_core_functionality.php
-php tests/test_web_interfaces.php
-php tests/test_chat_system_updated.php
-```
-
-### Adding Features
-1. Follow the module structure in `modules/`
-2. Use dependency injection via the container
-3. Add routes in `routes/web.php`
-4. Document API changes
-
-## 🚀 Deployment
-
-YFEvents includes automated deployment scripts for production servers.
+## Installation
 
 ### Prerequisites
-- Ubuntu 22.04 server (e.g., Digital Ocean droplet with 2GB+ RAM)
-- Root access to the server
-- Domain name pointed to server IP
 
-### Automated Deployment
+- PHP 8.2 or higher with extensions: pdo, mysql, json, curl, mbstring
+- MySQL 5.7 or higher
+- Apache/Nginx web server
+- Google Maps API key
+- Composer (for dependency management)
 
-See the [Quick Start](#-quick-start) section above for the automated deployment process.
+### Quick Setup
 
-### Post-Deployment
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/r0bug/yfevents.git
+   cd yfevents
+   ```
 
-1. Configure Google Maps API key in `.env`
-2. Set up email credentials for notifications
-3. Monitor logs at `/var/www/yfevents/storage/logs/`
-4. Access admin panel to manage events and users
+2. **Database Setup**
+   ```bash
+   mysql -u root -p
+   CREATE DATABASE yakima_finds;
+   EXIT;
+   mysql -u root -p yakima_finds < database/calendar_schema.sql
+   ```
 
-### Maintenance
+3. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database and API credentials
+   nano .env
+   ```
 
-- Event scraping runs automatically via cron
-- Logs rotate daily
-- Run health check: `php scripts/deploy/health-check.php`
+4. **Install Dependencies**
+   ```bash
+   composer install
+   ```
 
-## 📝 Recent Updates
+5. **Set Permissions**
+   ```bash
+   chmod +x cron/scrape-events.php
+   mkdir -p cache/geocode logs
+   chmod 755 cache logs
+   ```
 
-### Version 2.3.0 (July 2025)
-- **Homepage Overhaul**: Dynamic content with real-time stats
-- **Item Gallery**: Browse all estate sale items across sales
-  - Advanced filtering by category, price range, search
-  - Sort by newest, price, ending soon
-  - Responsive grid layout with pagination
-- **Improved UX**: Better navigation and discovery features
-- **Bug Fixes**: Database column mappings, repository registration
+6. **Configure Web Server**
+   
+   For Apache, create a virtual host pointing to `/www/html/`:
+   ```apache
+   <VirtualHost *:80>
+       DocumentRoot /path/to/yfevents/www/html
+       <Directory /path/to/yfevents/www/html>
+           AllowOverride All
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
 
-### Version 2.2.0
-- **Chat System**: Real-time communication for sellers and admins
-- **Authentication**: Unified auth system via YFAuth module
-- **YFClaim**: Refactored to remove bidding, focus on contact forms
+7. **Configure Cron Job** (Optional)
+   ```bash
+   # Add to crontab for daily scraping at 2 AM
+   0 2 * * * php /path/to/yfevents/cron/scrape-events.php
+   ```
 
-## 🤝 Contributing
+## Configuration
 
-1. Fork the repository
-2. Create a feature branch
-3. Follow coding standards
-4. Add tests for new features
-5. Submit a pull request
+### Database Connection
 
-## 📝 License
+Update `config/database.php` or set environment variables:
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
+```php
+$host = $_ENV['DB_HOST'] ?? 'localhost';
+$dbname = $_ENV['DB_NAME'] ?? 'yakima_finds';
+$username = $_ENV['DB_USER'] ?? 'root';
+$password = $_ENV['DB_PASS'] ?? '';
+```
 
-## 🙏 Acknowledgments
+### Google Maps API
 
-- Built for Yakima Valley community
-- Google Maps API for mapping features
-- Segmind API for intelligent scraping
+Set your Google Maps API key in environment variables:
 
----
+```env
+GOOGLE_MAPS_API_KEY=your_api_key_here
+```
 
-For more information or support, please refer to the documentation or submit an issue on GitHub.
+Required APIs:
+- Maps JavaScript API
+- Places API
+- Geocoding API
+
+### Email Notifications
+
+Configure SMTP settings for admin notifications:
+
+```env
+ADMIN_EMAIL=admin@yoursite.com
+FROM_EMAIL=calendar@yoursite.com
+```
+
+## Usage
+
+### Adding Event Sources
+
+1. Access admin panel at `/admin/calendar/`
+2. Go to "Event Sources"
+3. Add source with appropriate configuration:
+
+**iCal Source Example:**
+```json
+{
+  "url": "https://example.com/events.ics"
+}
+```
+
+**HTML Scraping Example:**
+```json
+{
+  "selectors": {
+    "event_container": ".event-item",
+    "title": ".event-title",
+    "datetime": ".event-date",
+    "location": ".event-venue",
+    "description": ".event-description"
+  }
+}
+```
+
+**JSON API Example:**
+```json
+{
+  "events_path": "data.events",
+  "field_mapping": {
+    "title": "name",
+    "start_datetime": "start_time",
+    "location": "venue.name",
+    "description": "details"
+  }
+}
+```
+
+### Managing Local Shops
+
+1. Navigate to "Local Shops" in admin
+2. Add business with details:
+   - Name and description
+   - Full address (auto-geocoded)
+   - Contact information
+   - Operating hours
+   - Business category
+   - Images and amenities
+
+### API Endpoints
+
+**Public API:**
+- `GET /api/events` - List events with filtering
+- `GET /api/events/today` - Today's events for map
+- `GET /api/events/nearby?lat=46.6&lng=-120.5&radius=10` - Nearby events
+- `POST /api/events/submit` - Submit new event
+- `GET /api/shops` - Local business directory
+- `GET /api/shops/categories` - Business categories
+
+**Admin API:**
+- `POST /admin/api/events/{id}/approve` - Approve pending event
+- `GET /admin/api/sources/{id}/test` - Test scraping source
+- `POST /admin/api/scrape/{sourceId}` - Manual scrape trigger
+
+## Architecture
+
+### Directory Structure
+
+```
+YFEvents/
+├── database/           # Database schema and migrations
+├── src/
+│   ├── Models/        # Data models (Event, Shop, Source)
+│   ├── Scrapers/      # Event scraping classes
+│   ├── Utils/         # Utilities (Geocoding, etc.)
+│   └── PageView/      # View controllers
+├── www/html/
+│   ├── admin/         # Administrative interface
+│   ├── templates/     # Frontend templates
+│   ├── css/          # Stylesheets
+│   ├── js/           # JavaScript files
+│   └── ajax/         # AJAX endpoints
+├── cron/             # Scheduled tasks
+└── config/           # Configuration files
+```
+
+### Database Schema
+
+Key tables:
+- `events` - Main event storage with geocoded locations
+- `local_shops` - Business directory with full profiles
+- `calendar_sources` - Scraping source configurations
+- `event_categories` - Hierarchical categorization
+- `scraping_logs` - Monitoring and debugging
+
+### Integration Points
+
+Designed to integrate with existing CMS:
+- Uses existing user authentication system
+- Leverages current admin interface patterns
+- Shares database and file upload systems
+- Follows established routing conventions
+
+## Map Features
+
+### Interactive Map Display
+- Clustered markers for events and shops
+- Custom icons for different types
+- Info windows with details and actions
+- Mobile-optimized touch controls
+
+### Location Services
+- GPS-based "Events Near Me"
+- Radius filtering with slider control
+- Distance calculations and sorting
+- Driving directions integration
+
+### Shop Discovery
+- Business categories and filtering
+- Hours of operation display
+- Contact information and websites
+- Integration with events (nearby businesses)
+
+## Performance Optimizations
+
+### Caching Strategy
+- Geocoding results cached locally
+- Database queries optimized with indexes
+- API responses cached when appropriate
+- Static assets optimized for CDN
+
+### Database Indexes
+```sql
+INDEX idx_events_location (latitude, longitude)
+INDEX idx_events_datetime (start_datetime)
+INDEX idx_events_status (status)
+INDEX idx_shops_location (latitude, longitude)
+INDEX idx_shops_category (category_id)
+```
+
+### Mobile Optimization
+- Responsive design with mobile-first approach
+- Touch-friendly interface elements
+- Optimized map performance on mobile
+- Progressive loading for large datasets
+
+## Security Considerations
+
+### Input Validation
+- All user inputs sanitized and validated
+- SQL injection prevention with prepared statements
+- XSS protection with output escaping
+- CSRF tokens for admin forms
+
+### API Security
+- Rate limiting on public endpoints
+- Authentication required for admin functions
+- Input validation on all API calls
+- Secure session management
+
+### Scraping Security
+- Respect robots.txt files
+- Implement rate limiting
+- User-agent identification
+- Error handling for blocked requests
+
+## Monitoring and Logging
+
+### System Health
+- Daily scraping success/failure tracking
+- Database performance monitoring
+- API response time tracking
+- Error rate monitoring
+
+### Admin Notifications
+- Email alerts for failed scraping
+- Weekly summary reports
+- Critical error notifications
+- New event submission alerts
+
+### Log Files
+- Scraping activity logs
+- Error and warning logs
+- Performance monitoring logs
+- User activity logs (admin actions)
+
+## Troubleshooting
+
+### Common Issues
+
+**Scraping Failures:**
+1. Check source URL accessibility
+2. Verify scraping configuration
+3. Review robots.txt compliance
+4. Check rate limiting settings
+
+**Geocoding Issues:**
+1. Verify Google Maps API key
+2. Check API quotas and limits
+3. Validate address formats
+4. Review error logs for details
+
+**Map Display Problems:**
+1. Confirm Google Maps API key
+2. Check browser console for errors
+3. Verify coordinate validity
+4. Test on different devices/browsers
+
+### Debug Mode
+
+Enable debug logging in development:
+
+```php
+// In config/debug.php
+define('DEBUG_MODE', true);
+define('LOG_LEVEL', 'DEBUG');
+```
+
+### Support
+
+For technical support:
+1. Check error logs in `/logs/` directory
+2. Review admin dashboard for system status
+3. Test individual components via admin interface
+4. Consult API documentation for integration issues
+
+## Contributing
+
+### Development Setup
+
+1. Clone repository
+2. Install dependencies: `composer install`
+3. Set up development database
+4. Configure `.env` file
+5. Run database migrations
+6. Set up local web server
+
+### Code Standards
+
+- Follow PSR-4 autoloading
+- Use meaningful variable and function names
+- Comment complex logic
+- Write unit tests for new features
+- Follow existing code style patterns
+
+### Testing
+
+Run test suite:
+```bash
+./vendor/bin/phpunit tests/
+```
+
+Test coverage areas:
+- Model CRUD operations
+- API endpoint responses
+- Scraping functionality
+- Geocoding services
+- Input validation
+
+## Modules
+
+### YFClaim - Estate Sale Platform
+YFClaim is a modular extension that provides Facebook-style claim sales for estate sale companies:
+
+- **Seller Management**: Estate sale companies can register and manage their sales
+- **Claim Sales**: Items are posted with starting prices, buyers make offers
+- **Offer System**: Price ranges shown to buyers, sellers choose winning offers
+- **QR Code Access**: Easy buyer access via QR codes at physical sales
+- **Admin Interface**: Complete management dashboard for overseeing all sales
+
+**Status**: Database ready, admin interface functional, models need implementation
+**Documentation**: See `modules/yfclaim/README.md` for details
+
+## Current Status
+
+### ✅ Fully Functional
+- Event calendar with map integration
+- Event scraping from multiple sources
+- Local business directory with geocoding
+- Advanced admin interface
+- Shop management with JSON operating hours
+- Geocoding verification and repair tools
+
+### 🚧 In Development
+- YFClaim seller/buyer interfaces (admin ready, models need implementation)
+- Enhanced notification system
+- Advanced reporting and analytics
+
+## Security
+
+⚠️ **Important**: This project includes sensitive configuration files. See `SECURITY.md` for proper setup and deployment guidelines.
+
+## License
+
+This project is proprietary software developed for yakimafinds.com. All rights reserved.
+
+## Changelog
+
+### Version 1.2.0 (Current)
+- Fixed advanced admin functionality and 500 errors
+- Fixed geocoding namespace issues  
+- Added YFClaim module foundation with database schema
+- Enhanced security documentation and API key management
+- Improved shop management with proper JSON handling
+
+### Version 1.1.0
+- Added intelligent AI-powered event scraper
+- Enhanced admin interface with better navigation
+- Improved error handling and logging
+
+### Version 1.0.0 (Initial Release)
+- Complete calendar system with map integration
+- Event scraping from multiple source types
+- Local business directory
+- Mobile-responsive interface
+- Administrative dashboard
+- Automated geocoding and duplicate detection

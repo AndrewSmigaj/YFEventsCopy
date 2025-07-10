@@ -9,10 +9,10 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use YFEvents\Scrapers\Queue\QueueManager;
-use YFEvents\Scrapers\Queue\ScraperScheduler;
-use YFEvents\Scrapers\Queue\WorkerManager;
-use YFEvents\Utils\SystemLogger;
+use YakimaFinds\Scrapers\Queue\QueueManager;
+use YakimaFinds\Scrapers\Queue\ScraperScheduler;
+use YakimaFinds\Scrapers\Queue\WorkerManager;
+use YakimaFinds\Utils\SystemLogger;
 
 class OptimizedScraperCron
 {
@@ -118,7 +118,7 @@ class OptimizedScraperCron
     {
         $this->logger->info("Running in single worker mode");
         
-        $worker = new \YFEvents\Scrapers\Queue\ScraperWorker($this->db, [
+        $worker = new \YakimaFinds\Scrapers\Queue\ScraperWorker($this->db, [
             'worker_id' => 'cron_worker_' . getmypid(),
             'max_jobs' => $this->config['single_worker_max_jobs'],
             'heartbeat_interval' => 60

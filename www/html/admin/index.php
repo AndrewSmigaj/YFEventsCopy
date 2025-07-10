@@ -1,10 +1,15 @@
 <?php
 // Simple Admin Dashboard
 require_once __DIR__ . '/error_handler.php';
-require_once dirname(__DIR__, 3) . '/config/db_connection.php';
+require_once dirname(__DIR__, 3) . '/config/database.php';
 
 // Authentication check
-require_once dirname(__DIR__, 3) . '/includes/admin_auth_required.php';
+session_start();
+
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('Location: /admin/login.php');
+    exit;
+}
 
 $isAdmin = true;
 

@@ -24,7 +24,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 }
 
 echo "<h2>Actions:</h2>";
-echo "<a href='/admin/login'>Go to Main Admin Login</a><br>";
+echo "<a href='/admin/login.php'>Go to Main Admin Login</a><br>";
 echo "<a href='/modules/yfclaim/www/admin/sellers.php'>Test Sellers Page</a><br>";
 
 // Set admin session for testing

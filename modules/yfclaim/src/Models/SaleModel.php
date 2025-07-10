@@ -2,13 +2,18 @@
 namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
-use YFEvents\Domain\Common\BaseModel;
 
 class SaleModel extends BaseModel {
+    // Status constants
+    const STATUS_ACTIVE = 'active';
+    const STATUS_DRAFT = 'draft';
+    const STATUS_CANCELLED = 'cancelled';
+    const STATUS_COMPLETED = 'completed';
+    
     protected $table = 'yfc_sales';
     protected $fillable = [
         'seller_id', 'title', 'description', 'address', 'city', 'state', 'zip',
-        'latitude', 'longitude', 'preview_start', 'preview_end',
+        'latitude', 'longitude', 'start_date', 'end_date',
         'claim_start', 'claim_end', 'pickup_start', 'pickup_end',
         'qr_code', 'access_code', 'status', 'featured'
     ];
@@ -17,7 +22,7 @@ class SaleModel extends BaseModel {
      * Get active sales
      */
     public function getActive() {
-        return $this->all(['status' => 'active'], 'claim_start DESC');
+        return $this->all(['status' => self::STATUS_ACTIVE], 'claim_start DESC');
     }
     
     /**
@@ -88,24 +93,35 @@ class SaleModel extends BaseModel {
         $stmt->execute([$saleId]);
         $stats['total_items'] = $stmt->fetchColumn();
         
-        // Available items
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'available'");
+        // Items with offers
+        $stmt = $this->db->prepare("
+            SELECT COUNT(DISTINCT item_id) FROM yfc_offers o
+            JOIN yfc_items i ON o.item_id = i.id
+            WHERE i.sale_id = ?
+        ");
         $stmt->execute([$saleId]);
-        $stats['available_items'] = $stmt->fetchColumn();
+        $stats['items_with_offers'] = $stmt->fetchColumn();
         
-        // Sold items
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'sold'");
+        // Total offers
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) FROM yfc_offers o
+            JOIN yfc_items i ON o.item_id = i.id
+            WHERE i.sale_id = ?
+        ");
         $stmt->execute([$saleId]);
-        $stats['sold_items'] = $stmt->fetchColumn();
+        $stats['total_offers'] = $stmt->fetchColumn();
         
-        // Claimed items (sold items in our no-offer system)
-        $stats['claimed_items'] = $stats['sold_items'];
+        // Claimed items
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM yfc_items WHERE sale_id = ? AND status = 'claimed'");
+        $stmt->execute([$saleId]);
+        $stats['claimed_items'] = $stmt->fetchColumn();
         
-        // Views (placeholder for future feature)
-        $stats['views'] = 0;
-        
-        // Unique buyers (from buyer table)
-        $stmt = $this->db->prepare("SELECT COUNT(DISTINCT id) FROM yfc_buyers WHERE sale_id = ?");
+        // Unique buyers (through offers)
+        $stmt = $this->db->prepare("
+            SELECT COUNT(DISTINCT o.buyer_id) FROM yfc_offers o
+            JOIN yfc_items i ON o.item_id = i.id
+            WHERE i.sale_id = ?
+        ");
         $stmt->execute([$saleId]);
         $stats['unique_buyers'] = $stmt->fetchColumn();
         
@@ -157,41 +173,51 @@ class SaleModel extends BaseModel {
      * Get upcoming sales (not yet started)
      */
     public function getUpcoming() {
-        $now = date('Y-m-d H:i:s');
-        
-        $sql = "
-            SELECT s.*, sel.company_name
-            FROM yfc_sales s
-            JOIN yfc_sellers sel ON s.seller_id = sel.id
-            WHERE s.status = 'active' 
-            AND s.claim_start > ?
-            ORDER BY s.claim_start ASC
-        ";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$now]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $now = date('Y-m-d H:i:s');
+            
+            $sql = "
+                SELECT s.*, sel.company_name
+                FROM yfc_sales s
+                JOIN yfc_sellers sel ON s.seller_id = sel.id
+                WHERE s.status = ? 
+                AND s.claim_start > ?
+                ORDER BY s.claim_start ASC
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([self::STATUS_ACTIVE, $now]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log("Error in getUpcoming: " . $e->getMessage());
+            return [];
+        }
     }
     
     /**
      * Get current sales (claim period active)
      */
     public function getCurrent() {
-        $now = date('Y-m-d H:i:s');
-        
-        $sql = "
-            SELECT s.*, sel.company_name
-            FROM yfc_sales s
-            JOIN yfc_sellers sel ON s.seller_id = sel.id
-            WHERE s.status = 'active' 
-            AND s.claim_start <= ?
-            AND s.claim_end >= ?
-            ORDER BY s.claim_end ASC
-        ";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$now, $now]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $now = date('Y-m-d H:i:s');
+            
+            $sql = "
+                SELECT s.*, sel.company_name
+                FROM yfc_sales s
+                JOIN yfc_sellers sel ON s.seller_id = sel.id
+                WHERE s.status = ? 
+                AND s.claim_start <= ?
+                AND s.claim_end >= ?
+                ORDER BY s.claim_end ASC
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([self::STATUS_ACTIVE, $now, $now]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            error_log("Error in getCurrent: " . $e->getMessage());
+            return [];
+        }
     }
     
     /**
@@ -255,4 +281,5 @@ class SaleModel extends BaseModel {
     public function getSalesBySeller($sellerId) {
         return $this->getBySeller($sellerId);
     }
+    
 }

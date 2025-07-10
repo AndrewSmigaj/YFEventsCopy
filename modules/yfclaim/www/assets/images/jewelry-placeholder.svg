@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-  <rect width="800" height="600" fill="#FFD700" opacity="0.1"/>
-  <rect x="200" y="150" width="400" height="300" fill="#FFD700" opacity="0.3" rx="8"/>
-  <text x="400" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFD700">Jewelry</text>
-  <text x="400" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#FFD700" opacity="0.7">Estate Sale Item</text>
-</svg>

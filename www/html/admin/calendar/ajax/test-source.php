@@ -11,8 +11,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 require_once __DIR__ . '/../../../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../../../config/database.php';
 
-use YFEvents\Models\CalendarSourceModel;
-use YFEvents\Scrapers\EventScraper;
+use YakimaFinds\Models\CalendarSourceModel;
+use YakimaFinds\Scrapers\EventScraper;
 
 header('Content-Type: application/json');
 

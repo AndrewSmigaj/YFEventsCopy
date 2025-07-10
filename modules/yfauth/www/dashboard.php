@@ -504,13 +504,13 @@ $activeSessions = $authService->getActiveSessions($user['id']);
             <h2>Quick Actions</h2>
             
             <div class="actions-grid">
-                <a href="/" class="action-card">
+                <a href="/refactor/" class="action-card">
                     <div class="action-icon">📅</div>
                     <div class="action-title">Event Calendar</div>
                     <div class="action-description">Browse upcoming events</div>
                 </a>
                 
-                <a href="/calendar.php#shops" class="action-card">
+                <a href="/refactor/shops" class="action-card">
                     <div class="action-icon">🏪</div>
                     <div class="action-title">Local Shops</div>
                     <div class="action-description">Discover local businesses</div>

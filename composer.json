@@ -1,39 +1,25 @@
 {
-    "name": "yfevents/yfevents",
-    "description": "YFEvents - Yakima Valley Event Management System",
+    "name": "yakimafinds/yfevents",
+    "description": "Event calendar system for yakimafinds.com",
     "type": "project",
-    "version": "2.0.0",
     "require": {
-        "php": "^8.1",
+        "php": ">=8.2",
         "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
         "ext-json": "*",
-        "ext-mbstring": "*",
-        "monolog/monolog": "^3.0",
-        "guzzlehttp/guzzle": "^7.0",
-        "vlucas/phpdotenv": "^5.0",
-        "nesbot/carbon": "^2.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^10.0",
-        "phpstan/phpstan": "^1.0",
-        "friendsofphp/php-cs-fixer": "^3.0",
-        "symfony/var-dumper": "^6.0"
+        "ext-curl": "*"
     },
     "autoload": {
         "psr-4": {
             "YFEvents\\": "src/",
+            "YakimaFinds\\": "src/",
             "YFEvents\\Modules\\YFClaim\\": "modules/yfclaim/src/",
             "YFEvents\\Modules\\YFAuth\\": "modules/yfauth/src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "YFEvents\\Tests\\": "tests/"
-        }
-    },
     "scripts": {
-        "test": "phpunit",
-        "analyse": "phpstan analyse",
-        "cs-fix": "php-cs-fixer fix"
+        "post-install-cmd": [
+            "chmod +x cron/scrape-events.php"
+        ]
     }
 }

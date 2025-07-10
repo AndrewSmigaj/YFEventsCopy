@@ -2,12 +2,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Override the default API endpoint
     window.calendar = new YakimaCalendar({
-        apiEndpoint: '/api/events',
-        unifiedEndpoint: '/api/calendar/unified',
+        apiEndpoint: '/api/events-simple.php',
         shopsEndpoint: '/api/shops/',
         currentDate: new Date(),
-        defaultView: 'month',
-        includeEstateSales: true
+        defaultView: 'day'
     });
     
     window.calendar.init();

@@ -1,7 +1,7 @@
 <?php
 // YFClaim - Sale Detail Page
-require_once '../../../vendor/autoload.php';
-require_once '../../../config/db_connection.php';
+require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use YFEvents\Modules\YFClaim\Models\SaleModel;
 use YFEvents\Modules\YFClaim\Models\ItemModel;
@@ -182,7 +182,7 @@ if (isset($_SESSION['buyer_token'])) {
                     "name": "<?= htmlspecialchars($item['title']) ?>",
                     "category": "<?= htmlspecialchars($item['category']) ?>"
                 },
-                "price": "<?= $item['price'] ?? 0 ?>",
+                "price": "<?= $item['starting_price'] ?>",
                 "priceCurrency": "USD",
                 "availability": "<?= $item['status'] === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' ?>"
             }<?= $index < min(4, count($items) - 1) ? ',' : '' ?>
@@ -500,96 +500,6 @@ if (isset($_SESSION['buyer_token'])) {
             overflow-y: auto;
         }
         
-        .featured-section {
-            margin-bottom: 3rem;
-        }
-        
-        .featured-title {
-            font-size: 1.8rem;
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .featured-title::before {
-            content: '⭐';
-            font-size: 1.5rem;
-        }
-        
-        .featured-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .featured-item {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .featured-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        
-        .featured-image {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-        }
-        
-        .featured-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
-        }
-        
-        .featured-item:hover .featured-image img {
-            transform: scale(1.05);
-        }
-        
-        .featured-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .featured-badge.claimed {
-            background: rgba(231, 76, 60, 0.9);
-            color: white;
-        }
-        
-        .featured-info {
-            padding: 1.2rem;
-        }
-        
-        .featured-info h3 {
-            font-size: 1.1rem;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .featured-price {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #27ae60;
-        }
-        
         @media (max-width: 768px) {
             .sale-title {
                 font-size: 1.8rem;
@@ -603,17 +513,13 @@ if (isset($_SESSION['buyer_token'])) {
                 flex-wrap: wrap;
                 gap: 1rem;
             }
-            
-            .featured-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-content">
-            <a href="/claims" class="back-link">
+            <a href="/modules/yfclaim/www/" class="back-link">
                 ← Back to Sales
             </a>
             <div class="buyer-info">
@@ -692,42 +598,6 @@ if (isset($_SESSION['buyer_token'])) {
             </div>
         </div>
         
-        <?php 
-        // Get featured items (items with images)
-        $featuredItems = array_filter($items, function($item) {
-            return !empty($item['primary_image']);
-        });
-        ?>
-        
-        <?php if (!empty($featuredItems)): ?>
-        <div class="featured-section">
-            <h2 class="featured-title">Featured Items</h2>
-            <div class="featured-grid">
-                <?php foreach (array_slice($featuredItems, 0, 4) as $item): ?>
-                    <div class="featured-item" onclick="viewItem(<?= $item['id'] ?>)">
-                        <div class="featured-image">
-                            <img src="/uploads/yfclaim/items/<?= htmlspecialchars($item['primary_image']) ?>" 
-                                 alt="<?= htmlspecialchars($item['title']) ?>">
-                            <?php if ($item['status'] === 'claimed'): ?>
-                                <div class="featured-badge claimed">CLAIMED</div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="featured-info">
-                            <h3><?= htmlspecialchars($item['title']) ?></h3>
-                            <div class="featured-price">
-                                <?php if (($item['price'] ?? 0) > 0): ?>
-                                    $<?= number_format($item['price'], 2) ?>
-                                <?php else: ?>
-                                    Make Offer
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php endif; ?>
-        
         <div class="filters">
             <div class="filter-group">
                 <label>Category:</label>
@@ -744,6 +614,7 @@ if (isset($_SESSION['buyer_token'])) {
                     <option value="title">Title</option>
                     <option value="price-low">Price: Low to High</option>
                     <option value="price-high">Price: High to Low</option>
+                    <option value="offers">Most Offers</option>
                 </select>
                 
                 <label>Search:</label>
@@ -762,7 +633,8 @@ if (isset($_SESSION['buyer_token'])) {
                     <div class="item-card" data-category="<?= htmlspecialchars($item['category']) ?>" 
                          data-title="<?= htmlspecialchars(strtolower($item['title'])) ?>"
                          data-number="<?= $item['item_number'] ?>"
-                         data-price="<?= $item['price'] ?? 0 ?>"
+                         data-price="<?= $item['starting_price'] ?>"
+                         data-offers="<?= $item['offer_count'] ?>"
                          onclick="viewItem(<?= $item['id'] ?>)">
                         
                         <?php if ($item['status'] === 'claimed'): ?>
@@ -783,8 +655,8 @@ if (isset($_SESSION['buyer_token'])) {
                             
                             <div class="item-details">
                                 <div class="item-price">
-                                    <?php if (($item['price'] ?? 0) > 0): ?>
-                                        $<?= number_format($item['price'], 2) ?>
+                                    <?php if ($item['starting_price'] > 0): ?>
+                                        $<?= number_format($item['starting_price'], 2) ?>
                                     <?php else: ?>
                                         Make Offer
                                     <?php endif; ?>
@@ -860,6 +732,8 @@ if (isset($_SESSION['buyer_token'])) {
                         return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
                     case 'price-high':
                         return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    case 'offers':
+                        return parseInt(b.dataset.offers) - parseInt(a.dataset.offers);
                     default: // number
                         return parseInt(a.dataset.number) - parseInt(b.dataset.number);
                 }
@@ -870,7 +744,7 @@ if (isset($_SESSION['buyer_token'])) {
         }
         
         function viewItem(itemId) {
-            window.location.href = `/claims/item/${itemId}`;
+            window.location.href = `/modules/yfclaim/www/item.php?id=${itemId}`;
         }
     </script>
 </body>

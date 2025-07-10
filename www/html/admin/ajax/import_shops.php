@@ -14,8 +14,8 @@ require_once __DIR__ . '/../../../../config/database.php';
 require_once __DIR__ . '/../../../../src/Models/ShopModel.php';
 require_once __DIR__ . '/../../../../src/Utils/GeocodeService.php';
 
-use YFEvents\Models\ShopModel;
-use YFEvents\Utils\GeocodeService;
+use YakimaFinds\Models\ShopModel;
+use YakimaFinds\Utils\GeocodeService;
 
 try {
     // Validate request

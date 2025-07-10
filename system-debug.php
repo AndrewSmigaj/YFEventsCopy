@@ -4,13 +4,6 @@
  * Diagnoses current state and provides complete system analysis
  */
 
-// Security check - require admin authentication
-session_start();
-if (!isset($_SESSION['admin_logged_in'])) {
-    http_response_code(403);
-    die('<!DOCTYPE html><html><head><title>403 Forbidden</title></head><body><h1>Access Denied</h1><p>Admin authentication required.</p></body></html>');
-}
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -451,7 +444,7 @@ $recommendations[] = [
 ];
 
 // CSS diagnostic
-if (!file_exists(__DIR__ . '/public/css-diagnostic.php')) {
+if (!file_exists(__DIR__ . '/css-diagnostic.php')) {
     $recommendations[] = [
         'priority' => 'low',
         'title' => 'CSS Diagnostic Missing',

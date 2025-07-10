@@ -1,0 +1,111 @@
+{
+    "test_date": "2025-06-14 07:35:06",
+    "results": [
+        {
+            "name": "Admin Dashboard",
+            "path": "admin\/index.php",
+            "tests": {
+                "renders": true,
+                "html_valid": true,
+                "has_scripts": true,
+                "has_navigation": true,
+                "has_create": true,
+                "has_approve": true,
+                "has_notifications": true
+            },
+            "script_count": 1
+        },
+        {
+            "name": "Events Management",
+            "path": "admin\/events.php",
+            "tests": {
+                "renders": true,
+                "html_valid": true,
+                "has_scripts": true,
+                "has_forms": true,
+                "has_navigation": true,
+                "has_table": true,
+                "has_create": true,
+                "has_edit": true,
+                "has_delete": true,
+                "has_approve": true,
+                "has_notifications": true
+            },
+            "script_count": 1,
+            "form_count": 1
+        },
+        {
+            "name": "Shops Management",
+            "path": "admin\/shops.php",
+            "tests": {
+                "renders": true,
+                "html_valid": true,
+                "has_scripts": true,
+                "has_forms": true,
+                "has_navigation": true,
+                "has_create": true,
+                "has_edit": true,
+                "has_delete": true,
+                "has_approve": true,
+                "has_notifications": true
+            },
+            "script_count": 1,
+            "form_count": 1
+        },
+        {
+            "name": "Users Management",
+            "path": "admin\/users.php",
+            "tests": {
+                "renders": true,
+                "html_valid": true,
+                "has_scripts": true,
+                "has_forms": true,
+                "has_navigation": true,
+                "has_table": true,
+                "has_create": true,
+                "has_edit": true,
+                "has_delete": true,
+                "has_approve": true,
+                "has_notifications": true
+            },
+            "script_count": 1,
+            "form_count": 1
+        },
+        {
+            "name": "Scrapers Management",
+            "path": "admin\/scrapers.php",
+            "tests": {
+                "renders": true,
+                "html_valid": true,
+                "has_scripts": true,
+                "has_forms": true,
+                "has_navigation": true,
+                "has_create": true,
+                "has_edit": true,
+                "has_delete": true,
+                "has_approve": true,
+                "has_notifications": true
+            },
+            "script_count": 1,
+            "form_count": 1
+        }
+    ],
+    "features": {
+        "Authentication": "All pages check for admin login",
+        "Navigation": "Consistent navigation across all pages",
+        "Data Tables": "Paginated, sortable data display",
+        "CRUD Operations": "Create, Read, Update, Delete functionality",
+        "Modals": "Modal dialogs for forms",
+        "API Integration": "Fetch API calls to backend",
+        "Notifications": "Toast notifications for user feedback",
+        "Bulk Actions": "Select multiple items for bulk operations",
+        "Responsive Design": "Mobile-friendly layouts",
+        "Error Handling": "Graceful error handling with user feedback"
+    },
+    "recommendations": {
+        "session_config": "Fix session permissions",
+        "api_routing": "Verify all routes are registered",
+        "testing": "Add automated tests",
+        "security": "Implement additional security measures"
+    }
+}

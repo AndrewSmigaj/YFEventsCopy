@@ -37,7 +37,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
                 <p>Please log in to the main admin system first, then return to this page.</p>
             </div>
             
-            <a href="/admin/login" class="login-button">Go to Main Admin Login</a>
+            <a href="../../../www/html/admin/login.php" class="login-button">Go to Main Admin Login</a>
             
             <div class="help-text">
                 <strong>Login Credentials:</strong><br>
@@ -49,8 +49,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
                 <strong>Troubleshooting:</strong><br>
                 If the login link above doesn't work, try these alternatives:
                 <ul>
-                    <li><a href="/admin/login">Alternative login path 1</a></li>
-                    <li><a href="/admin/login">Alternative login path 2</a></li>
+                    <li><a href="/admin/login.php">Alternative login path 1</a></li>
+                    <li><a href="/www/html/admin/login.php">Alternative login path 2</a></li>
                 </ul>
             </div>
         </div>

@@ -1,68 +1,52 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# API Keys - NEVER COMMIT THESE
+config/api_keys.php
+/config/api_keys.php
+**/config/api_keys.php
+api_keys.php
+**/api_keys.php
+
 # Dependencies
 /vendor/
-/node_modules/
+composer.lock
 
-# Environment
-.env
-.env.backup
-.env.production
+# Cache and logs
+/cache/
+/logs/
+*.log
 
-# Storage
-/storage/logs/*
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/app/*
-/storage/uploads/*
-!storage/*/.gitkeep
-
-# IDE
-.idea/
-.vscode/
+# System files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-*.Zone.Identifier
-
-# Testing
-.phpunit.result.cache
-.phpunit.cache/
-coverage/
-*.cache
-
-# Build artifacts
-*.log
-*_results.json
-*_progress.json
-*.pid
+# IDE files
+.idea/
+.vscode/
+*.sublime-*
 
 # Temporary files
 *.tmp
 *.temp
 *.bak
-*.backup
-*.old
 
-# Module uploads
-/public/modules/*/uploads/
-/modules/*/www/assets/uploads/
+# Local test scripts
+/test_*.php
+/get_coordinates.php
+/add_test_data.php
+/import_schema_ordered.php
 
-# User uploads
-/public/uploads/*
-!public/uploads/.gitkeep
+# Installation scripts (contain passwords)
+/install_*.sh
+/reset_mysql_root.sh
+/fix_apache_permissions.sh
+/check_environment.sh
 
-# Config
-/config/api_keys.php
-/config/email.php
-
-# Architecture documentation
-# Track this file - it documents our system design
-# architecture.yaml
-
-# Removed directories (prevent accidental recreation)
-/var/
-/bin/
-/logs/
+# Local changelog (for tracking only)
+/CHANGELOG_LOCAL.md

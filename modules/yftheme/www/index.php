@@ -112,7 +112,7 @@ $currentTheme = $_SESSION['theme'] ?? 'default';
 
         <div style="margin-top: 40px; text-align: center;">
             <a href="/" class="btn">← Back to Main Site</a>
-            <a href="#" title="Theme config has been removed" class="btn">Theme Admin</a>
+            <a href="/admin/theme-config.php" class="btn">Theme Admin</a>
         </div>
     </div>
 </body>

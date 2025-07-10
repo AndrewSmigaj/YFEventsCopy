@@ -272,7 +272,7 @@ class IntegrationTester {
     private function testGeocodingIntegration() {
         try {
             // Test if GeocodeService can be instantiated
-            $geocoder = new \YFEvents\Utils\GeocodeService();
+            $geocoder = new \YakimaFinds\Utils\GeocodeService();
             $this->test('GeocodeService instantiation', true);
 
             // Test geocoding functionality with a known address

@@ -9,7 +9,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use YFEvents\Models\CalendarSourceModel;
+use YakimaFinds\Models\CalendarSourceModel;
 
 // Colors for output
 define('GREEN', "\033[0;32m");

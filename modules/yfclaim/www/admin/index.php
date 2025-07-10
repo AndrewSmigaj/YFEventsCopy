@@ -32,7 +32,7 @@ if (!$isLoggedIn) {
                 <p>Please log in to the main admin system first, then return to this page.</p>
             </div>
             
-            <a href="/admin/login" class="login-button">Go to Main Admin Login</a>
+            <a href="../../../www/html/admin/login.php" class="login-button">Go to Main Admin Login</a>
             
             <div class="help-text">
                 <strong>Login Credentials:</strong><br>
@@ -44,8 +44,8 @@ if (!$isLoggedIn) {
                 <strong>Troubleshooting:</strong><br>
                 If the login link above doesn't work, try these alternatives:
                 <ul>
-                    <li><a href="/admin/login">Alternative login path 1</a></li>
-                    <li><a href="/admin/login">Alternative login path 2</a></li>
+                    <li><a href="/admin/login.php">Alternative login path 1</a></li>
+                    <li><a href="/www/html/admin/login.php">Alternative login path 2</a></li>
                 </ul>
             </div>
         </div>
@@ -73,9 +73,9 @@ try {
     $stmt = $db->query("SELECT COUNT(*) FROM yfc_items WHERE status = 'active'");
     $stats['active_items'] = $stmt->fetchColumn();
     
-    // Count sold items
-    $stmt = $db->query("SELECT COUNT(*) FROM yfc_items WHERE status = 'sold'");
-    $stats['sold_items'] = $stmt->fetchColumn();
+    // Count pending offers
+    $stmt = $db->query("SELECT COUNT(*) FROM yfc_offers WHERE status = 'pending'");
+    $stats['pending_offers'] = $stmt->fetchColumn();
     
     // Recent sellers
     $stmt = $db->query("SELECT * FROM yfc_sellers ORDER BY created_at DESC LIMIT 5");
@@ -91,20 +91,16 @@ try {
     ");
     $recentSales = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Recent inquiries (if notifications table exists)
-    try {
-        $stmt = $db->query("
-            SELECT n.*, s.company_name 
-            FROM yfc_notifications n 
-            JOIN yfc_sellers s ON n.seller_id = s.id 
-            WHERE n.type = 'contact_inquiry' 
-            ORDER BY n.created_at DESC 
-            LIMIT 5
-        ");
-        $recentInquiries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (Exception $e) {
-        $recentInquiries = [];
-    }
+    // Recent offers
+    $stmt = $db->query("
+        SELECT o.*, i.title as item_title, b.name as buyer_name 
+        FROM yfc_offers o 
+        JOIN yfc_items i ON o.item_id = i.id 
+        JOIN yfc_buyers b ON o.buyer_id = b.id 
+        ORDER BY o.created_at DESC 
+        LIMIT 5
+    ");
+    $recentOffers = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
 } catch (Exception $e) {
     // Default stats if tables don't exist
@@ -112,11 +108,11 @@ try {
         'active_sellers' => 0,
         'active_sales' => 0,
         'active_items' => 0,
-        'sold_items' => 0
+        'pending_offers' => 0
     ];
     $recentSellers = [];
     $recentSales = [];
-    $recentInquiries = [];
+    $recentOffers = [];
 }
 ?>
 <!DOCTYPE html>
@@ -166,8 +162,8 @@ try {
             <a href="/modules/yfclaim/www/admin/sales.php" class="nav-btn">
                 <i class="fas fa-store"></i> Manage Sales
             </a>
-            <a href="/modules/yfclaim/www/admin/inquiries.php" class="nav-btn">
-                <i class="fas fa-envelope"></i> View Inquiries
+            <a href="/modules/yfclaim/www/admin/offers.php" class="nav-btn">
+                <i class="fas fa-handshake"></i> View Offers
             </a>
             <a href="/modules/yfclaim/www/admin/buyers.php" class="nav-btn">
                 <i class="fas fa-shopping-cart"></i> Manage Buyers
@@ -188,8 +184,8 @@ try {
                 <div class="stat-label">Active Items</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?= $stats['sold_items'] ?></div>
-                <div class="stat-label">Items Sold</div>
+                <div class="stat-number"><?= $stats['pending_offers'] ?></div>
+                <div class="stat-label">Pending Offers</div>
             </div>
         </div>
         
@@ -238,22 +234,22 @@ try {
             
             <div class="content-card">
                 <div class="card-header">
-                    <div class="card-title">Recent Inquiries</div>
+                    <div class="card-title">Recent Offers</div>
                 </div>
-                <?php if (!empty($recentInquiries)): ?>
+                <?php if (!empty($recentOffers)): ?>
                     <ul class="item-list">
-                        <?php foreach ($recentInquiries as $inquiry): ?>
+                        <?php foreach ($recentOffers as $offer): ?>
                             <li>
-                                <strong>Contact Inquiry</strong>
+                                <strong>$<?= number_format($offer['amount'], 2) ?></strong> for <?= htmlspecialchars($offer['item_title']) ?>
                                 <div class="item-meta">
-                                    To: <?= htmlspecialchars($inquiry['company_name']) ?>
-                                    • <?= date('M j, Y g:i A', strtotime($inquiry['created_at'])) ?>
+                                    By: <?= htmlspecialchars($offer['buyer_name']) ?>
+                                    • Status: <span class="status-<?= $offer['status'] ?>"><?= ucfirst($offer['status']) ?></span>
                                 </div>
                             </li>
                         <?php endforeach; ?>
                     </ul>
                 <?php else: ?>
-                    <p>No recent inquiries.</p>
+                    <p>No offers found.</p>
                 <?php endif; ?>
             </div>
             
@@ -264,7 +260,7 @@ try {
                 <ul class="item-list">
                     <li><a href="/modules/yfclaim/www/admin/sellers.php?action=add">Add New Seller</a></li>
                     <li><a href="/modules/yfclaim/www/admin/sales.php?action=add">Create New Sale</a></li>
-                    <li><a href="/modules/yfclaim/www/admin/inquiries.php">Review Contact Inquiries</a></li>
+                    <li><a href="/modules/yfclaim/www/admin/offers.php?status=pending">Review Pending Offers</a></li>
                     <li><a href="/modules/yfclaim/database/schema.sql">Install Database Schema</a></li>
                 </ul>
             </div>

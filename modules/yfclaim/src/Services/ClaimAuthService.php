@@ -17,50 +17,79 @@ class ClaimAuthService {
     }
     
     /**
-     * Authenticate seller using YFAuth
+     * Authenticate seller using YFAuth or direct seller authentication
      */
     public function authenticateSeller($username, $password) {
-        // First try YFAuth authentication
-        $authResult = $this->authService->authenticate($username, $password);
+        // First try direct seller authentication
+        $seller = $this->sellerModel->authenticate($username, $password);
         
-        if (!$authResult['success']) {
-            return $authResult;
-        }
-        
-        // Check if user has seller role (was claim_seller)
-        $hasClaimRole = false;
-        foreach ($authResult['user']['roles'] as $role) {
-            if ($role['name'] === 'seller' || $role['name'] === 'claim_seller') {
-                $hasClaimRole = true;
-                break;
-            }
-        }
-        
-        if (!$hasClaimRole) {
+        if ($seller) {
+            // Direct seller authentication successful
             return [
-                'success' => false,
-                'error' => 'You do not have permission to access claim sales. Please contact an administrator.'
+                'success' => true,
+                'auth_user' => [
+                    'id' => $seller['id'],
+                    'username' => $seller['username'] ?? $seller['email'],
+                    'email' => $seller['email'],
+                    'roles' => [['name' => 'claim_seller']]
+                ],
+                'seller' => $seller,
+                'session_id' => session_id()
             ];
         }
         
-        // Check if seller profile exists in YFClaim
-        $seller = $this->sellerModel->findByEmail($authResult['user']['email']);
-        
-        if (!$seller) {
-            // Create seller profile automatically
-            $sellerId = $this->createSellerProfile($authResult['user']);
-            $seller = $this->sellerModel->find($sellerId);
+        // If direct auth fails, try YFAuth authentication
+        try {
+            $authResult = $this->authService->authenticate($username, $password);
+            
+            if (!$authResult['success']) {
+                return [
+                    'success' => false,
+                    'error' => 'Invalid username or password'
+                ];
+            }
+            
+            // Check if user has claim_seller role
+            $hasClaimRole = false;
+            foreach ($authResult['user']['roles'] as $role) {
+                if ($role['name'] === 'claim_seller') {
+                    $hasClaimRole = true;
+                    break;
+                }
+            }
+            
+            if (!$hasClaimRole) {
+                return [
+                    'success' => false,
+                    'error' => 'You do not have permission to access claim sales. Please contact an administrator.'
+                ];
+            }
+            
+            // Check if seller profile exists in YFClaim
+            $seller = $this->sellerModel->findByEmail($authResult['user']['email']);
+            
+            if (!$seller) {
+                // Create seller profile automatically
+                $sellerId = $this->createSellerProfile($authResult['user']);
+                $seller = $this->sellerModel->find($sellerId);
+            }
+            
+            // Update seller's last login
+            $this->sellerModel->update($seller['id'], ['last_login' => date('Y-m-d H:i:s')]);
+            
+            return [
+                'success' => true,
+                'auth_user' => $authResult['user'],
+                'seller' => $seller,
+                'session_id' => $authResult['session_id']
+            ];
+        } catch (\Exception $e) {
+            // If YFAuth fails, return generic error
+            return [
+                'success' => false,
+                'error' => 'Invalid username or password'
+            ];
         }
-        
-        // Update seller's last login
-        $this->sellerModel->update($seller['id'], ['last_login' => date('Y-m-d H:i:s')]);
-        
-        return [
-            'success' => true,
-            'auth_user' => $authResult['user'],
-            'seller' => $seller,
-            'session_id' => $authResult['session_id']
-        ];
     }
     
     /**
@@ -87,10 +116,10 @@ class ClaimAuthService {
             return null;
         }
         
-        // Check seller role (was claim_seller)
+        // Check claim_seller role
         $hasClaimRole = false;
         foreach ($user['roles'] as $role) {
-            if ($role['name'] === 'seller' || $role['name'] === 'claim_seller') {
+            if ($role['name'] === 'claim_seller') {
                 $hasClaimRole = true;
                 break;
             }

@@ -3,7 +3,10 @@
 require_once '../../../config/database.php';
 
 // Authentication check
-require_once dirname(__DIR__, 3) . '/includes/admin_auth_required.php';
+session_start();
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    die(json_encode(['error' => 'Unauthorized']));
+}
 
 header('Content-Type: application/json');
 
@@ -41,7 +44,7 @@ try {
         $year = $config['year'] ?? date('Y');
         
         // Parse events
-        $events = \YFEvents\Scrapers\YakimaValleyEventScraper::parseEvents($content, $baseUrl, $year);
+        $events = \YakimaFinds\Scrapers\YakimaValleyEventScraper::parseEvents($content, $baseUrl, $year);
         
         // Insert events into database
         $eventsAdded = 0;

@@ -9,9 +9,10 @@
 
 declare(strict_types=1);
 
-// Load the database connection
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../config/db_connection.php';
+// Autoload the refactored system
+require_once dirname(__DIR__, 2) . '/www/html/refactor/vendor/autoload.php';
+
+use YakimaFinds\Infrastructure\Config\ConfigManager;
 
 header('Content-Type: application/json');
 
@@ -21,11 +22,19 @@ class DatabaseBridge
     
     public function __construct()
     {
-        global $pdo;
-        if (!isset($pdo) || !($pdo instanceof PDO)) {
-            throw new Exception('Database connection not available');
-        }
-        $this->pdo = $pdo;
+        $this->setupDatabase();
+    }
+    
+    private function setupDatabase(): void
+    {
+        $config = require dirname(__DIR__, 2) . '/www/html/refactor/config/database.php';
+        $dbConfig = $config['database'];
+        
+        $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset=utf8mb4";
+        $this->pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
     }
     
     public function saveEvent(array $eventData): array

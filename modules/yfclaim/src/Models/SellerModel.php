@@ -2,7 +2,6 @@
 namespace YFEvents\Modules\YFClaim\Models;
 
 use PDO;
-use YFEvents\Domain\Common\BaseModel;
 
 class SellerModel extends BaseModel {
     protected $table = 'yfc_sellers';
@@ -77,14 +76,15 @@ class SellerModel extends BaseModel {
         $stmt->execute([$sellerId]);
         $stats['total_items'] = $stmt->fetchColumn();
         
-        // Sold items
+        // Total offers
         $stmt = $this->db->prepare("
-            SELECT COUNT(*) FROM yfc_items i 
-            JOIN yfc_sales s ON i.sale_id = s.id 
-            WHERE s.seller_id = ? AND i.status = 'sold'
+            SELECT COUNT(*) FROM yfc_offers o
+            JOIN yfc_items i ON o.item_id = i.id
+            JOIN yfc_sales s ON i.sale_id = s.id
+            WHERE s.seller_id = ?
         ");
         $stmt->execute([$sellerId]);
-        $stats['sold_items'] = $stmt->fetchColumn();
+        $stats['total_offers'] = $stmt->fetchColumn();
         
         return $stats;
     }

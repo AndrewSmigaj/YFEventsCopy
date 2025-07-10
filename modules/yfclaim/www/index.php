@@ -1,7 +1,7 @@
 <?php
 // YFClaim - Public Interface
+require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
-require_once __DIR__ . '/../../../config/db_connection.php';
 
 use YFEvents\Modules\YFClaim\Models\SaleModel;
 use YFEvents\Modules\YFClaim\Models\ItemModel;
@@ -454,7 +454,7 @@ $upcomingSales = $saleModel->getUpcoming();
                                 </div>
                             </div>
                             <div class="sale-actions">
-                                <a href="/claims/sale?id=<?= $sale['id'] ?>" class="btn btn-primary">
+                                <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>" class="btn btn-primary">
                                     Browse Items
                                 </a>
                             </div>
@@ -520,7 +520,7 @@ $upcomingSales = $saleModel->getUpcoming();
                                 </div>
                             </div>
                             <div class="sale-actions">
-                                <a href="/claims/sale?id=<?= $sale['id'] ?>&preview=1" class="btn btn-secondary">
+                                <a href="/modules/yfclaim/www/sale.php?id=<?= $sale['id'] ?>&preview=1" class="btn btn-secondary">
                                     Preview Items
                                 </a>
                             </div>

@@ -9,10 +9,10 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use YFEvents\Scrapers\Queue\QueueManager;
-use YFEvents\Scrapers\Queue\WorkerManager;
-use YFEvents\Scrapers\Queue\ScraperScheduler;
-use YFEvents\Scrapers\Queue\ScraperWorker;
+use YakimaFinds\Scrapers\Queue\QueueManager;
+use YakimaFinds\Scrapers\Queue\WorkerManager;
+use YakimaFinds\Scrapers\Queue\ScraperScheduler;
+use YakimaFinds\Scrapers\Queue\ScraperWorker;
 
 class ScraperManagerCLI
 {

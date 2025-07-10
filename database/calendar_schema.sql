@@ -1,53 +1,6 @@
 -- Yakima Finds Event Calendar Database Schema
 -- Integrates with existing CMS database
 
--- Shop categories for organization (moved before local_shops)
-CREATE TABLE shop_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    parent_id INT NULL,
-    icon VARCHAR(100),
-    sort_order INT DEFAULT 0,
-    active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_parent (parent_id),
-    INDEX idx_slug (slug),
-    FOREIGN KEY (parent_id) REFERENCES shop_categories(id) ON DELETE SET NULL
-);
-
--- Shop owners for business management (moved before local_shops)
-CREATE TABLE shop_owners (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(50),
-    verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
-    verification_token VARCHAR(255),
-    password_hash VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_email (email),
-    INDEX idx_verification (verification_status)
-);
-
--- Calendar sources for scraping (moved before events table)
-CREATE TABLE calendar_sources (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    url VARCHAR(500) NOT NULL,
-    scrape_type ENUM('ical', 'html', 'json', 'eventbrite', 'facebook') NOT NULL,
-    scrape_config JSON,
-    last_scraped TIMESTAMP NULL,
-    active BOOLEAN DEFAULT TRUE,
-    created_by INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_active (active),
-    INDEX idx_last_scraped (last_scraped)
-);
-
 -- Events table - main event storage
 CREATE TABLE events (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,6 +27,22 @@ CREATE TABLE events (
     INDEX idx_location (latitude, longitude),
     INDEX idx_featured (featured),
     FOREIGN KEY (source_id) REFERENCES calendar_sources(id) ON DELETE SET NULL
+);
+
+-- Calendar sources for scraping
+CREATE TABLE calendar_sources (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    scrape_type ENUM('ical', 'html', 'json', 'eventbrite', 'facebook') NOT NULL,
+    scrape_config JSON,
+    last_scraped TIMESTAMP NULL,
+    active BOOLEAN DEFAULT TRUE,
+    created_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_active (active),
+    INDEX idx_last_scraped (last_scraped)
 );
 
 -- Local shops/businesses directory
@@ -103,6 +72,37 @@ CREATE TABLE local_shops (
     INDEX idx_status (status),
     FOREIGN KEY (category_id) REFERENCES shop_categories(id) ON DELETE SET NULL,
     FOREIGN KEY (owner_id) REFERENCES shop_owners(id) ON DELETE SET NULL
+);
+
+-- Shop categories for organization
+CREATE TABLE shop_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    parent_id INT NULL,
+    icon VARCHAR(100),
+    sort_order INT DEFAULT 0,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_parent (parent_id),
+    INDEX idx_slug (slug),
+    FOREIGN KEY (parent_id) REFERENCES shop_categories(id) ON DELETE SET NULL
+);
+
+-- Shop owners for business management
+CREATE TABLE shop_owners (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(50),
+    verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    verification_token VARCHAR(255),
+    password_hash VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_verification (verification_status)
 );
 
 -- Calendar permissions for CMS integration

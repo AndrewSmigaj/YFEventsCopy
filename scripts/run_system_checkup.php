@@ -8,8 +8,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 
-use YFEvents\Utils\SystemCheckup;
-use YFEvents\Utils\SystemLogger;
+use YakimaFinds\Utils\SystemCheckup;
+use YakimaFinds\Utils\SystemLogger;
 
 // Parse command line arguments
 $options = getopt('', ['no-llm', 'verbose', 'help']);

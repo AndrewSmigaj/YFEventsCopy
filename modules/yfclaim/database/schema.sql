@@ -60,7 +60,8 @@ CREATE TABLE IF NOT EXISTS yfc_items (
     sale_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    price DECIMAL(10, 2) DEFAULT 0.00,
+    starting_price DECIMAL(10, 2) DEFAULT 0.00,
+    offer_increment DECIMAL(10, 2) DEFAULT 5.00,
     buy_now_price DECIMAL(10, 2) NULL,
     category VARCHAR(100),
     condition_rating ENUM('new', 'like-new', 'excellent', 'good', 'fair', 'poor'),
@@ -68,7 +69,8 @@ CREATE TABLE IF NOT EXISTS yfc_items (
     weight VARCHAR(50),
     item_number VARCHAR(50),
     sort_order INT DEFAULT 0,
-    status ENUM('available', 'sold', 'pending', 'cancelled') DEFAULT 'available',
+    status ENUM('available', 'claimed', 'unclaimed', 'cancelled') DEFAULT 'available',
+    winning_offer_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (sale_id) REFERENCES yfc_sales(id) ON DELETE CASCADE,
@@ -113,6 +115,41 @@ CREATE TABLE IF NOT EXISTS yfc_buyers (
     INDEX idx_auth (email, phone)
 );
 
+-- Offers (Claim Sale Offers)
+CREATE TABLE IF NOT EXISTS yfc_offers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    item_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    offer_amount DECIMAL(10, 2) NOT NULL,
+    max_offer DECIMAL(10, 2) NULL COMMENT 'For proxy bidding',
+    status ENUM('active', 'outbid', 'winning', 'expired', 'rejected') DEFAULT 'active',
+    seller_notes TEXT,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES yfc_items(id) ON DELETE CASCADE,
+    FOREIGN KEY (buyer_id) REFERENCES yfc_buyers(id) ON DELETE CASCADE,
+    INDEX idx_item (item_id),
+    INDEX idx_buyer (buyer_id),
+    INDEX idx_status (status),
+    INDEX idx_amount (offer_amount)
+);
+
+-- Offer History (for tracking all offer attempts)
+CREATE TABLE IF NOT EXISTS yfc_offer_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    offer_id INT,
+    item_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    offer_amount DECIMAL(10, 2) NOT NULL,
+    action ENUM('placed', 'increased', 'auto_increased', 'outbid') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES yfc_items(id) ON DELETE CASCADE,
+    FOREIGN KEY (buyer_id) REFERENCES yfc_buyers(id) ON DELETE CASCADE,
+    INDEX idx_item (item_id),
+    INDEX idx_buyer (buyer_id)
+);
+
 -- QR Code Access Log
 CREATE TABLE IF NOT EXISTS yfc_access_log (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -130,7 +167,7 @@ CREATE TABLE IF NOT EXISTS yfc_notifications (
     id INT PRIMARY KEY AUTO_INCREMENT,
     seller_id INT NOT NULL,
     sale_id INT,
-    type ENUM('sale_ending', 'item_claimed', 'item_inquiry', 'system') NOT NULL,
+    type ENUM('new_offer', 'sale_ending', 'item_claimed', 'system') NOT NULL,
     title VARCHAR(255),
     message TEXT,
     is_read BOOLEAN DEFAULT FALSE,

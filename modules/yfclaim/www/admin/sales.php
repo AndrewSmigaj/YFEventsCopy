@@ -41,7 +41,7 @@ if (!$isLoggedIn) {
                 <p>You need to be logged in as an administrator to access the YFClaim Sales admin panel.</p>
                 <p>Please log in to the main admin system first, then return to this page.</p>
             </div>
-            <a href="/admin/login" class="login-button">Go to Admin Login</a>
+            <a href="/admin/login.php" class="login-button">Go to Admin Login</a>
         </div>
     </body>
     </html>
