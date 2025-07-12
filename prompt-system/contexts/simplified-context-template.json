@@ -1,0 +1,52 @@
+{
+  "chain_id": "000",
+  "task": "Task description from user",
+  "started": "2025-01-01T00:00:00Z",
+  "phase": "requirements-clarification",
+  "phase_history": [],
+  "chains_executed": [],
+  "current_chain": {
+    "id": 0,
+    "prompts": [],
+    "status": "planning",
+    "started": null,
+    "completed": null
+  },
+  "uncertainties": [],
+  "confidence": {
+    "requirements": 0.25,
+    "technical": 0.25,
+    "implementation": 0.25,
+    "overall": 0.25
+  },
+  "discoveries": {
+    "requirements": {
+      "functional": [],
+      "constraints": [],
+      "success_criteria": []
+    },
+    "technical": {
+      "architecture": null,
+      "components": [],
+      "dependencies": [],
+      "patterns": []
+    },
+    "implementation": {
+      "approach": null,
+      "test_strategy": null,
+      "risks": []
+    }
+  },
+  "decisions": {},
+  "context_summary": {
+    "key_findings": [],
+    "assumptions": [],
+    "next_steps": []
+  },
+  "metadata": {
+    "version": "2.0",
+    "total_prompts_executed": 0,
+    "total_chains": 0,
+    "last_updated": "2025-01-01T00:00:00Z"
+  }
+}

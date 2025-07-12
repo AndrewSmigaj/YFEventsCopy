@@ -218,23 +218,50 @@ print_success "Application configured"
 print_step "Setting up database tables"
 echo "Importing schemas in correct order..."
 
-# Import in dependency order
-schemas=(
-    "database/calendar_schema.sql:Core tables"
-    "database/modules_schema.sql:Module registry"
-    "modules/yfauth/database/schema.sql:Authentication tables"
-    "database/shop_claim_system.sql:Shop system tables"
-    "modules/yfclaim/database/schema.sql:Estate sales tables"
-)
+# Import in dependency order with foreign key checks disabled
+print_warning "Disabling foreign key checks for schema import..."
 
-for schema_info in "${schemas[@]}"; do
-    IFS=':' read -r schema_file schema_name <<< "$schema_info"
-    if mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$schema_file" 2>/dev/null; then
-        print_success "$schema_name created"
-    else
-        print_error "Failed to import $schema_name"
-    fi
-done
+# Create a combined import script to handle dependencies
+cat > /tmp/import_all_schemas.sql << EOF
+SET FOREIGN_KEY_CHECKS = 0;
+SET SQL_MODE = '';
+
+-- Import core calendar schema
+SOURCE $APP_DIR/database/calendar_schema.sql;
+
+-- Import modules schema
+SOURCE $APP_DIR/database/modules_schema.sql;
+
+-- Import authentication module
+SOURCE $APP_DIR/modules/yfauth/database/schema.sql;
+
+-- Import shop claim system
+SOURCE $APP_DIR/database/shop_claim_system.sql;
+
+-- Import estate sales module
+SOURCE $APP_DIR/modules/yfclaim/database/schema.sql;
+
+SET FOREIGN_KEY_CHECKS = 1;
+EOF
+
+# Run the combined import
+if mysql -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" < /tmp/import_all_schemas.sql; then
+    print_success "All database schemas imported successfully"
+else
+    print_error "Failed to import database schemas"
+    echo "Check the error messages above for specific issues."
+    echo "Common causes:"
+    echo "  - MySQL service not running"
+    echo "  - Incorrect database credentials" 
+    echo "  - Missing database '$DB_NAME'"
+    echo "  - SQL syntax errors in schema files"
+    echo ""
+    echo "To debug, check the import file at: /tmp/import_all_schemas.sql"
+    exit 1
+fi
+
+# Clean up
+rm -f /tmp/import_all_schemas.sql
 
 # Step 8: Set permissions
 print_step "Setting file permissions"
