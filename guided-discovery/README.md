@@ -87,6 +87,7 @@ Execute a discovery chain to resolve uncertainties.
 # - php_migration_planning: Legacy migration planning
 # - laravel_clean_transformation: Laravel to clean
 # - php_quality_assessment: Quality validation
+# - php_architecture_validation: Comprehensive architecture validation
 ```
 
 ### `/context <subcommand> [task_id]`
@@ -119,6 +120,25 @@ Deep dive into a specific uncertainty.
 # Examples
 /uncertainty AUTH-001
 /uncertainty SEC-001 task-20240107-jwt-auth
+```
+
+### `/validate [architecture_type] [options]`
+Run architecture validation chains to assess implementation quality.
+
+```bash
+# Standard PHP clean architecture validation
+/validate php
+
+# Quick validation for CI pipeline
+/validate php --level=quick --output=ci --fail-below=70
+
+# Deep Laravel validation
+/validate laravel --level=deep
+
+# Options:
+# --level: quick (30-45min), standard (90-120min), deep (120-150min)
+# --output: report, scorecard, ci
+# --fail-below: Fail if score below threshold (0-100)
 ```
 
 ## 🎯 Workflow Examples
@@ -224,6 +244,38 @@ Deep dive into a specific uncertainty.
 
 # 5. Validate implementation
 /chain php_quality_assessment
+```
+
+### Example 6: Validating Completed PHP Architecture
+
+```bash
+# 1. After implementing clean architecture
+/discover Validate our completed order processing system
+
+# 2. Run comprehensive validation
+/validate php
+
+# Output: Running validation through 6 phases...
+# Phase 1: Structural validation ✓
+# Phase 2: Design principles ✓
+# Phase 3: Pattern implementation ✓
+# Phase 4: Service quality ✓
+# Phase 5: Quality assurance ✓
+# Phase 6: Advanced analysis ✓
+#
+# Overall Score: 85/100 (🥈 Silver Certified)
+# Critical Issues: 2
+# Recommendations: 8
+
+# 3. For CI/CD integration
+/validate php --level=quick --output=ci --fail-below=70
+
+# 4. Deep validation before production
+/validate php --level=deep --output=report
+
+# 5. Check specific concerns
+/context discoveries
+# Review validation findings for improvement areas
 ```
 
 ### Example 5: Laravel to Clean Architecture
@@ -392,10 +444,11 @@ uncertainties:
 UDDS includes comprehensive support for PHP clean architecture:
 
 #### Available PHP Prompts
-- **Discovery**: 10 prompts for exploring PHP architecture
-- **Analysis**: 7 prompts for quality and migration analysis
+- **Discovery**: 22 prompts for exploring PHP architecture patterns
+- **Analysis**: 10 prompts for quality, coupling, and SOLID analysis
 - **Framework-specific**: Support for Laravel, Symfony, and Slim
-- **Validation**: Architecture compliance checking
+- **Validation**: Architecture compliance checking with scoring
+- **Pattern-specific**: CQRS, hexagonal, service layer, and DTO analyzers
 
 #### PHP Uncertainty Template
 The `php_clean_architecture.yaml` template includes:
@@ -404,6 +457,28 @@ The `php_clean_architecture.yaml` template includes:
 - Repository pattern (REPO-001)
 - Framework integration (FRAMEWORK-001, LARAVEL-001)
 - Testing and performance (TEST-001, PERF-001)
+- CQRS and command/query separation (CQRS-001, CQS-001)
+- Hexagonal architecture patterns (HEX-001, PORT-001, ADAPTER-001)
+- Service layer and DTOs (SERVICE-001, DTO-001, SRP-001)
+
+#### PHP Chains
+- **php_clean_discovery**: Initial exploration (45-60 min)
+- **php_domain_analysis**: Domain layer deep dive (45-60 min)
+- **php_migration_planning**: Legacy migration roadmap (60-90 min)
+- **laravel_clean_transformation**: Laravel-specific migration (90-120 min)
+- **php_quality_assessment**: Quality evaluation (60-75 min)
+- **php_architecture_validation**: Comprehensive validation with scoring (90-120 min)
+
+#### Validation and Certification
+The validation chain provides:
+- **Scoring System**: 0-100 score across 4 categories
+- **Certification Levels**: 
+  - 🏆 Gold (90-100): Exemplary implementation
+  - 🥈 Silver (80-89): Well-implemented with minor improvements
+  - 🥉 Bronze (70-79): Acceptable, meeting minimum standards
+  - ⚠️ Needs Improvement (<70): Significant issues requiring attention
+- **CI/CD Integration**: Support for GitHub Actions, GitLab CI, Jenkins
+- **Multiple Output Formats**: Full reports, JSON scorecards, CI-compatible output
 
 #### Example PHP Discovery
 ```bash
@@ -411,11 +486,16 @@ The `php_clean_architecture.yaml` template includes:
 /discover Implement clean architecture for payment processing API
 /chain php_clean_discovery
 /chain php_domain_analysis
+/validate php  # Validate when implementation is complete
 
 # For Laravel migration
 /discover Migrate Laravel app to clean architecture
 /chain laravel_clean_transformation
 /chain php_migration_planning
+/validate laravel --level=deep  # Deep validation for migration
+
+# For CI/CD pipeline
+/validate php --level=quick --output=ci --fail-below=80
 ```
 
 ## 📈 Confidence Scoring
