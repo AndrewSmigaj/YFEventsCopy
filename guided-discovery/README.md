@@ -1,36 +1,53 @@
-# Uncertainty-Driven Discovery System (UDDS)
+# Uncertainty-Driven Discovery System (UDDS) v2
 
-A Claude Code command system for systematically resolving unknowns before implementation. UDDS helps you build confidence through guided discovery chains, ensuring you understand requirements, architecture, and constraints before writing code.
+A Claude Code command system for phase-based, uncertainty-driven discovery. UDDS v2 helps you systematically explore and understand systems through a flexible workflow where Claude orchestrates discovery by analyzing your context and recommending actions.
 
 ## 🚀 Quick Start
 
-Get started with UDDS in 3 minutes:
+Get started with UDDS v2:
 
 ```bash
 # 1. Start a new discovery task
 /discover Add JWT authentication to Express app
 
-# 2. Run the general discovery chain
+# 2. Claude analyzes and recommends what to run
+/uncertainty analyze
+
+# 3. Execute recommended chain
 /chain general_discovery
 
-# 3. Check your progress
+# 4. Check your progress
 /context status
 
-# 4. Continue with specialized discovery
-/chain auth_discovery
+# 5. When ready, transition phases
+/context phase planning
 ```
 
 ## 📚 Core Concepts
 
+### Phase-Based Workflow
+UDDS v2 operates in four phases:
+- **Discovery**: Understanding what exists
+- **Planning**: Designing solutions
+- **Implementation**: Building (outside UDDS)
+- **Validation**: Verifying requirements are met
+
 ### Uncertainties
-Unknowns that block or impact your implementation:
-- **Blocking**: Must resolve before proceeding (e.g., current auth method)
-- **High**: Significantly impacts approach (e.g., security requirements)
-- **Medium**: Affects design decisions (e.g., user model structure)
-- **Low**: Nice to know but not critical
+Unknowns that guide your exploration:
+- **Status**: unresolved → partial → resolved
+- **Priority**: blocking, high, medium, low
+- **Phase-appropriate**: Different uncertainties for each phase
+- **Dynamic**: Claude identifies new uncertainties as you progress
+
+### Claude Orchestration
+- Claude reads your context and discoveries
+- Assesses which uncertainties remain
+- Recommends specific chains or prompts
+- Evaluates your readiness for phase transitions
+- No hardcoded confidence values - dynamic assessment
 
 ### Discovery Chains
-Sequences of prompts that systematically resolve uncertainties:
+Predefined or custom sequences of prompts:
 
 #### General Chains
 - **general_discovery**: Initial exploration for any task
@@ -45,11 +62,11 @@ Sequences of prompts that systematically resolve uncertainties:
 - **php_quality_assessment**: Assess PHP clean architecture quality
 
 ### Context
-Persistent storage of discoveries and confidence tracking:
-- Tracks resolved/unresolved uncertainties
-- Stores technical findings
-- Calculates confidence scores
-- Recommends next actions
+Your discovery state stored as JSON:
+- Current phase and phase history
+- Uncertainties with resolution status
+- Discoveries from prompts
+- Chain execution history
 
 ## 🛠️ Command Reference
 
@@ -63,15 +80,15 @@ Start a new discovery task and create initial context.
 /discover Add real-time notifications with WebSockets
 ```
 
-### `/chain <chain_name> [task_id]`
-Execute a discovery chain to resolve uncertainties.
+### `/chain <chain_name>` or `/chain --prompts p1,p2,p3`
+Execute a discovery chain or create a custom sequence.
 
 ```bash
-# Run general discovery for current task
+# Run predefined chain
 /chain general_discovery
 
-# Run auth discovery for specific task
-/chain auth_discovery task-20240107-jwt-auth
+# Create custom chain
+/chain --prompts tech_stack_explorer,dependency_analyzer,architecture_mapper
 
 # Available chains:
 # General chains:
@@ -90,15 +107,15 @@ Execute a discovery chain to resolve uncertainties.
 # - php_architecture_validation: Comprehensive architecture validation
 ```
 
-### `/context <subcommand> [task_id]`
+### `/context <subcommand>`
 Manage and view discovery context.
 
 ```bash
-# View current status
+# View current status and phase
 /context status
 
-# List all uncertainties
-/context uncertainties
+# Request phase transition
+/context phase planning
 
 # Show discoveries made
 /context discoveries
@@ -106,20 +123,34 @@ Manage and view discovery context.
 # View execution history
 /context history
 
-# List all tasks
+# List all contexts
 /context list
 
 # Reset context (careful!)
 /context reset
 ```
 
-### `/uncertainty <uncertainty_id> [task_id]`
-Deep dive into a specific uncertainty.
+### `/uncertainty <subcommand>`
+Analyze uncertainties and get recommendations.
 
 ```bash
-# Examples
+# Get Claude's analysis and recommendations
+/uncertainty analyze
+
+# List all uncertainties with status
+/uncertainty status
+
+# Deep dive into specific uncertainty
 /uncertainty AUTH-001
-/uncertainty SEC-001 task-20240107-jwt-auth
+```
+
+### `/prompt <prompt_name>`
+Execute a single discovery prompt.
+
+```bash
+# Run individual prompt
+/prompt php_architecture_explorer
+/prompt dependency_analyzer
 ```
 
 ### `/validate [architecture_type] [options]`
@@ -149,33 +180,36 @@ Run architecture validation chains to assess implementation quality.
 # 1. Start discovery
 /discover Add JWT authentication to Express app
 
-# Output: Created task-20240107-143052-a1b2c3d4
-# Identified uncertainties: AUTH-001, AUTH-002, SEC-001, TECH-001, USER-001
+# Claude identifies initial uncertainties in discovery phase
 
-# 2. Run general discovery
+# 2. Get Claude's analysis
+/uncertainty analyze
+
+# Claude: "You have 4 blocking uncertainties. I recommend:
+# 1. /chain general_discovery - Address TECH-001, ARCH-001
+# 2. /chain auth_discovery - Address AUTH-001, AUTH-002"
+
+# 3. Run recommended chain
 /chain general_discovery
 
-# Output: Discovered Express 4.18.2, MVC architecture, Passport.js
-# Confidence: 35% → 63%
+# Discoveries added to context automatically
 
-# 3. Check what we still need to know
-/context uncertainties
+# 4. Check progress
+/context status
 
-# Output: 
-# ❌ AUTH-002: Session persistence (blocking)
-# ⚠️  SEC-001: Security requirements (40% resolved)
+# Shows: Discovery phase, 2/4 uncertainties resolved
 
-# 4. Run specialized auth discovery
+# 5. Continue with Claude's recommendations
 /chain auth_discovery
 
-# Output: Found session storage in MongoDB, 15-min timeout
-# Confidence: 63% → 78%
+# 6. When Claude indicates high confidence
+/uncertainty analyze
 
-# 5. Resolve security requirements
-/uncertainty SEC-001
+# Claude: "All discovery uncertainties resolved. 
+# Confidence ~85%. Ready for planning phase."
 
-# 6. Once confident (>80%), proceed to implementation
-# All key decisions documented in context!
+# 7. Transition to planning
+/context phase planning
 ```
 
 ### Example 2: Database Migration
@@ -315,26 +349,20 @@ Always begin with `general_discovery` before specialized chains:
 # Then run specialized chains based on findings
 ```
 
-### 2. Track Confidence
-Don't proceed to implementation until confidence is high:
-- **< 60%**: Continue discovery
-- **60-80%**: Focus on blocking uncertainties
-- **> 80%**: Ready to implement
+### 2. Follow Claude's Guidance
+Claude dynamically assesses your progress:
+- Reads your context and discoveries
+- Identifies remaining uncertainties
+- Recommends specific actions
+- Evaluates phase readiness
+- No predetermined confidence values
 
-### 3. Use Task Context
-UDDS maintains separate contexts per task:
-```bash
-# Work on multiple tasks
-/discover Task A
-/chain general_discovery
-
-/discover Task B
-/chain general_discovery
-
-# Switch between contexts
-/context status task-a-id
-/context status task-b-id
-```
+### 3. Trust the Phase System
+Each phase has appropriate uncertainties:
+- **Discovery**: What exists? How does it work?
+- **Planning**: How to build? What patterns?
+- **Implementation**: Exit UDDS to code
+- **Validation**: Does it meet requirements?
 
 ### 4. Document Decisions
 As you resolve uncertainties, decisions are recorded:
@@ -498,21 +526,16 @@ The validation chain provides:
 /validate php --level=quick --output=ci --fail-below=80
 ```
 
-## 📈 Confidence Scoring
+## 🤖 How Claude Orchestrates
 
-UDDS calculates confidence based on:
-- **Resolved uncertainties**: Each resolved uncertainty increases confidence
-- **Discovery completeness**: Required vs optional findings
-- **Chain execution**: Successfully completed chains boost confidence
+Claude provides dynamic orchestration:
+1. **Reads entire context** - All discoveries and uncertainties
+2. **Assesses progress** - What's resolved vs unresolved
+3. **Prioritizes by phase** - Phase-appropriate uncertainties first
+4. **Recommends actions** - Specific chains, prompts, or transitions
+5. **Explains reasoning** - Why certain actions are recommended
 
-Formula:
-```
-Overall Confidence = weighted_avg(
-  requirements_confidence * 0.3,
-  technical_confidence * 0.3,
-  implementation_confidence * 0.4
-)
-```
+No hardcoded formulas - Claude evaluates based on actual discoveries.
 
 ## 🤝 Contributing
 
@@ -522,12 +545,21 @@ To improve UDDS:
 3. Design specialized chains
 4. Share successful discovery workflows
 
+## 🔄 What's New in v2
+
+- **Phase-based workflow**: Discovery → Planning → Implementation → Validation
+- **Claude orchestration**: Dynamic recommendations based on context
+- **No hardcoded confidence**: Claude assesses progress naturally
+- **Flexible execution**: Chains, custom chains, or individual prompts
+- **User-controlled transitions**: You decide when to change phases
+
 ## 📖 Additional Resources
 
-- **Design Document**: See `DESIGN.md` for system architecture
-- **Example Contexts**: Check `contexts/examples/` for more scenarios
-- **Prompt Writing**: Review `prompts/README.md` for template guidelines
+- **Design Document**: See `UDDS_DESIGN_V2.md` for v2 architecture
+- **Implementation Status**: Check `IMPLEMENTATION_STATUS.md`
+- **Example Contexts**: Check `contexts/examples/` for scenarios
+- **Prompt Writing**: Review `prompts/README.md` for guidelines
 
 ---
 
-Remember: **Resolve uncertainties before implementation**. Time spent in discovery saves debugging time later!
+Remember: **Let uncertainty guide your discovery**. Claude helps you explore systematically!
