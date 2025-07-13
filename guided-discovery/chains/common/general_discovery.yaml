@@ -4,76 +4,67 @@ version: "1.0"
 type: discovery
 
 metadata:
-  average_duration: 15-25 minutes
-  complexity: simple
-  effectiveness: 0.85
+ average_duration: 15-25 minutes
+ complexity: simple
 
 targets_phase: discovery
 optimal_for:
-  - Initial exploration
-  - Understanding new codebases
-  - General feature additions
-  - Architecture discovery
+ - Initial exploration
+ - Understanding new codebases
+ - General feature additions
+ - Architecture discovery
 
 targets_uncertainties:
-  primary:
-    - ARCH-001
-    - TECH-001
-  secondary:
-    - IMPL-001
-    - DEP-001
+ primary:
+ - ARCH-001
+ - TECH-001
+ secondary:
+ - IMPL-001
+ - DEP-001
 
 prompt_sequence:
-  - prompt: general_explorer
-    order: 1
-    mandatory: true
-    purpose: Get overview of codebase structure and tech stack
-    
-  - prompt: architecture_analyzer
-    order: 2
-    mandatory: true
-    purpose: Understand architectural patterns and component organization
-    
-  - prompt: dependency_mapper
-    order: 3
-    mandatory: false
-    purpose: Map internal and external dependencies
-    condition: "complexity != 'simple'"
-    
-  - prompt: tech_stack_identifier
-    order: 4
-    mandatory: false
-    purpose: Deep dive into technology choices
-    condition: "task.type == 'feature' || uncertainties.TECH-001.confidence < 0.5"
+ - prompt: general_explorer
+ order: 1
+ mandatory: true
+ purpose: Get overview of codebase structure and tech stack
+ 
+ - prompt: architecture_analyzer
+ order: 2
+ mandatory: true
+ purpose: Understand architectural patterns and component organization
+ 
+ - prompt: dependency_mapper
+ order: 3
+ mandatory: false
+ purpose: Map internal and external dependencies
+ condition: "complexity != 'simple'"
+ 
+ - prompt: tech_stack_identifier
+ order: 4
+ mandatory: false
+ purpose: Deep dive into technology choices
+ condition: "task.type == 'feature'"
 
 success_criteria:
-  min_confidence_gain: 0.35
-  required_discoveries:
-    - architecture.style
-    - technical.languages
-    - technical.framework
-  optional_discoveries:
-    - dependencies.external
-    - architecture.patterns
+ required_discoveries:
+ - architecture.style
+ - technical.languages
+ - technical.framework
+ optional_discoveries:
+ - dependencies.external
+ - architecture.patterns
 
 next_chain_logic:
-  - condition: "task.description contains 'auth' || task.description contains 'security'"
-    next_chain: auth_discovery
-    reason: "Authentication-related task detected"
-    
-  - condition: "confidence.overall < 0.6"
-    next_chain: deep_analysis
-    reason: "Need more detailed discovery"
-    
-  - condition: "confidence.overall >= 0.8"
-    next_chain: solution_design
-    reason: "Ready to design solution"
-    
-  - default: targeted_discovery
-    reason: "Focus on remaining uncertainties"
+ - condition: "task.description contains 'auth' || task.description contains 'security'"
+ next_chain: auth_discovery
+ reason: "Authentication-related task detected"
+ 
+ 
+ - default: targeted_discovery
+ reason: "Focus on remaining uncertainties"
 
 post_execution:
-  - summarize_findings
-  - identify_new_uncertainties
-  - calculate_confidence
-  - recommend_next_action
+ - summarize_findings
+ - identify_new_uncertainties
+ - calculate_confidence
+ - recommend_next_action

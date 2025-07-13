@@ -1,9 +1,17 @@
-# Explore Uncertainty
+# Uncertainty Analysis
 
-Deep dive into a specific uncertainty to understand what needs to be resolved.
+Analyze uncertainties to guide discovery and determine next steps.
 
 ```bash
-UNCERTAINTY_ID="$ARGUMENTS"
+# Parse subcommand
+SUBCOMMAND="${ARGUMENTS%% *}"
+ARGS="${ARGUMENTS#* }"
+
+# If no subcommand, default to status
+if [ -z "$SUBCOMMAND" ] || [ "$SUBCOMMAND" = "$ARGUMENTS" ]; then
+  SUBCOMMAND="status"
+  ARGS=""
+fi
 
 # Find active context
 CONTEXT_FILE=$(ls -t /mnt/d/YFEventsCopy/guided-discovery/contexts/active/*.json 2>/dev/null | head -1)
@@ -15,277 +23,181 @@ if [ -z "$CONTEXT_FILE" ]; then
   exit 1
 fi
 
-# If no ID provided, list all uncertainties
-if [ -z "$UNCERTAINTY_ID" ]; then
-  echo "## 🔍 All Uncertainties"
-  echo ""
-  echo "Specify an uncertainty ID to explore:"
-  echo ""
-  echo "**Blocking**:"
-  echo "- AUTH-001: Current authentication implementation"
-  echo "- SEC-001: Security requirements"
-  echo ""
-  echo "**High Priority**:"
-  echo "- TECH-001: Technology stack details"
-  echo "- ARCH-001: Architecture patterns"
-  echo ""
-  echo "Usage: \`/uncertainty AUTH-001\`"
-  exit 0
-fi
+echo "📁 Context: $(basename "$CONTEXT_FILE")"
+echo ""
 ```
 
-## 🔍 Uncertainty: $UNCERTAINTY_ID
+## Executing: /uncertainty $SUBCOMMAND
 
 ```bash
-# For demonstration, handle common uncertainty IDs
-# In production, would parse from context JSON
-
-case "$UNCERTAINTY_ID" in
-  "AUTH-001")
-    DESC="Current authentication implementation pattern"
-    IMPACT="Cannot design JWT solution without understanding existing auth"
-    STATUS="partial"
-    CONFIDENCE="40"
-    PRIORITY="blocking"
+case "$SUBCOMMAND" in
+  "status")
+    echo "## 📊 Uncertainty Status"
     ;;
-  "AUTH-002")
-    DESC="Session persistence and management approach"
-    IMPACT="Determines token storage and session migration strategy"
-    STATUS="unresolved"
-    CONFIDENCE="0"
-    PRIORITY="blocking"
-    ;;
-  "SEC-001")
-    DESC="Security requirements and compliance needs"
-    IMPACT="Shapes token validation, storage, and audit approach"
-    STATUS="partial"
-    CONFIDENCE="30"
-    PRIORITY="high"
-    ;;
-  "ARCH-001")
-    DESC="Overall architecture pattern and style"
-    IMPACT="Affects all implementation decisions"
-    STATUS="resolved"
-    CONFIDENCE="85"
-    PRIORITY="high"
-    ;;
-  "TECH-001")
-    DESC="Technology stack and version constraints"
-    IMPACT="Determines available libraries and patterns"
-    STATUS="partial"
-    CONFIDENCE="60"
-    PRIORITY="high"
+  "analyze")
+    echo "## 🔍 Uncertainty Analysis"
     ;;
   *)
-    echo "❌ Uncertainty '$UNCERTAINTY_ID' not found"
-    echo ""
-    echo "Use \`/uncertainty\` to list all uncertainties"
-    exit 1
+    # Treat as uncertainty ID
+    echo "## 🎯 Uncertainty Deep Dive: $SUBCOMMAND"
+    UNCERTAINTY_ID="$SUBCOMMAND"
+    SUBCOMMAND="detail"
     ;;
 esac
-
-# Display uncertainty details
-echo "**Description**: $DESC"
-echo "**Priority**: $PRIORITY"
-echo "**Status**: $STATUS ($CONFIDENCE% resolved)"
-echo "**Impact**: $IMPACT"
 ```
 
-### 📊 Resolution Progress
+### Status View
 
 ```bash
-# Visual progress bar
-printf "Progress: "
-BARS=$((CONFIDENCE / 5))
-for i in $(seq 1 20); do
-  if [ $i -le $BARS ]; then printf "█"; else printf "░"; fi
-done
-echo " $CONFIDENCE%"
-echo ""
-
-# Status indicator
-if [ "$STATUS" = "resolved" ]; then
-  echo "✅ **This uncertainty is resolved!**"
-elif [ "$STATUS" = "partial" ]; then
-  echo "🔄 **Partially resolved** - more discovery needed"
-else
-  echo "❌ **Unresolved** - needs investigation"
+if [ "$SUBCOMMAND" = "status" ]; then
+  # Extract current phase
+  CURRENT_PHASE=$(grep -o '"current_phase": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
+  echo "Current Phase: **$CURRENT_PHASE**"
+  echo ""
+  
+  echo "### All Uncertainties"
+  echo ""
+  
+  # Parse uncertainties from context (simplified - would use jq in production)
+  echo "| ID | Name | Priority | Status |"
+  echo "|-----|------|----------|---------|"
+  
+  # Example output format (Claude would parse actual JSON)
+  echo "| TECH-001 | Current tech stack | blocking | ✓ resolved |"
+  echo "| PAY-001 | Payment requirements | blocking | ⚡ partial |"
+  echo "| SEC-001 | Security requirements | high | ✗ unresolved |"
+  echo "| SCALE-001 | Expected volume | medium | ✗ unresolved |"
+  echo ""
+  
+  # Count by status
+  echo "### Summary"
+  echo "- ✓ Resolved: 1"
+  echo "- ⚡ Partial: 1" 
+  echo "- ✗ Unresolved: 2"
+  echo "- **Total**: 4"
+  echo ""
+  
+  echo "Use `/uncertainty analyze` for Claude's recommendations."
 fi
 ```
 
-### 📋 Resolution Criteria
-
-What we need to discover to fully resolve this uncertainty:
+### Analyze View
 
 ```bash
-case "$UNCERTAINTY_ID" in
-  "AUTH-001")
-    echo "**Required**:"
-    echo "- [x] Authentication middleware location"
-    echo "- [x] Auth strategy type (session/JWT/OAuth)"
-    echo "- [ ] Session storage mechanism"
-    echo "- [ ] User model structure"
-    echo ""
-    echo "**Optional**:"
-    echo "- [ ] Permission/role system"
-    echo "- [ ] Auth event hooks"
-    echo "- [ ] Remember me functionality"
-    ;;
-  "SEC-001")
-    echo "**Required**:"
-    echo "- [x] Data sensitivity classification"
-    echo "- [ ] Compliance requirements (GDPR, HIPAA, etc)"
-    echo "- [ ] Threat model"
-    echo "- [ ] Current security measures"
-    echo ""
-    echo "**Optional**:"
-    echo "- [ ] Audit requirements"
-    echo "- [ ] Encryption standards"
-    echo "- [ ] Rate limiting needs"
-    ;;
-  "ARCH-001")
-    echo "**Required**:"
-    echo "- [x] Architecture style (monolith/microservices)"
-    echo "- [x] Primary framework"
-    echo "- [x] Request flow pattern"
-    echo "- [x] Component organization"
-    echo ""
-    echo "**All criteria met!** ✅"
-    ;;
-esac
-```
-
-### 🔗 Dependencies
-
-```bash
-case "$UNCERTAINTY_ID" in
-  "AUTH-001")
-    echo "**Depends on**: None (root uncertainty)"
-    echo ""
-    echo "**Enables**:"
-    echo "- AUTH-002: Session management approach"
-    echo "- SEC-001: Security requirements"
-    echo "- IMPL-001: Implementation details"
-    ;;
-  "AUTH-002")
-    echo "**Depends on**:"
-    echo "- AUTH-001: Must understand current auth first"
-    echo ""
-    echo "**Enables**:"
-    echo "- TOKEN-001: Token storage strategy"
-    echo "- MIG-001: Migration approach"
-    ;;
-  "SEC-001")
-    echo "**Depends on**:"
-    echo "- AUTH-001: Current auth implementation"
-    echo ""
-    echo "**Enables**:"
-    echo "- TOKEN-002: Token security measures"
-    echo "- AUDIT-001: Audit trail requirements"
-    ;;
-esac
-```
-
-### 🎯 Suggested Actions
-
-Based on the current resolution status:
-
-```bash
-if [ "$CONFIDENCE" -lt 30 ]; then
-  echo "**Priority: HIGH** - This uncertainty is blocking progress"
-  echo ""
-  echo "1. **Run targeted discovery chain**:"
-  case "$UNCERTAINTY_ID" in
-    "AUTH-001"|"AUTH-002")
-      echo "   \`/chain auth_discovery\`"
-      echo "   This chain specifically targets authentication uncertainties"
-      ;;
-    "SEC-001")
-      echo "   \`/chain security_analysis\`"
-      echo "   This chain explores security requirements"
-      ;;
-    "TECH-001")
-      echo "   \`/chain tech_stack_analysis\`"
-      echo "   This chain identifies technology constraints"
-      ;;
-  esac
-  echo ""
-  echo "2. **Or run specific prompts**:"
-  echo "   - \`/prompt auth_pattern_finder\`"
-  echo "   - \`/prompt session_analyzer\`"
+if [ "$SUBCOMMAND" = "analyze" ]; then
+  # This is where Claude analyzes the context and provides recommendations
   
-elif [ "$CONFIDENCE" -lt 80 ]; then
-  echo "**Making progress** - targeted investigation needed"
+  echo "Claude analyzes your current context to recommend next steps..."
   echo ""
-  echo "Focus on unresolved criteria:"
-  case "$UNCERTAINTY_ID" in
-    "AUTH-001")
-      echo "- Investigate session storage: \`/prompt session_storage_analyzer\`"
-      echo "- Examine user model: \`/prompt user_model_explorer\`"
-      ;;
-    "SEC-001")
-      echo "- Check compliance needs: \`/prompt compliance_requirements\`"
-      echo "- Analyze threats: \`/prompt threat_model_analyzer\`"
-      ;;
-  esac
   
-else
-  echo "**Nearly resolved!** Just a few details remaining"
+  # Extract phase and task info
+  TASK_DESC=$(grep -o '"description": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
+  CURRENT_PHASE=$(grep -o '"current_phase": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
+  
+  echo "**Task**: $TASK_DESC"
+  echo "**Phase**: $CURRENT_PHASE"
   echo ""
-  echo "Consider this resolved if you have enough information to proceed."
-  echo "Or do final verification with targeted prompts."
+  
+  echo "### Claude's Analysis"
+  echo ""
+  echo "Based on your discoveries and remaining uncertainties, Claude will:"
+  echo "1. Assess which uncertainties block progress"
+  echo "2. Identify which uncertainties are phase-appropriate"
+  echo "3. Recommend specific chains or prompts to run"
+  echo "4. Evaluate readiness for phase transition"
+  echo ""
+  
+  echo "### Example Claude Analysis:"
+  echo ""
+  echo "**Current Situation:**"
+  echo "You're in the discovery phase with 2 blocking uncertainties remaining."
+  echo ""
+  echo "**Priority Uncertainties:**"
+  echo "1. **PAY-001** (Payment requirements) - Partially resolved"
+  echo "   - You've identified Stripe as preferred but need webhook details"
+  echo "   - Recommend: `/prompt payment_webhook_analyzer`"
+  echo ""
+  echo "2. **SEC-001** (Security requirements) - Unresolved" 
+  echo "   - Critical for payment processing"
+  echo "   - Recommend: `/chain security_discovery`"
+  echo ""
+  echo "**Confidence Assessment:**"
+  echo "- Overall understanding: ~65%"
+  echo "- Need ~80% before moving to planning phase"
+  echo "- Focus on the blocking uncertainties first"
+  echo ""
+  echo "**Recommended Actions:**"
+  echo "1. `/chain security_discovery` - Address SEC-001"
+  echo "2. `/prompt payment_webhook_analyzer` - Complete PAY-001"
+  echo "3. Then `/context phase planning` when ready"
 fi
 ```
 
-### 💡 Context & Notes
+### Detail View
 
 ```bash
-# Show any additional context or discoveries related to this uncertainty
-case "$UNCERTAINTY_ID" in
-  "AUTH-001")
-    echo "**Previous discoveries**:"
-    echo "- Found middleware at /middleware/auth.js"
-    echo "- Identified passport.js usage"
-    echo "- Session-based authentication confirmed"
-    echo ""
-    echo "**Still unknown**:"
-    echo "- Exact session configuration"
-    echo "- User model schema"
-    echo "- Permission system details"
-    ;;
-  "SEC-001")
-    echo "**Previous discoveries**:"
-    echo "- Application handles user data"
-    echo "- No explicit security policy found yet"
-    echo ""
-    echo "**Key questions**:"
-    echo "- Is GDPR compliance required?"
-    echo "- What data is considered sensitive?"
-    echo "- Are there industry-specific requirements?"
-    ;;
-esac
+if [ "$SUBCOMMAND" = "detail" ]; then
+  echo "Analyzing uncertainty: **$UNCERTAINTY_ID**"
+  echo ""
+  
+  # Claude would extract details about this specific uncertainty
+  echo "### Uncertainty Details"
+  echo "- **Name**: Security requirements"
+  echo "- **Priority**: high"
+  echo "- **Status**: unresolved"
+  echo "- **Phase**: discovery"
+  echo ""
+  
+  echo "### Why This Matters"
+  echo "Understanding security requirements is critical because:"
+  echo "- Payment processing requires PCI compliance"
+  echo "- User data must be protected"
+  echo "- Architecture decisions depend on security needs"
+  echo ""
+  
+  echo "### What Would Help Resolve This"
+  echo "1. Analyze current security measures"
+  echo "2. Identify compliance requirements"
+  echo "3. Review authentication/authorization patterns"
+  echo "4. Check for security vulnerabilities"
+  echo ""
+  
+  echo "### Recommended Prompts"
+  echo "These prompts target this uncertainty:"
+  echo "- `security_requirements_analyzer`"
+  echo "- `compliance_explorer`"
+  echo "- `authentication_pattern_analyzer`"
+  echo ""
+  
+  echo "### Recommended Chains"
+  echo "- `/chain security_discovery` - Comprehensive security analysis"
+  echo "- `/chain compliance_assessment` - Focus on compliance needs"
+  echo ""
+  echo "Run any of these to help resolve this uncertainty."
+fi
 ```
 
-### 📚 Related Resources
+## How Claude Uses This Command
+
+When you run `/uncertainty analyze`, Claude:
+
+1. **Reads your entire context** - Task, phase, discoveries, uncertainties
+2. **Assesses resolution status** - Which uncertainties are resolved/partial/unresolved
+3. **Prioritizes by phase** - Discovery uncertainties first, then planning, etc.
+4. **Considers dependencies** - Some uncertainties block others
+5. **Recommends specific actions** - Chains, prompts, or phase transitions
+
+The key is that Claude provides **dynamic analysis** based on your actual progress, not predetermined responses.
+
+## Integration with Workflow
 
 ```bash
-echo "**Related uncertainties**:"
-case "$UNCERTAINTY_ID" in
-  "AUTH-001")
-    echo "- AUTH-002: Session management"
-    echo "- SEC-001: Security requirements"
-    echo "- USER-001: User model details"
-    ;;
-  "SEC-001")
-    echo "- AUTH-001: Authentication implementation"
-    echo "- DATA-001: Data sensitivity"
-    echo "- COMP-001: Compliance needs"
-    ;;
-esac
-
 echo ""
-echo "**Useful commands**:"
-echo "- View all uncertainties: \`/context uncertainties\`"
-echo "- Check overall progress: \`/context status\`"
-echo "- Run discovery chain: \`/chain [chain_name]\`"
+echo "### Workflow Integration"
+echo "1. After running chains/prompts: Check uncertainty status"
+echo "2. Use analyze to get Claude's recommendations"
+echo "3. Follow recommendations to resolve uncertainties"
+echo "4. When uncertainties resolved, consider phase transition"
+echo ""
+echo "This creates an uncertainty-driven discovery loop!"
 ```

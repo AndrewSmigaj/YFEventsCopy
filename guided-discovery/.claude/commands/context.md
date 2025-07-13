@@ -49,14 +49,17 @@ case "$SUBCOMMAND" in
   "list")
     echo "## 📋 All Contexts"
     ;;
+  phase)
+    echo "## 🔄 Phase Transition"
+    ;;
   *)
     echo "❌ Unknown subcommand: $SUBCOMMAND"
     echo ""
     echo "Available subcommands:"
-    echo "  status        - Overview of current discovery"
-    echo "  uncertainties - List all uncertainties"
+    echo "  status        - Overview of current task and progress"
     echo "  discoveries   - Show what's been found"
-    echo "  history       - Execution history"
+    echo "  phase <name>  - Request transition to a new phase"
+    echo "  history       - Show chain execution history"
     echo "  reset         - Archive current and start fresh"
     echo "  list          - Show all contexts"
     exit 1

@@ -5,107 +5,105 @@ type: discovery
 specialization: authentication
 
 metadata:
-  average_duration: 20-30 minutes
-  complexity: moderate
-  effectiveness: 0.90
-  
+ average_duration: 20-30 minutes
+ complexity: moderate
+ 
 targets_phase: discovery
 optimal_for:
-  - Adding authentication features
-  - JWT implementation
-  - OAuth integration
-  - Session management changes
-  - Security improvements
+ - Adding authentication features
+ - JWT implementation
+ - OAuth integration
+ - Session management changes
+ - Security improvements
 
 targets_uncertainties:
-  primary:
-    - AUTH-001
-    - AUTH-002
-    - SEC-001
-  secondary:
-    - USER-001
-    - SESS-001
-    - PERM-001
+ primary:
+ - AUTH-001
+ - AUTH-002
+ - SEC-001
+ secondary:
+ - USER-001
+ - SESS-001
+ - PERM-001
 
 prerequisites:
-  min_confidence:
-    ARCH-001: 0.5
-  required_discoveries:
-    - architecture.style
+ min_confidence:
+ ARCH-001: 0.5
+ required_discoveries:
+ - architecture.style
 
 prompt_sequence:
-  - prompt: auth_pattern_finder
-    order: 1
-    mandatory: true
-    purpose: Understand current authentication implementation
-    
-  - prompt: session_analyzer
-    order: 2
-    mandatory: false
-    purpose: Deep dive into session management
-    condition: "discoveries.authentication.method == 'session' || task.description contains 'session'"
-    
-  - prompt: user_model_explorer
-    order: 3
-    mandatory: true
-    purpose: Understand user data structure and auth fields
-    
-  - prompt: security_boundary_mapper
-    order: 4
-    mandatory: false
-    purpose: Map security perimeters and protected resources
-    condition: "task.description contains 'security' || uncertainties.SEC-001.confidence < 0.5"
-    
-  - prompt: permission_analyzer
-    order: 5
-    mandatory: false
-    purpose: Understand authorization and role system
-    condition: "discoveries.user_model.has_roles == true"
+ - prompt: auth_pattern_finder
+ order: 1
+ mandatory: true
+ purpose: Understand current authentication implementation
+ 
+ - prompt: session_analyzer
+ order: 2
+ mandatory: false
+ purpose: Deep dive into session management
+ condition: "discoveries.authentication.method == 'session' || task.description contains 'session'"
+ 
+ - prompt: user_model_explorer
+ order: 3
+ mandatory: true
+ purpose: Understand user data structure and auth fields
+ 
+ - prompt: security_boundary_mapper
+ order: 4
+ mandatory: false
+ purpose: Map security perimeters and protected resources
+ condition: "task.description contains 'security' || uncertainties.SEC-001.confidence < 0.5"
+ 
+ - prompt: permission_analyzer
+ order: 5
+ mandatory: false
+ purpose: Understand authorization and role system
+ condition: "discoveries.user_model.has_roles == true"
 
 success_criteria:
-  min_confidence_gain: 0.40
-  required_discoveries:
-    - authentication.method
-    - authentication.implementation
-    - user_model.location
-  optional_discoveries:
-    - session_management.storage
-    - security.measures
-    - permissions.system
+ required_discoveries:
+ - authentication.method
+ - authentication.implementation
+ - user_model.location
+ optional_discoveries:
+ - session_management.storage
+ - security.measures
+ - permissions.system
 
 chain_variants:
-  jwt_focus:
-    when: "task.description matches 'JWT|token'"
-    modifications:
-      - add_prompt: jwt_implementation_guide
-        after: auth_pattern_finder
-      - skip_prompt: session_analyzer
-        unless: "hybrid auth detected"
-        
-  oauth_focus:
-    when: "task.description matches 'OAuth|SSO|social'"
-    modifications:
-      - add_prompt: oauth_provider_analyzer
-      - add_prompt: oauth_flow_mapper
+ jwt_focus:
+ when: "task.description matches 'JWT|token'"
+ modifications:
+ - add_prompt: jwt_implementation_guide
+ after: auth_pattern_finder
+ - skip_prompt: session_analyzer
+ unless: "hybrid auth detected"
+ 
+ oauth_focus:
+ when: "task.description matches 'OAuth|SSO|social'"
+ modifications:
+ - add_prompt: oauth_provider_analyzer
+ - add_prompt: oauth_flow_mapper
 
 next_chain_logic:
-  - condition: "uncertainties.SEC-001.confidence < 0.7"
-    next_chain: security_analysis
-    reason: "Security requirements need clarification"
-    
-  - condition: "task.type == 'feature' && confidence.overall >= 0.75"
-    next_chain: auth_solution_design
-    reason: "Ready to design authentication solution"
-    
-  - condition: "discoveries.authentication.method == 'custom'"
-    next_chain: custom_auth_deep_dive
-    reason: "Custom implementation needs detailed analysis"
-    
-  - default: targeted_auth_discovery
-    reason: "Focus on specific auth uncertainties"
+ - condition: "uncertainties.SEC-001.confidence < 0.7"
+ next_chain: security_analysis
+ reason: "Security requirements need clarification"
+ 
+ - condition: "task.type == 'feature'"
+ next_chain: auth_solution_design
+ reason: "Ready to design authentication solution"
+ 
+ - condition: "discoveries.authentication.method == 'custom'"
+ next_chain: custom_auth_deep_dive
+ reason: "Custom implementation needs detailed analysis"
+ 
+ - default: targeted_auth_discovery
+ reason: "Focus on specific auth uncertainties"
 
 post_execution:
-  - auth_summary_report
-  - security_risk_assessment
-  - migration_complexity_check
-  - next_steps_recommendation
+ - auth_summary_report
+ - security_risk_assessment
+ - migration_complexity_check
+ - next_steps_recommendation

@@ -5,115 +5,113 @@ type: planning
 specialization: legacy_migration
 
 metadata:
-  average_duration: 90-120 minutes
-  complexity: very_complex
-  effectiveness: 0.88
+ average_duration: 90-120 minutes
+ complexity: very_complex
 
 targets_phase: planning
 optimal_for:
-  - Legacy PHP application modernization
-  - MVC to clean architecture migration
-  - Large refactoring projects
-  - Risk assessment and planning
+ - Legacy PHP application modernization
+ - MVC to clean architecture migration
+ - Large refactoring projects
+ - Risk assessment and planning
 
 targets_uncertainties:
-  primary:
-    - LEGACY-001
-    - MIGRATE-001
-    - REFACTOR-001
-    - RISK-001
-  secondary:
-    - EFFORT-001
-    - TEAM-001
-    - TIMELINE-001
+ primary:
+ - LEGACY-001
+ - MIGRATE-001
+ - REFACTOR-001
+ - RISK-001
+ secondary:
+ - EFFORT-001
+ - TEAM-001
+ - TIMELINE-001
 
 prerequisites:
-  min_confidence:
-    PHP-001: 0.7
-    ARCH-001: 0.6
-  required_discoveries:
-    - php.architecture_style
-    - architecture.layers
-    - dependencies.composer_packages
+ min_confidence:
+ PHP-001: 0.7
+ ARCH-001: 0.6
+ required_discoveries:
+ - php.architecture_style
+ - architecture.layers
+ - dependencies.composer_packages
 
 prompt_sequence:
-  - prompt: php_legacy_to_clean_mapper
-    order: 1
-    mandatory: true
-    purpose: Map current state to target architecture
-    
-  - prompt: php_coupling_analyzer
-    order: 2
-    mandatory: true
-    purpose: Identify coupling and dependencies
-    
-  - prompt: php_layer_extraction_planner
-    order: 3
-    mandatory: true
-    purpose: Plan incremental extraction approach
-    
-  - prompt: php_test_strategy_designer
-    order: 4
-    mandatory: true
-    purpose: Design testing strategy for migration
-    
-  - prompt: php_persistence_abstraction_analyzer
-    order: 5
-    mandatory: false
-    purpose: Plan data layer migration
-    condition: "discoveries.repositories.persistence_mechanism contains 'orm' || database migration needed"
-    
-  - prompt: php_performance_impact_analyzer
-    order: 6
-    mandatory: false
-    purpose: Assess performance implications
-    condition: "task.description contains 'performance' || high traffic application"
+ - prompt: php_legacy_to_clean_mapper
+ order: 1
+ mandatory: true
+ purpose: Map current state to target architecture
+ 
+ - prompt: php_coupling_analyzer
+ order: 2
+ mandatory: true
+ purpose: Identify coupling and dependencies
+ 
+ - prompt: php_layer_extraction_planner
+ order: 3
+ mandatory: true
+ purpose: Plan incremental extraction approach
+ 
+ - prompt: php_test_strategy_designer
+ order: 4
+ mandatory: true
+ purpose: Design testing strategy for migration
+ 
+ - prompt: php_persistence_abstraction_analyzer
+ order: 5
+ mandatory: false
+ purpose: Plan data layer migration
+ condition: "discoveries.repositories.persistence_mechanism contains 'orm' || database migration needed"
+ 
+ - prompt: php_performance_impact_analyzer
+ order: 6
+ mandatory: false
+ purpose: Assess performance implications
+ condition: "task.description contains 'performance' || high traffic application"
 
 success_criteria:
-  min_confidence_gain: 0.50
-  required_discoveries:
-    - migration.legacy_assessment
-    - migration.target_architecture
-    - migration.migration_phases
-    - testing.strategy.design
-  optional_discoveries:
-    - migration.effort_estimation
-    - performance.impact_assessment
+ required_discoveries:
+ - migration.legacy_assessment
+ - migration.target_architecture
+ - migration.migration_phases
+ - testing.strategy.design
+ optional_discoveries:
+ - migration.effort_estimation
+ - performance.impact_assessment
 
 chain_variants:
-  framework_migration:
-    when: "discoveries.dependencies.composer_packages matches 'laravel|symfony|codeigniter|yii'"
-    modifications:
-      - add_prompt: framework_specific_migration_guide
-        after: php_legacy_to_clean_mapper
-      - extended_duration: "+30 minutes"
-        
-  database_heavy:
-    when: "discoveries.dependencies.composer_packages contains 'doctrine' || active record pattern detected"
-    modifications:
-      - mandatory_prompt: php_persistence_abstraction_analyzer
-      - add_prompt: database_migration_planner
-        after: php_layer_extraction_planner
+ framework_migration:
+ when: "discoveries.dependencies.composer_packages matches 'laravel|symfony|codeigniter|yii'"
+ modifications:
+ - add_prompt: framework_specific_migration_guide
+ after: php_legacy_to_clean_mapper
+ - extended_duration: "+30 minutes"
+ 
+ database_heavy:
+ when: "discoveries.dependencies.composer_packages contains 'doctrine' || active record pattern detected"
+ modifications:
+ - mandatory_prompt: php_persistence_abstraction_analyzer
+ - add_prompt: database_migration_planner
+ after: php_layer_extraction_planner
 
 next_chain_logic:
-  - condition: "migration.migration_phases.length > 0 && confidence.overall >= 0.75"
-    next_chain: migration_implementation_phase1
-    reason: "Ready to start migration"
-    
-  - condition: "analysis.coupling.technical_debt == 'critical'"
-    next_chain: emergency_refactoring_guide
-    reason: "Critical issues need immediate attention"
-    
-  - condition: "testing.strategy.design == null"
-    next_chain: testing_strategy_development
-    reason: "Need comprehensive testing strategy"
-    
-  - default: migration_risk_assessment
-    reason: "Assess risks before proceeding"
+ - condition: "migration.migration_phases.length > 0"
+ next_chain: migration_implementation_phase1
+ reason: "Ready to start migration"
+ 
+ - condition: "analysis.coupling.technical_debt == 'critical'"
+ next_chain: emergency_refactoring_guide
+ reason: "Critical issues need immediate attention"
+ 
+ - condition: "testing.strategy.design == null"
+ next_chain: testing_strategy_development
+ reason: "Need comprehensive testing strategy"
+ 
+ - default: migration_risk_assessment
+ reason: "Assess risks before proceeding"
 
 post_execution:
-  - migration_roadmap_document
-  - phase_by_phase_plan
-  - risk_mitigation_strategy
-  - team_preparation_guide
-  - success_metrics_definition
+ - migration_roadmap_document
+ - phase_by_phase_plan
+ - risk_mitigation_strategy
+ - team_preparation_guide
+ - success_metrics_definition

@@ -84,47 +84,18 @@ fi
 echo "Uncertainty categories: $UNCERTAINTIES"
 ```
 
-## 📁 Creating Discovery Context
+## 📁 Creating Task Context
 
-Now I'll create a context file to track our discovery progress.
+Now I'll create a context file to track our progress through all phases.
 
 ```bash
 # Create context JSON
 cat > "$CONTEXT_FILE" << EOF
 {
-  "version": "1.0",
-  "schema": "udds-v1",
-  "discovery_id": "$DISCOVERY_ID",
-  "task": {
-    "description": "$ARGUMENTS",
-    "type": "$TASK_TYPE",
-    "complexity": "$COMPLEXITY",
-    "created_at": "$TIMESTAMP"
-  },
-  "uncertainties": {
-    "blocking": [],
-    "high": [],
-    "medium": [],
-    "low": []
-  },
-  "discoveries": {
-    "architecture": {},
-    "constraints": {},
-    "dependencies": {},
-    "decisions": {}
-  },
-  "confidence": {
-    "requirements": 0.25,
-    "technical": 0.25,
-    "implementation": 0.25,
-    "overall": 0.25
-  },
-  "execution_state": {
-    "phase": "discovery",
-    "last_chain": null,
-    "chains_executed": [],
-    "next_recommended": []
-  }
+  "task_id": "$DISCOVERY_ID",
+  "description": "$ARGUMENTS",
+  "current_phase": "discovery",
+  "discoveries": {}
 }
 EOF
 
@@ -227,14 +198,14 @@ else
 fi
 ```
 
-## 📊 Discovery Tracking
+## 📊 Task Tracking
 
-Your discovery context has been created and saved to:
+Your task context has been created and saved to:
 `contexts/active/task-${DISCOVERY_ID:0:8}-${SAFE_NAME}.json`
 
-Current confidence: **25%** (Starting baseline)
+We're starting in the **Discovery phase**.
 
 Next steps:
 1. Run the recommended discovery chain
-2. Or explore specific uncertainties with `/uncertainty [ID]`
-3. Check progress anytime with `/context status`
+2. Check progress anytime with `/context status`
+3. When you're satisfied with discoveries, transition phases with `/context phase planning`
