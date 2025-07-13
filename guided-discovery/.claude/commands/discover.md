@@ -2,210 +2,75 @@
 
 I'll help you explore this task systematically using uncertainty-driven discovery.
 
-## 🎯 Analyzing Task
+## 🎯 Creating Discovery Context
 
 Task: "$ARGUMENTS"
 
-Let me identify what we need to discover before implementation.
-
 ```bash
 # Generate unique discovery ID
-DISCOVERY_ID=$(date +%Y%m%d-%H%M%S)-$(echo "$ARGUMENTS" | md5sum | cut -c1-8)
+DISCOVERY_ID="task-$(date +%Y%m%d-%H%M%S)-$(echo "$ARGUMENTS" | md5sum | cut -c1-8)"
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-# Analyze task for keywords
-TASK_LOWER=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]')
-
-# Determine task type
-if echo "$TASK_LOWER" | grep -qE "fix|bug|error|issue"; then
-  TASK_TYPE="bugfix"
-elif echo "$TASK_LOWER" | grep -qE "refactor|improve|clean"; then
-  TASK_TYPE="refactor"
-elif echo "$TASK_LOWER" | grep -qE "analyze|investigate|understand"; then
-  TASK_TYPE="analysis"
-else
-  TASK_TYPE="feature"
-fi
-
-# Determine complexity
-COMPLEXITY="moderate"
-if echo "$TASK_LOWER" | grep -qE "simple|basic|minor"; then
-  COMPLEXITY="simple"
-elif echo "$TASK_LOWER" | grep -qE "complex|major|large|migrate|integration"; then
-  COMPLEXITY="complex"
-fi
 
 # Create safe filename
 SAFE_NAME=$(echo "$ARGUMENTS" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-30)
-CONTEXT_FILE="/mnt/d/YFEventsCopy/guided-discovery/contexts/active/task-${DISCOVERY_ID:0:8}-${SAFE_NAME}.json"
+CONTEXT_FILE="/mnt/d/YFEventsCopy/guided-discovery/contexts/active/${DISCOVERY_ID:0:19}-${SAFE_NAME}.json"
 
 echo "Discovery ID: $DISCOVERY_ID"
-echo "Task Type: $TASK_TYPE"
-echo "Complexity: $COMPLEXITY"
-```
-
-## 🔍 Identifying Initial Uncertainties
-
-Based on your task description, I'll identify the key unknowns we need to resolve.
-
-```bash
-# Identify uncertainties based on keywords
-UNCERTAINTIES=""
-
-# Check for authentication-related uncertainties
-if echo "$TASK_LOWER" | grep -qE "auth|login|jwt|token|session|oauth"; then
-  echo "Found authentication-related task"
-  UNCERTAINTIES="${UNCERTAINTIES}AUTH "
-fi
-
-# Check for API-related uncertainties
-if echo "$TASK_LOWER" | grep -qE "api|endpoint|rest|graphql|route"; then
-  echo "Found API-related task"
-  UNCERTAINTIES="${UNCERTAINTIES}API "
-fi
-
-# Check for database-related uncertainties
-if echo "$TASK_LOWER" | grep -qE "database|db|sql|schema|migration|query"; then
-  echo "Found database-related task"
-  UNCERTAINTIES="${UNCERTAINTIES}DB "
-fi
-
-# Check for architecture uncertainties
-if echo "$TASK_LOWER" | grep -qE "architect|structure|pattern|design"; then
-  echo "Found architecture-related task"
-  UNCERTAINTIES="${UNCERTAINTIES}ARCH "
-fi
-
-# Always include general architecture uncertainty
-if [ -z "$UNCERTAINTIES" ]; then
-  UNCERTAINTIES="ARCH TECH"
-fi
-
-echo "Uncertainty categories: $UNCERTAINTIES"
+echo "Starting at: $TIMESTAMP"
 ```
 
 ## 📁 Creating Task Context
 
-Now I'll create a context file to track our progress through all phases.
+I'll create a context file to track our discovery journey.
 
 ```bash
-# Create context JSON
+# Create v2 context structure
 cat > "$CONTEXT_FILE" << EOF
 {
   "task_id": "$DISCOVERY_ID",
   "description": "$ARGUMENTS",
   "current_phase": "discovery",
+  "phase_history": [
+    {
+      "phase": "discovery",
+      "entered_at": "$TIMESTAMP",
+      "reason": "Starting new task"
+    }
+  ],
+  "uncertainties": {},
   "discoveries": {}
 }
 EOF
 
-echo "Created context file: $CONTEXT_FILE"
+echo "✅ Created context file: $(basename "$CONTEXT_FILE")"
 ```
 
-## 🎯 Initial Uncertainties
+## 🔍 Analyzing Your Task
 
-Based on my analysis, here are the key uncertainties we need to resolve:
+Now I'll analyze your task and identify the key uncertainties we need to resolve.
 
-### Blocking Uncertainties (Must Resolve)
+[Claude reads the task description and identifies uncertainties based on understanding]
 
-```bash
-# Add specific uncertainties based on detected patterns
-if [[ $UNCERTAINTIES == *"AUTH"* ]]; then
-  echo "1. **AUTH-001**: Current authentication implementation"
-  echo "   - How is authentication currently handled?"
-  echo "   - What auth patterns are in use?"
-  echo ""
-  echo "2. **AUTH-002**: Session/token management"
-  echo "   - How are user sessions managed?"
-  echo "   - What are the security requirements?"
-fi
+### Initial Uncertainties Identified
 
-if [[ $UNCERTAINTIES == *"API"* ]]; then
-  echo "1. **API-001**: Current API architecture"
-  echo "   - What API patterns are in use?"
-  echo "   - How are endpoints structured?"
-  echo ""
-  echo "2. **API-002**: Data validation and security"
-  echo "   - How is input validated?"
-  echo "   - What security measures exist?"
-fi
+[Claude populates the uncertainties in the context based on the task]
 
-if [[ $UNCERTAINTIES == *"DB"* ]]; then
-  echo "1. **DB-001**: Database schema and patterns"
-  echo "   - What's the current data model?"
-  echo "   - What database patterns are used?"
-  echo ""
-  echo "2. **DB-002**: Data access patterns"
-  echo "   - How is data accessed?"
-  echo "   - What ORMs or query builders are used?"
-fi
+## 🚀 Recommended Next Steps
 
-# Always include architecture uncertainty
-echo "**ARCH-001**: Overall architecture pattern"
-echo "   - What's the high-level architecture?"
-echo "   - What patterns and conventions are used?"
-```
+[Claude analyzes the uncertainties and recommends appropriate chains]
 
-### High Priority Uncertainties
+### Quick Commands:
+- Check your progress: `/context status`
+- Get my analysis: `/uncertainty analyze`
+- Run a discovery chain: `/chain <recommended_chain>`
 
-- **TECH-001**: Technology stack and dependencies
-- **IMPL-001**: Implementation constraints and requirements
+## 📊 Phase-Based Workflow
 
-## 🚀 Recommended Next Step
+You're now in the **Discovery phase**. The system will guide you through:
 
-```bash
-# Recommend appropriate discovery chain based on uncertainties
-if [[ $UNCERTAINTIES == *"AUTH"* ]]; then
-  echo "Based on the authentication-related uncertainties, I recommend starting with:"
-  echo ""
-  echo "**\`auth_discovery\`** chain"
-  echo "This will help us understand:"
-  echo "- Current authentication implementation"
-  echo "- Session/token management"
-  echo "- Security requirements"
-  echo ""
-  echo "Execute with: \`/chain auth_discovery\`"
-elif [[ $UNCERTAINTIES == *"API"* ]]; then
-  echo "Based on the API-related uncertainties, I recommend starting with:"
-  echo ""
-  echo "**\`api_discovery\`** chain"
-  echo "This will help us understand:"
-  echo "- API architecture and patterns"
-  echo "- Endpoint structure"
-  echo "- Validation and security"
-  echo ""
-  echo "Execute with: \`/chain api_discovery\`"
-elif [[ $UNCERTAINTIES == *"DB"* ]]; then
-  echo "Based on the database-related uncertainties, I recommend starting with:"
-  echo ""
-  echo "**\`database_discovery\`** chain"
-  echo "This will help us understand:"
-  echo "- Database schema"
-  echo "- Data access patterns"
-  echo "- Query optimization"
-  echo ""
-  echo "Execute with: \`/chain database_discovery\`"
-else
-  echo "I recommend starting with a general discovery:"
-  echo ""
-  echo "**\`general_discovery\`** chain"
-  echo "This will help us understand:"
-  echo "- Overall architecture"
-  echo "- Technology stack"
-  echo "- Key components"
-  echo ""
-  echo "Execute with: \`/chain general_discovery\`"
-fi
-```
+1. **Discovery** → Understanding what exists
+2. **Planning** → Designing the solution
+3. **Implementation** → Building (outside UDDS)
+4. **Validation** → Verifying requirements
 
-## 📊 Task Tracking
-
-Your task context has been created and saved to:
-`contexts/active/task-${DISCOVERY_ID:0:8}-${SAFE_NAME}.json`
-
-We're starting in the **Discovery phase**.
-
-Next steps:
-1. Run the recommended discovery chain
-2. Check progress anytime with `/context status`
-3. When you're satisfied with discoveries, transition phases with `/context phase planning`
+I'll help you resolve uncertainties and know when you're ready to progress.

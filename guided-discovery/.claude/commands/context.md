@@ -51,6 +51,22 @@ case "$SUBCOMMAND" in
     ;;
   phase)
     echo "## 🔄 Phase Transition"
+    REQUESTED_PHASE="$2"
+    
+    if [ -z "$REQUESTED_PHASE" ]; then
+      echo "❌ Please specify a phase: discovery, planning, implementation, or validation"
+      echo ""
+      echo "Usage: /context phase <phase_name>"
+      exit 1
+    fi
+    
+    # Get current phase
+    CURRENT_PHASE=$(grep -o '"current_phase": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
+    
+    echo "Current phase: **$CURRENT_PHASE**"
+    echo "Requested phase: **$REQUESTED_PHASE**"
+    echo ""
+    echo "Claude will assess if you're ready for this transition."
     ;;
   *)
     echo "❌ Unknown subcommand: $SUBCOMMAND"
@@ -73,118 +89,38 @@ esac
 if [ "$SUBCOMMAND" = "status" ]; then
   # Extract key information from context
   TASK_DESC=$(grep -o '"description": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
-  TASK_TYPE=$(grep -o '"type": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
-  PHASE=$(grep -o '"phase": *"[^"]*"' "$CONTEXT_FILE" | grep -v '"phase":' | head -1 | cut -d'"' -f4)
-  
-  # Get confidence scores
-  OVERALL_CONF=$(grep -A10 '"confidence"' "$CONTEXT_FILE" | grep -o '"overall": *[0-9.]*' | grep -o '[0-9.]*$')
-  REQ_CONF=$(grep -A10 '"confidence"' "$CONTEXT_FILE" | grep -o '"requirements": *[0-9.]*' | grep -o '[0-9.]*$')
-  TECH_CONF=$(grep -A10 '"confidence"' "$CONTEXT_FILE" | grep -o '"technical": *[0-9.]*' | grep -o '[0-9.]*$')
+  CURRENT_PHASE=$(grep -o '"current_phase": *"[^"]*"' "$CONTEXT_FILE" | head -1 | cut -d'"' -f4)
   
   echo "**Task**: $TASK_DESC"
-  echo "**Type**: $TASK_TYPE"
-  echo "**Phase**: $PHASE"
-  echo "**Overall Confidence**: ${OVERALL_CONF}%"
+  echo "**Current Phase**: $CURRENT_PHASE"
   echo ""
   
-  # Progress bars
-  echo "### Confidence Breakdown"
-  
-  # Requirements confidence
-  printf "Requirements: "
-  REQ_BARS=$((${REQ_CONF%.*} / 5))
-  for i in $(seq 1 20); do
-    if [ $i -le $REQ_BARS ]; then printf "█"; else printf "░"; fi
-  done
-  echo " ${REQ_CONF}%"
-  
-  # Technical confidence  
-  printf "Technical:    "
-  TECH_BARS=$((${TECH_CONF%.*} / 5))
-  for i in $(seq 1 20); do
-    if [ $i -le $TECH_BARS ]; then printf "█"; else printf "░"; fi
-  done
-  echo " ${TECH_CONF}%"
-  
-  # Overall confidence
-  printf "**Overall**:  "
-  OVERALL_BARS=$((${OVERALL_CONF%.*} / 5))
-  for i in $(seq 1 20); do
-    if [ $i -le $OVERALL_BARS ]; then printf "█"; else printf "░"; fi
-  done
-  echo " **${OVERALL_CONF}%**"
-  
+  # Count uncertainties by status
+  echo "### Uncertainty Status"
+  # Note: In actual use, Claude would parse the JSON properly
+  echo "Claude will analyze the uncertainties in your context"
   echo ""
-  echo "### Quick Stats"
-  echo "- Uncertainties identified: $(grep -c '"id":' "$CONTEXT_FILE")"
-  echo "- Chains executed: $(grep -c '"chain_name":' "$CONTEXT_FILE" 2>/dev/null || echo "0")"
-  echo "- Current phase: $PHASE"
   
+  # Show discoveries summary
+  echo "### Discoveries"
+  echo "Claude will summarize key findings from your discovery"
   echo ""
+  
   echo "### Next Steps"
-  if (( $(echo "$OVERALL_CONF < 50" | bc -l) )); then
-    echo "🎯 **Low confidence** - Continue discovery"
-    echo "- Run recommended chain: \`/chain general_discovery\`"
-    echo "- View uncertainties: \`/context uncertainties\`"
-  elif (( $(echo "$OVERALL_CONF < 80" | bc -l) )); then
-    echo "🔄 **Medium confidence** - Targeted discovery needed"
-    echo "- Resolve high-priority uncertainties"
-    echo "- Run specialized chains for problem areas"
-  else
-    echo "✅ **High confidence** - Ready for next phase"
-    echo "- Review discoveries: \`/context discoveries\`"
-    echo "- Move to design phase"
-  fi
+  echo "Use \`/uncertainty analyze\` to get Claude's assessment and recommendations"
 fi
 ```
 
-### Uncertainties View
+### Uncertainties View (Deprecated)
 
 ```bash
 if [ "$SUBCOMMAND" = "uncertainties" ]; then
-  echo "Analyzing uncertainties in the context..."
+  echo "⚠️ The 'uncertainties' subcommand is deprecated in v2."
   echo ""
-  
-  # Count uncertainties by priority
-  BLOCKING=$(grep -A50 '"blocking":' "$CONTEXT_FILE" | grep -c '"id":' || echo "0")
-  HIGH=$(grep -A50 '"high":' "$CONTEXT_FILE" | grep -B50 '"medium":' | grep -c '"id":' || echo "0")
-  MEDIUM=$(grep -A50 '"medium":' "$CONTEXT_FILE" | grep -B50 '"low":' | grep -c '"id":' || echo "0")
-  LOW=$(grep -A50 '"low":' "$CONTEXT_FILE" | grep -c '"id":' || echo "0")
-  
-  echo "### Summary"
-  echo "- 🚫 Blocking: $BLOCKING"
-  echo "- 🔴 High: $HIGH"
-  echo "- 🟡 Medium: $MEDIUM"
-  echo "- 🟢 Low: $LOW"
-  echo ""
-  
-  # Show blocking uncertainties
-  if [ $BLOCKING -gt 0 ]; then
-    echo "### 🚫 Blocking Uncertainties (Must Resolve)"
-    echo ""
-    echo "These uncertainties prevent moving forward:"
-    echo ""
-    # Simplified extraction - would parse JSON properly in production
-    echo "1. **AUTH-001**: Current authentication implementation"
-    echo "   Status: ❌ Unresolved"
-    echo "   Impact: Cannot design solution without understanding current auth"
-    echo ""
-  fi
-  
-  # Show high priority
-  if [ $HIGH -gt 0 ]; then
-    echo "### 🔴 High Priority Uncertainties"
-    echo ""
-    echo "1. **TECH-001**: Technology stack details"
-    echo "   Status: 🔄 Partial (40%)"
-    echo "   Impact: Need to understand constraints"
-    echo ""
-  fi
-  
-  echo "### Recommended Actions"
-  echo "1. Focus on blocking uncertainties first"
-  echo "2. Run targeted chains for each uncertainty category"
-  echo "3. Use \`/uncertainty [ID]\` for deep dive on specific items"
+  echo "Use these commands instead:"
+  echo "- \`/uncertainty status\` - List all uncertainties"
+  echo "- \`/uncertainty analyze\` - Get Claude's analysis"
+  echo "- \`/context status\` - See overall progress"
 fi
 ```
 
@@ -247,28 +183,11 @@ fi
 
 ```bash
 if [ "$SUBCOMMAND" = "history" ]; then
-  echo "Discovery execution history:"
+  echo "Phase history:"
   echo ""
   
-  # Check if any chains have been executed
-  CHAIN_COUNT=$(grep -c '"chain_name":' "$CONTEXT_FILE" 2>/dev/null || echo "0")
-  
-  if [ $CHAIN_COUNT -eq 0 ]; then
-    echo "📭 No chains executed yet"
-    echo ""
-    echo "Start discovery with a chain:"
-    echo "- \`/chain general_discovery\`"
-    echo "- \`/chain auth_discovery\`"
-  else
-    echo "| Time | Action | Result | Confidence |"
-    echo "|------|--------|--------|------------|"
-    echo "| 10:15 | auth_discovery | ✅ Success | +35% |"
-    echo "| 10:32 | session_analysis | ✅ Success | +20% |"
-    echo "| 10:45 | security_audit | ⚠️ Partial | +10% |"
-    echo ""
-    echo "**Total chains executed**: $CHAIN_COUNT"
-    echo "**Total confidence gained**: +65%"
-  fi
+  # Claude would parse phase_history array from context
+  echo "Claude will show your phase transitions and key milestones"
 fi
 ```
 
