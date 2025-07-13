@@ -1,0 +1,212 @@
+{
+  "version": "1.0",
+  "schema": "udds-v1",
+  "discovery_id": "20240107-143052-a1b2c3d4",
+  "task": {
+    "description": "Add JWT authentication to Express app",
+    "type": "feature",
+    "complexity": "moderate",
+    "created_at": "2024-01-07T14:30:52Z"
+  },
+  "uncertainties": {
+    "blocking": [
+      {
+        "id": "AUTH-001",
+        "description": "Current authentication implementation pattern",
+        "impact": "Cannot design JWT solution without understanding existing auth",
+        "depends_on": [],
+        "enables": ["AUTH-002", "SEC-001"],
+        "status": "partial",
+        "confidence": 0.65,
+        "discoveries": {
+          "auth_middleware_location": "/middleware/auth.js",
+          "auth_method": "session",
+          "auth_library": "passport"
+        }
+      },
+      {
+        "id": "AUTH-002",
+        "description": "Session persistence and management approach",
+        "impact": "Determines token storage and session migration strategy",
+        "depends_on": ["AUTH-001"],
+        "enables": ["TOKEN-001", "MIG-001"],
+        "status": "unresolved",
+        "confidence": 0.0,
+        "discoveries": {}
+      }
+    ],
+    "high": [
+      {
+        "id": "SEC-001",
+        "description": "Security requirements and compliance needs",
+        "impact": "Shapes token validation and storage approach",
+        "depends_on": ["AUTH-001"],
+        "enables": ["SEC-002", "AUDIT-001"],
+        "status": "partial",
+        "confidence": 0.4,
+        "discoveries": {
+          "data_classification": "confidential",
+          "compliance_requirements": ["GDPR"]
+        }
+      },
+      {
+        "id": "TECH-001",
+        "description": "Technology stack and version constraints",
+        "impact": "Determines available libraries and patterns",
+        "depends_on": [],
+        "enables": ["IMPL-001"],
+        "status": "resolved",
+        "confidence": 0.85,
+        "discoveries": {
+          "language": "JavaScript",
+          "framework": "Express 4.18.2",
+          "node_version": "18.x",
+          "database": "MongoDB"
+        }
+      }
+    ],
+    "medium": [
+      {
+        "id": "USER-001",
+        "description": "User model structure and auth fields",
+        "impact": "Affects JWT payload design",
+        "depends_on": ["AUTH-001"],
+        "enables": ["PERM-001"],
+        "status": "resolved",
+        "confidence": 0.9,
+        "discoveries": {
+          "user_model_location": "/models/User.js",
+          "auth_fields": ["_id", "email", "password", "role", "lastLogin"],
+          "unique_identifier": "_id"
+        }
+      }
+    ],
+    "low": []
+  },
+  "discoveries": {
+    "architecture": {
+      "style": "MVC Monolith",
+      "framework": "Express.js",
+      "patterns": ["middleware", "router", "controller", "model"],
+      "organization": "by-type",
+      "main_components": {
+        "routes": "/routes",
+        "controllers": "/controllers",
+        "models": "/models",
+        "middleware": "/middleware",
+        "config": "/config"
+      }
+    },
+    "authentication": {
+      "method": "session",
+      "library": "passport",
+      "strategy": "local",
+      "middleware_location": "/middleware/auth.js",
+      "login_route": "/api/auth/login",
+      "logout_route": "/api/auth/logout",
+      "protected_pattern": "router.use(requireAuth)"
+    },
+    "technical": {
+      "languages": ["JavaScript"],
+      "framework": "Express 4.18.2",
+      "database": "MongoDB with Mongoose",
+      "package_manager": "npm",
+      "notable_libraries": {
+        "auth": "passport, passport-local, express-session",
+        "database": "mongoose",
+        "validation": "express-validator",
+        "security": "helmet, cors"
+      }
+    },
+    "constraints": {
+      "technical": [
+        "Node.js 18.x required",
+        "MongoDB 6.0+",
+        "Must maintain existing API contracts"
+      ],
+      "business": [
+        "Zero downtime migration required",
+        "30-day parallel auth support",
+        "GDPR compliance mandatory"
+      ],
+      "security": [
+        "Tokens must expire in 15 minutes",
+        "Refresh tokens required",
+        "Rate limiting on auth endpoints"
+      ]
+    },
+    "dependencies": {
+      "internal": {
+        "auth_middleware": ["All protected routes"],
+        "user_service": ["Profile, Settings, Admin modules"],
+        "session_store": ["Auth, Cart, Preferences"]
+      },
+      "external": {
+        "express": "^4.18.2",
+        "passport": "^0.6.0",
+        "express-session": "^1.17.3",
+        "mongoose": "^7.0.3",
+        "bcrypt": "^5.1.0"
+      }
+    }
+  },
+  "confidence": {
+    "requirements": 0.7,
+    "technical": 0.75,
+    "implementation": 0.45,
+    "overall": 0.63
+  },
+  "execution_state": {
+    "phase": "discovery",
+    "last_chain": "auth_discovery",
+    "last_prompt": "auth_pattern_finder",
+    "chains_executed": [
+      {
+        "chain_name": "general_discovery",
+        "executed_at": "2024-01-07T14:35:00Z",
+        "prompts_executed": 3,
+        "confidence_gain": 0.35,
+        "success": true
+      },
+      {
+        "chain_name": "auth_discovery",
+        "executed_at": "2024-01-07T14:50:00Z",
+        "prompts_executed": 2,
+        "confidence_gain": 0.28,
+        "success": true
+      }
+    ],
+    "next_recommended": ["session_analysis", "security_requirements"]
+  },
+  "decisions": {
+    "made": {
+      "token_type": {
+        "choice": "JWT with refresh tokens",
+        "rationale": "Industry standard, stateless, scalable",
+        "timestamp": "2024-01-07T15:05:00Z"
+      }
+    },
+    "pending": {
+      "token_storage": {
+        "options": ["Redis", "MongoDB", "In-memory"],
+        "factors": ["Performance", "Persistence", "Complexity"]
+      },
+      "migration_strategy": {
+        "options": ["Dual auth", "Phased rollout", "Big bang"],
+        "factors": ["Risk", "Complexity", "Timeline"]
+      }
+    }
+  },
+  "notes": [
+    "Passport.js local strategy currently in use",
+    "Sessions stored in MongoDB via connect-mongo",
+    "No refresh token mechanism exists currently",
+    "Rate limiting not implemented on auth endpoints"
+  ],
+  "metadata": {
+    "last_updated": "2024-01-07T15:10:00Z",
+    "total_prompts_executed": 5,
+    "total_chains": 2,
+    "elapsed_time_minutes": 40
+  }
+}

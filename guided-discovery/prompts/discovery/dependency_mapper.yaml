@@ -1,0 +1,103 @@
+name: dependency_mapper
+category: discovery
+complexity: simple
+targets_uncertainties: ["TECH-001", "IMPL-001"]
+estimated_duration: 5-10 minutes
+
+requires_context:
+  - task.description
+  - discoveries.technical.languages
+
+provides_context:
+  - discoveries.dependencies.internal
+  - discoveries.dependencies.external
+  - discoveries.dependencies.versions
+  - discoveries.constraints.version_requirements
+
+template: |
+  # Dependency Mapping
+  
+  I need to understand the internal and external dependencies of this project.
+  
+  **Task Context**: {{task.description}}
+  {{#if discoveries.technical.languages}}
+  **Languages**: {{discoveries.technical.languages}}
+  {{/if}}
+  
+  ## Discovery Goals
+  
+  1. **External Dependencies**
+     - Package manager files (package.json, requirements.txt, go.mod, etc.)
+     - Direct dependencies vs dev dependencies
+     - Version constraints
+     - Security vulnerabilities (if apparent)
+  
+  2. **Internal Dependencies**
+     - Shared modules/libraries
+     - Common utilities
+     - Core services that others depend on
+     - Circular dependencies
+  
+  3. **Version Requirements**
+     - Language version requirements
+     - Framework version constraints
+     - Database version requirements
+     - OS/platform requirements
+  
+  4. **Integration Points**
+     - External APIs/services
+     - Database connections
+     - Message queues
+     - File storage systems
+  
+  Look for:
+  - Package manager files
+  - Import/require statements
+  - Configuration files
+  - Docker/container definitions
+  - CI/CD configurations
+  
+  Please provide findings in this structure:
+  
+  ### EXTERNAL_DEPENDENCIES
+  - Package_Manager: [npm|pip|maven|etc]
+  - Main_Deps:
+    - [package]: [version]
+  - Dev_Deps:
+    - [package]: [version]
+  - Total_Count: [number]
+  
+  ### INTERNAL_MODULES
+  - Shared:
+    - [module]: [purpose]
+  - Core:
+    - [service]: [dependents]
+  - Utils: [location]
+  
+  ### VERSION_REQUIREMENTS
+  - Language: [version requirement]
+  - Framework: [version requirement]
+  - Database: [version requirement]
+  - Platform: [requirements]
+  
+  ### INTEGRATION_POINTS
+  - APIs:
+    - [service]: [purpose]
+  - Databases:
+    - [type]: [connection details]
+  - Queues: [if any]
+  - Storage: [if any]
+  
+  ### DEPENDENCY_HEALTH
+  - Outdated: [count or list]
+  - Security: [any obvious issues]
+  - Conflicts: [any conflicts]
+
+output_parser:
+  sections:
+    - EXTERNAL_DEPENDENCIES
+    - INTERNAL_MODULES
+    - VERSION_REQUIREMENTS
+    - INTEGRATION_POINTS
+    - DEPENDENCY_HEALTH
+  confidence_impact: 0.25

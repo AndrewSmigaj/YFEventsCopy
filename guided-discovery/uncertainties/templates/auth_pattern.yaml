@@ -1,0 +1,261 @@
+name: Authentication Pattern Uncertainties
+category: authentication
+version: "1.0"
+
+description: |
+  Standard uncertainties for authentication-related tasks including
+  JWT implementation, OAuth integration, session management, and
+  security requirements.
+
+common_in_tasks:
+  - Adding JWT authentication
+  - Implementing OAuth/SSO
+  - Migrating auth systems
+  - Adding MFA/2FA
+  - Security improvements
+  - Session management changes
+
+uncertainties:
+  - id: AUTH-001
+    name: Current Authentication Implementation
+    description: How is authentication currently implemented in the system?
+    priority: blocking
+    category: technical
+    
+    impact_areas:
+      - architecture
+      - security
+      - migration_strategy
+      - user_experience
+      
+    depends_on: []
+    
+    enables:
+      - AUTH-002
+      - SEC-001
+      - USER-001
+      - MIG-001
+      
+    resolution_criteria:
+      required:
+        auth_middleware_location:
+          description: Where authentication is enforced
+          evidence_type: code_reference
+          example: "middleware/auth.js:15-42"
+          
+        auth_method:
+          description: Authentication method/strategy used
+          evidence_type: enumeration
+          values: [session, jwt, oauth, basic, certificate, custom, hybrid]
+          
+        auth_library:
+          description: Library or framework used
+          evidence_type: identification
+          examples: [passport, express-session, jsonwebtoken, custom]
+          
+        protected_routes:
+          description: How routes are protected
+          evidence_type: pattern
+          example: "middleware applied to route groups"
+          
+      optional:
+        auth_events:
+          description: Login/logout event handling
+          evidence_type: code_reference
+          
+        remember_me:
+          description: Persistent auth implementation
+          evidence_type: description
+          
+    discovery_prompts:
+      - auth_pattern_finder
+      - middleware_analyzer
+      - route_protection_mapper
+
+  - id: AUTH-002
+    name: Session/Token Management
+    description: How are user sessions or tokens managed, stored, and validated?
+    priority: blocking
+    category: technical
+    
+    impact_areas:
+      - scalability
+      - security
+      - performance
+      - user_experience
+      
+    depends_on:
+      - AUTH-001
+      
+    enables:
+      - TOKEN-001
+      - SCALE-001
+      - PERF-001
+      
+    resolution_criteria:
+      required:
+        storage_mechanism:
+          description: Where sessions/tokens are stored
+          evidence_type: enumeration
+          values: [memory, file, database, redis, client-side]
+          
+        expiration_policy:
+          description: Timeout and expiration settings
+          evidence_type: configuration
+          example: "15 minutes access, 7 days refresh"
+          
+        validation_method:
+          description: How sessions/tokens are validated
+          evidence_type: description
+          
+      optional:
+        refresh_mechanism:
+          description: Token refresh implementation
+          evidence_type: code_reference
+          
+        concurrent_sessions:
+          description: Multiple session handling
+          evidence_type: policy
+          
+        invalidation:
+          description: Logout and force-invalidation
+          evidence_type: implementation
+          
+    discovery_prompts:
+      - session_analyzer
+      - token_inspector
+      - storage_analyzer
+
+  - id: SEC-001
+    name: Security Requirements
+    description: What security requirements and compliance needs must the auth system meet?
+    priority: high
+    category: requirements
+    
+    impact_areas:
+      - architecture
+      - compliance
+      - implementation
+      - testing
+      
+    depends_on:
+      - AUTH-001
+      
+    enables:
+      - SEC-002
+      - COMP-001
+      - AUDIT-001
+      
+    resolution_criteria:
+      required:
+        data_classification:
+          description: Sensitivity of data being protected
+          evidence_type: enumeration
+          values: [public, internal, confidential, restricted]
+          
+        compliance_requirements:
+          description: Regulatory requirements
+          evidence_type: list
+          examples: [GDPR, HIPAA, PCI-DSS, SOC2]
+          
+        threat_model:
+          description: Primary threats to defend against
+          evidence_type: list
+          examples: [unauthorized access, session hijacking, CSRF, XSS]
+          
+      optional:
+        encryption_standards:
+          description: Required encryption levels
+          evidence_type: specification
+          
+        audit_requirements:
+          description: Audit trail needs
+          evidence_type: requirements
+          
+        password_policy:
+          description: Password complexity rules
+          evidence_type: policy
+          
+    discovery_prompts:
+      - security_requirements_analyzer
+      - compliance_checker
+      - threat_model_explorer
+
+  - id: USER-001
+    name: User Model Structure
+    description: How is user data structured and what auth-related fields exist?
+    priority: high
+    category: technical
+    
+    impact_areas:
+      - data_model
+      - migration
+      - api_design
+      
+    depends_on:
+      - AUTH-001
+      
+    enables:
+      - PERM-001
+      - PROF-001
+      
+    resolution_criteria:
+      required:
+        user_model_location:
+          description: Where user model is defined
+          evidence_type: code_reference
+          
+        auth_fields:
+          description: Authentication-related fields
+          evidence_type: list
+          examples: [username, email, password_hash, last_login]
+          
+        unique_identifier:
+          description: Primary user identifier
+          evidence_type: field_name
+          examples: [id, uuid, email, username]
+          
+      optional:
+        role_system:
+          description: User roles/permissions fields
+          evidence_type: schema
+          
+        profile_fields:
+          description: Additional user profile data
+          evidence_type: list
+          
+    discovery_prompts:
+      - user_model_explorer
+      - database_schema_analyzer
+
+confidence_calculation: |
+  # Calculate confidence for an uncertainty based on resolved criteria
+  
+  required_found = count(criteria.required.resolved)
+  required_total = count(criteria.required.total)
+  optional_found = count(criteria.optional.resolved)
+  optional_total = count(criteria.optional.total)
+  
+  # Base confidence from required criteria (max 80%)
+  base_confidence = (required_found / required_total) * 0.8
+  
+  # Bonus from optional criteria (max 20%)
+  if optional_total > 0:
+    bonus_confidence = (optional_found / optional_total) * 0.2
+  else:
+    bonus_confidence = 0
+    
+  total_confidence = base_confidence + bonus_confidence
+  
+  # Status determination
+  if total_confidence >= 0.8:
+    status = "resolved"
+  elif total_confidence > 0:
+    status = "partial"
+  else:
+    status = "unresolved"
+    
+  return {
+    confidence: total_confidence,
+    status: status
+  }

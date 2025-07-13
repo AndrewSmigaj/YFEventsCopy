@@ -1,0 +1,88 @@
+name: tech_analysis
+description: Deep technical stack and infrastructure analysis
+version: "1.0"
+type: discovery
+
+metadata:
+  average_duration: 15-20 minutes
+  complexity: simple
+  effectiveness: 0.85
+
+targets_phase: discovery
+optimal_for:
+  - Technology migration planning
+  - Performance optimization
+  - Scaling preparation
+  - Dependency updates
+  - Infrastructure changes
+
+targets_uncertainties:
+  primary:
+    - TECH-001
+    - INFRA-001
+  secondary:
+    - PERF-001
+    - SCALE-001
+    - DEP-001
+
+prompt_sequence:
+  - prompt: tech_stack_identifier
+    order: 1
+    mandatory: true
+    purpose: Identify complete technology stack
+    
+  - prompt: dependency_mapper
+    order: 2
+    mandatory: true
+    purpose: Map all dependencies and versions
+    
+  - prompt: infrastructure_analyzer
+    order: 3
+    mandatory: false
+    purpose: Understand deployment and infrastructure
+    condition: "task.description contains 'deploy' || task.description contains 'infrastructure'"
+    
+  - prompt: performance_profiler
+    order: 4
+    mandatory: false
+    purpose: Identify performance characteristics
+    condition: "task.description contains 'performance' || task.description contains 'optimize'"
+    
+  - prompt: database_analyzer
+    order: 5
+    mandatory: false
+    purpose: Deep dive into data layer
+    condition: "discoveries.technical.database != 'none'"
+
+success_criteria:
+  min_confidence_gain: 0.30
+  required_discoveries:
+    - technical.stack
+    - dependencies.external
+    - dependencies.versions
+  optional_discoveries:
+    - infrastructure.deployment
+    - performance.bottlenecks
+    - database.schema
+
+next_chain_logic:
+  - condition: "task.description contains 'migrate' || task.description contains 'upgrade'"
+    next_chain: migration_planning
+    reason: "Migration task detected"
+    
+  - condition: "discoveries.dependencies.outdated > 5"
+    next_chain: dependency_update_analysis
+    reason: "Many outdated dependencies found"
+    
+  - condition: "task.description contains 'scale' || task.description contains 'performance'"
+    next_chain: performance_optimization
+    reason: "Performance/scaling focus needed"
+    
+  - default: solution_design
+    reason: "Technical understanding sufficient"
+
+post_execution:
+  - tech_stack_summary
+  - dependency_health_report
+  - version_compatibility_check
+  - modernization_opportunities

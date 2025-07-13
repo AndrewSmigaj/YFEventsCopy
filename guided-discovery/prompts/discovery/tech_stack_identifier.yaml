@@ -1,0 +1,97 @@
+name: tech_stack_identifier
+category: discovery
+complexity: simple
+targets_uncertainties: ["TECH-001"]
+estimated_duration: 5 minutes
+
+requires_context:
+  - task.description
+
+provides_context:
+  - discoveries.technical.stack
+  - discoveries.technical.tools
+  - discoveries.technical.infrastructure
+  - discoveries.constraints.technical
+
+template: |
+  # Technology Stack Identification
+  
+  I need to identify the complete technology stack used in this project.
+  
+  **Task Context**: {{task.description}}
+  
+  ## Discovery Goals
+  
+  1. **Core Technologies**
+     - Primary programming language(s)
+     - Web framework(s)
+     - Database system(s)
+     - Caching layers
+  
+  2. **Development Tools**
+     - Build tools/bundlers
+     - Testing frameworks
+     - Linting/formatting tools
+     - Development servers
+  
+  3. **Infrastructure**
+     - Container technology (Docker, etc.)
+     - Cloud services
+     - CI/CD tools
+     - Monitoring/logging
+  
+  4. **Client-Side (if applicable)**
+     - Frontend framework
+     - CSS preprocessors
+     - State management
+     - Build tools
+  
+  Look for:
+  - File extensions
+  - Configuration files
+  - Package files
+  - Docker/deployment files
+  - CI/CD configuration
+  
+  Please provide findings in this structure:
+  
+  ### CORE_STACK
+  - Language: [with version if found]
+  - Framework: [main framework]
+  - Database: [type and version]
+  - Cache: [Redis|Memcached|none]
+  
+  ### DEVELOPMENT_TOOLS
+  - Build: [webpack|gulp|make|etc]
+  - Test: [jest|mocha|pytest|etc]
+  - Lint: [eslint|pylint|etc]
+  - Package_Manager: [npm|pip|etc]
+  
+  ### INFRASTRUCTURE
+  - Container: [Docker|none]
+  - Cloud: [AWS|GCP|Azure|none]
+  - CI_CD: [Jenkins|GitLab|GitHub Actions|etc]
+  - Deploy: [method/platform]
+  
+  ### CLIENT_SIDE
+  - Framework: [React|Vue|Angular|none]
+  - CSS: [SASS|LESS|CSS-in-JS|plain]
+  - State: [Redux|Vuex|none]
+  - Bundler: [webpack|vite|etc]
+  
+  ### NOTABLE_LIBRARIES
+  - Auth: [library if any]
+  - API: [REST|GraphQL|etc]
+  - ORM: [Sequelize|TypeORM|etc]
+  - Other: [significant libraries]
+
+output_parser:
+  sections:
+    - CORE_STACK
+    - DEVELOPMENT_TOOLS
+    - INFRASTRUCTURE
+    - CLIENT_SIDE
+    - NOTABLE_LIBRARIES
+  required_sections:
+    - CORE_STACK
+  confidence_impact: 0.25
