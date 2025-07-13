@@ -1,0 +1,162 @@
+name: php_quality_assessment
+description: Comprehensive quality assessment of PHP clean architecture
+version: "1.0"
+type: assessment
+specialization: quality_analysis
+
+metadata:
+  average_duration: 60-75 minutes
+  complexity: moderate
+  effectiveness: 0.92
+
+targets_phase: validation
+optimal_for:
+  - Assessing clean architecture implementation
+  - Code quality review
+  - Architecture fitness evaluation
+  - Team readiness assessment
+
+targets_uncertainties:
+  primary:
+    - VALID-001
+    - QUALITY-001
+    - CONFORM-001
+    - SOLID-001
+  secondary:
+    - PERF-001
+    - TEST-001
+    - MAINT-001
+
+prerequisites:
+  min_confidence:
+    ARCH-001: 0.7
+    LAYER-001: 0.7
+    PHP-001: 0.8
+  required_discoveries:
+    - architecture.layers
+    - domain.entities
+    - repositories.interfaces
+
+prompt_sequence:
+  - prompt: php_architecture_validator
+    order: 1
+    mandatory: true
+    purpose: Validate clean architecture compliance
+    
+  - prompt: php_coupling_analyzer
+    order: 2
+    mandatory: true
+    purpose: Analyze coupling and cohesion
+    
+  - prompt: php_interface_segregation_checker
+    order: 3
+    mandatory: true
+    purpose: Check SOLID principles compliance
+    
+  - prompt: php_testing_architecture_analyzer
+    order: 4
+    mandatory: true
+    purpose: Assess testing quality and coverage
+    
+  - prompt: php_performance_impact_analyzer
+    order: 5
+    mandatory: false
+    purpose: Analyze performance implications
+    condition: "task.description contains 'performance' || production system"
+    
+  - prompt: php_namespace_validator
+    order: 6
+    mandatory: false
+    purpose: Validate namespace organization
+    condition: "PSR-4 compliance not yet validated"
+    
+  - prompt: command_query_separator
+    order: 7
+    mandatory: false
+    purpose: Analyze command/query separation
+    condition: "discoveries.cqrs.implementation_level != null || task.description contains 'cqrs' || task.description contains 'command'"
+    
+  - prompt: port_adapter_mapper
+    order: 8
+    mandatory: false
+    purpose: Analyze port/adapter quality
+    condition: "discoveries.hexagonal.implementation_level != null || task.description contains 'hexagonal' || task.description contains 'port'"
+    
+  - prompt: service_responsibility_validator
+    order: 9
+    mandatory: false
+    purpose: Validate service responsibilities
+    condition: "discoveries.services.layer_organization != null || task.description contains 'service'"
+    
+  - prompt: dto_mapping_strategy_analyzer
+    order: 10
+    mandatory: false
+    purpose: Analyze DTO mapping quality
+    condition: "discoveries.dto.usage_patterns != null || task.description contains 'dto' || task.description contains 'mapping'"
+
+success_criteria:
+  min_confidence_gain: 0.35
+  required_discoveries:
+    - validation.architecture.compliance
+    - analysis.coupling.metrics
+    - analysis.solid.compliance_score
+    - testing.structure
+  optional_discoveries:
+    - analysis.performance.impact_assessment
+    - analysis.namespace.validation_results
+
+chain_variants:
+  performance_focus:
+    when: "task.description contains 'performance' || high-traffic application"
+    modifications:
+      - mandatory_prompt: php_performance_impact_analyzer
+      - add_prompt: performance_optimization_guide
+        after: php_performance_impact_analyzer
+        
+  team_assessment:
+    when: "task.description contains 'team' || assess team readiness"
+    modifications:
+      - add_prompt: team_capability_analyzer
+        after: php_architecture_validator
+      - add_prompt: training_needs_identifier
+
+scoring_thresholds:
+  excellent:
+    min_score: 85
+    certification: "⭐⭐⭐⭐⭐ Clean Architecture Certified"
+  good:
+    min_score: 70
+    certification: "⭐⭐⭐⭐ Well Architected"
+  acceptable:
+    min_score: 60
+    certification: "⭐⭐⭐ Decent Architecture"
+  needs_improvement:
+    max_score: 59
+    certification: "⭐⭐ Requires Attention"
+
+next_chain_logic:
+  - condition: "validation.architecture.total_score >= 85"
+    next_chain: optimization_opportunities
+    reason: "Excellent architecture, optimize further"
+    
+  - condition: "validation.architecture.total_score < 60"
+    next_chain: architecture_remediation_plan
+    reason: "Significant improvements needed"
+    
+  - condition: "analysis.coupling.technical_debt == 'high'"
+    next_chain: technical_debt_reduction
+    reason: "Address technical debt"
+    
+  - condition: "testing.coverage.overall < 60"
+    next_chain: test_improvement_plan
+    reason: "Improve test coverage"
+    
+  - default: continuous_improvement_guide
+    reason: "Maintain and improve architecture"
+
+post_execution:
+  - architecture_scorecard
+  - quality_metrics_dashboard
+  - improvement_prioritization
+  - team_recommendations
+  - certification_report

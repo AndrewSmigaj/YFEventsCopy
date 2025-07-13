@@ -1,0 +1,955 @@
+name: PHP Clean Architecture Uncertainties
+category: php_clean_architecture
+version: "1.0"
+
+description: |
+  Comprehensive uncertainties for PHP clean architecture projects including
+  new implementations, migrations from legacy code, framework transformations,
+  and quality assessments. Covers architectural patterns, PHP-specific concerns,
+  and common implementation challenges.
+
+common_in_tasks:
+  - Implementing clean architecture in PHP
+  - Migrating from MVC to clean architecture
+  - Laravel/Symfony to clean architecture
+  - Domain-driven design in PHP
+  - Microservices with clean architecture
+  - Legacy PHP modernization
+
+uncertainties:
+  # PHP Environment and Standards
+  - id: PHP-001
+    name: PHP Version and Environment
+    description: What PHP version and environment constraints exist?
+    priority: blocking
+    category: technical
+    
+    impact_areas:
+      - language_features
+      - library_compatibility
+      - performance_characteristics
+      - deployment_options
+      
+    depends_on: []
+    
+    enables:
+      - PSR-001
+      - COMPOSER-001
+      - FRAMEWORK-001
+      
+    resolution_criteria:
+      required:
+        php_version:
+          description: PHP version in use
+          evidence_type: version
+          example: "8.1.0"
+          
+        extensions_required:
+          description: Required PHP extensions
+          evidence_type: list
+          examples: [pdo, mbstring, openssl, json]
+          
+        environment_type:
+          description: Deployment environment
+          evidence_type: enumeration
+          values: [apache, nginx-fpm, cli, serverless]
+          
+      optional:
+        opcache_config:
+          description: OpCache configuration
+          evidence_type: configuration
+          
+        memory_limits:
+          description: PHP memory constraints
+          evidence_type: specification
+          
+    discovery_prompts:
+      - php_architecture_explorer
+      - environment_analyzer
+
+  - id: PSR-001
+    name: PSR Standards Compliance
+    description: Which PSR standards are followed and how strictly?
+    priority: high
+    category: standards
+    
+    impact_areas:
+      - code_organization
+      - autoloading
+      - interfaces
+      - coding_style
+      
+    depends_on:
+      - PHP-001
+      
+    enables:
+      - NAMESPACE-001
+      - AUTOLOAD-001
+      
+    resolution_criteria:
+      required:
+        psr4_compliance:
+          description: PSR-4 autoloading compliance
+          evidence_type: boolean
+          
+        namespace_structure:
+          description: Namespace organization pattern
+          evidence_type: pattern
+          example: "Vendor\\Package\\Layer\\Component"
+          
+        coding_standard:
+          description: PSR-12/PSR-2 compliance
+          evidence_type: enumeration
+          values: [PSR-12, PSR-2, custom, none]
+          
+      optional:
+        psr11_container:
+          description: PSR-11 container compliance
+          evidence_type: boolean
+          
+        psr7_http:
+          description: PSR-7 HTTP message compliance
+          evidence_type: boolean
+          
+    discovery_prompts:
+      - php_namespace_validator
+      - psr_compliance_checker
+
+  # Architecture Layers
+  - id: LAYER-001
+    name: Architecture Layer Structure
+    description: How are the clean architecture layers organized?
+    priority: blocking
+    category: architecture
+    
+    impact_areas:
+      - code_organization
+      - dependency_flow
+      - testability
+      - maintainability
+      
+    depends_on:
+      - ARCH-001
+      
+    enables:
+      - DOMAIN-001
+      - APP-001
+      - INFRA-001
+      - BOUNDARY-001
+      
+    resolution_criteria:
+      required:
+        layer_presence:
+          description: Which layers exist
+          evidence_type: checklist
+          items: [domain, application, infrastructure, presentation]
+          
+        layer_locations:
+          description: Directory mapping for each layer
+          evidence_type: mapping
+          example: "domain: src/Domain, application: src/Application"
+          
+        dependency_direction:
+          description: Dependency flow validation
+          evidence_type: validation
+          values: [inward-only, mixed, outward]
+          
+      optional:
+        shared_kernel:
+          description: Shared kernel location if exists
+          evidence_type: path
+          
+        layer_tests:
+          description: Test organization by layer
+          evidence_type: structure
+          
+    discovery_prompts:
+      - php_layer_analyzer
+      - architecture_validator
+
+  # Domain Layer
+  - id: DOMAIN-001
+    name: Domain Model Implementation
+    description: How is the domain layer implemented?
+    priority: blocking
+    category: domain
+    
+    impact_areas:
+      - business_logic
+      - domain_integrity
+      - testability
+      - expressiveness
+      
+    depends_on:
+      - LAYER-001
+      
+    enables:
+      - ENTITY-001
+      - VO-001
+      - AGG-001
+      - DOMAIN-SERVICE-001
+      
+    resolution_criteria:
+      required:
+        domain_purity:
+          description: Framework independence level
+          evidence_type: percentage
+          example: "95% pure PHP"
+          
+        entity_count:
+          description: Number of domain entities
+          evidence_type: count
+          
+        business_logic_location:
+          description: Where business rules live
+          evidence_type: enumeration
+          values: [entities, domain-services, mixed, elsewhere]
+          
+      optional:
+        ubiquitous_language:
+          description: Use of domain language
+          evidence_type: assessment
+          
+        aggregate_boundaries:
+          description: Aggregate design quality
+          evidence_type: description
+          
+    discovery_prompts:
+      - php_domain_explorer
+      - domain_model_analyzer
+
+  # Repository Pattern
+  - id: REPO-001
+    name: Repository Pattern Implementation
+    description: How is data persistence abstracted?
+    priority: high
+    category: patterns
+    
+    impact_areas:
+      - data_access
+      - testability
+      - persistence_flexibility
+      - domain_purity
+      
+    depends_on:
+      - DOMAIN-001
+      - LAYER-001
+      
+    enables:
+      - PERSIST-001
+      - QUERY-001
+      
+    resolution_criteria:
+      required:
+        repository_interfaces:
+          description: Repository interfaces location
+          evidence_type: path
+          example: "src/Domain/Repository"
+          
+        implementation_location:
+          description: Concrete implementations location
+          evidence_type: path
+          example: "src/Infrastructure/Repository"
+          
+        abstraction_level:
+          description: Level of abstraction from persistence
+          evidence_type: enumeration
+          values: [high, medium, low, none]
+          
+      optional:
+        specification_pattern:
+          description: Use of specification pattern
+          evidence_type: boolean
+          
+        unit_of_work:
+          description: Unit of work implementation
+          evidence_type: description
+          
+    discovery_prompts:
+      - php_repository_pattern_finder
+      - persistence_abstraction_analyzer
+
+  # Application Layer
+  - id: APP-001
+    name: Application Layer Design
+    description: How are use cases and application services organized?
+    priority: high
+    category: architecture
+    
+    impact_areas:
+      - use_case_clarity
+      - orchestration
+      - transaction_boundaries
+      - api_design
+      
+    depends_on:
+      - LAYER-001
+      - DOMAIN-001
+      
+    enables:
+      - USECASE-001
+      - DTO-001
+      - COMMAND-001
+      
+    resolution_criteria:
+      required:
+        use_case_pattern:
+          description: How use cases are implemented
+          evidence_type: enumeration
+          values: [classes, handlers, services, mixed]
+          
+        orchestration_approach:
+          description: Service orchestration pattern
+          evidence_type: description
+          
+        transaction_handling:
+          description: Where transactions are managed
+          evidence_type: enumeration
+          values: [use-case, service, infrastructure]
+          
+      optional:
+        cqrs_implementation:
+          description: CQRS usage level
+          evidence_type: enumeration
+          values: [full, partial, none]
+          
+        event_handling:
+          description: Application event patterns
+          evidence_type: description
+          
+    discovery_prompts:
+      - php_use_case_analyzer
+      - application_layer_explorer
+
+  # Framework Specific
+  - id: FRAMEWORK-001
+    name: PHP Framework Integration
+    description: How is the PHP framework integrated with clean architecture?
+    priority: high
+    category: framework
+    
+    impact_areas:
+      - framework_coupling
+      - migration_complexity
+      - feature_availability
+      - team_familiarity
+      
+    depends_on:
+      - PHP-001
+      
+    enables:
+      - LARAVEL-001
+      - SYMFONY-001
+      - SLIM-001
+      
+    resolution_criteria:
+      required:
+        framework_name:
+          description: PHP framework in use
+          evidence_type: identification
+          examples: [Laravel, Symfony, Slim, Laminas, none]
+          
+        framework_version:
+          description: Framework version
+          evidence_type: version
+          
+        coupling_level:
+          description: Framework coupling assessment
+          evidence_type: enumeration
+          values: [minimal, moderate, heavy, extreme]
+          
+      optional:
+        framework_features:
+          description: Framework features in use
+          evidence_type: list
+          
+        abstraction_strategy:
+          description: How framework is abstracted
+          evidence_type: description
+          
+    discovery_prompts:
+      - framework_analyzer
+      - framework_coupling_assessor
+
+  # Testing
+  - id: TEST-001
+    name: Testing Architecture
+    description: How is the application tested in clean architecture?
+    priority: high
+    category: quality
+    
+    impact_areas:
+      - test_coverage
+      - test_speed
+      - maintainability
+      - confidence
+      
+    depends_on:
+      - LAYER-001
+      
+    enables:
+      - MOCK-001
+      - INTEGRATION-001
+      
+    resolution_criteria:
+      required:
+        test_structure:
+          description: Test organization approach
+          evidence_type: description
+          
+        unit_test_coverage:
+          description: Unit test coverage percentage
+          evidence_type: percentage
+          
+        test_pyramid:
+          description: Test distribution
+          evidence_type: distribution
+          example: "70% unit, 20% integration, 10% e2e"
+          
+      optional:
+        test_speed:
+          description: Test suite execution time
+          evidence_type: duration
+          
+        mocking_strategy:
+          description: Test double approach
+          evidence_type: description
+          
+    discovery_prompts:
+      - php_testing_architecture_analyzer
+      - test_strategy_evaluator
+
+  # Performance
+  - id: PERF-001
+    name: Performance Impact
+    description: What is the performance impact of clean architecture?
+    priority: medium
+    category: performance
+    
+    impact_areas:
+      - response_time
+      - memory_usage
+      - scalability
+      - optimization_potential
+      
+    depends_on:
+      - LAYER-001
+      - PHP-001
+      
+    enables:
+      - CACHE-001
+      - OPTIMIZE-001
+      
+    resolution_criteria:
+      required:
+        baseline_performance:
+          description: Current performance metrics
+          evidence_type: metrics
+          
+        abstraction_overhead:
+          description: Measured abstraction cost
+          evidence_type: percentage
+          example: "5-10% overhead"
+          
+        bottlenecks:
+          description: Identified performance issues
+          evidence_type: list
+          
+      optional:
+        optimization_opportunities:
+          description: Performance improvement areas
+          evidence_type: recommendations
+          
+        caching_strategy:
+          description: Caching approach
+          evidence_type: description
+          
+    discovery_prompts:
+      - php_performance_impact_analyzer
+      - performance_profiler
+
+  # CQRS Pattern
+  - id: CQRS-001
+    name: Command Query Responsibility Segregation
+    description: How is CQRS implemented in the application?
+    priority: medium
+    category: patterns
+    
+    impact_areas:
+      - scalability
+      - complexity
+      - performance
+      - maintainability
+      
+    depends_on:
+      - APP-001
+      - LAYER-001
+      
+    enables:
+      - COMMAND-001
+      - QUERY-001
+      - EVENT-001
+      
+    resolution_criteria:
+      required:
+        implementation_level:
+          description: Level of CQRS implementation
+          evidence_type: enumeration
+          values: [none, basic, interface, full-cqrs, event-sourcing]
+          
+        command_pattern:
+          description: Command implementation approach
+          evidence_type: description
+          
+        query_pattern:
+          description: Query implementation approach
+          evidence_type: description
+          
+      optional:
+        command_bus:
+          description: Command bus implementation
+          evidence_type: identification
+          
+        query_bus:
+          description: Query bus implementation
+          evidence_type: identification
+          
+    discovery_prompts:
+      - cqrs_pattern_detector
+      - command_query_separator
+
+  # Hexagonal Architecture
+  - id: HEX-001
+    name: Hexagonal Architecture Implementation
+    description: How is hexagonal architecture (ports & adapters) implemented?
+    priority: medium
+    category: architecture
+    
+    impact_areas:
+      - dependency_management
+      - testability
+      - flexibility
+      - integration
+      
+    depends_on:
+      - LAYER-001
+      - DOMAIN-001
+      
+    enables:
+      - PORT-001
+      - ADAPTER-001
+      - INTEGRATION-001
+      
+    resolution_criteria:
+      required:
+        implementation_level:
+          description: Hexagonal architecture maturity
+          evidence_type: enumeration
+          values: [traditional, emerging, mature, exemplary]
+          
+        port_definitions:
+          description: Primary and secondary port definitions
+          evidence_type: count_and_quality
+          
+        adapter_implementations:
+          description: Adapter implementation quality
+          evidence_type: assessment
+          
+      optional:
+        dependency_inversion:
+          description: Dependency inversion compliance
+          evidence_type: percentage
+          
+        testing_strategy:
+          description: Port/adapter testing approach
+          evidence_type: description
+          
+    discovery_prompts:
+      - hexagonal_architecture_analyzer
+      - port_adapter_mapper
+
+  # Port Definitions
+  - id: PORT-001
+    name: Port Design and Definition
+    description: How are ports (interfaces) designed and defined?
+    priority: high
+    category: design
+    
+    impact_areas:
+      - interface_design
+      - dependency_management
+      - testability
+      - maintainability
+      
+    depends_on:
+      - HEX-001
+      - DOMAIN-001
+      
+    enables:
+      - ADAPTER-001
+      - MOCK-001
+      
+    resolution_criteria:
+      required:
+        primary_ports:
+          description: Primary port definitions and quality
+          evidence_type: interface_analysis
+          
+        secondary_ports:
+          description: Secondary port definitions and quality
+          evidence_type: interface_analysis
+          
+        interface_segregation:
+          description: Interface segregation principle compliance
+          evidence_type: assessment
+          
+      optional:
+        port_documentation:
+          description: Port contract documentation
+          evidence_type: documentation_quality
+          
+    discovery_prompts:
+      - hexagonal_architecture_analyzer
+      - php_interface_segregation_checker
+
+  # Adapter Quality
+  - id: ADAPTER-001
+    name: Adapter Implementation Quality
+    description: How well are adapters implemented?
+    priority: medium
+    category: implementation
+    
+    impact_areas:
+      - integration_quality
+      - error_handling
+      - configuration
+      - testing
+      
+    depends_on:
+      - PORT-001
+      - HEX-001
+      
+    enables:
+      - INTEGRATION-001
+      - TEST-001
+      
+    resolution_criteria:
+      required:
+        adapter_responsibilities:
+          description: Single responsibility adherence
+          evidence_type: assessment
+          
+        error_handling:
+          description: Error handling and translation quality
+          evidence_type: pattern_analysis
+          
+        configuration_management:
+          description: Externalized configuration approach
+          evidence_type: assessment
+          
+      optional:
+        testing_support:
+          description: Test double and mocking support
+          evidence_type: testability_assessment
+          
+    discovery_prompts:
+      - port_adapter_mapper
+      - adapter_quality_analyzer
+
+  # Command/Query Separation
+  - id: CQS-001
+    name: Command Query Separation
+    description: How well is command/query separation implemented?
+    priority: medium
+    category: principles
+    
+    impact_areas:
+      - code_clarity
+      - side_effects
+      - testability
+      - maintainability
+      
+    depends_on:
+      - CQRS-001
+      
+    enables:
+      - TEST-001
+      - PERF-001
+      
+    resolution_criteria:
+      required:
+        separation_quality:
+          description: CQS principle compliance
+          evidence_type: percentage
+          
+        violation_count:
+          description: Number of CQS violations
+          evidence_type: count
+          
+        side_effect_analysis:
+          description: Side effect classification and handling
+          evidence_type: analysis
+          
+      optional:
+        refactoring_plan:
+          description: Plan for improving separation
+          evidence_type: roadmap
+          
+    discovery_prompts:
+      - command_query_separator
+      - cqs_violation_analyzer
+
+  # Service Layer Design
+  - id: SERVICE-001
+    name: Service Layer Organization
+    description: How are services organized and what patterns are used?
+    priority: high
+    category: architecture
+    
+    impact_areas:
+      - service_design
+      - orchestration
+      - transaction_management
+      - maintainability
+      
+    depends_on:
+      - LAYER-001
+      - APP-001
+      
+    enables:
+      - SRP-001
+      - ORCHESTRATION-001
+      - TRANSACTION-001
+      
+    resolution_criteria:
+      required:
+        service_classification:
+          description: Service types and responsibilities
+          evidence_type: taxonomy
+          
+        service_organization:
+          description: How services are structured and located
+          evidence_type: structure_analysis
+          
+        orchestration_patterns:
+          description: Service coordination approach
+          evidence_type: pattern_identification
+          
+      optional:
+        transaction_boundaries:
+          description: Transaction management approach
+          evidence_type: implementation_analysis
+          
+    discovery_prompts:
+      - php_service_layer_analyzer
+      - service_responsibility_validator
+
+  # Data Transfer Objects
+  - id: DTO-001
+    name: Data Transfer Object Patterns
+    description: How are DTOs used for boundary management?
+    priority: high
+    category: patterns
+    
+    impact_areas:
+      - boundary_enforcement
+      - data_flow
+      - api_contracts
+      - validation
+      
+    depends_on:
+      - LAYER-001
+      - API-001
+      
+    enables:
+      - MAPPING-001
+      - VALIDATION-001
+      - BOUNDARY-001
+      
+    resolution_criteria:
+      required:
+        dto_usage:
+          description: DTO usage patterns and coverage
+          evidence_type: pattern_analysis
+          
+        mapping_strategy:
+          description: DTO to domain mapping approach
+          evidence_type: strategy_assessment
+          
+        validation_approach:
+          description: DTO validation implementation
+          evidence_type: implementation_analysis
+          
+      optional:
+        serialization_patterns:
+          description: DTO serialization approach
+          evidence_type: pattern_identification
+          
+    discovery_prompts:
+      - php_dto_pattern_analyzer
+      - dto_mapping_strategy_analyzer
+
+  # Service Responsibility
+  - id: SRP-001
+    name: Single Responsibility Principle in Services
+    description: How well do services adhere to SRP?
+    priority: medium
+    category: principles
+    
+    impact_areas:
+      - maintainability
+      - testability
+      - coupling
+      - cohesion
+      
+    depends_on:
+      - SERVICE-001
+      
+    enables:
+      - TEST-001
+      - MAINT-001
+      
+    resolution_criteria:
+      required:
+        srp_compliance:
+          description: SRP compliance assessment
+          evidence_type: compliance_analysis
+          
+        responsibility_clarity:
+          description: Service responsibility definition
+          evidence_type: clarity_assessment
+          
+        violation_identification:
+          description: SRP violations and severity
+          evidence_type: violation_analysis
+          
+      optional:
+        refactoring_plan:
+          description: Service improvement roadmap
+          evidence_type: roadmap
+          
+    discovery_prompts:
+      - service_responsibility_validator
+      - service_design_analyzer
+
+  # Mapping Strategies
+  - id: MAPPING-001
+    name: DTO Mapping Strategy
+    description: How are DTOs mapped to/from domain objects?
+    priority: medium
+    category: implementation
+    
+    impact_areas:
+      - performance
+      - maintainability
+      - type_safety
+      - error_handling
+      
+    depends_on:
+      - DTO-001
+      - DOMAIN-001
+      
+    enables:
+      - PERF-001
+      - MAINT-001
+      
+    resolution_criteria:
+      required:
+        mapping_approach:
+          description: Mapping strategy and tools used
+          evidence_type: strategy_analysis
+          
+        performance_impact:
+          description: Mapping performance characteristics
+          evidence_type: performance_analysis
+          
+        maintenance_burden:
+          description: Mapping code maintenance complexity
+          evidence_type: complexity_analysis
+          
+      optional:
+        automation_level:
+          description: Level of mapping automation
+          evidence_type: automation_assessment
+          
+    discovery_prompts:
+      - dto_mapping_strategy_analyzer
+      - mapping_performance_analyzer
+
+  # Transaction Management
+  - id: TRANSACTION-001
+    name: Transaction Boundary Management
+    description: How are transaction boundaries defined and managed?
+    priority: medium
+    category: implementation
+    
+    impact_areas:
+      - data_consistency
+      - performance
+      - error_handling
+      - scalability
+      
+    depends_on:
+      - SERVICE-001
+      - REPO-001
+      
+    enables:
+      - CONSISTENCY-001
+      - ERROR-001
+      
+    resolution_criteria:
+      required:
+        boundary_definition:
+          description: Transaction boundary placement
+          evidence_type: boundary_analysis
+          
+        management_approach:
+          description: Transaction management strategy
+          evidence_type: strategy_assessment
+          
+        error_handling:
+          description: Transaction error and rollback handling
+          evidence_type: error_analysis
+          
+      optional:
+        distributed_transactions:
+          description: Cross-service transaction handling
+          evidence_type: distributed_analysis
+          
+    discovery_prompts:
+      - transaction_boundary_analyzer
+      - consistency_pattern_detector
+
+confidence_calculation: |
+  # Calculate confidence for PHP clean architecture uncertainties
+  
+  # Weight different categories
+  category_weights = {
+    technical: 0.2,
+    architecture: 0.3,
+    domain: 0.2,
+    patterns: 0.15,
+    quality: 0.15
+  }
+  
+  # Calculate per-category confidence
+  category_confidence = {}
+  for category, weight in category_weights.items():
+    category_uncertainties = filter(u => u.category == category, uncertainties)
+    if category_uncertainties.length > 0:
+      resolved = count(u => u.status == "resolved", category_uncertainties)
+      partial = count(u => u.status == "partial", category_uncertainties)
+      total = category_uncertainties.length
+      
+      category_confidence[category] = (resolved + (partial * 0.5)) / total
+  
+  # Weighted overall confidence
+  overall = 0
+  for category, confidence in category_confidence.items():
+    overall += confidence * category_weights[category]
+  
+  return {
+    overall: overall,
+    by_category: category_confidence,
+    blocking_resolved: all(u => u.status != "unresolved", filter(u => u.priority == "blocking"))
+  }

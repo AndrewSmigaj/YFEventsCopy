@@ -1,0 +1,167 @@
+name: php_interface_segregation_checker
+category: analysis
+complexity: moderate
+targets_uncertainties: ["SOLID-001", "DESIGN-001", "INTERFACE-001"]
+estimated_duration: 20-25 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+  - discoveries.repositories.interfaces
+
+provides_context:
+  - analysis.solid.interface_segregation
+  - analysis.solid.dependency_inversion
+  - analysis.solid.violations
+  - analysis.solid.improvement_opportunities
+
+template: |
+  # PHP SOLID Principles Analysis (Focus: Interface Segregation & Dependency Inversion)
+  
+  I need to analyze SOLID principles compliance, especially Interface Segregation and Dependency Inversion.
+  
+  **Task Context**: {{task.description}}
+  **Architecture**: {{discoveries.architecture.layers}}
+  
+  ## Analysis Goals
+  
+  1. **Interface Segregation Principle (ISP)**
+     - Fat interfaces detection
+     - Client-specific interfaces
+     - Interface cohesion
+     - Method grouping appropriateness
+  
+  2. **Dependency Inversion Principle (DIP)**
+     - Abstraction dependencies
+     - Concrete dependencies
+     - Dependency direction
+     - Inversion completeness
+  
+  3. **Other SOLID Principles**
+     - Single Responsibility (SRP)
+     - Open/Closed (OCP)
+     - Liskov Substitution (LSP)
+  
+  4. **Interface Design Quality**
+     - Interface naming
+     - Method signatures
+     - Return types
+     - Parameter types
+  
+  5. **Refactoring Opportunities**
+     - Interface splitting
+     - Abstraction introduction
+     - Dependency cleanup
+  
+  Please analyze SOLID compliance:
+  
+  ### INTERFACE_SEGREGATION_ANALYSIS
+  - Fat_Interfaces:
+    - [List interfaces with too many methods]
+    - Example:
+      - Interface: [name]
+      - Method_Count: [number]
+      - Used_By: [clients]
+      - Actually_Used: [methods actually used by each client]
+  - Interface_Cohesion:
+    - High_Cohesion: [list well-designed interfaces]
+    - Low_Cohesion: [list interfaces mixing concerns]
+  - Client_Specificity:
+    - Generic_Interfaces: [too generic for clients]
+    - Missing_Segregation: [where splitting would help]
+  
+  ### DEPENDENCY_INVERSION_ANALYSIS
+  - High_Level_Dependencies:
+    - On_Abstractions: [percentage]
+    - On_Concretes: [percentage]
+    - Violations: [list high-level → concrete deps]
+  - Low_Level_Dependencies:
+    - Implement_Interfaces: [percentage]
+    - Direct_Usage: [where concretes are used directly]
+  - Dependency_Flow:
+    - Correct_Direction: [follows DIP?]
+    - Inverted_Dependencies: [list good examples]
+    - Non_Inverted: [list violations]
+  
+  ### INTERFACE_DESIGN_QUALITY
+  - Naming_Conventions:
+    - Clear_Names: [yes/no/mixed]
+    - Role_Based: [e.g., Repository, Gateway]
+    - Suffix_Usage: [Interface suffix used?]
+  - Method_Design:
+    - Single_Purpose: [methods do one thing?]
+    - Clear_Contracts: [return types, params clear?]
+    - Consistent_Patterns: [similar operations consistent?]
+  - Type_Declarations:
+    - Return_Types: [all declared/partial/none]
+    - Parameter_Types: [all declared/partial/none]
+    - Strict_Types: [enabled/disabled]
+  
+  ### OTHER_SOLID_PRINCIPLES
+  - Single_Responsibility:
+    - Violations: [classes with multiple responsibilities]
+    - Good_Examples: [well-focused classes]
+  - Open_Closed:
+    - Extension_Points: [where OCP is followed]
+    - Modification_Required: [where OCP is violated]
+  - Liskov_Substitution:
+    - Substitutable: [proper inheritance]
+    - Violations: [breaking substitutability]
+  
+  ### VIOLATION_EXAMPLES
+  - ISP_Violations:
+    - Fat_Interface_Example:
+      ```php
+      interface UserRepository {
+          // Too many unrelated methods
+          public function find($id);
+          public function findByEmail($email);
+          public function save($user);
+          public function delete($user);
+          public function getStatistics(); // Not all clients need this
+          public function exportToCsv();    // Not all clients need this
+      }
+      ```
+    - Better_Design: [show how to split]
+  - DIP_Violations:
+    - Concrete_Dependency_Example:
+      ```php
+      class OrderService {
+          private MySQLOrderRepository $repository; // Depends on concrete
+      }
+      ```
+    - Better_Design: [show with interface]
+  
+  ### IMPROVEMENT_OPPORTUNITIES
+  - Interface_Splitting:
+    - [List interfaces to split]
+    - [Suggested new interfaces]
+  - Abstraction_Introduction:
+    - [Where interfaces are missing]
+    - [Suggested interface designs]
+  - Dependency_Fixes:
+    - [Concrete dependencies to invert]
+    - [How to introduce abstractions]
+  - Quick_Wins:
+    - [Easy fixes with high impact]
+  
+  ### SOLID_COMPLIANCE_SCORE
+  - Interface_Segregation: [excellent/good/fair/poor]
+  - Dependency_Inversion: [excellent/good/fair/poor]
+  - Overall_SOLID: [score 1-10]
+  - Technical_Debt_Impact: [low/medium/high]
+  - Refactoring_Priority:
+    1. [Most important fix]
+    2. [Second priority]
+    3. [Third priority]
+
+output_parser:
+  sections:
+    - INTERFACE_SEGREGATION_ANALYSIS
+    - DEPENDENCY_INVERSION_ANALYSIS
+    - INTERFACE_DESIGN_QUALITY
+    - OTHER_SOLID_PRINCIPLES
+    - VIOLATION_EXAMPLES
+    - IMPROVEMENT_OPPORTUNITIES
+    - SOLID_COMPLIANCE_SCORE
+  confidence_impact: 0.3

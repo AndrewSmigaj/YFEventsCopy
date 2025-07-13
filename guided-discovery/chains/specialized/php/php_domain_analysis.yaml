@@ -1,0 +1,116 @@
+name: php_domain_analysis
+description: Deep dive into PHP domain layer for clean architecture
+version: "1.0"
+type: discovery
+specialization: domain_driven_design
+
+metadata:
+  average_duration: 60-75 minutes
+  complexity: complex
+  effectiveness: 0.90
+
+targets_phase: discovery
+optimal_for:
+  - Domain-driven design implementation
+  - Understanding business logic organization
+  - Identifying domain boundaries
+  - Assessing domain model quality
+
+targets_uncertainties:
+  primary:
+    - DOMAIN-001
+    - DDD-001
+    - ENTITY-001
+    - REPO-001
+  secondary:
+    - EVENT-001
+    - AGGREGATE-001
+    - SERVICE-001
+
+prerequisites:
+  min_confidence:
+    ARCH-001: 0.6
+    PHP-001: 0.7
+  required_discoveries:
+    - architecture.layers
+    - php.architecture_style
+
+prompt_sequence:
+  - prompt: php_domain_explorer
+    order: 1
+    mandatory: true
+    purpose: Deep dive into domain implementation
+    
+  - prompt: php_repository_pattern_finder
+    order: 2
+    mandatory: true
+    purpose: Understand data persistence patterns
+    
+  - prompt: php_event_system_explorer
+    order: 3
+    mandatory: false
+    purpose: Analyze domain events and messaging
+    condition: "discoveries.domain.domain_events != null || task.description contains 'event'"
+    
+  - prompt: php_interface_segregation_checker
+    order: 4
+    mandatory: true
+    purpose: Validate SOLID principles in domain
+    
+  - prompt: php_persistence_abstraction_analyzer
+    order: 5
+    mandatory: true
+    purpose: Assess persistence ignorance
+
+success_criteria:
+  min_confidence_gain: 0.45
+  required_discoveries:
+    - domain.entities
+    - domain.value_objects
+    - repositories.interfaces
+    - domain.domain_services
+  optional_discoveries:
+    - domain.aggregates
+    - domain.domain_events
+    - events.event_system
+
+chain_variants:
+  anemic_domain:
+    when: "discoveries.domain.anemic_domain == true"
+    modifications:
+      - add_prompt: domain_enrichment_advisor
+        after: php_domain_explorer
+      - focus: "Move business logic to domain"
+        
+  event_driven:
+    when: "task.description contains 'event' || discoveries.domain.domain_events.length > 0"
+    modifications:
+      - mandatory_prompt: php_event_system_explorer
+      - add_prompt: event_sourcing_analyzer
+        condition: "event sourcing mentioned"
+
+next_chain_logic:
+  - condition: "discoveries.domain.anemic_domain == true && confidence.overall < 0.7"
+    next_chain: domain_refactoring_guide
+    reason: "Domain needs significant improvement"
+    
+  - condition: "discoveries.repositories.interfaces == null || discoveries.repositories.interfaces.length == 0"
+    next_chain: repository_pattern_implementation
+    reason: "Need to implement repository pattern"
+    
+  - condition: "confidence.overall >= 0.8 && task.type == 'analysis'"
+    next_chain: php_quality_assessment
+    reason: "Ready for quality assessment"
+    
+  - condition: "task.type == 'implementation'"
+    next_chain: domain_implementation_guide
+    reason: "Ready to implement improvements"
+    
+  - default: php_use_case_analysis
+    reason: "Analyze application layer next"
+
+post_execution:
+  - domain_model_assessment
+  - ddd_compliance_report
+  - repository_pattern_evaluation
+  - domain_improvement_roadmap

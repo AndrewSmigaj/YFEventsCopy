@@ -1,0 +1,94 @@
+name: php_architecture_explorer
+category: discovery
+complexity: simple
+targets_uncertainties: ["PHP-001", "ARCH-001", "PSR-001"]
+estimated_duration: 10-15 minutes
+
+requires_context:
+  - task.description
+
+provides_context:
+  - discoveries.php.version
+  - discoveries.php.architecture_style
+  - discoveries.php.psr_compliance
+  - discoveries.php.namespace_structure
+  - discoveries.php.autoloading
+
+template: |
+  # PHP Architecture Discovery
+  
+  I need to understand the PHP architecture and standards used in this codebase.
+  
+  **Task Context**: {{task.description}}
+  
+  ## Discovery Goals
+  
+  1. **PHP Environment**
+     - PHP version (check composer.json, .php-version, or phpinfo)
+     - Extensions and requirements
+     - Composer configuration
+  
+  2. **Architecture Style**
+     - Overall architecture pattern (MVC, Clean/Hexagonal, Layered, etc.)
+     - Directory structure and organization
+     - Separation of concerns approach
+  
+  3. **PSR Standards Compliance**
+     - PSR-4 autoloading structure
+     - PSR-12 coding standards
+     - PSR-7/15 (if HTTP messages used)
+     - PSR-11 (if container used)
+  
+  4. **Namespace Organization**
+     - Root namespace(s)
+     - Layer-based or feature-based organization
+     - Vendor namespace conventions
+  
+  5. **Key Architecture Indicators**
+     - Presence of Domain, Application, Infrastructure folders
+     - Interface/implementation separation
+     - Use of design patterns (Repository, Factory, etc.)
+  
+  Please explore the codebase and provide findings:
+  
+  ### PHP_ENVIRONMENT
+  - Version: [PHP version]
+  - Package_Manager: composer
+  - Key_Extensions: [list required extensions]
+  - Autoload_Type: [psr-4/psr-0/classmap/files]
+  
+  ### ARCHITECTURE_STYLE
+  - Pattern: [Clean Architecture/Hexagonal/MVC/Layered/Custom]
+  - Organization: [layer-based/feature-based/mixed]
+  - Key_Directories:
+    - Domain: [path if exists]
+    - Application: [path if exists]
+    - Infrastructure: [path if exists]
+    - Presentation: [path if exists]
+  
+  ### PSR_COMPLIANCE
+  - Autoloading: [PSR-4/PSR-0/mixed/none]
+  - Coding_Standard: [PSR-12/PSR-2/custom]
+  - Container: [PSR-11 compliant/custom/none]
+  - HTTP: [PSR-7/PSR-15/none]
+  
+  ### NAMESPACE_STRUCTURE
+  - Root_Namespace: [e.g., App\, YourCompany\ProjectName\]
+  - Structure_Type: [layer-based/feature-based]
+  - Example_Namespaces:
+    - [list 3-5 example namespaces showing structure]
+  
+  ### CLEAN_ARCHITECTURE_INDICATORS
+  - Domain_Layer: [present/absent/partial]
+  - Use_Cases: [present/absent/partial]
+  - Dependency_Rule: [followed/violated/unclear]
+  - Interface_Adapters: [present/absent/partial]
+
+output_parser:
+  sections:
+    - PHP_ENVIRONMENT
+    - ARCHITECTURE_STYLE
+    - PSR_COMPLIANCE
+    - NAMESPACE_STRUCTURE
+    - CLEAN_ARCHITECTURE_INDICATORS
+  confidence_impact: 0.4

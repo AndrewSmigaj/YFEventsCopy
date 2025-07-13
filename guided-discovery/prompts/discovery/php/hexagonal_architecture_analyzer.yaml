@@ -1,0 +1,275 @@
+name: hexagonal_architecture_analyzer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["HEX-001", "PORT-001", "ADAPTER-001"]
+estimated_duration: 25-30 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+  - discoveries.dependencies.external_integrations
+
+provides_context:
+  - discoveries.hexagonal.implementation_level
+  - discoveries.hexagonal.ports
+  - discoveries.hexagonal.adapters
+  - discoveries.hexagonal.dependency_inversion
+
+template: |
+  # Hexagonal Architecture (Ports & Adapters) Analysis
+  
+  I need to analyze the implementation of Hexagonal Architecture patterns in this PHP codebase.
+  
+  **Task Context**: {{task.description}}
+  **Architecture Layers**: {{discoveries.architecture.layers}}
+  
+  ## Analysis Goals
+  
+  1. **Hexagonal Implementation**
+     - Core domain isolation
+     - Port definitions (interfaces)
+     - Adapter implementations
+     - Dependency direction compliance
+  
+  2. **Port Analysis**
+     - Primary ports (driving)
+     - Secondary ports (driven)
+     - Port ownership and location
+     - Interface design quality
+  
+  3. **Adapter Analysis**
+     - Primary adapters (controllers, CLI, etc.)
+     - Secondary adapters (persistence, external APIs)
+     - Adapter responsibilities
+     - Framework coupling isolation
+  
+  4. **Dependency Inversion**
+     - Dependency flow validation
+     - Interface segregation
+     - Abstraction quality
+     - Testability impact
+  
+  5. **Integration Boundaries**
+     - External system integrations
+     - Infrastructure concerns
+     - Cross-cutting concerns
+     - Testing strategies
+  
+  Please analyze hexagonal architecture:
+  
+  ### HEXAGONAL_IMPLEMENTATION_LEVEL
+  - Architecture_Style:
+    - Pattern: [traditional-layers/hexagonal/onion/mixed]
+    - Evidence: [what indicates hexagonal approach]
+    - Completeness: [full/partial/attempted/none]
+  - Core_Domain:
+    - Isolation_Level: [fully isolated/mostly/partially/not isolated]
+    - Location: [domain path]
+    - Dependencies: [what domain depends on]
+    - Purity: [framework-free percentage]
+  - Boundary_Definition:
+    - Clear_Boundaries: [yes/somewhat/no]
+    - Interface_Usage: [extensive/moderate/minimal]
+    - Dependency_Direction: [inward only/mixed/outward]
+  
+  ### PORT_ANALYSIS
+  - Primary_Ports:
+    - Definition: [interfaces for use cases/application services]
+    - Location: [where primary ports are defined]
+    - Examples:
+      ```php
+      interface OrderManagementPort {
+          public function createOrder(CreateOrderRequest $request): OrderResponse;
+          public function cancelOrder(OrderId $orderId): void;
+      }
+      ```
+    - Count: [number of primary ports]
+    - Quality: [well-designed/adequate/poor]
+  
+  - Secondary_Ports:
+    - Definition: [interfaces for external dependencies]
+    - Location: [where secondary ports are defined]
+    - Examples:
+      ```php
+      interface OrderRepositoryPort {
+          public function save(Order $order): void;
+          public function findById(OrderId $id): ?Order;
+      }
+      
+      interface PaymentGatewayPort {
+          public function processPayment(PaymentRequest $request): PaymentResult;
+      }
+      ```
+    - Count: [number of secondary ports]
+    - Categories: [persistence/external-api/messaging/file-system]
+  
+  - Port_Design_Quality:
+    - Interface_Segregation: [focused/mixed concerns]
+    - Abstraction_Level: [appropriate/too specific/too generic]
+    - Naming_Consistency: [clear/confusing]
+    - Documentation: [well documented/lacking]
+  
+  ### ADAPTER_ANALYSIS
+  - Primary_Adapters:
+    - HTTP_Controllers: [implement primary ports?]
+    - CLI_Commands: [use application core?]
+    - Event_Listeners: [external event handling]
+    - API_Gateways: [facade pattern usage]
+    - Examples:
+      ```php
+      class OrderController {
+          public function __construct(
+              private OrderManagementPort $orderService
+          ) {}
+          
+          public function create(Request $request): Response {
+              $result = $this->orderService->createOrder(
+                  CreateOrderRequest::fromHttp($request)
+              );
+              return OrderResponse::toHttp($result);
+          }
+      }
+      ```
+  
+  - Secondary_Adapters:
+    - Database_Adapters: [implement repository ports]
+    - API_Clients: [external service integration]
+    - File_System: [file storage adapters]
+    - Cache_Adapters: [caching implementations]
+    - Examples:
+      ```php
+      class DoctrineOrderRepository implements OrderRepositoryPort {
+          public function save(Order $order): void {
+              // Doctrine-specific implementation
+          }
+      }
+      ```
+  
+  - Adapter_Quality:
+    - Single_Responsibility: [adapters focused?]
+    - Framework_Isolation: [framework code contained?]
+    - Error_Handling: [appropriate error translation?]
+    - Testing_Support: [easily mockable?]
+  
+  ### DEPENDENCY_INVERSION_COMPLIANCE
+  - Dependency_Flow:
+    - Core_Dependencies: [domain depends on nothing external]
+    - Application_Dependencies: [only on domain interfaces]
+    - Infrastructure_Dependencies: [implements core interfaces]
+    - Violations: [list any dependency rule violations]
+  
+  - Interface_Ownership:
+    - Domain_Owned: [secondary ports in domain]
+    - Application_Owned: [primary ports in application]
+    - Misplaced_Interfaces: [interfaces in wrong layer]
+  
+  - Dependency_Injection:
+    - Constructor_Injection: [consistent usage]
+    - Container_Configuration: [proper DI setup]
+    - Factory_Usage: [complex object creation]
+    - Service_Locator: [anti-pattern avoided?]
+  
+  ### INTEGRATION_BOUNDARIES
+  - External_System_Integration:
+    - APIs: [how external APIs are integrated]
+    - Databases: [persistence boundary implementation]
+    - Message_Queues: [messaging integration]
+    - File_Systems: [file operations abstraction]
+  
+  - Cross_Cutting_Concerns:
+    - Logging: [how logging is handled across boundaries]
+    - Security: [authentication/authorization placement]
+    - Caching: [caching strategy implementation]
+    - Monitoring: [observability across adapters]
+  
+  - Configuration_Management:
+    - Environment_Config: [how config flows to adapters]
+    - Feature_Flags: [how features are toggled]
+    - Service_Discovery: [how services are located]
+  
+  ### TESTING_ENABLEMENT
+  - Test_Strategy:
+    - Unit_Testing: [core domain testability]
+    - Integration_Testing: [adapter testing approach]
+    - Contract_Testing: [port compliance testing]
+  
+  - Mock_Friendly_Design:
+    - Interface_Mocking: [easy to mock ports?]
+    - Test_Doubles: [in-memory adapters available?]
+    - Isolation: [can test core without infrastructure?]
+  
+  - Test_Examples:
+    ```php
+    // Core domain test - no mocks needed
+    class OrderTest extends TestCase {
+        public function test_order_calculation() {
+            $order = new Order();
+            $order->addItem(new OrderItem('SKU1', 100));
+            $this->assertEquals(100, $order->getTotal());
+        }
+    }
+    
+    // Application test - mock secondary ports
+    class OrderServiceTest extends TestCase {
+        public function test_create_order() {
+            $repository = $this->createMock(OrderRepositoryPort::class);
+            $service = new OrderService($repository);
+            // Test orchestration logic
+        }
+    }
+    ```
+  
+  ### HEXAGONAL_MATURITY_ASSESSMENT
+  - Implementation_Score:
+    - Domain_Isolation: [0-10]
+    - Port_Design: [0-10] 
+    - Adapter_Implementation: [0-10]
+    - Dependency_Inversion: [0-10]
+    - Testing_Enablement: [0-10]
+  
+  - Overall_Hexagonal_Score: [average of above]
+  
+  - Maturity_Level:
+    - 🔴 Traditional (0-3): Layered architecture, some interfaces
+    - 🟡 Emerging (4-6): Some ports/adapters, partial inversion
+    - 🟢 Mature (7-8): Good hexagonal implementation
+    - 🟦 Exemplary (9-10): Perfect dependency inversion and testing
+  
+  - Benefits_Realized:
+    - Framework_Independence: [can swap frameworks easily?]
+    - External_Service_Independence: [can change databases/APIs?]
+    - Testability: [fast, isolated unit tests?]
+    - Maintainability: [clear responsibilities?]
+  
+  - Improvement_Opportunities:
+    - Critical: [must fix for hexagonal architecture]
+    - Important: [would significantly improve design]
+    - Nice_to_Have: [minor improvements]
+  
+  ### RECOMMENDATIONS
+  - Immediate_Actions:
+    1. [Most important fix]
+    2. [Second priority]
+    3. [Third priority]
+  
+  - Architecture_Evolution:
+    - Phase_1: [foundational improvements]
+    - Phase_2: [port/adapter refinements]
+    - Phase_3: [advanced patterns]
+  
+  - Framework_Strategy:
+    - [How to isolate framework dependencies]
+    - [Migration path for better isolation]
+    - [Testing improvements enabled]
+
+output_parser:
+  sections:
+    - HEXAGONAL_IMPLEMENTATION_LEVEL
+    - PORT_ANALYSIS
+    - ADAPTER_ANALYSIS
+    - DEPENDENCY_INVERSION_COMPLIANCE
+    - INTEGRATION_BOUNDARIES
+    - TESTING_ENABLEMENT
+    - HEXAGONAL_MATURITY_ASSESSMENT
+    - RECOMMENDATIONS
+  confidence_impact: 0.4

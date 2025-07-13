@@ -1,0 +1,162 @@
+name: php_persistence_abstraction_analyzer
+category: analysis
+complexity: moderate
+targets_uncertainties: ["PERSIST-001", "ABSTRACT-001", "ORM-001"]
+estimated_duration: 20-25 minutes
+
+requires_context:
+  - task.description
+  - discoveries.repositories.implementations
+  - discoveries.repositories.persistence_mechanism
+
+provides_context:
+  - analysis.persistence.abstraction_level
+  - analysis.persistence.leaky_abstractions
+  - analysis.persistence.orm_usage
+  - analysis.persistence.improvements
+
+template: |
+  # PHP Persistence Abstraction Analysis
+  
+  I need to evaluate how well the persistence layer is abstracted from the domain.
+  
+  **Task Context**: {{task.description}}
+  **Persistence Mechanism**: {{discoveries.repositories.persistence_mechanism}}
+  
+  ## Analysis Goals
+  
+  1. **Abstraction Level**
+     - Repository abstraction quality
+     - Domain model independence
+     - Query abstraction
+     - Transaction abstraction
+  
+  2. **Leaky Abstractions**
+     - ORM entities in domain
+     - SQL in business logic
+     - Database concepts leaking
+     - Framework coupling
+  
+  3. **ORM Usage Patterns**
+     - Active Record vs Data Mapper
+     - Entity mapping approach
+     - Query builder usage
+     - Raw SQL usage
+  
+  4. **Persistence Ignorance**
+     - Domain purity
+     - Infrastructure isolation
+     - Testability impact
+     - Migration flexibility
+  
+  5. **Performance Considerations**
+     - N+1 query problems
+     - Lazy loading issues
+     - Query optimization
+     - Caching strategy
+  
+  Please analyze persistence abstraction:
+  
+  ### ABSTRACTION_QUALITY
+  - Repository_Pattern:
+    - Interface_Abstraction: [complete/partial/none]
+    - Method_Abstraction: [domain-focused/data-focused]
+    - Return_Types: [entities/arrays/ORM objects]
+  - Query_Abstraction:
+    - Specification_Pattern: [used/not used]
+    - Criteria_Pattern: [used/not used]
+    - Query_Objects: [used/not used]
+    - Raw_SQL_Exposure: [hidden/exposed/mixed]
+  - Transaction_Abstraction:
+    - Unit_of_Work: [implemented/not implemented]
+    - Transaction_Handling: [abstracted/exposed]
+    - Scope: [automatic/manual/mixed]
+  
+  ### LEAKY_ABSTRACTIONS
+  - Domain_Contamination:
+    - ORM_Annotations: [in domain/separate/none]
+    - Base_Classes: [domain extends ORM?]
+    - Magic_Methods: [__get/__set in domain?]
+  - Business_Logic_Leaks:
+    - SQL_in_Services: [none/some/significant]
+    - ORM_in_Use_Cases: [none/some/significant]
+    - Database_Concepts: [tables/columns exposed?]
+  - Framework_Coupling:
+    - Eloquent_Models: [as domain entities?]
+    - Doctrine_Entities: [properly separated?]
+    - Collection_Types: [ORM collections in domain?]
+  
+  ### ORM_USAGE_ANALYSIS
+  - Pattern_Type:
+    - Active_Record: [used - where?]
+    - Data_Mapper: [used - where?]
+    - Table_Gateway: [used - where?]
+  - Entity_Mapping:
+    - Mapping_Location: [annotations/XML/PHP]
+    - Mapping_Complexity: [simple/moderate/complex]
+    - Value_Objects: [how mapped?]
+  - Query_Patterns:
+    - Query_Builder: [percentage of queries]
+    - DQL/Eloquent: [percentage of queries]
+    - Raw_SQL: [percentage of queries]
+    - Stored_Procedures: [used?]
+  
+  ### PERSISTENCE_IGNORANCE
+  - Domain_Purity_Score: [0-10]
+  - Infrastructure_Independence:
+    - Switchable: [easy/moderate/difficult]
+    - Database_Agnostic: [yes/partial/no]
+  - Testing_Impact:
+    - In_Memory_Repos: [available/missing]
+    - Mock_Difficulty: [easy/moderate/hard]
+    - Integration_Required: [always/sometimes/rarely]
+  
+  ### PERFORMANCE_ANALYSIS
+  - Query_Efficiency:
+    - N_Plus_One: [detected/none/mitigated]
+    - Eager_Loading: [used appropriately?]
+    - Query_Count: [reasonable/excessive]
+  - Optimization_Patterns:
+    - Query_Caching: [implemented/not implemented]
+    - Result_Caching: [implemented/not implemented]
+    - Write_Through: [patterns used]
+  - Problem_Areas:
+    - [List performance issues found]
+    - [Suggested optimizations]
+  
+  ### IMPROVEMENT_RECOMMENDATIONS
+  - Critical_Issues:
+    - [Leaky abstractions to fix]
+    - [Domain contamination to remove]
+  - Abstraction_Improvements:
+    - [Better repository interfaces]
+    - [Query abstraction suggestions]
+  - Pattern_Applications:
+    - [Where to apply Specification]
+    - [Where to apply Unit of Work]
+  - Migration_Path:
+    - [Steps to improve abstraction]
+    - [How to achieve persistence ignorance]
+  
+  ### PERSISTENCE_ABSTRACTION_SCORE
+  - Abstraction_Level: [excellent/good/fair/poor]
+  - Leakiness: [none/minimal/moderate/severe]
+  - Domain_Purity: [pure/mostly pure/contaminated]
+  - Testability: [excellent/good/fair/poor]
+  - Migration_Difficulty: [easy/moderate/hard]
+  - Overall_Score: [1-10]
+  - Top_Priorities:
+    1. [Most critical improvement]
+    2. [Second priority]
+    3. [Third priority]
+
+output_parser:
+  sections:
+    - ABSTRACTION_QUALITY
+    - LEAKY_ABSTRACTIONS
+    - ORM_USAGE_ANALYSIS
+    - PERSISTENCE_IGNORANCE
+    - PERFORMANCE_ANALYSIS
+    - IMPROVEMENT_RECOMMENDATIONS
+    - PERSISTENCE_ABSTRACTION_SCORE
+  confidence_impact: 0.35

@@ -1,0 +1,135 @@
+name: php_namespace_validator
+category: analysis
+complexity: simple
+targets_uncertainties: ["PSR-001", "STRUCT-001", "NAMESPACE-001"]
+estimated_duration: 10-15 minutes
+
+requires_context:
+  - task.description
+  - discoveries.php.namespace_structure
+  - discoveries.php.psr_compliance
+
+provides_context:
+  - analysis.namespace.validation_results
+  - analysis.namespace.psr4_compliance
+  - analysis.namespace.organization_quality
+  - analysis.namespace.improvements
+
+template: |
+  # PHP Namespace Validation
+  
+  I need to validate namespace organization and PSR-4 compliance.
+  
+  **Task Context**: {{task.description}}
+  **Root Namespace**: {{discoveries.php.namespace_structure.root_namespace}}
+  **PSR Compliance**: {{discoveries.php.psr_compliance}}
+  
+  ## Validation Goals
+  
+  1. **PSR-4 Compliance**
+     - Namespace to directory mapping
+     - Case sensitivity issues
+     - Autoloading correctness
+     - Composer configuration validation
+  
+  2. **Namespace Organization**
+     - Logical grouping
+     - Naming conventions
+     - Depth and hierarchy
+     - Consistency across codebase
+  
+  3. **Clean Architecture Alignment**
+     - Layer-based namespacing
+     - Boundary clarity
+     - Domain isolation
+     - Infrastructure separation
+  
+  4. **Common Issues**
+     - Mismatched namespaces
+     - Incorrect paths
+     - Naming violations
+     - Organizational problems
+  
+  Please validate namespaces:
+  
+  ### PSR4_COMPLIANCE
+  - Autoload_Configuration:
+    - PSR4_Mappings: [from composer.json]
+    - Correctly_Mapped: [yes/no/partial]
+  - Directory_Structure:
+    - Matches_Namespaces: [yes/no/partial]
+    - Case_Sensitivity: [correct/issues found]
+  - File_Naming:
+    - Class_File_Match: [all match/some mismatch]
+    - One_Class_Per_File: [yes/violations found]
+  - Validation_Issues:
+    - [List any PSR-4 violations found]
+  
+  ### NAMESPACE_ORGANIZATION
+  - Structure_Type:
+    - Pattern: [layer-based/feature-based/mixed]
+    - Consistency: [consistent/inconsistent]
+  - Naming_Conventions:
+    - PascalCase: [followed/violations]
+    - Descriptive: [yes/no/mixed]
+    - Abbreviations: [avoided/overused]
+  - Hierarchy_Depth:
+    - Average_Depth: [number of levels]
+    - Max_Depth: [deepest namespace]
+    - Optimal: [yes/too deep/too shallow]
+  
+  ### CLEAN_ARCHITECTURE_ALIGNMENT
+  - Layer_Namespaces:
+    - Domain: [e.g., App\Domain\*]
+    - Application: [e.g., App\Application\*]
+    - Infrastructure: [e.g., App\Infrastructure\*]
+    - Presentation: [e.g., App\Presentation\*]
+  - Boundary_Clarity:
+    - Clear_Separation: [yes/no/partial]
+    - Cross_Layer_Mixing: [none/some/significant]
+  - Domain_Isolation:
+    - Pure_Domain_NS: [yes/no]
+    - Infrastructure_Free: [yes/no/violations]
+  
+  ### NAMESPACE_ISSUES
+  - Mismatches:
+    - [List namespace/directory mismatches]
+  - Naming_Problems:
+    - [List poor naming choices]
+    - [Unclear namespaces]
+    - [Overly generic names]
+  - Organization_Problems:
+    - [Mixed concerns in namespaces]
+    - [Inconsistent patterns]
+    - [Missing logical grouping]
+  
+  ### IMPROVEMENT_RECOMMENDATIONS
+  - Critical_Fixes:
+    - [PSR-4 violations to fix]
+    - [Mismatched namespaces to correct]
+  - Organization_Improvements:
+    - [Suggested reorganizations]
+    - [Better naming proposals]
+  - Clean_Architecture_Alignment:
+    - [How to better align with CA]
+    - [Suggested namespace structure]
+  - Migration_Path:
+    - [Steps to improve namespaces]
+    - [Backward compatibility approach]
+  
+  ### NAMESPACE_QUALITY_SCORE
+  - PSR4_Compliance: [compliant/partial/non-compliant]
+  - Organization: [excellent/good/fair/poor]
+  - Clean_Architecture_Fit: [perfect/good/fair/poor]
+  - Overall_Score: [1-10]
+  - Priority_Actions: [top 3 fixes needed]
+
+output_parser:
+  sections:
+    - PSR4_COMPLIANCE
+    - NAMESPACE_ORGANIZATION
+    - CLEAN_ARCHITECTURE_ALIGNMENT
+    - NAMESPACE_ISSUES
+    - IMPROVEMENT_RECOMMENDATIONS
+    - NAMESPACE_QUALITY_SCORE
+  confidence_impact: 0.2

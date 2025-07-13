@@ -1,0 +1,136 @@
+name: php_clean_discovery
+description: Basic discovery chain for PHP clean architecture projects
+version: "1.0"
+type: discovery
+specialization: php_clean_architecture
+
+metadata:
+  average_duration: 45-60 minutes
+  complexity: moderate
+  effectiveness: 0.85
+
+targets_phase: discovery
+optimal_for:
+  - Understanding PHP project structure
+  - Assessing clean architecture readiness
+  - Initial architecture exploration
+  - Framework-agnostic PHP projects
+
+targets_uncertainties:
+  primary:
+    - PHP-001
+    - ARCH-001
+    - LAYER-001
+    - PSR-001
+  secondary:
+    - DEP-001
+    - DOMAIN-001
+    - REPO-001
+    - DI-001
+
+prerequisites:
+  min_confidence:
+    TECH-001: 0.3
+  required_discoveries:
+    - technical.languages # Must confirm PHP
+
+prompt_sequence:
+  - prompt: php_architecture_explorer
+    order: 1
+    mandatory: true
+    purpose: Understand PHP structure and standards
+    
+  - prompt: php_layer_analyzer
+    order: 2
+    mandatory: true
+    purpose: Map architectural layers
+    
+  - prompt: php_dependency_mapper
+    order: 3
+    mandatory: true
+    purpose: Understand dependencies
+    
+  - prompt: php_namespace_validator
+    order: 4
+    mandatory: false
+    purpose: Validate PSR-4 compliance
+    condition: "discoveries.php.psr_compliance.autoloading != 'none'"
+    
+  - prompt: php_di_container_explorer
+    order: 5
+    mandatory: false
+    purpose: Understand dependency injection
+    condition: "discoveries.dependencies.composer_packages contains 'container' || discoveries.php.architecture_style != 'procedural'"
+    
+  - prompt: cqrs_pattern_detector
+    order: 6
+    mandatory: false
+    purpose: Detect CQRS patterns
+    condition: "discoveries.architecture.patterns contains 'cqrs' || discoveries.application.command_bus != null || task.description contains 'cqrs' || task.description contains 'command'"
+    
+  - prompt: hexagonal_architecture_analyzer
+    order: 7
+    mandatory: false
+    purpose: Analyze hexagonal architecture
+    condition: "discoveries.architecture.style == 'hexagonal' || task.description contains 'port' || task.description contains 'adapter' || task.description contains 'hexagonal'"
+    
+  - prompt: php_service_layer_analyzer
+    order: 8
+    mandatory: false
+    purpose: Analyze service layer organization
+    condition: "discoveries.application.use_cases != null || task.description contains 'service' || discoveries.architecture.layers.application != null"
+    
+  - prompt: php_dto_pattern_analyzer
+    order: 9
+    mandatory: false
+    purpose: Analyze DTO patterns and boundaries
+    condition: "discoveries.api.endpoints != null || task.description contains 'dto' || task.description contains 'api'"
+
+success_criteria:
+  min_confidence_gain: 0.40
+  required_discoveries:
+    - php.architecture_style
+    - architecture.layers
+    - dependencies.composer_packages
+    - php.namespace_structure
+  optional_discoveries:
+    - dependency_injection.container
+    - repositories.interfaces
+
+chain_variants:
+  framework_detected:
+    when: "discoveries.dependencies.composer_packages matches 'laravel|symfony|slim'"
+    modifications:
+      - add_prompt: framework_specific_analyzer
+        after: php_architecture_explorer
+      - skip_prompt: php_namespace_validator
+        reason: "Framework handles PSR-4"
+        
+  legacy_codebase:
+    when: "discoveries.php.architecture_style == 'procedural' || discoveries.php.architecture_style == 'mixed'"
+    modifications:
+      - add_prompt: php_legacy_to_clean_mapper
+        after: php_layer_analyzer
+      - reduce_expectations: true
+
+next_chain_logic:
+  - condition: "discoveries.domain.entities == null || discoveries.domain.entities.length == 0"
+    next_chain: php_domain_analysis
+    reason: "Need to understand domain layer"
+    
+  - condition: "discoveries.php.architecture_style contains 'legacy' || discoveries.php.architecture_style == 'mvc'"
+    next_chain: php_migration_planning
+    reason: "Legacy code needs migration planning"
+    
+  - condition: "confidence.overall >= 0.75"
+    next_chain: php_quality_assessment
+    reason: "Ready for quality assessment"
+    
+  - default: targeted_discovery
+    reason: "Focus on remaining uncertainties"
+
+post_execution:
+  - php_architecture_summary
+  - clean_readiness_assessment
+  - key_findings_report
+  - next_steps_recommendation

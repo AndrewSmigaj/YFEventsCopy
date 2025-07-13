@@ -31,9 +31,18 @@ Unknowns that block or impact your implementation:
 
 ### Discovery Chains
 Sequences of prompts that systematically resolve uncertainties:
+
+#### General Chains
 - **general_discovery**: Initial exploration for any task
 - **auth_discovery**: Deep dive into authentication systems
 - **tech_analysis**: Technology stack and infrastructure analysis
+
+#### PHP Clean Architecture Chains
+- **php_clean_discovery**: PHP clean architecture exploration
+- **php_domain_analysis**: Deep domain layer analysis for PHP
+- **php_migration_planning**: Plan legacy PHP to clean architecture migration
+- **laravel_clean_transformation**: Transform Laravel apps to clean architecture
+- **php_quality_assessment**: Assess PHP clean architecture quality
 
 ### Context
 Persistent storage of discoveries and confidence tracking:
@@ -65,11 +74,19 @@ Execute a discovery chain to resolve uncertainties.
 /chain auth_discovery task-20240107-jwt-auth
 
 # Available chains:
+# General chains:
 # - general_discovery: Basic exploration
 # - auth_discovery: Authentication deep dive
 # - tech_analysis: Technology stack analysis
 # - security_analysis: Security requirements
 # - performance_analysis: Performance patterns
+#
+# PHP Clean Architecture chains:
+# - php_clean_discovery: PHP project exploration
+# - php_domain_analysis: Domain layer deep dive
+# - php_migration_planning: Legacy migration planning
+# - laravel_clean_transformation: Laravel to clean
+# - php_quality_assessment: Quality validation
 ```
 
 ### `/context <subcommand> [task_id]`
@@ -177,6 +194,63 @@ Deep dive into a specific uncertainty.
 # 4. Deep dive into specific issues
 /uncertainty PERF-001  # Current bottlenecks
 /uncertainty CACHE-001 # Caching strategy
+```
+
+### Example 4: PHP Clean Architecture Implementation
+
+```bash
+# 1. Start discovery for PHP project
+/discover Implement clean architecture in PHP e-commerce API
+
+# Output: Created task-20240107-php-clean-arch
+# Identified uncertainties: PHP-001, LAYER-001, DOMAIN-001, REPO-001
+
+# 2. Run PHP-specific discovery
+/chain php_clean_discovery
+
+# Output: Discovered PHP 8.1, MVC pattern, Composer autoloading
+# Confidence: 30% → 65%
+
+# 3. Analyze domain layer potential
+/chain php_domain_analysis
+
+# Output: Found anemic models, business logic in controllers
+# Confidence: 65% → 82%
+
+# 4. Check specific PHP concerns
+/uncertainty PHP-001   # PHP version and environment
+/uncertainty PSR-001   # PSR standards compliance
+/uncertainty REPO-001  # Repository pattern needs
+
+# 5. Validate implementation
+/chain php_quality_assessment
+```
+
+### Example 5: Laravel to Clean Architecture
+
+```bash
+# 1. Start Laravel transformation
+/discover Transform Laravel monolith to clean architecture
+
+# 2. Run Laravel-specific analysis
+/chain laravel_clean_transformation
+
+# Output: Identified Eloquent coupling, service layer opportunities
+# Recommendations: Phase-based migration approach
+
+# 3. Plan the migration
+/chain php_migration_planning
+
+# Output: 5-phase migration plan with risk assessment
+# Phase 1: Extract service layer (2 weeks)
+# Phase 2: Create domain entities (3 weeks)
+# Phase 3: Implement repositories (2 weeks)
+# Phase 4: Extract use cases (4 weeks)
+# Phase 5: Clean up and optimize (1 week)
+
+# 4. Check progress after Phase 1
+/context status
+/chain php_quality_assessment
 ```
 
 ## 💡 Best Practices
@@ -311,6 +385,37 @@ uncertainties:
       required:
         some_finding:
           description: What to find
+```
+
+### PHP Clean Architecture Support
+
+UDDS includes comprehensive support for PHP clean architecture:
+
+#### Available PHP Prompts
+- **Discovery**: 10 prompts for exploring PHP architecture
+- **Analysis**: 7 prompts for quality and migration analysis
+- **Framework-specific**: Support for Laravel, Symfony, and Slim
+- **Validation**: Architecture compliance checking
+
+#### PHP Uncertainty Template
+The `php_clean_architecture.yaml` template includes:
+- PHP environment and PSR standards (PHP-001, PSR-001)
+- Architecture layers (LAYER-001, DOMAIN-001)
+- Repository pattern (REPO-001)
+- Framework integration (FRAMEWORK-001, LARAVEL-001)
+- Testing and performance (TEST-001, PERF-001)
+
+#### Example PHP Discovery
+```bash
+# For a new PHP project
+/discover Implement clean architecture for payment processing API
+/chain php_clean_discovery
+/chain php_domain_analysis
+
+# For Laravel migration
+/discover Migrate Laravel app to clean architecture
+/chain laravel_clean_transformation
+/chain php_migration_planning
 ```
 
 ## 📈 Confidence Scoring

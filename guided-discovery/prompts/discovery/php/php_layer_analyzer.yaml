@@ -1,0 +1,103 @@
+name: php_layer_analyzer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["LAYER-001", "ARCH-002", "BOUNDARY-001"]
+estimated_duration: 15-20 minutes
+
+requires_context:
+  - task.description
+  - discoveries.php.architecture_style
+
+provides_context:
+  - discoveries.architecture.layers
+  - discoveries.architecture.layer_boundaries
+  - discoveries.architecture.layer_violations
+  - discoveries.architecture.dependency_flow
+
+template: |
+  # PHP Layer Analysis
+  
+  I need to map and analyze the architectural layers in this PHP codebase.
+  
+  **Task Context**: {{task.description}}
+  **Architecture Style**: {{discoveries.php.architecture_style}}
+  
+  ## Discovery Goals
+  
+  1. **Layer Identification**
+     - Identify all architectural layers
+     - Map directories to layers
+     - Understand layer responsibilities
+  
+  2. **Layer Boundaries**
+     - How layers communicate
+     - Dependency directions
+     - Boundary enforcement mechanisms
+  
+  3. **Clean Architecture Layers** (if applicable)
+     - Entities/Domain Models
+     - Use Cases/Application Services
+     - Interface Adapters/Controllers
+     - Frameworks & Drivers/Infrastructure
+  
+  4. **Dependency Analysis**
+     - Inward/outward dependencies
+     - Layer coupling
+     - Dependency injection patterns
+  
+  5. **Boundary Violations**
+     - Direct framework usage in domain
+     - Database access outside repositories
+     - Business logic in controllers
+  
+  Please analyze the layer structure:
+  
+  ### LAYER_MAPPING
+  - Domain_Layer:
+    - Location: [path]
+    - Components: [entities, value objects, domain services]
+    - Pure_PHP: [yes/no - any framework dependencies?]
+  - Application_Layer:
+    - Location: [path]
+    - Components: [use cases, application services, DTOs]
+    - Dependencies: [what it depends on]
+  - Infrastructure_Layer:
+    - Location: [path]
+    - Components: [repositories, external services, persistence]
+    - Frameworks: [list frameworks used]
+  - Presentation_Layer:
+    - Location: [path]
+    - Components: [controllers, views, API endpoints]
+    - Type: [web/api/cli/mixed]
+  
+  ### DEPENDENCY_FLOW
+  - Direction: [inward/outward/mixed]
+  - Domain_Dependencies: [none/minimal/heavy]
+  - Dependency_Injection: [container/manual/mixed]
+  - Interface_Usage: [extensive/moderate/minimal]
+  
+  ### LAYER_BOUNDARIES
+  - Enforcement: [strict/loose/none]
+  - Communication_Pattern: [interfaces/direct/mixed]
+  - DTO_Usage: [yes/no/partial]
+  - Boundary_Objects: [list key boundary interfaces/classes]
+  
+  ### VIOLATIONS_FOUND
+  - Domain_Violations: [list any framework dependencies in domain]
+  - Application_Violations: [list any direct infrastructure access]
+  - Dependency_Rule_Violations: [list any outward dependencies]
+  
+  ### LAYER_QUALITY
+  - Separation: [excellent/good/moderate/poor]
+  - Testability: [high/medium/low]
+  - Maintainability: [high/medium/low]
+  - Recommendations: [list 2-3 improvement suggestions]
+
+output_parser:
+  sections:
+    - LAYER_MAPPING
+    - DEPENDENCY_FLOW
+    - LAYER_BOUNDARIES
+    - VIOLATIONS_FOUND
+    - LAYER_QUALITY
+  confidence_impact: 0.35

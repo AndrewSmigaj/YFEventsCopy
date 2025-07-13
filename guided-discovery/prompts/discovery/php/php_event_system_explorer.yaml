@@ -1,0 +1,145 @@
+name: php_event_system_explorer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["EVENT-001", "ASYNC-001", "MESSAGING-001"]
+estimated_duration: 15-20 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+  - discoveries.domain.domain_events
+
+provides_context:
+  - discoveries.events.event_system
+  - discoveries.events.event_types
+  - discoveries.events.dispatching
+  - discoveries.events.handlers
+
+template: |
+  # PHP Event System Exploration
+  
+  I need to understand event-driven patterns and messaging in this PHP codebase.
+  
+  **Task Context**: {{task.description}}
+  **Domain Events Found**: {{discoveries.domain.domain_events}}
+  
+  ## Discovery Goals
+  
+  1. **Event System Architecture**
+     - Event dispatcher/bus
+     - Synchronous vs asynchronous
+     - Event sourcing usage
+     - Message queue integration
+  
+  2. **Event Types**
+     - Domain events
+     - Application events
+     - Integration events
+     - System events
+  
+  3. **Event Dispatching**
+     - Dispatch mechanisms
+     - Event raising patterns
+     - Transaction boundaries
+     - Event ordering
+  
+  4. **Event Handlers**
+     - Handler organization
+     - Handler registration
+     - Error handling
+     - Side effects management
+  
+  5. **Messaging Patterns**
+     - Command bus
+     - Event bus
+     - Query bus
+     - Saga/Process managers
+  
+  Please explore event system:
+  
+  ### EVENT_SYSTEM_ARCHITECTURE
+  - Event_Dispatcher: [Symfony/Laravel/League/custom]
+  - Pattern: [observer/mediator/pub-sub]
+  - Processing:
+    - Synchronous: [yes/no]
+    - Asynchronous: [yes/no - which queues]
+    - Mixed: [describe when each is used]
+  - Event_Sourcing: [full/partial/none]
+  - Message_Queue: [RabbitMQ/Redis/SQS/none]
+  
+  ### EVENT_CATALOG
+  - Domain_Events:
+    - Count: [number of domain events]
+    - Examples: [list 3-5 domain events]
+    - Structure: [properties pattern]
+    - Immutability: [enforced/not enforced]
+  - Application_Events:
+    - Examples: [list application events]
+    - Purpose: [coordination/integration]
+  - Integration_Events:
+    - External_Events: [events for external systems]
+    - Format: [JSON/Avro/Protobuf]
+  
+  ### EVENT_DISPATCHING_PATTERNS
+  - Dispatch_Location:
+    - Domain: [entities/aggregates raise events]
+    - Application: [use cases dispatch events]
+    - Infrastructure: [after persistence]
+  - Dispatch_Method:
+    - Direct: [dispatcher->dispatch()]
+    - Collected: [events collected, then dispatched]
+    - Deferred: [after transaction commit]
+  - Event_Recording: [how events are recorded]
+  - Transaction_Handling: [inside/outside transaction]
+  
+  ### EVENT_HANDLERS
+  - Handler_Types:
+    - Projections: [read model updates]
+    - Side_Effects: [emails, notifications]
+    - Integration: [external system calls]
+    - Process_Managers: [multi-step processes]
+  - Registration:
+    - Method: [configuration/attributes/tags]
+    - Location: [where handlers are defined]
+  - Error_Handling:
+    - Strategy: [retry/dead letter/ignore]
+    - Logging: [how failures are logged]
+  - Example_Handler:
+    - Event: [e.g., OrderPlaced]
+    - Handler: [e.g., SendOrderConfirmation]
+    - Logic: [what it does]
+  
+  ### MESSAGING_PATTERNS
+  - Command_Bus:
+    - Implementation: [which library/custom]
+    - Middleware: [validation/logging/transaction]
+    - Usage: [extensive/moderate/minimal]
+  - Event_Bus:
+    - Separate_From_Dispatcher: [yes/no]
+    - Features: [describe capabilities]
+  - CQRS_Implementation:
+    - Separation: [full/partial/none]
+    - Read_Models: [how projections work]
+  - Saga_Pattern: [used/not used]
+  
+  ### EVENT_SYSTEM_QUALITY
+  - Event_Design: [rich events/anemic events]
+  - Consistency: [eventual/strong/mixed]
+  - Testability: [easy/moderate/difficult]
+  - Performance: [optimized/acceptable/issues]
+  - Issues_Found:
+    - [List problems]
+    - [Missing events]
+    - [Coupling issues]
+  - Recommendations:
+    - [List improvements]
+
+output_parser:
+  sections:
+    - EVENT_SYSTEM_ARCHITECTURE
+    - EVENT_CATALOG
+    - EVENT_DISPATCHING_PATTERNS
+    - EVENT_HANDLERS
+    - MESSAGING_PATTERNS
+    - EVENT_SYSTEM_QUALITY
+  confidence_impact: 0.35

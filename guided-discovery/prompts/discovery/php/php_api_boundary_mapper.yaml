@@ -1,0 +1,138 @@
+name: php_api_boundary_mapper
+category: discovery
+complexity: moderate
+targets_uncertainties: ["API-001", "CONTRACT-001", "HTTP-001"]
+estimated_duration: 15-20 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+  - discoveries.application.use_cases
+
+provides_context:
+  - discoveries.api.endpoints
+  - discoveries.api.contracts
+  - discoveries.api.authentication
+  - discoveries.api.versioning
+
+template: |
+  # PHP API Boundary Mapping
+  
+  I need to understand the API layer and how the application exposes its functionality.
+  
+  **Task Context**: {{task.description}}
+  **Presentation Layer**: {{discoveries.architecture.layers.presentation}}
+  
+  ## Discovery Goals
+  
+  1. **API Structure**
+     - API types (REST, GraphQL, RPC)
+     - Endpoint organization
+     - Routing patterns
+     - Controller structure
+  
+  2. **Request/Response Contracts**
+     - Request validation
+     - Response formatting
+     - Error handling
+     - Status codes
+  
+  3. **API Security**
+     - Authentication methods
+     - Authorization patterns
+     - Rate limiting
+     - CORS handling
+  
+  4. **API Documentation**
+     - Documentation approach
+     - API specifications
+     - Contract testing
+     - Versioning strategy
+  
+  5. **Clean Architecture Boundaries**
+     - Controller responsibilities
+     - Use case invocation
+     - DTO transformation
+     - Presentation logic separation
+  
+  Please map API boundaries:
+  
+  ### API_STRUCTURE
+  - API_Type: [REST/GraphQL/JSON-RPC/mixed]
+  - Base_Path: [e.g., /api/v1]
+  - Routing:
+    - Framework: [Symfony/Laravel/Slim routing]
+    - Pattern: [resource-based/action-based/mixed]
+    - Definition: [annotations/config files/code]
+  - Controller_Organization:
+    - Structure: [single action/resource/feature]
+    - Base_Class: [if any]
+    - Naming: [e.g., UserController, GetUserAction]
+  
+  ### REQUEST_RESPONSE_HANDLING
+  - Request_Validation:
+    - Method: [form requests/validators/manual]
+    - Location: [controller/middleware/separate layer]
+    - Error_Format: [how validation errors are returned]
+  - Response_Format:
+    - Type: [JSON/XML/mixed]
+    - Envelope: [data wrapper pattern used?]
+    - Transformation: [how DTOs become responses]
+  - HTTP_Standards:
+    - Status_Codes: [properly used/inconsistent]
+    - Headers: [standard headers used]
+    - Content_Negotiation: [supported/not supported]
+  
+  ### API_CONTRACTS
+  - Input_DTOs:
+    - Definition: [where request DTOs are defined]
+    - Validation_Rules: [where rules are specified]
+    - Example: [show a request DTO]
+  - Output_DTOs:
+    - Definition: [where response DTOs are defined]
+    - Serialization: [how objects are serialized]
+    - Example: [show a response DTO]
+  - Error_Contracts:
+    - Format: [consistent error format?]
+    - Error_Codes: [application-specific codes?]
+    - Example: [show error response structure]
+  
+  ### API_SECURITY
+  - Authentication:
+    - Method: [JWT/OAuth/API keys/session]
+    - Implementation: [middleware/guard/custom]
+    - Token_Handling: [how tokens are passed]
+  - Authorization:
+    - Pattern: [RBAC/ABAC/policies/custom]
+    - Implementation: [where auth checks happen]
+    - Granularity: [endpoint/resource/field level]
+  - Security_Headers: [CORS/CSP/other headers]
+  - Rate_Limiting: [implemented/not implemented]
+  
+  ### API_DOCUMENTATION
+  - Documentation_Type: [OpenAPI/Swagger/API Blueprint/none]
+  - Generation: [annotations/code-first/spec-first]
+  - Location: [where docs are found]
+  - Completeness: [full/partial/minimal/none]
+  - Contract_Testing: [used/not used]
+  
+  ### CLEAN_BOUNDARIES
+  - Controller_Responsibilities:
+    - Kept_Thin: [yes/no/mostly]
+    - Business_Logic: [none/minimal/too much]
+    - Use_Case_Invocation: [clean/mixed/poor]
+  - Dependency_Direction: [inward only/mixed/outward]
+  - Framework_Coupling: [minimal/moderate/heavy]
+  - Testability: [high/medium/low]
+  - Issues_Found: [list boundary violations]
+  - Recommendations: [list improvements]
+
+output_parser:
+  sections:
+    - API_STRUCTURE
+    - REQUEST_RESPONSE_HANDLING
+    - API_CONTRACTS
+    - API_SECURITY
+    - API_DOCUMENTATION
+    - CLEAN_BOUNDARIES
+  confidence_impact: 0.35

@@ -1,0 +1,123 @@
+name: php_di_container_explorer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["DI-001", "CONFIG-001", "CONTAINER-001"]
+estimated_duration: 15-20 minutes
+
+requires_context:
+  - task.description
+  - discoveries.php.architecture_style
+  - discoveries.dependencies.composer_packages
+
+provides_context:
+  - discoveries.dependency_injection.container
+  - discoveries.dependency_injection.service_definitions
+  - discoveries.dependency_injection.autowiring
+  - discoveries.dependency_injection.configuration
+
+template: |
+  # PHP Dependency Injection Container Discovery
+  
+  I need to understand how dependency injection and IoC container are configured and used.
+  
+  **Task Context**: {{task.description}}
+  **Architecture**: {{discoveries.php.architecture_style}}
+  
+  ## Discovery Goals
+  
+  1. **Container Implementation**
+     - DI container used
+     - PSR-11 compliance
+     - Configuration approach
+     - Service providers/bundles
+  
+  2. **Service Definitions**
+     - Service registration
+     - Factory patterns
+     - Singleton vs transient
+     - Service tags/attributes
+  
+  3. **Autowiring**
+     - Autowiring usage
+     - Constructor injection
+     - Setter injection
+     - Property injection
+  
+  4. **Configuration Management**
+     - Environment-based config
+     - Service parameters
+     - Configuration files
+     - Secret management
+  
+  5. **Container Usage**
+     - Service location anti-pattern
+     - Proper injection patterns
+     - Circular dependencies
+     - Container compilation
+  
+  Please analyze DI container setup:
+  
+  ### CONTAINER_IMPLEMENTATION
+  - Container_Type: [Symfony DI/Laravel/PHP-DI/Laminas/custom]
+  - PSR11_Compliant: [yes/no]
+  - Configuration_Format: [PHP/YAML/XML/annotations/attributes]
+  - Bootstrap_Location: [where container is built]
+  - Service_Providers: [list main providers/bundles]
+  
+  ### SERVICE_REGISTRATION
+  - Registration_Method: [explicit/autowired/mixed]
+  - Common_Services:
+    - Repositories: [how registered]
+    - Use_Cases: [how registered]
+    - Domain_Services: [how registered]
+    - Infrastructure: [how registered]
+  - Factory_Usage: [where factories are used]
+  - Decorators: [if decorator pattern used]
+  
+  ### AUTOWIRING_PATTERNS
+  - Autowiring_Enabled: [yes/no/partial]
+  - Injection_Types:
+    - Constructor: [primary/secondary/rare]
+    - Setter: [used/not used]
+    - Property: [used/not used]
+  - Type_Hints: [interfaces/concretes/mixed]
+  - Binding_Rules: [how interfaces are bound]
+  
+  ### CONFIGURATION_STRUCTURE
+  - Config_Files:
+    - Location: [path to config files]
+    - Format: [PHP arrays/YAML/ENV/mixed]
+    - Environment_Handling: [how environments work]
+  - Parameters:
+    - Definition: [where parameters defined]
+    - Usage: [how parameters are injected]
+    - Examples: [show 2-3 parameter examples]
+  - Secrets: [how sensitive data is handled]
+  
+  ### CONTAINER_USAGE_PATTERNS
+  - Service_Locator: [avoided/used sparingly/overused]
+  - Injection_Consistency: [consistent/mixed/poor]
+  - Circular_Dependencies: [none/resolved/problematic]
+  - Lazy_Services: [used/not used]
+  - Container_Compilation: [compiled/runtime/cached]
+  
+  ### DI_QUALITY_ASSESSMENT
+  - Configuration_Clarity: [excellent/good/moderate/poor]
+  - Testability: [high/medium/low]
+  - Performance: [optimized/acceptable/slow]
+  - Issues_Found:
+    - [List any anti-patterns]
+    - [Service locator usage]
+    - [Circular dependencies]
+  - Recommendations:
+    - [List improvements]
+
+output_parser:
+  sections:
+    - CONTAINER_IMPLEMENTATION
+    - SERVICE_REGISTRATION
+    - AUTOWIRING_PATTERNS
+    - CONFIGURATION_STRUCTURE
+    - CONTAINER_USAGE_PATTERNS
+    - DI_QUALITY_ASSESSMENT
+  confidence_impact: 0.35

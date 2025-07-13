@@ -1,0 +1,118 @@
+name: laravel_clean_transformation
+description: Transform Laravel application to clean architecture
+version: "1.0"
+type: transformation
+specialization: laravel_framework
+
+metadata:
+  average_duration: 75-90 minutes
+  complexity: complex
+  effectiveness: 0.87
+
+targets_phase: planning
+optimal_for:
+  - Laravel applications seeking clean architecture
+  - Reducing Laravel coupling
+  - Implementing DDD in Laravel
+  - Laravel API transformations
+
+targets_uncertainties:
+  primary:
+    - LARAVEL-001
+    - ELOQUENT-001
+    - FRAMEWORK-001
+    - LAYER-001
+  secondary:
+    - SERVICE-001
+    - FACADE-001
+    - TEST-001
+
+prerequisites:
+  min_confidence:
+    PHP-001: 0.8
+    LARAVEL-001: 0.5
+  required_discoveries:
+    - dependencies.laravel_version
+    - php.architecture_style
+
+prompt_sequence:
+  - prompt: laravel_to_clean_analyzer
+    order: 1
+    mandatory: true
+    purpose: Analyze Laravel-specific patterns
+    
+  - prompt: php_domain_explorer
+    order: 2
+    mandatory: true
+    purpose: Understand current domain implementation
+    
+  - prompt: php_repository_pattern_finder
+    order: 3
+    mandatory: true
+    purpose: Analyze Eloquent usage and data access
+    
+  - prompt: php_use_case_analyzer
+    order: 4
+    mandatory: true
+    purpose: Map controllers to use cases
+    
+  - prompt: php_di_container_explorer
+    order: 5
+    mandatory: false
+    purpose: Understand Laravel service container usage
+    condition: "custom service providers exist"
+    
+  - prompt: php_api_boundary_mapper
+    order: 6
+    mandatory: false
+    purpose: Analyze API structure
+    condition: "task.description contains 'api' || API routes exist"
+
+success_criteria:
+  min_confidence_gain: 0.45
+  required_discoveries:
+    - laravel.structure
+    - laravel.eloquent_usage
+    - laravel.clean_migration_path
+    - domain.entities
+  optional_discoveries:
+    - laravel.service_providers
+    - api.structure
+
+chain_variants:
+  api_focused:
+    when: "task.description contains 'api' || discoveries.laravel.structure contains 'api'"
+    modifications:
+      - mandatory_prompt: php_api_boundary_mapper
+      - add_prompt: api_versioning_strategy
+        after: php_api_boundary_mapper
+        
+  package_based:
+    when: "modular Laravel or packages detected"
+    modifications:
+      - add_prompt: package_boundary_analyzer
+        after: laravel_to_clean_analyzer
+      - focus: "Package-based clean architecture"
+
+next_chain_logic:
+  - condition: "discoveries.laravel.eloquent_usage.fat_models.length > 5"
+    next_chain: eloquent_refactoring_guide
+    reason: "Need to refactor Eloquent models first"
+    
+  - condition: "discoveries.laravel.service_layer.exists == false"
+    next_chain: laravel_service_layer_introduction
+    reason: "Introduce service layer before proceeding"
+    
+  - condition: "confidence.overall >= 0.8"
+    next_chain: laravel_clean_implementation
+    reason: "Ready for implementation"
+    
+  - default: laravel_testing_transformation
+    reason: "Transform testing approach"
+
+post_execution:
+  - laravel_transformation_plan
+  - eloquent_abstraction_strategy
+  - service_layer_design
+  - testing_migration_plan
+  - deployment_strategy

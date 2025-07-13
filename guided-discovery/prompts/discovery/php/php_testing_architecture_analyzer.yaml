@@ -1,0 +1,135 @@
+name: php_testing_architecture_analyzer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["TEST-001", "QUALITY-001", "MOCK-001"]
+estimated_duration: 15-20 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+  - discoveries.domain.entities
+
+provides_context:
+  - discoveries.testing.structure
+  - discoveries.testing.coverage
+  - discoveries.testing.patterns
+  - discoveries.testing.tools
+
+template: |
+  # PHP Testing Architecture Analysis
+  
+  I need to understand the testing strategy and architecture for this PHP codebase.
+  
+  **Task Context**: {{task.description}}
+  **Architecture Layers**: {{discoveries.architecture.layers}}
+  
+  ## Discovery Goals
+  
+  1. **Test Structure**
+     - Test organization
+     - Test types (unit, integration, acceptance)
+     - Test naming conventions
+     - Test file locations
+  
+  2. **Testing Tools**
+     - Test frameworks
+     - Assertion libraries
+     - Mocking frameworks
+     - Code coverage tools
+  
+  3. **Test Patterns**
+     - Test doubles usage
+     - Fixture management
+     - Test data builders
+     - Test isolation
+  
+  4. **Coverage Analysis**
+     - Coverage metrics
+     - Critical path coverage
+     - Layer-specific coverage
+     - Coverage gaps
+  
+  5. **Clean Architecture Testing**
+     - Domain testing approach
+     - Use case testing
+     - Integration testing strategy
+     - Infrastructure mocking
+  
+  Please analyze testing architecture:
+  
+  ### TEST_STRUCTURE
+  - Test_Root: [tests/ or test/ directory]
+  - Organization:
+    - Unit_Tests: [location and structure]
+    - Integration_Tests: [location and structure]
+    - Acceptance_Tests: [location and structure]
+    - Functional_Tests: [if any]
+  - Naming_Convention: [e.g., ClassNameTest, test_method_name]
+  - Namespace_Mapping: [how test namespaces map to source]
+  
+  ### TESTING_TOOLS
+  - Test_Framework: [PHPUnit/Codeception/PHPSpec/Behat]
+  - Version: [framework version]
+  - Assertion_Style: [PHPUnit assertions/custom/mixed]
+  - Mocking_Framework: [PHPUnit mocks/Mockery/Prophecy]
+  - Coverage_Tool: [PHPUnit/PCOV/Xdebug]
+  - Quality_Tools: [PHPStan/Psalm/Infection]
+  
+  ### TEST_PATTERNS
+  - Test_Doubles:
+    - Mocks: [usage frequency and patterns]
+    - Stubs: [usage patterns]
+    - Fakes: [in-memory implementations]
+    - Spies: [if used]
+  - Fixtures:
+    - Pattern: [factories/builders/fixtures/datasets]
+    - Location: [where test data is defined]
+    - Database: [how DB state is managed]
+  - Isolation:
+    - Database: [transactions/refresh/in-memory]
+    - External_Services: [how external calls are handled]
+  
+  ### LAYER_TESTING
+  - Domain_Layer:
+    - Coverage: [percentage or high/medium/low]
+    - Test_Types: [pure unit tests/behavior tests]
+    - Example_Test: [describe a domain test]
+  - Application_Layer:
+    - Coverage: [percentage or high/medium/low]
+    - Mock_Strategy: [what is mocked]
+    - Example_Test: [describe a use case test]
+  - Infrastructure_Layer:
+    - Coverage: [percentage or high/medium/low]
+    - Integration_Tests: [real/mocked external services]
+  - API/Presentation:
+    - Test_Type: [feature tests/e2e tests]
+    - Tools: [specific API testing tools]
+  
+  ### COVERAGE_ANALYSIS
+  - Overall_Coverage: [percentage if available]
+  - Critical_Paths: [covered/partially/not covered]
+  - Coverage_Gaps:
+    - [List uncovered important areas]
+  - Coverage_Reports: [where/how generated]
+  
+  ### TEST_QUALITY
+  - Test_Speed: [fast/moderate/slow]
+  - Flaky_Tests: [none/some/many]
+  - Test_Maintenance: [easy/moderate/difficult]
+  - CI_Integration: [fully integrated/partial/none]
+  - Issues_Found:
+    - [List testing anti-patterns]
+    - [Over-mocking]
+    - [Brittle tests]
+  - Recommendations:
+    - [List improvements]
+
+output_parser:
+  sections:
+    - TEST_STRUCTURE
+    - TESTING_TOOLS
+    - TEST_PATTERNS
+    - LAYER_TESTING
+    - COVERAGE_ANALYSIS
+    - TEST_QUALITY
+  confidence_impact: 0.3

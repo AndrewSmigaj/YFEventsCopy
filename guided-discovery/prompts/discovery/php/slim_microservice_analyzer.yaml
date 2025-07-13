@@ -1,0 +1,215 @@
+name: slim_microservice_analyzer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["SLIM-001", "MICRO-001", "API-002"]
+estimated_duration: 20-25 minutes
+
+requires_context:
+  - task.description
+  - discoveries.php.architecture_style
+  - discoveries.dependencies.composer_packages
+
+provides_context:
+  - discoveries.slim.structure
+  - discoveries.slim.middleware_stack
+  - discoveries.slim.dependency_configuration
+  - discoveries.slim.clean_potential
+
+template: |
+  # Slim PHP Microservice Analysis
+  
+  I need to analyze this Slim microservice for clean architecture patterns.
+  
+  **Task Context**: {{task.description}}
+  **Slim Version**: {{discoveries.dependencies.slim_version}}
+  
+  ## Discovery Goals
+  
+  1. **Slim Application Structure**
+     - Route organization
+     - Middleware pipeline
+     - Dependency container
+     - Error handling
+  
+  2. **Microservice Patterns**
+     - Service boundaries
+     - API contracts
+     - Communication patterns
+     - Data management
+  
+  3. **Clean Architecture Fit**
+     - Current structure
+     - Layer separation
+     - Dependency flow
+     - Testability
+  
+  4. **Integration Points**
+     - External services
+     - Database access
+     - Message queues
+     - Cache layers
+  
+  5. **Performance & Scalability**
+     - Request handling
+     - Resource usage
+     - Scaling approach
+     - Monitoring
+  
+  Please analyze Slim microservice:
+  
+  ### SLIM_APPLICATION_STRUCTURE
+  - Bootstrap_Configuration:
+    - Entry_Point: [public/index.php setup]
+    - App_Factory: [how app is created]
+    - Settings: [configuration approach]
+  - Route_Organization:
+    - Definition: [single file/multiple/grouped]
+    - Controllers: [closures/classes/actions]
+    - Route_Groups: [API versioning?]
+    - Example_Route:
+      ```php
+      $app->get('/users/{id}', UserController::class . ':show')
+      ```
+  - Middleware_Stack:
+    - Global_Middleware: [list middleware]
+    - Route_Middleware: [specific middleware]
+    - Custom_Middleware: [business logic middleware]
+    - Order: [execution order matters?]
+  
+  ### DEPENDENCY_CONTAINER
+  - Container_Type: [PHP-DI/Pimple/other]
+  - Service_Definitions:
+    - Definition_Style: [PHP/array/autowiring]
+    - Key_Services: [list main services]
+    - Factories: [complex service creation]
+  - Dependency_Injection:
+    - Constructor_Injection: [prevalent?]
+    - Container_Injection: [anti-pattern?]
+    - Request_Injection: [into handlers]
+  - Example_Definition:
+    ```php
+    // Show how services are defined
+    ```
+  
+  ### MICROSERVICE_ARCHITECTURE
+  - Service_Boundaries:
+    - API_Scope: [what this service handles]
+    - Responsibilities: [clear/mixed/unclear]
+    - Data_Ownership: [owns its data?]
+  - Communication_Patterns:
+    - Sync_Calls: [HTTP/gRPC to other services]
+    - Async_Messaging: [queues/events used?]
+    - Service_Discovery: [how services found]
+  - API_Design:
+    - REST_Level: [CRUD/REST/HATEOAS]
+    - Versioning: [URL/header/none]
+    - Documentation: [OpenAPI/none]
+  
+  ### CLEAN_ARCHITECTURE_ANALYSIS
+  - Current_Layers:
+    - Presentation: [routes/controllers]
+    - Business_Logic: [where located?]
+    - Data_Access: [repositories/queries]
+    - External_Services: [integrations]
+  - Separation_Quality:
+    - Clear_Boundaries: [yes/no/partial]
+    - Dependency_Direction: [inward/mixed]
+    - Framework_Coupling: [high/medium/low]
+  - Business_Logic_Location:
+    - In_Controllers: [too much?]
+    - Service_Classes: [proper services?]
+    - Domain_Layer: [exists?]
+  
+  ### DATA_LAYER_ANALYSIS
+  - Database_Access:
+    - Method: [PDO/ORM/QueryBuilder]
+    - Pattern: [Active Record/Repository/DAO]
+    - Connection_Management: [per request/pooled]
+  - Repository_Pattern:
+    - Implementation: [yes/no/partial]
+    - Interfaces: [defined?]
+    - Example:
+      ```php
+      // Show repository example if exists
+      ```
+  - Data_Models:
+    - Type: [anemic/rich/mixed]
+    - Validation: [where handled?]
+  
+  ### EXTERNAL_INTEGRATIONS
+  - Service_Clients:
+    - HTTP_Clients: [Guzzle/cURL/other]
+    - Abstraction: [interfaces used?]
+    - Error_Handling: [circuit breakers?]
+  - Message_Queues:
+    - Usage: [RabbitMQ/Redis/SQS/none]
+    - Pattern: [pub-sub/work queues]
+  - Caching:
+    - Strategy: [Redis/Memcached/none]
+    - Cache_Layers: [where implemented]
+  
+  ### TESTING_APPROACH
+  - Test_Structure:
+    - Unit_Tests: [coverage level]
+    - Integration_Tests: [API tests?]
+    - Contract_Tests: [consumer-driven?]
+  - Mocking_Strategy:
+    - External_Services: [how mocked]
+    - Database: [test database/mocks]
+  - Test_Example:
+    ```php
+    // Show test example if exists
+    ```
+  
+  ### CLEAN_MIGRATION_POTENTIAL
+  - Low_Hanging_Fruit:
+    - [Extract business logic from controllers]
+    - [Introduce repository interfaces]
+    - [Create use case classes]
+  - Medium_Effort:
+    - [Separate domain layer]
+    - [Implement proper DI]
+    - [Add abstraction layers]
+  - High_Effort:
+    - [Full clean architecture]
+    - [Domain event system]
+    - [CQRS implementation]
+  
+  ### MICROSERVICE_CONSIDERATIONS
+  - Distributed_Challenges:
+    - Transaction_Boundaries: [how handled]
+    - Data_Consistency: [eventual/strong]
+    - Service_Versioning: [strategy]
+  - Clean_Architecture_Benefits:
+    - Testability: [improved how?]
+    - Maintainability: [clearer boundaries]
+    - Technology_Agnostic: [easier changes]
+  
+  ### RECOMMENDATIONS
+  - Architecture_Improvements:
+    1. [Most important change]
+    2. [Second priority]
+    3. [Third priority]
+  - Slim_Specific_Tips:
+    - [Leverage middleware for cross-cutting]
+    - [Use action classes for single responsibility]
+    - [Proper DI container usage]
+  - Migration_Steps:
+    - Phase_1: [Controller refactoring]
+    - Phase_2: [Service extraction]
+    - Phase_3: [Domain layer introduction]
+    - Phase_4: [Full clean architecture]
+
+output_parser:
+  sections:
+    - SLIM_APPLICATION_STRUCTURE
+    - DEPENDENCY_CONTAINER
+    - MICROSERVICE_ARCHITECTURE
+    - CLEAN_ARCHITECTURE_ANALYSIS
+    - DATA_LAYER_ANALYSIS
+    - EXTERNAL_INTEGRATIONS
+    - TESTING_APPROACH
+    - CLEAN_MIGRATION_POTENTIAL
+    - MICROSERVICE_CONSIDERATIONS
+    - RECOMMENDATIONS
+  confidence_impact: 0.35

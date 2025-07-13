@@ -1,0 +1,190 @@
+name: php_legacy_to_clean_mapper
+category: migration
+complexity: complex
+targets_uncertainties: ["LEGACY-001", "MIGRATE-001", "REFACTOR-001"]
+estimated_duration: 30-40 minutes
+
+requires_context:
+  - task.description
+  - discoveries.php.architecture_style
+  - discoveries.architecture.layers
+
+provides_context:
+  - migration.legacy_assessment
+  - migration.target_architecture
+  - migration.mapping_strategy
+  - migration.migration_phases
+
+template: |
+  # PHP Legacy to Clean Architecture Mapping
+  
+  I need to analyze the current legacy structure and map a path to clean architecture.
+  
+  **Task Context**: {{task.description}}
+  **Current Architecture**: {{discoveries.php.architecture_style}}
+  
+  ## Mapping Goals
+  
+  1. **Legacy Assessment**
+     - Current structure analysis
+     - Pain points identification
+     - Technical debt assessment
+     - Coupling analysis
+  
+  2. **Target Architecture**
+     - Clean architecture layers
+     - Component mapping
+     - Interface design
+     - Boundary definition
+  
+  3. **Migration Strategy**
+     - Incremental approach
+     - Risk assessment
+     - Phase planning
+     - Rollback strategies
+  
+  4. **Code Mapping**
+     - Current location → Target location
+     - Refactoring requirements
+     - New abstractions needed
+     - Pattern applications
+  
+  5. **Effort Estimation**
+     - Complexity assessment
+     - Time estimates
+     - Resource requirements
+     - Risk factors
+  
+  Please map legacy to clean architecture:
+  
+  ### LEGACY_ASSESSMENT
+  - Current_Structure:
+    - Architecture_Type: [MVC/Transaction Script/Big Ball of Mud]
+    - Organization: [by type/by feature/mixed/chaotic]
+    - Main_Components:
+      - Controllers: [location, count, complexity]
+      - Models: [location, pattern, complexity]
+      - Services: [if any, location, purpose]
+      - Helpers: [global functions, utilities]
+  - Pain_Points:
+    - [List major architectural problems]
+    - [Testability issues]
+    - [Maintenance difficulties]
+    - [Performance bottlenecks]
+  - Technical_Debt:
+    - High_Debt_Areas: [list worst parts]
+    - Debt_Score: [low/medium/high/critical]
+  
+  ### TARGET_ARCHITECTURE_DESIGN
+  - Layer_Structure:
+    - Domain:
+      - Entities: [from current models]
+      - Value_Objects: [to be extracted]
+      - Domain_Services: [business logic to move]
+    - Application:
+      - Use_Cases: [from controller actions]
+      - DTOs: [input/output objects]
+      - Application_Services: [orchestration logic]
+    - Infrastructure:
+      - Repositories: [from model data access]
+      - External_Services: [API clients, etc.]
+      - Persistence: [database layer]
+    - Presentation:
+      - Controllers: [thin controllers]
+      - View_Models: [presentation logic]
+      - API_Resources: [response formatting]
+  
+  ### COMPONENT_MAPPING
+  - Controllers_Migration:
+    - Current: [fat controllers with business logic]
+    - Target: [thin controllers + use cases]
+    - Example_Mapping:
+      - From: `UserController::register()`
+      - To: `RegisterUserUseCase` + thin controller
+  - Models_Migration:
+    - Current: [Active Record/God Models]
+    - Target: [Entities + Repositories]
+    - Example_Mapping:
+      - From: `User::save()`
+      - To: `User` entity + `UserRepository::save()`
+  - Business_Logic_Migration:
+    - Current_Location: [controllers/models/services]
+    - Target_Location: [domain services/use cases]
+    - Extraction_Strategy: [how to extract]
+  
+  ### MIGRATION_PHASES
+  - Phase_1_Foundation:
+    - Duration: [estimated time]
+    - Tasks:
+      - Set up layer structure
+      - Create base interfaces
+      - Implement DI container
+    - Risk: [low/medium/high]
+  - Phase_2_Domain_Extraction:
+    - Duration: [estimated time]
+    - Tasks:
+      - Extract entities from models
+      - Create value objects
+      - Move business rules to domain
+    - Risk: [low/medium/high]
+  - Phase_3_Repository_Pattern:
+    - Duration: [estimated time]
+    - Tasks:
+      - Create repository interfaces
+      - Implement repositories
+      - Remove Active Record
+    - Risk: [low/medium/high]
+  - Phase_4_Use_Cases:
+    - Duration: [estimated time]
+    - Tasks:
+      - Extract use cases from controllers
+      - Implement application services
+      - Create DTOs
+    - Risk: [low/medium/high]
+  - Phase_5_Cleanup:
+    - Duration: [estimated time]
+    - Tasks:
+      - Remove legacy code
+      - Optimize structure
+      - Documentation
+    - Risk: [low/medium/high]
+  
+  ### RISK_MITIGATION
+  - Parallel_Running:
+    - Strategy: [how to run old/new in parallel]
+    - Feature_Flags: [for gradual rollout]
+  - Testing_Strategy:
+    - Legacy_Tests: [characterization tests]
+    - New_Tests: [unit/integration tests]
+    - Regression_Prevention: [approach]
+  - Rollback_Plan:
+    - Checkpoints: [where rollback is possible]
+    - Data_Migration: [reversible?]
+  
+  ### EFFORT_ESTIMATION
+  - Total_Duration: [weeks/months]
+  - Team_Size_Required: [developers needed]
+  - Complexity_Score: [1-10]
+  - Critical_Path:
+    - [Must-do items in order]
+  - Success_Criteria:
+    - [How to measure success]
+    - [Acceptance criteria]
+  
+  ### MIGRATION_PRIORITIES
+  1. [Highest value, lowest risk items]
+  2. [Critical business logic extraction]
+  3. [High-coupling reduction]
+  4. [Performance improvements]
+  5. [Nice-to-have refactoring]
+
+output_parser:
+  sections:
+    - LEGACY_ASSESSMENT
+    - TARGET_ARCHITECTURE_DESIGN
+    - COMPONENT_MAPPING
+    - MIGRATION_PHASES
+    - RISK_MITIGATION
+    - EFFORT_ESTIMATION
+    - MIGRATION_PRIORITIES
+  confidence_impact: 0.4

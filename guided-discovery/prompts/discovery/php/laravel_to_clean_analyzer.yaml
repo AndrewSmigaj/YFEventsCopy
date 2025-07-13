@@ -1,0 +1,194 @@
+name: laravel_to_clean_analyzer
+category: discovery
+complexity: complex
+targets_uncertainties: ["LARAVEL-001", "FRAMEWORK-001", "ELOQUENT-001"]
+estimated_duration: 25-30 minutes
+
+requires_context:
+  - task.description
+  - discoveries.php.architecture_style
+  - discoveries.dependencies.composer_packages
+
+provides_context:
+  - discoveries.laravel.structure
+  - discoveries.laravel.eloquent_usage
+  - discoveries.laravel.service_providers
+  - discoveries.laravel.clean_migration_path
+
+template: |
+  # Laravel to Clean Architecture Analysis
+  
+  I need to analyze this Laravel application for clean architecture transformation.
+  
+  **Task Context**: {{task.description}}
+  **Laravel Version**: {{discoveries.dependencies.laravel_version}}
+  
+  ## Discovery Goals
+  
+  1. **Laravel Structure Analysis**
+     - Application organization
+     - Service providers
+     - Middleware stack
+     - Route organization
+  
+  2. **Eloquent Usage**
+     - Model responsibilities
+     - Relationships complexity
+     - Query patterns
+     - Model events/observers
+  
+  3. **Laravel Services**
+     - Service classes
+     - Action classes
+     - Form requests
+     - Resources/Collections
+  
+  4. **Dependency Patterns**
+     - Facade usage
+     - Container bindings
+     - Service injection
+     - Helper functions
+  
+  5. **Migration Challenges**
+     - Framework coupling
+     - Eloquent dependencies
+     - Laravel-specific features
+     - Testing approach
+  
+  Please analyze Laravel application:
+  
+  ### LARAVEL_STRUCTURE
+  - Application_Organization:
+    - Structure: [default/DDD/modular/custom]
+    - Modules: [if modular, list modules]
+    - Key_Directories:
+      - Models: [app/Models or other]
+      - Controllers: [HTTP/API separation?]
+      - Services: [app/Services exists?]
+      - Actions: [app/Actions exists?]
+  - Service_Providers:
+    - Custom_Providers: [list main providers]
+    - Bindings: [key container bindings]
+    - Boot_Logic: [initialization complexity]
+  - Routing:
+    - Organization: [single file/multiple/modular]
+    - Middleware: [custom middleware list]
+    - Route_Model_Binding: [usage level]
+  
+  ### ELOQUENT_ANALYSIS
+  - Model_Responsibilities:
+    - Business_Logic: [none/some/heavy]
+    - Validation: [in models?]
+    - Formatting: [presenters/mutators]
+  - Model_Examples:
+    - Fat_Models: [list models with too much logic]
+    - Clean_Models: [list well-designed models]
+  - Relationships:
+    - Complexity: [simple/moderate/complex]
+    - Eager_Loading: [N+1 problems?]
+    - Polymorphic: [used heavily?]
+  - Query_Patterns:
+    - Scopes: [local/global usage]
+    - Query_Builder: [complex queries?]
+    - Raw_Queries: [frequency]
+  - Events_Observers:
+    - Model_Events: [creating/updating/etc]
+    - Observers: [list observers]
+    - Event_Listeners: [model-related]
+  
+  ### LARAVEL_SERVICES_PATTERNS
+  - Service_Layer:
+    - Exists: [yes/no/partial]
+    - Pattern: [service classes/actions/mixed]
+    - Example_Service: [describe one]
+  - Form_Requests:
+    - Usage: [extensive/moderate/minimal]
+    - Validation_Logic: [simple/complex]
+    - Authorization: [in requests?]
+  - API_Resources:
+    - Usage: [for API responses?]
+    - Transformation: [complex logic?]
+    - Collections: [custom collections?]
+  - Jobs_Queues:
+    - Background_Jobs: [usage level]
+    - Queued_Events: [async processing]
+  
+  ### DEPENDENCY_PATTERNS
+  - Facade_Usage:
+    - Frequency: [everywhere/moderate/minimal]
+    - Which_Facades: [list most used]
+    - In_Domain: [facades in business logic?]
+  - Helper_Functions:
+    - Usage: [heavy/moderate/light]
+    - Custom_Helpers: [any defined?]
+    - In_Business_Logic: [problematic usage?]
+  - Container_Usage:
+    - Dependency_Injection: [constructor/method/property]
+    - Service_Location: [app() usage]
+    - Auto_Resolution: [relied upon?]
+  
+  ### CLEAN_MIGRATION_CHALLENGES
+  - Eloquent_Coupling:
+    - Active_Record: [how deeply embedded]
+    - Relationship_Loading: [lazy loading issues]
+    - Model_Methods: [business logic to extract]
+  - Laravel_Features:
+    - Events: [Laravel events vs domain events]
+    - Validation: [FormRequest vs domain validation]
+    - Authorization: [policies/gates to adapt]
+  - Testing_Challenges:
+    - Feature_Tests: [HTTP test dependency]
+    - Database_Tests: [RefreshDatabase usage]
+    - Mocking: [facade mocking]
+  
+  ### MIGRATION_PATH_RECOMMENDATION
+  - Phase_1_Preparation:
+    - Extract_Services: [controllers → services]
+    - Create_Interfaces: [for key services]
+    - Reduce_Facades: [inject dependencies]
+  - Phase_2_Domain_Extraction:
+    - Plain_Entities: [from Eloquent models]
+    - Value_Objects: [from model attributes]
+    - Domain_Services: [from model methods]
+  - Phase_3_Repository_Pattern:
+    - Repository_Interfaces: [in domain]
+    - Eloquent_Repositories: [in infrastructure]
+    - Query_Objects: [complex queries]
+  - Phase_4_Clean_Boundaries:
+    - Use_Cases: [from controller actions]
+    - DTOs: [from FormRequests]
+    - Clean_Controllers: [thin, no logic]
+  
+  ### LARAVEL_SPECIFIC_SOLUTIONS
+  - Eloquent_Abstraction:
+    - Data_Mapper: [map Eloquent to entities]
+    - Repository_Pattern: [hide Eloquent]
+    - Query_Builder_Wrapper: [abstract queries]
+  - Service_Provider_Usage:
+    - Clean_Bindings: [interface to implementation]
+    - Module_Providers: [per bounded context]
+  - Testing_Strategy:
+    - Unit_Tests: [pure PHP, no Laravel]
+    - Integration: [repository tests]
+    - Feature: [thin HTTP tests]
+  
+  ### EFFORT_ESTIMATION
+  - Complexity: [low/medium/high/very high]
+  - Major_Challenges:
+    - [Eloquent decoupling]
+    - [Facade removal]
+    - [Test refactoring]
+  - Time_Estimate: [weeks/months]
+  - Team_Knowledge: [Laravel + Clean Architecture needed]
+
+output_parser:
+  sections:
+    - LARAVEL_STRUCTURE
+    - ELOQUENT_ANALYSIS
+    - LARAVEL_SERVICES_PATTERNS
+    - DEPENDENCY_PATTERNS
+    - CLEAN_MIGRATION_CHALLENGES
+    - MIGRATION_PATH_RECOMMENDATION
+    - LARAVEL_SPECIFIC_SOLUTIONS
+    - EFFORT_ESTIMATION
+  confidence_impact: 0.4

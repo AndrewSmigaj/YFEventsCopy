@@ -1,0 +1,121 @@
+name: php_domain_explorer
+category: discovery
+complexity: moderate
+targets_uncertainties: ["DOMAIN-001", "DDD-001", "ENTITY-001"]
+estimated_duration: 20-25 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+
+provides_context:
+  - discoveries.domain.entities
+  - discoveries.domain.value_objects
+  - discoveries.domain.aggregates
+  - discoveries.domain.domain_services
+  - discoveries.domain.domain_events
+
+template: |
+  # PHP Domain Layer Exploration
+  
+  I need to deeply understand the domain layer implementation in this PHP codebase.
+  
+  **Task Context**: {{task.description}}
+  **Domain Layer Location**: {{discoveries.architecture.layers.domain}}
+  
+  ## Discovery Goals
+  
+  1. **Domain Entities**
+     - Core business entities
+     - Entity identity management
+     - Business invariants
+     - Entity relationships
+  
+  2. **Value Objects**
+     - Immutable value types
+     - Validation rules
+     - Equality comparison
+     - Common value objects (Money, Email, etc.)
+  
+  3. **Aggregates**
+     - Aggregate roots
+     - Aggregate boundaries
+     - Consistency boundaries
+     - Transaction boundaries
+  
+  4. **Domain Services**
+     - Business logic services
+     - Domain operations
+     - Service interfaces
+  
+  5. **Domain Events**
+     - Event types
+     - Event dispatching
+     - Event handlers
+     - Event sourcing (if used)
+  
+  Please explore the domain layer:
+  
+  ### DOMAIN_ENTITIES
+  - Core_Entities: [list main entities]
+  - Identity_Pattern: [UUID/auto-increment/custom]
+  - Example_Entity:
+    - Name: [e.g., User, Order, Product]
+    - Properties: [list key properties]
+    - Invariants: [list business rules]
+    - Methods: [list behavior methods]
+  - Entity_Base_Class: [if exists]
+  
+  ### VALUE_OBJECTS
+  - Common_VOs: [Money, Email, Address, etc.]
+  - Implementation_Pattern: [final classes/immutable/validation]
+  - Example_VO:
+    - Name: [e.g., Money, EmailAddress]
+    - Properties: [list properties]
+    - Validation: [describe validation]
+    - Equality: [how equality is handled]
+  - VO_Base_Class: [if exists]
+  
+  ### AGGREGATES
+  - Identified_Aggregates: [list aggregate roots]
+  - Boundary_Definition: [how boundaries are defined]
+  - Example_Aggregate:
+    - Root: [e.g., Order]
+    - Members: [e.g., OrderLine, OrderStatus]
+    - Invariants: [aggregate-level rules]
+  - Persistence_Boundary: [how aggregates are persisted]
+  
+  ### DOMAIN_SERVICES
+  - Service_List: [list domain services]
+  - Service_Pattern: [stateless/stateful]
+  - Example_Service:
+    - Name: [e.g., PricingService]
+    - Operations: [list main operations]
+    - Dependencies: [list dependencies]
+  - Interface_Definition: [interfaces used?]
+  
+  ### DOMAIN_EVENTS
+  - Event_Usage: [none/basic/extensive]
+  - Event_Types: [list domain events]
+  - Event_Pattern: [simple classes/event sourcing]
+  - Dispatch_Mechanism: [how events are raised]
+  - Example_Event:
+    - Name: [e.g., OrderPlaced]
+    - Payload: [what data it carries]
+  
+  ### DOMAIN_QUALITY
+  - Anemic_Domain: [yes/no/partial]
+  - Business_Logic_Location: [domain/services/mixed]
+  - Framework_Independence: [yes/no/partial]
+  - Test_Coverage: [high/medium/low/none]
+  - Recommendations: [list improvements]
+
+output_parser:
+  sections:
+    - DOMAIN_ENTITIES
+    - VALUE_OBJECTS
+    - AGGREGATES
+    - DOMAIN_SERVICES
+    - DOMAIN_EVENTS
+    - DOMAIN_QUALITY
+  confidence_impact: 0.4

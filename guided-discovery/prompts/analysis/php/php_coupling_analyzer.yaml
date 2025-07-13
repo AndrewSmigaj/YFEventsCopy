@@ -1,0 +1,139 @@
+name: php_coupling_analyzer
+category: analysis
+complexity: moderate
+targets_uncertainties: ["COUPLING-001", "QUALITY-002", "MAINT-001"]
+estimated_duration: 20-25 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+  - discoveries.dependencies.internal_dependencies
+
+provides_context:
+  - analysis.coupling.metrics
+  - analysis.coupling.violations
+  - analysis.coupling.recommendations
+  - analysis.coupling.refactoring_priority
+
+template: |
+  # PHP Coupling Analysis
+  
+  I need to analyze coupling between components and identify areas for improvement.
+  
+  **Task Context**: {{task.description}}
+  **Architecture Layers**: {{discoveries.architecture.layers}}
+  **Dependencies**: {{discoveries.dependencies.internal_dependencies}}
+  
+  ## Analysis Goals
+  
+  1. **Coupling Metrics**
+     - Afferent coupling (dependencies on a component)
+     - Efferent coupling (dependencies of a component)
+     - Instability metrics
+     - Abstract vs concrete dependencies
+  
+  2. **Layer Coupling**
+     - Cross-layer dependencies
+     - Layer violation detection
+     - Dependency direction analysis
+     - Interface usage assessment
+  
+  3. **Component Coupling**
+     - High coupling hotspots
+     - Circular dependencies
+     - God classes/modules
+     - Feature envy detection
+  
+  4. **Framework Coupling**
+     - Framework penetration into domain
+     - Infrastructure leakage
+     - Vendor lock-in assessment
+  
+  5. **Coupling Patterns**
+     - Good patterns found
+     - Anti-patterns detected
+     - Refactoring opportunities
+  
+  Please analyze coupling:
+  
+  ### COUPLING_METRICS
+  - High_Coupling_Classes:
+    - [Class: afferent/efferent count]
+    - [List top 5-10 highly coupled classes]
+  - Layer_Metrics:
+    - Domain_Layer:
+      - Inbound: [count of dependencies on domain]
+      - Outbound: [should be 0 or minimal]
+      - Stability: [stable/unstable]
+    - Application_Layer:
+      - Inbound: [count]
+      - Outbound: [count - should be to domain only]
+    - Infrastructure_Layer:
+      - Inbound: [count]
+      - Outbound: [count]
+  
+  ### LAYER_VIOLATIONS
+  - Domain_Violations:
+    - Framework_Dependencies: [list any found]
+    - Infrastructure_Access: [list any found]
+    - External_Libraries: [list non-domain deps]
+  - Application_Violations:
+    - Direct_Infrastructure: [bypassing interfaces]
+    - Presentation_Logic: [UI concerns in app layer]
+  - Dependency_Direction:
+    - Correct_Flow: [percentage following rules]
+    - Violations: [list wrong direction deps]
+  
+  ### COMPONENT_ANALYSIS
+  - God_Classes:
+    - [List classes with too many responsibilities]
+    - Methods_Count: [for each god class]
+    - Dependencies: [for each god class]
+  - Circular_Dependencies:
+    - [List any circular dependency chains]
+  - Feature_Envy:
+    - [Classes using other classes' data excessively]
+  - Inappropriate_Intimacy:
+    - [Classes knowing too much about each other]
+  
+  ### FRAMEWORK_COUPLING
+  - Domain_Purity:
+    - Pure_PHP: [percentage of pure domain]
+    - Framework_Intrusion: [where framework leaks in]
+  - Infrastructure_Abstraction:
+    - Well_Abstracted: [list good examples]
+    - Leaky_Abstractions: [list bad examples]
+  - Vendor_Lock_In:
+    - Critical_Dependencies: [hard to replace]
+    - Risk_Level: [low/medium/high]
+  
+  ### DECOUPLING_OPPORTUNITIES
+  - High_Priority:
+    - [List top 5 refactoring targets]
+    - [Explain why each is important]
+  - Interface_Introduction:
+    - [Where interfaces would help]
+    - [Suggested interface designs]
+  - Layer_Extraction:
+    - [Components that belong in different layers]
+  - Pattern_Applications:
+    - [Where patterns could reduce coupling]
+    - [Facade, Adapter, etc.]
+  
+  ### COUPLING_QUALITY_SCORE
+  - Overall_Score: [1-10]
+  - Layer_Separation: [excellent/good/fair/poor]
+  - Interface_Usage: [extensive/moderate/minimal]
+  - Maintainability_Impact: [positive/neutral/negative]
+  - Technical_Debt: [low/medium/high]
+  - Next_Steps: [prioritized list of actions]
+
+output_parser:
+  sections:
+    - COUPLING_METRICS
+    - LAYER_VIOLATIONS
+    - COMPONENT_ANALYSIS
+    - FRAMEWORK_COUPLING
+    - DECOUPLING_OPPORTUNITIES
+    - COUPLING_QUALITY_SCORE
+  confidence_impact: 0.25

@@ -1,0 +1,108 @@
+name: php_dependency_mapper
+category: discovery
+complexity: moderate
+targets_uncertainties: ["DEP-001", "COMPOSER-001", "COUPLING-001"]
+estimated_duration: 15-20 minutes
+
+requires_context:
+  - task.description
+  - discoveries.architecture.layers
+
+provides_context:
+  - discoveries.dependencies.composer_packages
+  - discoveries.dependencies.internal_dependencies
+  - discoveries.dependencies.dependency_graph
+  - discoveries.dependencies.coupling_analysis
+
+template: |
+  # PHP Dependency Mapping
+  
+  I need to understand all dependencies in this PHP codebase, both external (Composer) and internal.
+  
+  **Task Context**: {{task.description}}
+  **Identified Layers**: {{discoveries.architecture.layers}}
+  
+  ## Discovery Goals
+  
+  1. **Composer Dependencies**
+     - Required packages and versions
+     - Dev dependencies
+     - Platform requirements
+     - Autoload configuration
+  
+  2. **Internal Dependencies**
+     - Class dependencies between layers
+     - Interface dependencies
+     - Circular dependencies
+     - Dependency injection patterns
+  
+  3. **Dependency Graph**
+     - Core domain dependencies
+     - Application layer dependencies
+     - Infrastructure dependencies
+     - Cross-layer dependencies
+  
+  4. **Coupling Analysis**
+     - Tight vs loose coupling
+     - Abstraction usage
+     - Dependency inversion
+  
+  5. **Package Organization**
+     - Modular structure
+     - Package boundaries
+     - Internal package dependencies
+  
+  Please map all dependencies:
+  
+  ### COMPOSER_ANALYSIS
+  - PHP_Requirement: [version constraint]
+  - Key_Packages:
+    - Framework: [e.g., symfony/*, laravel/*, slim/*]
+    - ORM: [e.g., doctrine/*, illuminate/database]
+    - Testing: [e.g., phpunit/*, mockery/*]
+    - Quality: [e.g., phpstan/*, psalm/*]
+  - Autoload_Config:
+    - PSR4_Namespaces: [list namespace mappings]
+    - Classmap: [if any]
+    - Files: [if any]
+  
+  ### INTERNAL_DEPENDENCIES
+  - Domain_Layer:
+    - Depends_On: [should be none or minimal]
+    - Depended_By: [list layers/components]
+  - Application_Layer:
+    - Depends_On: [Domain interfaces]
+    - Depended_By: [Presentation, Infrastructure]
+  - Infrastructure_Layer:
+    - Depends_On: [Domain interfaces, Application interfaces]
+    - External_Deps: [frameworks, libraries]
+  - Presentation_Layer:
+    - Depends_On: [Application interfaces]
+    - Framework_Deps: [routing, templating, etc.]
+  
+  ### DEPENDENCY_PATTERNS
+  - Injection_Type: [constructor/setter/property]
+  - Container_Usage: [PSR-11/Symfony/Laravel/custom]
+  - Factory_Pattern: [used/not used]
+  - Service_Locator: [used/not used/anti-pattern noted]
+  
+  ### COUPLING_METRICS
+  - Domain_Coupling: [low/medium/high]
+  - Layer_Coupling: [loose/moderate/tight]
+  - Circular_Dependencies: [none/found - list them]
+  - Interface_Segregation: [good/moderate/poor]
+  
+  ### DEPENDENCY_ISSUES
+  - Violations: [list dependency rule violations]
+  - Missing_Abstractions: [list direct concrete dependencies]
+  - Framework_Coupling: [list business logic coupled to framework]
+  - Recommendations: [list improvement suggestions]
+
+output_parser:
+  sections:
+    - COMPOSER_ANALYSIS
+    - INTERNAL_DEPENDENCIES
+    - DEPENDENCY_PATTERNS
+    - COUPLING_METRICS
+    - DEPENDENCY_ISSUES
+  confidence_impact: 0.3
