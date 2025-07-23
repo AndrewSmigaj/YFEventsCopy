@@ -1,287 +1,256 @@
 name: command_query_separator
 category: analysis
-complexity: moderate
-targets_uncertainties: ["SEPARATION-001", "SIDE-EFFECTS-001", "CQS-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.cqrs.implementation_level
-  - discoveries.application.use_cases
-
-provides_context:
-  - analysis.cqs.violations
-  - analysis.cqs.improvement_opportunities
-  - analysis.cqs.refactoring_plan
-  - analysis.cqs.benefits_assessment
+targets_uncertainties: ['SEPARATION-001', 'SIDE-EFFECTS-001', 'CQS-001']
 
 template: |
   # Command Query Separation Analysis
-  
-  I need to analyze Command Query Separation (CQS) compliance and identify improvement opportunities.
-  
-  **Task Context**: {{task.description}}
-  **CQRS Level**: {{discoveries.cqrs.implementation_level}}
-  
+
   ## Analysis Goals
-  
+
   1. **CQS Principle Compliance**
-     - Command/query identification
-     - Side effect analysis
-     - Return value analysis
-     - Violation detection
-  
+   - Command/query identification
+   - Side effect analysis
+   - Return value analysis
+   - Violation detection
+
   2. **Method Classification**
-     - Pure queries (no side effects)
-     - Pure commands (no return values)
-     - Mixed methods (violations)
-     - Acceptable exceptions
-  
+   - Pure queries (no side effects)
+   - Pure commands (no return values)
+   - Mixed methods (violations)
+   - Acceptable exceptions
+
   3. **Side Effect Analysis**
-     - Business state changes
-     - Infrastructure side effects
-     - Logging and auditing
-     - Cache invalidation
-  
+   - Business state changes
+   - Infrastructure side effects
+   - Logging and auditing
+   - Cache invalidation
+
   4. **Refactoring Opportunities**
-     - Method splitting
-     - Pattern applications
-     - Architecture improvements
-     - Testing benefits
-  
+   - Method splitting
+   - Pattern applications
+   - Architecture improvements
+   - Testing benefits
+
   Please analyze command/query separation:
-  
+
   ### CQS_VIOLATION_ANALYSIS
   - Method_Classification:
-    - Total_Methods_Analyzed: [count]
-    - Pure_Commands: [count and percentage]
-    - Pure_Queries: [count and percentage] 
-    - Mixed_Methods: [count and percentage]
-    - Acceptable_Exceptions: [count with justification]
-  
+  - Total_Methods_Analyzed: [count]
+  - Pure_Commands: [count and percentage]
+  - Pure_Queries: [count and percentage] 
+  - Mixed_Methods: [count and percentage]
+  - Acceptable_Exceptions: [count with justification]
+
   - Violation_Examples:
-    - Query_With_Side_Effects:
-      ```php
-      // BAD: Query that modifies state
-      public function getActiveUsersCount(): int {
-          $this->updateLastAccessTime(); // Side effect!
-          return $this->userRepository->countActive();
-      }
-      ```
-    - Command_Returning_Business_Data:
-      ```php
-      // BAD: Command that returns business data
-      public function createOrder(CreateOrderData $data): Order {
-          $order = new Order($data);
-          $this->orderRepository->save($order);
-          return $order; // Should return void or ID only
-      }
-      ```
-  
-  - Violation_Categories:
-    - Convenience_Violations: [methods that mix for convenience]
-    - Performance_Violations: [avoid extra queries]
-    - Legacy_Violations: [inherited from old code]
-    - Framework_Forced: [framework requirements]
-  
-  ### SIDE_EFFECT_CLASSIFICATION
-  - Business_Side_Effects:
-    - State_Changes: [modifying domain entities]
-    - External_API_Calls: [calling external services]
-    - Database_Writes: [persisting data]
-    - Event_Publishing: [domain events]
-  
-  - Infrastructure_Side_Effects:
-    - Logging: [acceptable in queries?]
-    - Caching: [cache writes during reads]
-    - Metrics: [performance monitoring]
-    - Auditing: [access tracking]
-  
-  - Side_Effect_Assessment:
-    - Acceptable_In_Queries:
-      - [List side effects that are acceptable]
-      - [Justification for each]
-    - Unacceptable_In_Queries:
-      - [List problematic side effects]
-      - [Impact assessment]
-  
-  ### QUERY_ANALYSIS
-  - Pure_Query_Examples:
+  - Query_With_Side_Effects:
     ```php
-    // GOOD: Pure query, no side effects
-    public function findOrdersByCustomer(CustomerId $customerId): array {
-        return $this->orderRepository->findByCustomer($customerId);
-    }
-    
-    public function calculateOrderTotal(OrderId $orderId): Money {
-        $order = $this->orderRepository->findById($orderId);
-        return $order->calculateTotal();
+    // BAD: Query that modifies state
+    public function getActiveUsersCount(): int {
+        $this->updateLastAccessTime(); // Side effect!
+        return $this->userRepository->countActive();
     }
     ```
-  
-  - Query_Violations:
-    - Logging_Violations: [queries that log business events]
-    - Caching_Violations: [queries that modify cache inappropriately]
-    - State_Violations: [queries that change domain state]
-    - Performance_Violations: [queries with expensive side effects]
-  
-  - Query_Improvement_Opportunities:
-    - Extract_Side_Effects: [move side effects to commands]
-    - Add_Logging_Aspect: [cross-cutting concern]
-    - Introduce_Events: [replace direct side effects]
-  
-  ### COMMAND_ANALYSIS
-  - Pure_Command_Examples:
+  - Command_Returning_Business_Data:
     ```php
-    // GOOD: Pure command, no return value
-    public function createOrder(CreateOrderData $data): void {
+    // BAD: Command that returns business data
+    public function createOrder(CreateOrderData $data): Order {
         $order = new Order($data);
         $this->orderRepository->save($order);
-        $this->eventDispatcher->dispatch(new OrderCreated($order->getId()));
-    }
-    
-    public function cancelOrder(OrderId $orderId): void {
-        $order = $this->orderRepository->findById($orderId);
-        $order->cancel();
-        $this->orderRepository->save($order);
+        return $order; // Should return void or ID only
     }
     ```
+
+  - Violation_Categories:
+  - Convenience_Violations: [methods that mix for convenience]
+  - Performance_Violations: [avoid extra queries]
+  - Legacy_Violations: [inherited from old code]
+  - Framework_Forced: [framework requirements]
+
+  ### SIDE_EFFECT_CLASSIFICATION
+  - Business_Side_Effects:
+  - State_Changes: [modifying domain entities]
+  - External_API_Calls: [calling external services]
+  - Database_Writes: [persisting data]
+  - Event_Publishing: [domain events]
+
+  - Infrastructure_Side_Effects:
+  - Logging: [acceptable in queries?]
+  - Caching: [cache writes during reads]
+  - Metrics: [performance monitoring]
+  - Auditing: [access tracking]
+
+  - Side_Effect_Assessment:
+  - Acceptable_In_Queries:
+    - [List side effects that are acceptable]
+    - [Justification for each]
+  - Unacceptable_In_Queries:
+    - [List problematic side effects]
+    - [Impact assessment]
+
+  ### QUERY_ANALYSIS
+  - Pure_Query_Examples:
+  ```php
+  // GOOD: Pure query, no side effects
+  public function findOrdersByCustomer(CustomerId $customerId): array {
+      return $this->orderRepository->findByCustomer($customerId);
+  }
   
+  public function calculateOrderTotal(OrderId $orderId): Money {
+      $order = $this->orderRepository->findById($orderId);
+      return $order->calculateTotal();
+  }
+  ```
+
+  - Query_Violations:
+  - Logging_Violations: [queries that log business events]
+  - Caching_Violations: [queries that modify cache inappropriately]
+  - State_Violations: [queries that change domain state]
+  - Performance_Violations: [queries with expensive side effects]
+
+  - Query_Improvement_Opportunities:
+  - Extract_Side_Effects: [move side effects to commands]
+  - Add_Logging_Aspect: [cross-cutting concern]
+  - Introduce_Events: [replace direct side effects]
+
+  ### COMMAND_ANALYSIS
+  - Pure_Command_Examples:
+  ```php
+  // GOOD: Pure command, no return value
+  public function createOrder(CreateOrderData $data): void {
+      $order = new Order($data);
+      $this->orderRepository->save($order);
+      $this->eventDispatcher->dispatch(new OrderCreated($order->getId()));
+  }
+  
+  public function cancelOrder(OrderId $orderId): void {
+      $order = $this->orderRepository->findById($orderId);
+      $order->cancel();
+      $this->orderRepository->save($order);
+  }
+  ```
+
   - Command_Violations:
-    - Return_Entity: [commands returning full entities]
-    - Return_Business_Data: [commands returning calculated values]
-    - Query_Convenience: [returning data to avoid extra query]
-  
+  - Return_Entity: [commands returning full entities]
+  - Return_Business_Data: [commands returning calculated values]
+  - Query_Convenience: [returning data to avoid extra query]
+
   - Acceptable_Command_Returns:
-    - Generated_IDs: [UUIDs, auto-increment IDs]
-    - Success_Indicators: [boolean success/failure]
-    - Validation_Results: [error collections]
-    - Technical_Data: [non-business return values]
-  
+  - Generated_IDs: [UUIDs, auto-increment IDs]
+  - Success_Indicators: [boolean success/failure]
+  - Validation_Results: [error collections]
+  - Technical_Data: [non-business return values]
+
   ### REFACTORING_STRATEGIES
   - Method_Splitting:
-    - Before:
-      ```php
-      public function createAndReturnOrder(CreateOrderData $data): Order {
-          $order = new Order($data);
-          $this->orderRepository->save($order);
-          return $order; // Violation
-      }
-      ```
-    - After:
-      ```php
-      public function createOrder(CreateOrderData $data): OrderId {
-          $order = new Order($data);
-          $this->orderRepository->save($order);
-          return $order->getId(); // Just ID
-      }
-      
-      public function getOrder(OrderId $orderId): Order {
-          return $this->orderRepository->findById($orderId);
-      }
-      ```
-  
-  - Event_Introduction:
-    - Replace_Direct_Side_Effects: [use events instead]
-    - Decouple_Concerns: [separate command from query needs]
-    - Enable_Async: [async event processing]
-  
-  - Pattern_Applications:
-    - Result_Objects: [return success/failure objects]
-    - Notification_Pattern: [collect results during command]
-    - CQRS_Evolution: [full command/query separation]
-  
-  ### TESTING_IMPACT_ASSESSMENT
-  - Current_Testing_Challenges:
-    - Mixed_Responsibilities: [hard to test commands/queries separately]
-    - Side_Effect_Testing: [testing queries with side effects]
-    - Mock_Complexity: [complex mocking due to mixed concerns]
-  
-  - Benefits_After_Separation:
-    - Isolated_Testing: [test commands and queries separately]
-    - Simpler_Mocks: [fewer dependencies to mock]
-    - Faster_Tests: [pure queries don't need complex setup]
-    - Clear_Assertions: [clearer test intentions]
-  
-  - Test_Strategy_Evolution:
+  - Before:
     ```php
-    // Before: Complex test with mixed concerns
-    public function test_createOrder_returns_created_order() {
-        // Setup mocks for both command and query concerns
-        // Test command execution AND query result
-    }
-    
-    // After: Separate focused tests
-    public function test_createOrder_saves_order() {
-        // Test only the command behavior
-    }
-    
-    public function test_getOrder_returns_order() {
-        // Test only the query behavior
+    public function createAndReturnOrder(CreateOrderData $data): Order {
+        $order = new Order($data);
+        $this->orderRepository->save($order);
+        return $order; // Violation
     }
     ```
+  - After:
+    ```php
+    public function createOrder(CreateOrderData $data): OrderId {
+        $order = new Order($data);
+        $this->orderRepository->save($order);
+        return $order->getId(); // Just ID
+    }
+    
+    public function getOrder(OrderId $orderId): Order {
+        return $this->orderRepository->findById($orderId);
+    }
+    ```
+
+  - Event_Introduction:
+  - Replace_Direct_Side_Effects: [use events instead]
+  - Decouple_Concerns: [separate command from query needs]
+  - Enable_Async: [async event processing]
+
+  - Pattern_Applications:
+  - Result_Objects: [return success/failure objects]
+  - Notification_Pattern: [collect results during command]
+  - CQRS_Evolution: [full command/query separation]
+
+  ### TESTING_IMPACT_ASSESSMENT
+  - Current_Testing_Challenges:
+  - Mixed_Responsibilities: [hard to test commands/queries separately]
+  - Side_Effect_Testing: [testing queries with side effects]
+  - Mock_Complexity: [complex mocking due to mixed concerns]
+
+  - Benefits_After_Separation:
+  - Isolated_Testing: [test commands and queries separately]
+  - Simpler_Mocks: [fewer dependencies to mock]
+  - Faster_Tests: [pure queries don't need complex setup]
+  - Clear_Assertions: [clearer test intentions]
+
+  - Test_Strategy_Evolution:
+  ```php
+  // Before: Complex test with mixed concerns
+  public function test_createOrder_returns_created_order() {
+      // Setup mocks for both command and query concerns
+      // Test command execution AND query result
+  }
   
+  // After: Separate focused tests
+  public function test_createOrder_saves_order() {
+      // Test only the command behavior
+  }
+  
+  public function test_getOrder_returns_order() {
+      // Test only the query behavior
+  }
+  ```
+
   ### PERFORMANCE_CONSIDERATIONS
   - Current_Performance_Issues:
-    - Extra_Queries: [commands avoid returning data, causing extra queries]
-    - Query_Side_Effects: [queries performing expensive operations]
-    - Caching_Complications: [side effects complicating cache strategy]
-  
+  - Extra_Queries: [commands avoid returning data, causing extra queries]
+  - Query_Side_Effects: [queries performing expensive operations]
+  - Caching_Complications: [side effects complicating cache strategy]
+
   - Optimization_Strategies:
-    - Smart_Caching: [cache query results effectively]
-    - Event_Projection: [use events to maintain read models]
-    - Batch_Processing: [batch related operations]
-  
+  - Smart_Caching: [cache query results effectively]
+  - Event_Projection: [use events to maintain read models]
+  - Batch_Processing: [batch related operations]
+
   ### CQS_IMPROVEMENT_ROADMAP
   - Phase_1_Quick_Wins:
-    - Duration: [1-2 weeks]
-    - Actions:
-      - [Identify worst violations]
-      - [Fix obvious mixed methods]
-      - [Add return type declarations]
-  
+  - Duration: [1-2 weeks]
+  - Actions:
+    - [Identify worst violations]
+    - [Fix obvious mixed methods]
+    - [Add return type declarations]
+
   - Phase_2_Systematic_Cleanup:
-    - Duration: [1-2 months]
-    - Actions:
-      - [Method splitting refactoring]
-      - [Introduce result objects]
-      - [Event system implementation]
-  
+  - Duration: [1-2 months]
+  - Actions:
+    - [Method splitting refactoring]
+    - [Introduce result objects]
+    - [Event system implementation]
+
   - Phase_3_Architecture_Evolution:
-    - Duration: [2-3 months]
-    - Actions:
-      - [Full CQRS if beneficial]
-      - [Read model optimization]
-      - [Performance tuning]
-  
+  - Duration: [2-3 months]
+  - Actions:
+    - [Full CQRS if beneficial]
+    - [Read model optimization]
+    - [Performance tuning]
+
   ### CQS_COMPLIANCE_SCORE
   - Compliance_Metrics:
-    - Pure_Command_Percentage: [0-100%]
-    - Pure_Query_Percentage: [0-100%]
-    - Acceptable_Violation_Percentage: [0-100%]
-    - Overall_CQS_Score: [weighted average]
-  
-  - Grade_Assessment:
-    - A (90-100%): Excellent CQS compliance
-    - B (80-89%): Good compliance, minor violations
-    - C (70-79%): Acceptable, some refactoring needed
-    - D (60-69%): Poor compliance, significant violations
-    - F (0-59%): Major CQS violations throughout
-  
-  - Priority_Actions:
-    1. [Most critical violation to fix]
-    2. [Second highest impact improvement]
-    3. [Third priority item]
+  - Pure_Command_Percentage: [0-100%]
+  - Pure_Query_Percentage: [0-100%]
+  - Acceptable_Violation_Percentage: [0-100%]
+  - Overall_CQS_Score: [weighted average]
 
-output_parser:
-  sections:
-    - CQS_VIOLATION_ANALYSIS
-    - SIDE_EFFECT_CLASSIFICATION
-    - QUERY_ANALYSIS
-    - COMMAND_ANALYSIS
-    - REFACTORING_STRATEGIES
-    - TESTING_IMPACT_ASSESSMENT
-    - PERFORMANCE_CONSIDERATIONS
-    - CQS_IMPROVEMENT_ROADMAP
-    - CQS_COMPLIANCE_SCORE
-  confidence_impact: 0.3
+  - Grade_Assessment:
+  - A (90-100%): Excellent CQS compliance
+  - B (80-89%): Good compliance, minor violations
+  - C (70-79%): Acceptable, some refactoring needed
+  - D (60-69%): Poor compliance, significant violations
+  - F (0-59%): Major CQS violations throughout
+
+  - Priority_Actions:
+  1. [Most critical violation to fix]
+  2. [Second highest impact improvement]
+  3. [Third priority item]

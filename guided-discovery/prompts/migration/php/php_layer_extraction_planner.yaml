@@ -1,205 +1,174 @@
 name: php_layer_extraction_planner
 category: migration
-complexity: complex
-targets_uncertainties: ["REFACTOR-001", "EXTRACT-001", "LAYER-002"]
-estimated_duration: 25-30 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - analysis.coupling.violations
-
-provides_context:
-  - migration.extraction_plan
-  - migration.extraction_order
-  - migration.interface_design
-  - migration.testing_strategy
+targets_uncertainties: ['REFACTOR-001', 'EXTRACT-001', 'LAYER-002']
 
 template: |
   # PHP Layer Extraction Planning
-  
-  I need to plan the extraction of clean architecture layers from the existing codebase.
-  
-  **Task Context**: {{task.description}}
-  **Current Layers**: {{discoveries.architecture.layers}}
-  **Coupling Issues**: {{analysis.coupling.violations}}
-  
+
   ## Planning Goals
-  
+
   1. **Extraction Order**
-     - Dependency analysis
-     - Risk assessment
-     - Value delivery
-     - Incremental approach
-  
+   - Dependency analysis
+   - Risk assessment
+   - Value delivery
+   - Incremental approach
+
   2. **Interface Design**
-     - Boundary interfaces
-     - Abstraction points
-     - Contract definition
-     - Backward compatibility
-  
+   - Boundary interfaces
+   - Abstraction points
+   - Contract definition
+   - Backward compatibility
+
   3. **Refactoring Strategy**
-     - Code movement approach
-     - Gradual vs big-bang
-     - Parallel implementation
-     - Testing requirements
-  
+   - Code movement approach
+   - Gradual vs big-bang
+   - Parallel implementation
+   - Testing requirements
+
   4. **Technical Approach**
-     - Namespace restructuring
-     - Class extraction
-     - Method extraction
-     - Dependency injection
-  
+   - Namespace restructuring
+   - Class extraction
+   - Method extraction
+   - Dependency injection
+
   Please plan layer extraction:
-  
+
   ### EXTRACTION_ANALYSIS
   - Current_State:
-    - Mixed_Concerns: [where layers are mixed]
-    - Extraction_Candidates: [clear pieces to extract]
-    - Dependencies: [what depends on what]
+  - Mixed_Concerns: [where layers are mixed]
+  - Extraction_Candidates: [clear pieces to extract]
+  - Dependencies: [what depends on what]
   - Extraction_Complexity:
-    - Simple_Extractions: [can be done quickly]
-    - Complex_Extractions: [require careful planning]
-    - Blocked_Extractions: [need prerequisites]
-  
+  - Simple_Extractions: [can be done quickly]
+  - Complex_Extractions: [require careful planning]
+  - Blocked_Extractions: [need prerequisites]
+
   ### EXTRACTION_ORDER
   - Phase_1_Domain_Core:
-    - What: [Pure domain objects - entities, VOs]
-    - Why_First: [No dependencies, high value]
-    - How:
-      1. Identify business entities
-      2. Extract to Domain namespace
-      3. Remove framework dependencies
-      4. Add business methods
-    - Duration: [estimated time]
-    - Risk: [low - no behavior change]
-  
+  - What: [Pure domain objects - entities, VOs]
+  - Why_First: [No dependencies, high value]
+  - How:
+    1. Identify business entities
+    2. Extract to Domain namespace
+    3. Remove framework dependencies
+    4. Add business methods
+  - Duration: [estimated time]
+  - Risk: [low - no behavior change]
+
   - Phase_2_Domain_Services:
-    - What: [Business logic services]
-    - Dependencies: [Requires domain objects]
-    - How:
-      1. Identify business rules in controllers/models
-      2. Create domain service interfaces
-      3. Extract logic to implementations
-      4. Update calling code
-    - Duration: [estimated time]
-    - Risk: [medium - behavior movement]
-  
+  - What: [Business logic services]
+  - Dependencies: [Requires domain objects]
+  - How:
+    1. Identify business rules in controllers/models
+    2. Create domain service interfaces
+    3. Extract logic to implementations
+    4. Update calling code
+  - Duration: [estimated time]
+  - Risk: [medium - behavior movement]
+
   - Phase_3_Repository_Interfaces:
-    - What: [Data access contracts]
-    - Dependencies: [Requires domain objects]
-    - How:
-      1. Define repository interfaces in domain
-      2. Create infrastructure implementations
-      3. Use dependency injection
-      4. Remove Active Record calls
-    - Duration: [estimated time]
-    - Risk: [medium - data access change]
-  
+  - What: [Data access contracts]
+  - Dependencies: [Requires domain objects]
+  - How:
+    1. Define repository interfaces in domain
+    2. Create infrastructure implementations
+    3. Use dependency injection
+    4. Remove Active Record calls
+  - Duration: [estimated time]
+  - Risk: [medium - data access change]
+
   - Phase_4_Application_Layer:
-    - What: [Use cases and orchestration]
-    - Dependencies: [Requires domain + repositories]
-    - How:
-      1. Extract controller logic to use cases
-      2. Create application services
-      3. Define DTOs for boundaries
-      4. Thin out controllers
-    - Duration: [estimated time]
-    - Risk: [high - major restructuring]
-  
+  - What: [Use cases and orchestration]
+  - Dependencies: [Requires domain + repositories]
+  - How:
+    1. Extract controller logic to use cases
+    2. Create application services
+    3. Define DTOs for boundaries
+    4. Thin out controllers
+  - Duration: [estimated time]
+  - Risk: [high - major restructuring]
+
   ### INTERFACE_BOUNDARY_DESIGN
   - Repository_Interfaces:
-    ```php
-    interface UserRepositoryInterface {
-        public function findById(UserId $id): ?User;
-        public function save(User $user): void;
-        public function remove(User $user): void;
-    }
-    ```
+  ```php
+  interface UserRepositoryInterface {
+      public function findById(UserId $id): ?User;
+      public function save(User $user): void;
+      public function remove(User $user): void;
+  }
+  ```
   - Service_Interfaces:
-    ```php
-    interface PasswordHasherInterface {
-        public function hash(string $password): HashedPassword;
-        public function verify(string $password, HashedPassword $hash): bool;
-    }
-    ```
+  ```php
+  interface PasswordHasherInterface {
+      public function hash(string $password): HashedPassword;
+      public function verify(string $password, HashedPassword $hash): bool;
+  }
+  ```
   - Use_Case_Interfaces:
-    ```php
-    interface RegisterUserUseCaseInterface {
-        public function execute(RegisterUserRequest $request): RegisterUserResponse;
-    }
-    ```
-  
+  ```php
+  interface RegisterUserUseCaseInterface {
+      public function execute(RegisterUserRequest $request): RegisterUserResponse;
+  }
+  ```
+
   ### PARALLEL_IMPLEMENTATION_STRATEGY
   - Strangler_Fig_Pattern:
-    - Old_Code: [keep working during migration]
-    - New_Code: [build alongside]
-    - Switch_Over: [feature flags/routing]
+  - Old_Code: [keep working during migration]
+  - New_Code: [build alongside]
+  - Switch_Over: [feature flags/routing]
   - Adapter_Pattern:
-    - Legacy_Adapters: [wrap old code]
-    - New_Implementation: [clean architecture]
-    - Gradual_Migration: [replace adapters]
+  - Legacy_Adapters: [wrap old code]
+  - New_Implementation: [clean architecture]
+  - Gradual_Migration: [replace adapters]
   - Testing_Both:
-    - Characterization_Tests: [capture current behavior]
-    - New_Unit_Tests: [test new components]
-    - Integration_Tests: [ensure compatibility]
-  
+  - Characterization_Tests: [capture current behavior]
+  - New_Unit_Tests: [test new components]
+  - Integration_Tests: [ensure compatibility]
+
   ### TECHNICAL_EXTRACTION_STEPS
   - Namespace_Restructuring:
-    - From: `App\Models\User`
-    - To: `App\Domain\User\User`
-    - Compatibility: [use class_alias temporarily]
+  - From: `App\Models\User`
+  - To: `App\Domain\User\User`
+  - Compatibility: [use class_alias temporarily]
   - Method_Extraction:
-    - From: Fat model methods
-    - To: Domain services, Use cases
-    - Technique: [Extract Method → Extract Class]
+  - From: Fat model methods
+  - To: Domain services, Use cases
+  - Technique: [Extract Method → Extract Class]
   - Dependency_Breaking:
-    - Current: Direct instantiation
-    - Target: Constructor injection
-    - Intermediate: Setter injection if needed
-  
+  - Current: Direct instantiation
+  - Target: Constructor injection
+  - Intermediate: Setter injection if needed
+
   ### RISK_MITIGATION
   - Testing_Strategy:
-    - Before: [Characterization tests]
-    - During: [Parallel test suites]
-    - After: [Full clean architecture tests]
+  - Before: [Characterization tests]
+  - During: [Parallel test suites]
+  - After: [Full clean architecture tests]
   - Rollback_Points:
-    - Per_Phase: [can rollback each phase]
-    - Feature_Flags: [toggle old/new code]
-    - Database: [compatible schema]
+  - Per_Phase: [can rollback each phase]
+  - Feature_Flags: [toggle old/new code]
+  - Database: [compatible schema]
   - Performance_Monitoring:
-    - Baseline: [measure before]
-    - During: [monitor extraction impact]
-    - Optimization: [if needed]
-  
+  - Baseline: [measure before]
+  - During: [monitor extraction impact]
+  - Optimization: [if needed]
+
   ### EXTRACTION_TOOLING
   - Automated_Refactoring:
-    - IDE: [PhpStorm refactoring tools]
-    - Rector: [automated refactoring rules]
-    - CS_Fixer: [code style consistency]
+  - IDE: [PhpStorm refactoring tools]
+  - Rector: [automated refactoring rules]
+  - CS_Fixer: [code style consistency]
   - Analysis_Tools:
-    - PHPMD: [mess detection]
-    - PHPStan: [static analysis]
-    - Deptrac: [architecture rules]
-  
+  - PHPMD: [mess detection]
+  - PHPStan: [static analysis]
+  - Deptrac: [architecture rules]
+
   ### SUCCESS_METRICS
   - Per_Phase_Metrics:
-    - Test_Coverage: [target percentage]
-    - Coupling_Reduction: [measurable decrease]
-    - Performance: [no degradation]
+  - Test_Coverage: [target percentage]
+  - Coupling_Reduction: [measurable decrease]
+  - Performance: [no degradation]
   - Final_Goals:
-    - Clean_Separation: [layers independent]
-    - Testability: [>80% unit test coverage]
-    - Maintainability: [clear boundaries]
-
-output_parser:
-  sections:
-    - EXTRACTION_ANALYSIS
-    - EXTRACTION_ORDER
-    - INTERFACE_BOUNDARY_DESIGN
-    - PARALLEL_IMPLEMENTATION_STRATEGY
-    - TECHNICAL_EXTRACTION_STEPS
-    - RISK_MITIGATION
-    - EXTRACTION_TOOLING
-    - SUCCESS_METRICS
-  confidence_impact: 0.35
+  - Clean_Separation: [layers independent]
+  - Testability: [>80% unit test coverage]
+  - Maintainability: [clear boundaries]

@@ -1,0 +1,90 @@
+name: php_namespace_validator
+category: discovery
+targets_uncertainties: ['ARCH-003']
+
+template: |
+  # PHP Namespace Structure Discovery
+
+  I need to discover and document the actual namespace structure for architecture.yaml.
+
+  **Task Context**: {{task.description}}
+  **Known Root Namespace**: {{discoveries.namespace_structure.root_namespace}}
+  **Module Directory**: {{discoveries.project.key_directories.modules}}
+
+  ## Discovery Goals
+
+  1. **Complete Namespace Inventory**
+     - All namespaces defined in composer.json
+     - Actual namespaces found in PHP files
+     - Directory mappings for each namespace
+
+  2. **Module Namespace Discovery**
+     - Which modules exist in {{discoveries.project.key_directories.modules}}
+     - Their namespace configurations
+     - Whether they contain actual PHP files
+
+  3. **Namespace Usage Patterns**
+     - How namespaces are organized (by layer, feature, etc.)
+     - Naming conventions in use
+     - Any special or legacy patterns
+
+  Please explore and document:
+
+  ### COMPOSER_AUTOLOAD
+  From composer.json autoload section:
+  - PSR-4 Mappings: [exact mappings as configured]
+  - Other Autoload: [classmap, files, etc. if any]
+
+  ### NAMESPACE_FILESYSTEM_REALITY
+  What actually exists on disk:
+  - Active Namespaces: [namespaces that have PHP files]
+  - Empty Namespaces: [configured but no files]
+  - Directory Structure: [how directories align with namespaces]
+
+  ### MODULE_DISCOVERY
+  For each directory in modules/:
+  - Module Name: [directory name]
+  - Configured Namespace: [from composer.json if exists]
+  - Has PHP Files: [yes/no]
+  - Entry Points: [main classes/interfaces found]
+
+  ### NAMESPACE_CHARACTERISTICS
+  Observed patterns:
+  - Organization Style: [what pattern is used]
+  - Typical Structure: [common namespace depths/patterns]
+  - Special Cases: [any unusual namespace usage]
+
+  ### DISCOVERIES
+  Update the context with discovered namespace information:
+  ```json
+  {
+    "discoveries": {
+      "namespace_mappings": {
+        "composer_psr4": {
+          "[discovered_namespace]": "[discovered_path]"
+        },
+        "active_namespaces": ["[namespaces that have actual PHP files]"],
+        "inactive_namespaces": ["[configured namespaces with no files]"]
+      },
+      "modules_discovered": {
+        "[module_directory_name]": {
+          "path": "[relative path to module]",
+          "namespace": "[configured namespace if any]",
+          "has_files": "[true/false]",
+          "main_components": ["[discovered subdirectories]"]
+        }
+      },
+      "namespace_patterns": {
+        "organization": "[observed organization pattern]",
+        "depth_range": "[e.g., 2-4 levels]",
+        "naming_style": "[e.g., PascalCase]",
+        "special_patterns": {
+          "[pattern_name]": "[pattern_description]"
+        }
+      }
+    }
+  }
+  ```
+
+  ### UNCERTAINTY_UPDATES
+  - ARCH-003 (What modules and features are actually active): Resolved/Partial based on module discovery

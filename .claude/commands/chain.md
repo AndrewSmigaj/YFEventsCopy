@@ -1,0 +1,1 @@
+../../guided-discovery/.claude/commands/chain.md

@@ -1,0 +1,1 @@
+/mnt/d/YFEventsCopy/guided-discovery/.claude/commands/status.md

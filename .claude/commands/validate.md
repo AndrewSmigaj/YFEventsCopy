@@ -1,0 +1,1 @@
+../../guided-discovery/.claude/commands/validate.md

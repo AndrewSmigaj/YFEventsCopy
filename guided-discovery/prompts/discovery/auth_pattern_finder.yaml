@@ -1,105 +1,126 @@
 name: auth_pattern_finder
 category: discovery
-complexity: moderate
-targets_uncertainties: ["AUTH-001", "AUTH-002", "SEC-001"]
-estimated_duration: 10-15 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture
-
-provides_context:
-  - discoveries.authentication.method
-  - discoveries.authentication.implementation
-  - discoveries.authentication.session_management
-  - discoveries.security.auth_security
+targets_uncertainties: ['AUTH-001', 'AUTH-002', 'SEC-001']
 
 template: |
   # Authentication Pattern Discovery
   
-  I need to understand how authentication is currently implemented in this codebase.
+  I need to understand the authentication patterns and implementation in this codebase.
   
   **Task Context**: {{task.description}}
-  {{#if discoveries.architecture.style}}
-  **Architecture**: {{discoveries.architecture.style}}
+  {{#if discoveries.technical.framework}}
+  **Framework**: {{discoveries.technical.framework}}
   {{/if}}
-  
-  ## Discovery Goals
-  
-  1. **Authentication Method**
-     - Session-based (cookies, server sessions)
-     - Token-based (JWT, API tokens)
-     - OAuth/OAuth2
-     - Basic/Digest auth
-     - Custom implementation
-  
-  2. **Implementation Details**
-     - Auth middleware/guards location
-     - Login/logout endpoints
-     - Protected vs public routes
-     - Auth configuration files
-  
-  3. **Session/Token Management**
-     - Where sessions/tokens are stored
-     - Expiration and refresh logic
-     - Logout/invalidation mechanism
-     - Remember me functionality
-  
-  4. **User Model**
-     - User schema/model location
-     - Password hashing method
-     - Roles and permissions
-     - Profile fields
-  
-  5. **Security Measures**
-     - CORS configuration
-     - CSRF protection
-     - Rate limiting
-     - Password policies
-  
-  Search for files/patterns containing:
-  - auth, login, signin, session, token
-  - middleware/auth, guards, filters
-  - passport, jwt, oauth
-  - user model, authentication
-  
-  Please provide findings in this structure:
-  
-  ### AUTH_METHOD
-  - Type: [session|jwt|oauth|basic|custom]
-  - Library: [passport|custom|etc]
-  - Config: [location of auth config]
-  
-  ### AUTH_IMPLEMENTATION
-  - Middleware: [file:line]
-  - Login_Route: [path and file]
-  - Logout_Route: [path and file]
-  - Protected_Pattern: [how routes are protected]
-  
-  ### SESSION_MANAGEMENT
-  - Storage: [memory|redis|database|file]
-  - Expiry: [duration/settings]
-  - Refresh: [mechanism if any]
-  
-  ### USER_MODEL
-  - Location: [file:line]
-  - Password_Hash: [bcrypt|argon2|etc]
-  - Has_Roles: [yes|no]
-  - Key_Fields: [list auth-related fields]
-  
-  ### SECURITY_CONFIG
-  - CORS: [enabled/settings]
-  - CSRF: [enabled/method]
-  - Rate_Limit: [enabled/settings]
+## Discovery Goals
 
-output_parser:
-  sections:
-    - AUTH_METHOD
-    - AUTH_IMPLEMENTATION
-    - SESSION_MANAGEMENT
-    - USER_MODEL
-    - SECURITY_CONFIG
-  required_sections:
-    - AUTH_METHOD
-    - AUTH_IMPLEMENTATION
-  confidence_impact: 0.35
+1. **Authentication Method**
+   - Session-based (cookies, server sessions)
+   - Token-based (JWT, API tokens)
+   - OAuth/OAuth2
+   - Basic/Digest auth
+   - Custom implementation
+
+2. **Implementation Details**
+   - Auth middleware/guards location
+   - Login/logout endpoints
+   - Protected vs public routes
+   - Auth configuration files
+
+3. **Session/Token Management**
+   - Where sessions/tokens are stored
+   - Expiration and refresh logic
+   - Logout/invalidation mechanism
+   - Remember me functionality
+
+4. **User Model**
+   - User schema/model location
+   - Password hashing method
+   - Roles and permissions
+   - Profile fields
+
+5. **Security Measures**
+   - CORS configuration
+   - CSRF protection
+   - Rate limiting
+   - Password policies
+
+Search for files/patterns containing:
+- auth, login, signin, session, token
+- middleware/auth, guards, filters
+- passport, jwt, oauth
+- user model, authentication
+
+Please provide findings in this structure:
+
+### AUTH_METHOD
+- Type: [session|jwt|oauth|basic|custom]
+- Library: [passport|custom|etc]
+- Config: [location of auth config]
+
+### AUTH_IMPLEMENTATION
+- Middleware: [file:line]
+- Login_Route: [path and file]
+- Logout_Route: [path and file]
+- Protected_Pattern: [how routes are protected]
+
+### SESSION_MANAGEMENT
+- Storage: [memory|redis|database|file]
+- Expiry: [duration/settings]
+- Refresh: [mechanism if any]
+
+### USER_MODEL
+- Location: [file:line]
+- Password_Hash: [bcrypt|argon2|etc]
+- Has_Roles: [yes|no]
+- Key_Fields: [list auth-related fields]
+
+### SECURITY_CONFIG
+- CORS: [enabled/settings]
+- CSRF: [enabled/method]
+- Rate_Limit: [enabled/settings]
+
+## Context Update
+
+After discovering authentication patterns, I'll update the task's context file with:
+
+### DISCOVERIES
+```json
+{
+  "discoveries": {
+    "authentication": {
+      "method": {
+        "type": "session/jwt/oauth/basic/custom",
+        "library": "passport/custom/etc",
+        "config_location": "path/to/config"
+      },
+      "implementation": {
+        "middleware": "file:line",
+        "login_route": "path and file",
+        "logout_route": "path and file",
+        "protected_pattern": "how routes are protected"
+      },
+      "session_management": {
+        "storage": "memory/redis/database/file",
+        "expiry": "duration/settings",
+        "refresh_mechanism": "if any"
+      },
+      "user_model": {
+        "location": "file:line",
+        "password_hash": "bcrypt/argon2/etc",
+        "has_roles": true,
+        "key_fields": ["id", "email", "password", "role"]
+      },
+      "security": {
+        "cors": "enabled/settings",
+        "csrf": "enabled/method",
+        "rate_limit": "enabled/settings"
+      }
+    }
+  }
+}
+```
+
+### UNCERTAINTY_UPDATES
+- AUTH-001 (Authentication method): resolved/partial based on findings
+- AUTH-002 (Implementation details): resolved/partial based on discovery
+- SEC-001 (Security measures): resolved/partial based on configuration

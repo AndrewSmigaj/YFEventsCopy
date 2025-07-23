@@ -1,216 +1,239 @@
 name: php_architecture_validator
 category: validation
-complexity: moderate
-targets_uncertainties: ["VALID-001", "CONFORM-001", "QUALITY-003"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - discoveries.dependencies.internal_dependencies
-
-provides_context:
-  - validation.architecture.compliance
-  - validation.architecture.violations
-  - validation.architecture.quality_score
-  - validation.architecture.recommendations
+targets_uncertainties: ['VALID-001', 'CONFORM-001', 'QUALITY-003']
 
 template: |
   # PHP Clean Architecture Validation
-  
-  I need to validate that the clean architecture implementation follows the rules and principles correctly.
-  
-  **Task Context**: {{task.description}}
-  **Architecture Layers**: {{discoveries.architecture.layers}}
-  
+
   ## Validation Goals
-  
+
   1. **Dependency Rule Validation**
-     - Inward-only dependencies
-     - No framework in domain
-     - Proper abstractions
-     - Interface ownership
-  
+   - Inward-only dependencies
+   - No framework in domain
+   - Proper abstractions
+   - Interface ownership
+
   2. **Layer Responsibility**
-     - Domain layer purity
-     - Application orchestration
-     - Infrastructure isolation
-     - Presentation thinness
-  
+   - Domain layer purity
+   - Application orchestration
+   - Infrastructure isolation
+   - Presentation thinness
+
   3. **Design Principles**
-     - SOLID compliance
-     - DRY adherence
-     - YAGNI respect
-     - KISS application
-  
+   - SOLID compliance
+   - DRY adherence
+   - YAGNI respect
+   - KISS application
+
   4. **Implementation Quality**
-     - Code organization
-     - Naming conventions
-     - Documentation
-     - Testability
-  
+   - Code organization
+   - Naming conventions
+   - Documentation
+   - Testability
+
   5. **Architecture Fitness**
-     - Performance impact
-     - Maintainability
-     - Scalability
-     - Team velocity
-  
+   - Performance impact
+   - Maintainability
+   - Scalability
+   - Team velocity
+
   Please validate architecture:
-  
+
   ### DEPENDENCY_RULE_VALIDATION
   - Dependency_Direction:
-    - ✓ Domain → None: [pass/fail]
-    - ✓ Application → Domain: [pass/fail]
-    - ✓ Infrastructure → Domain & Application: [pass/fail]
-    - ✓ Presentation → Application: [pass/fail]
+  - ✓ Domain → None: [pass/fail]
+  - ✓ Application → Domain: [pass/fail]
+  - ✓ Infrastructure → Domain & Application: [pass/fail]
+  - ✓ Presentation → Application: [pass/fail]
   - Violations_Found:
-    - Domain_Violations:
-      - [List any outward dependencies]
-      - [Framework dependencies]
-      - [External library usage]
-    - Application_Violations:
-      - [Direct infrastructure access]
-      - [Presentation concerns]
-    - Cross_Layer_Violations:
-      - [Skipped layers]
-      - [Circular dependencies]
+  - Domain_Violations:
+    - [List any outward dependencies]
+    - [Framework dependencies]
+    - [External library usage]
+  - Application_Violations:
+    - [Direct infrastructure access]
+    - [Presentation concerns]
+  - Cross_Layer_Violations:
+    - [Skipped layers]
+    - [Circular dependencies]
   - Interface_Ownership:
-    - ✓ Repositories_in_Domain: [yes/no]
-    - ✓ Services_in_Domain: [yes/no]
-    - ✓ Use_Cases_in_Application: [yes/no]
-  
+  - ✓ Repositories_in_Domain: [yes/no]
+  - ✓ Services_in_Domain: [yes/no]
+  - ✓ Use_Cases_in_Application: [yes/no]
+
   ### LAYER_PURITY_CHECK
   - Domain_Layer:
-    - Pure_PHP: [100%/partial/poor]
-    - Business_Rules: [all/most/some/few]
-    - No_Framework: [clean/violations]
-    - Issues:
-      - [List any impurities]
+  - Pure_PHP: [100%/partial/poor]
+  - Business_Rules: [all/most/some/few]
+  - No_Framework: [clean/violations]
+  - Issues:
+    - [List any impurities]
   - Application_Layer:
-    - Orchestration_Only: [yes/mixed/no]
-    - Use_Case_Focus: [clear/mixed/poor]
-    - DTO_Usage: [proper/mixed/none]
-    - Issues:
-      - [Business logic leakage]
-      - [Infrastructure concerns]
+  - Orchestration_Only: [yes/mixed/no]
+  - Use_Case_Focus: [clear/mixed/poor]
+  - DTO_Usage: [proper/mixed/none]
+  - Issues:
+    - [Business logic leakage]
+    - [Infrastructure concerns]
   - Infrastructure_Layer:
-    - Adapters_Only: [yes/mixed/no]
-    - Implements_Interfaces: [all/most/some]
-    - Framework_Isolated: [yes/no]
+  - Adapters_Only: [yes/mixed/no]
+  - Implements_Interfaces: [all/most/some]
+  - Framework_Isolated: [yes/no]
   - Presentation_Layer:
-    - Thin_Controllers: [yes/mixed/no]
-    - No_Business_Logic: [clean/violations]
-    - Proper_DTOs: [yes/no]
-  
+  - Thin_Controllers: [yes/mixed/no]
+  - No_Business_Logic: [clean/violations]
+  - Proper_DTOs: [yes/no]
+
   ### DESIGN_PRINCIPLES_COMPLIANCE
   - SOLID_Principles:
-    - Single_Responsibility: [score 1-10]
-    - Open_Closed: [score 1-10]
-    - Liskov_Substitution: [score 1-10]
-    - Interface_Segregation: [score 1-10]
-    - Dependency_Inversion: [score 1-10]
-    - Overall_SOLID: [average score]
+  - Single_Responsibility: [score 1-10]
+  - Open_Closed: [score 1-10]
+  - Liskov_Substitution: [score 1-10]
+  - Interface_Segregation: [score 1-10]
+  - Dependency_Inversion: [score 1-10]
+  - Overall_SOLID: [average score]
   - Other_Principles:
-    - DRY: [followed/violations - examples]
-    - KISS: [simple/over-engineered]
-    - YAGNI: [focused/speculative]
-    - Tell_Dont_Ask: [followed/violations]
-  
+  - DRY: [followed/violations - examples]
+  - KISS: [simple/over-engineered]
+  - YAGNI: [focused/speculative]
+  - Tell_Dont_Ask: [followed/violations]
+
   ### CODE_QUALITY_VALIDATION
   - Naming_Conventions:
-    - Ubiquitous_Language: [used/mixed/poor]
-    - Clear_Intent: [yes/mixed/no]
-    - Consistency: [high/medium/low]
+  - Ubiquitous_Language: [used/mixed/poor]
+  - Clear_Intent: [yes/mixed/no]
+  - Consistency: [high/medium/low]
   - Code_Organization:
-    - Namespace_Structure: [clear/confusing]
-    - File_Organization: [logical/mixed/poor]
-    - Cohesion: [high/medium/low]
+  - Namespace_Structure: [clear/confusing]
+  - File_Organization: [logical/mixed/poor]
+  - Cohesion: [high/medium/low]
   - Documentation:
-    - Architecture_Docs: [complete/partial/missing]
-    - Code_Comments: [helpful/excessive/missing]
-    - README_Files: [per layer/missing]
-  
+  - Architecture_Docs: [complete/partial/missing]
+  - Code_Comments: [helpful/excessive/missing]
+  - README_Files: [per layer/missing]
+
   ### TESTABILITY_ASSESSMENT
   - Unit_Test_Friendly:
-    - Domain_Testable: [easy/moderate/hard]
-    - Use_Cases_Testable: [easy/moderate/hard]
-    - Mockable_Dependencies: [yes/partial/no]
+  - Domain_Testable: [easy/moderate/hard]
+  - Use_Cases_Testable: [easy/moderate/hard]
+  - Mockable_Dependencies: [yes/partial/no]
   - Integration_Points:
-    - Clear_Boundaries: [yes/no]
-    - Replaceable_Adapters: [yes/no]
+  - Clear_Boundaries: [yes/no]
+  - Replaceable_Adapters: [yes/no]
   - Test_Coverage_Potential:
-    - Domain: [can achieve 95%+?]
-    - Application: [can achieve 85%+?]
-    - Overall: [testability score 1-10]
-  
+  - Domain: [can achieve 95%+?]
+  - Application: [can achieve 85%+?]
+  - Overall: [testability score 1-10]
+
   ### PERFORMANCE_VALIDATION
   - Abstraction_Cost:
-    - Layer_Overhead: [minimal/acceptable/high]
-    - Interface_Indirection: [worth it/questionable]
+  - Layer_Overhead: [minimal/acceptable/high]
+  - Interface_Indirection: [worth it/questionable]
   - Common_Issues:
-    - N+1_Queries: [prevented/possible/likely]
-    - Over_Engineering: [none/some/significant]
+  - N+1_Queries: [prevented/possible/likely]
+  - Over_Engineering: [none/some/significant]
   - Optimization_Friendly:
-    - Can_Optimize: [easily/with effort/difficult]
-    - Cache_Points: [clear/unclear]
-  
+  - Can_Optimize: [easily/with effort/difficult]
+  - Cache_Points: [clear/unclear]
+
   ### TEAM_VELOCITY_IMPACT
   - Learning_Curve:
-    - Complexity: [appropriate/too complex]
-    - Documentation: [sufficient/lacking]
+  - Complexity: [appropriate/too complex]
+  - Documentation: [sufficient/lacking]
   - Development_Speed:
-    - Feature_Addition: [faster/same/slower]
-    - Bug_Fixing: [easier/same/harder]
+  - Feature_Addition: [faster/same/slower]
+  - Bug_Fixing: [easier/same/harder]
   - Maintenance:
-    - Code_Navigation: [easy/moderate/difficult]
-    - Change_Impact: [isolated/spreading]
-  
+  - Code_Navigation: [easy/moderate/difficult]
+  - Change_Impact: [isolated/spreading]
+
   ### VALIDATION_SUMMARY
   - Clean_Architecture_Score:
-    - Dependency_Rule: [0-25 points]
-    - Layer_Purity: [0-25 points]
-    - Design_Principles: [0-25 points]
-    - Implementation_Quality: [0-25 points]
-    - Total_Score: [0-100]
+  - Dependency_Rule: [0-25 points]
+  - Layer_Purity: [0-25 points]
+  - Design_Principles: [0-25 points]
+  - Implementation_Quality: [0-25 points]
+  - Total_Score: [0-100]
   - Grade: [A/B/C/D/F]
   - Certification_Level:
-    - ⭐⭐⭐⭐⭐ Exemplary (95-100)
-    - ⭐⭐⭐⭐ Excellent (85-94)
-    - ⭐⭐⭐ Good (70-84)
-    - ⭐⭐ Acceptable (60-69)
-    - ⭐ Needs Work (0-59)
-  
+  - ⭐⭐⭐⭐⭐ Exemplary (95-100)
+  - ⭐⭐⭐⭐ Excellent (85-94)
+  - ⭐⭐⭐ Good (70-84)
+  - ⭐⭐ Acceptable (60-69)
+  - ⭐ Needs Work (0-59)
+
   ### CRITICAL_ISSUES
   - Must_Fix:
-    1. [Most critical violation]
-    2. [Second priority]
-    3. [Third priority]
+  1. [Most critical violation]
+  2. [Second priority]
+  3. [Third priority]
   - Should_Fix:
-    - [Important but not critical]
+  - [Important but not critical]
   - Nice_to_Fix:
-    - [Minor improvements]
-  
+  - [Minor improvements]
+
   ### RECOMMENDATIONS
   - Immediate_Actions:
-    - [Quick wins]
-    - [Critical fixes]
+  - [Quick wins]
+  - [Critical fixes]
   - Short_Term:
-    - [1-2 sprint improvements]
+  - [1-2 sprint improvements]
   - Long_Term:
-    - [Architectural evolution]
+  - [Architectural evolution]
   - Training_Needs:
-    - [Team education required]
+  - [Team education required]
 
-output_parser:
-  sections:
-    - DEPENDENCY_RULE_VALIDATION
-    - LAYER_PURITY_CHECK
-    - DESIGN_PRINCIPLES_COMPLIANCE
-    - CODE_QUALITY_VALIDATION
-    - TESTABILITY_ASSESSMENT
-    - PERFORMANCE_VALIDATION
-    - TEAM_VELOCITY_IMPACT
-    - VALIDATION_SUMMARY
-    - CRITICAL_ISSUES
-    - RECOMMENDATIONS
-  confidence_impact: 0.3
+  ## Context Update
+
+  After validation, I'll update the task's context file with:
+
+  ### DISCOVERIES
+  ```json
+  {
+    "discoveries": {
+      "validation": {
+        "dependency_rule": {
+          "compliance": "pass/fail",
+          "violations": {
+            "domain": [],
+            "application": [],
+            "infrastructure": [],
+            "presentation": []
+          }
+        },
+        "layer_responsibilities": {
+          "domain_purity": "score",
+          "application_orchestration": "score",
+          "infrastructure_isolation": "score",
+          "presentation_thinness": "score"
+        },
+        "design_principles": {
+          "solid_compliance": "score",
+          "dry_adherence": "score",
+          "yagni_respect": "score",
+          "kiss_application": "score"
+        },
+        "overall_score": {
+          "architecture_compliance": 0,
+          "implementation_quality": 0,
+          "maintainability": 0,
+          "total": 0
+        },
+        "critical_issues": [
+          "issue1",
+          "issue2"
+        ],
+        "recommendations": {
+          "immediate": ["action1", "action2"],
+          "short_term": ["improvement1"],
+          "long_term": ["evolution1"]
+        }
+      }
+    }
+  }
+  ```
+
+  ### UNCERTAINTY_UPDATES
+  - VALID-001 (Architecture validation): resolved based on assessment
+  - CONFORM-001 (Conformance to standards): resolved based on compliance
+  - QUALITY-003 (Overall quality): resolved based on scoring

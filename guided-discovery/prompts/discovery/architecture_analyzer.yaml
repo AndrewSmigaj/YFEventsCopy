@@ -1,102 +1,129 @@
 name: architecture_analyzer
 category: discovery
-complexity: moderate
-targets_uncertainties: ["ARCH-001", "TECH-001"]
-estimated_duration: 10-15 minutes
-
-requires_context:
-  - task.description
-
-provides_context:
-  - discoveries.architecture.pattern
-  - discoveries.architecture.layers
-  - discoveries.architecture.components
-  - discoveries.architecture.communication
+targets_uncertainties: ['ARCH-001', 'TECH-001']
 
 template: |
   # Architecture Pattern Analysis
   
-  I need to understand the architectural patterns and structure of this codebase.
+  I need to analyze the overall architecture patterns in this codebase.
   
   **Task Context**: {{task.description}}
-  
-  ## Discovery Goals
-  
-  1. **Architecture Style**
-     - Monolithic vs Microservices
-     - MVC, MVP, MVVM patterns
-     - Layered architecture
-     - Event-driven architecture
-     - Domain-driven design
-  
-  2. **Component Organization**
-     - How code is organized (by feature, by layer, by type)
-     - Main components/modules
-     - Shared code location
-     - Service boundaries
-  
-  3. **Communication Patterns**
-     - Synchronous (REST, GraphQL)
-     - Asynchronous (message queues, events)
-     - Inter-component communication
-     - External service integration
-  
-  4. **Data Flow**
-     - Request/response flow
-     - Data transformation layers
-     - Validation points
-     - Error handling patterns
-  
-  5. **Key Design Patterns**
-     - Repository pattern
-     - Factory pattern
-     - Dependency injection
-     - Middleware/pipeline
-     - Observer pattern
-  
-  Look for:
-  - Directory structure patterns
-  - Base classes or interfaces
-  - Configuration files
-  - Dependency injection setup
-  - Router/controller organization
-  
-  Please provide findings in this structure:
-  
-  ### ARCHITECTURE_STYLE
-  - Pattern: [MVC|Microservices|Layered|etc]
-  - Organization: [by-feature|by-layer|by-type]
-  - Modularity: [high|medium|low]
-  
-  ### MAIN_COMPONENTS
-  - Controllers: [location and pattern]
-  - Services: [location and pattern]
-  - Models: [location and pattern]
-  - Views: [if applicable]
-  - Middleware: [location and pattern]
-  
-  ### LAYERS
-  - Presentation: [description]
-  - Business: [description]
-  - Data: [description]
-  - Infrastructure: [description]
-  
-  ### COMMUNICATION
-  - Internal: [how components communicate]
-  - External: [API patterns]
-  - Async: [if any, what type]
-  
-  ### DESIGN_PATTERNS
-  - DI: [dependency injection approach]
-  - Repository: [yes|no, location]
-  - Factory: [yes|no, usage]
-  - Other: [notable patterns]
+  {{#if discoveries.technical.framework}}
+  **Framework**: {{discoveries.technical.framework}}
+  {{/if}}
+## Discovery Goals
 
-output_parser:
-  sections:
-    - ARCHITECTURE_STYLE
-    - MAIN_COMPONENTS
-    - LAYERS
-    - COMMUNICATION
-    - DESIGN_PATTERNS
-  confidence_impact: 0.3
+1. **Architecture Style**
+   - Monolithic vs Microservices
+   - MVC, MVP, MVVM patterns
+   - Layered architecture
+   - Event-driven architecture
+   - Domain-driven design
+
+2. **Component Organization**
+   - How code is organized (by feature, by layer, by type)
+   - Main components/modules
+   - Shared code location
+   - Service boundaries
+
+3. **Communication Patterns**
+   - Synchronous (REST, GraphQL)
+   - Asynchronous (message queues, events)
+   - Inter-component communication
+   - External service integration
+
+4. **Data Flow**
+   - Request/response flow
+   - Data transformation layers
+   - Validation points
+   - Error handling patterns
+
+5. **Key Design Patterns**
+   - Repository pattern
+   - Factory pattern
+   - Dependency injection
+   - Middleware/pipeline
+   - Observer pattern
+
+Look for:
+- Directory structure patterns
+- Base classes or interfaces
+- Configuration files
+- Dependency injection setup
+- Router/controller organization
+
+Please provide findings in this structure:
+
+### ARCHITECTURE_STYLE
+- Pattern: [MVC|Microservices|Layered|etc]
+- Organization: [by-feature|by-layer|by-type]
+- Modularity: [high|medium|low]
+
+### MAIN_COMPONENTS
+- Controllers: [location and pattern]
+- Services: [location and pattern]
+- Models: [location and pattern]
+- Views: [if applicable]
+- Middleware: [location and pattern]
+
+### LAYERS
+- Presentation: [description]
+- Business: [description]
+- Data: [description]
+- Infrastructure: [description]
+
+### COMMUNICATION
+- Internal: [how components communicate]
+- External: [API patterns]
+- Async: [if any, what type]
+
+### DESIGN_PATTERNS
+- DI: [dependency injection approach]
+- Repository: [yes|no, location]
+- Factory: [yes|no, usage]
+- Other: [notable patterns]
+
+## Context Update
+
+After analyzing the architecture, I'll update the task's context file with:
+
+### DISCOVERIES
+```json
+{
+  "discoveries": {
+    "architecture": {
+      "style": "MVC/Microservices/Layered/etc",
+      "organization": "by-feature/by-layer/by-type",
+      "modularity": "high/medium/low",
+      "components": {
+        "controllers": "location and pattern",
+        "services": "location and pattern",
+        "models": "location and pattern",
+        "views": "if applicable",
+        "middleware": "location and pattern"
+      },
+      "layers": {
+        "presentation": "description",
+        "business": "description",
+        "data": "description",
+        "infrastructure": "description"
+      },
+      "communication": {
+        "internal": "how components communicate",
+        "external": "API patterns",
+        "async": "message queues/events if any"
+      },
+      "design_patterns": {
+        "dependency_injection": "approach used",
+        "repository": "present and location",
+        "factory": "usage if any",
+        "other": ["pattern1", "pattern2"]
+      }
+    }
+  }
+}
+```
+
+### UNCERTAINTY_UPDATES
+- ARCH-001 (Overall architecture): resolved/partial based on findings
+- TECH-001 (Technology stack): partial - architecture aspects identified

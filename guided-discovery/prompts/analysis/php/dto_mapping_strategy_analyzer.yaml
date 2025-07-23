@@ -1,431 +1,401 @@
 name: dto_mapping_strategy_analyzer
 category: analysis
-complexity: moderate
-targets_uncertainties: ["MAPPING-001", "PERFORMANCE-002", "MAINTENANCE-002"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.dto.usage_patterns
-  - discoveries.dto.mapping_strategies
-
-provides_context:
-  - analysis.mapping.strategy_assessment
-  - analysis.mapping.performance_impact
-  - analysis.mapping.maintenance_burden
-  - analysis.mapping.improvement_recommendations
+targets_uncertainties: ['MAPPING-001', 'PERFORMANCE-002', 'MAINTENANCE-002']
 
 template: |
   # DTO Mapping Strategy Analysis
-  
-  I need to analyze DTO mapping strategies and their impact on performance and maintainability.
-  
-  **Task Context**: {{task.description}}
-  **DTO Patterns**: {{discoveries.dto.usage_patterns}}
-  **Current Mapping**: {{discoveries.dto.mapping_strategies}}
-  
+
   ## Analysis Goals
-  
+
   1. **Mapping Strategy Assessment**
-     - Current mapping approaches
-     - Consistency analysis
-     - Pattern effectiveness
-     - Tool utilization
-  
+   - Current mapping approaches
+   - Consistency analysis
+   - Pattern effectiveness
+   - Tool utilization
+
   2. **Performance Impact**
-     - Mapping overhead measurement
-     - Memory usage analysis
-     - Bottleneck identification
-     - Optimization opportunities
-  
+   - Mapping overhead measurement
+   - Memory usage analysis
+   - Bottleneck identification
+   - Optimization opportunities
+
   3. **Maintenance Burden**
-     - Code duplication assessment
-     - Change impact analysis
-     - Error-prone areas
-     - Evolution difficulty
-  
+   - Code duplication assessment
+   - Change impact analysis
+   - Error-prone areas
+   - Evolution difficulty
+
   4. **Quality Evaluation**
-     - Type safety analysis
-     - Error handling assessment
-     - Validation integration
-     - Testing support
-  
+   - Type safety analysis
+   - Error handling assessment
+   - Validation integration
+   - Testing support
+
   5. **Improvement Opportunities**
-     - Strategy optimization
-     - Tool recommendations
-     - Pattern standardization
-     - Performance enhancements
-  
+   - Strategy optimization
+   - Tool recommendations
+   - Pattern standardization
+   - Performance enhancements
+
   Please analyze DTO mapping strategies:
-  
+
   ### MAPPING_STRATEGY_ASSESSMENT
   - Strategy_Distribution:
-    - Manual_Mapping:
-      ```php
-      // Manual field-by-field mapping
-      class UserResponseMapper {
-          public static function fromUser(User $user): UserResponse {
-              $response = new UserResponse();
-              $response->id = $user->getId()->value();
-              $response->name = $user->getName();
-              $response->email = $user->getEmail()->value();
-              $response->createdAt = $user->getCreatedAt()->format('Y-m-d H:i:s');
-              return $response;
-          }
-      }
-      ```
-      - Percentage: [% of mappings that are manual]
-      - Consistency: [consistent patterns/ad-hoc/mixed]
-      - Location: [dedicated mappers/static methods/inline]
-      - Complexity: [simple/moderate/complex transformations]
-    
-    - Framework_Mapping:
-      ```php
-      // Symfony Serializer
-      $userResponse = $this->serializer->denormalize(
-          $this->serializer->normalize($user),
-          UserResponse::class
-      );
-      
-      // Laravel API Resources
-      class UserResource extends JsonResource {
-          public function toArray($request): array {
-              return [
-                  'id' => $this->id,
-                  'name' => $this->name,
-                  'email' => $this->email,
-                  'created_at' => $this->created_at->toISOString()
-              ];
-          }
-      }
-      ```
-      - Framework: [Symfony/Laravel/other]
-      - Usage_Percentage: [% using framework tools]
-      - Configuration: [attributes/annotations/config files]
-    
-    - Custom_Automation:
-      ```php
-      // Custom mapping automation
-      class AutoMapper {
-          public function map(object $source, string $targetClass): object {
-              // Reflection-based mapping
-              // Convention-based field mapping
-              // Custom transformation rules
-          }
-      }
-      ```
-      - Tool_Sophistication: [basic/advanced/enterprise-level]
-      - Performance: [optimized/acceptable/slow]
+  - Manual_Mapping:
+    ```php
+    // Manual field-by-field mapping
+    class UserResponseMapper {
+        public static function fromUser(User $user): UserResponse {
+            $response = new UserResponse();
+            $response->id = $user->getId()->value();
+            $response->name = $user->getName();
+            $response->email = $user->getEmail()->value();
+            $response->createdAt = $user->getCreatedAt()->format('Y-m-d H:i:s');
+            return $response;
+        }
+    }
+    ```
+    - Percentage: [% of mappings that are manual]
+    - Consistency: [consistent patterns/ad-hoc/mixed]
+    - Location: [dedicated mappers/static methods/inline]
+    - Complexity: [simple/moderate/complex transformations]
   
+  - Framework_Mapping:
+    ```php
+    // Symfony Serializer
+    $userResponse = $this->serializer->denormalize(
+        $this->serializer->normalize($user),
+        UserResponse::class
+    );
+    
+    // Laravel API Resources
+    class UserResource extends JsonResource {
+        public function toArray($request): array {
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'email' => $this->email,
+                'created_at' => $this->created_at->toISOString()
+            ];
+        }
+    }
+    ```
+    - Framework: [Symfony/Laravel/other]
+    - Usage_Percentage: [% using framework tools]
+    - Configuration: [attributes/annotations/config files]
+  
+  - Custom_Automation:
+    ```php
+    // Custom mapping automation
+    class AutoMapper {
+        public function map(object $source, string $targetClass): object {
+            // Reflection-based mapping
+            // Convention-based field mapping
+            // Custom transformation rules
+        }
+    }
+    ```
+    - Tool_Sophistication: [basic/advanced/enterprise-level]
+    - Performance: [optimized/acceptable/slow]
+
   - Pattern_Consistency:
-    - Naming_Conventions: [consistent/varied/chaotic]
-    - Method_Signatures: [standardized/mixed patterns]
-    - Error_Handling: [consistent approach/varied/none]
-    - Null_Handling: [explicit/implicit/problematic]
-  
+  - Naming_Conventions: [consistent/varied/chaotic]
+  - Method_Signatures: [standardized/mixed patterns]
+  - Error_Handling: [consistent approach/varied/none]
+  - Null_Handling: [explicit/implicit/problematic]
+
   - Mapping_Direction_Analysis:
-    - Bidirectional_Mapping: [DTO ↔ Domain]
-    - Unidirectional_Mapping: [Domain → DTO only]
-    - Complex_Transformations: [aggregation/calculation/enrichment]
-    - Nested_Object_Mapping: [deep object graphs]
-  
+  - Bidirectional_Mapping: [DTO ↔ Domain]
+  - Unidirectional_Mapping: [Domain → DTO only]
+  - Complex_Transformations: [aggregation/calculation/enrichment]
+  - Nested_Object_Mapping: [deep object graphs]
+
   ### PERFORMANCE_IMPACT_ANALYSIS
   - Mapping_Overhead:
-    - Reflection_Cost:
-      ```php
-      // High reflection usage - performance concern
-      public function mapWithReflection($source, $targetClass): object {
-          $reflectionClass = new ReflectionClass($targetClass);
-          $target = $reflectionClass->newInstance();
-          
-          foreach ($reflectionClass->getProperties() as $property) {
-              // Reflection-based property mapping
-              $property->setAccessible(true);
-              $sourceValue = $this->getSourceValue($source, $property->getName());
-              $property->setValue($target, $sourceValue);
-          }
-          
-          return $target;
-      }
-      ```
-      - Reflection_Usage: [extensive/moderate/minimal/none]
-      - Caching: [reflection results cached/repeated calls]
-      - Impact: [measured slowdown/estimated/unknown]
-    
-    - Object_Creation_Cost:
-      ```php
-      // Expensive object creation
-      public function createUserResponse(User $user): UserResponse {
-          // Multiple object instantiations
-          $address = new AddressResponse(
-              $user->getAddress()->getStreet(),
-              $user->getAddress()->getCity(),
-              new CountryResponse($user->getAddress()->getCountry())
-          );
-          
-          $preferences = new PreferencesResponse(
-              $user->getPreferences()->getTheme(),
-              new NotificationSettings($user->getPreferences())
-          );
-          
-          return new UserResponse($user->getId(), $address, $preferences);
-      }
-      ```
-      - Object_Creation_Frequency: [per request/cached/pooled]
-      - Memory_Allocation: [excessive/moderate/optimized]
-      - Garbage_Collection_Impact: [high/moderate/low]
-    
-    - Collection_Mapping_Performance:
-      ```php
-      // Potential N+1 mapping issue
-      public function mapUserCollection(array $users): array {
-          return array_map(function(User $user) {
-              // Each user mapping might trigger additional queries
-              return $this->mapUser($user);
-          }, $users);
-      }
-      ```
-      - Bulk_Optimization: [optimized for collections/N+1 issues]
-      - Lazy_Loading: [deferred mapping/eager mapping]
-      - Streaming: [supports large datasets/loads all]
+  - Reflection_Cost:
+    ```php
+    // High reflection usage - performance concern
+    public function mapWithReflection($source, $targetClass): object {
+        $reflectionClass = new ReflectionClass($targetClass);
+        $target = $reflectionClass->newInstance();
+        
+        foreach ($reflectionClass->getProperties() as $property) {
+            // Reflection-based property mapping
+            $property->setAccessible(true);
+            $sourceValue = $this->getSourceValue($source, $property->getName());
+            $property->setValue($target, $sourceValue);
+        }
+        
+        return $target;
+    }
+    ```
+    - Reflection_Usage: [extensive/moderate/minimal/none]
+    - Caching: [reflection results cached/repeated calls]
+    - Impact: [measured slowdown/estimated/unknown]
   
+  - Object_Creation_Cost:
+    ```php
+    // Expensive object creation
+    public function createUserResponse(User $user): UserResponse {
+        // Multiple object instantiations
+        $address = new AddressResponse(
+            $user->getAddress()->getStreet(),
+            $user->getAddress()->getCity(),
+            new CountryResponse($user->getAddress()->getCountry())
+        );
+        
+        $preferences = new PreferencesResponse(
+            $user->getPreferences()->getTheme(),
+            new NotificationSettings($user->getPreferences())
+        );
+        
+        return new UserResponse($user->getId(), $address, $preferences);
+    }
+    ```
+    - Object_Creation_Frequency: [per request/cached/pooled]
+    - Memory_Allocation: [excessive/moderate/optimized]
+    - Garbage_Collection_Impact: [high/moderate/low]
+  
+  - Collection_Mapping_Performance:
+    ```php
+    // Potential N+1 mapping issue
+    public function mapUserCollection(array $users): array {
+        return array_map(function(User $user) {
+            // Each user mapping might trigger additional queries
+            return $this->mapUser($user);
+        }, $users);
+    }
+    ```
+    - Bulk_Optimization: [optimized for collections/N+1 issues]
+    - Lazy_Loading: [deferred mapping/eager mapping]
+    - Streaming: [supports large datasets/loads all]
+
   - Memory_Usage_Analysis:
-    - DTO_Size: [minimal data/complete objects/excessive fields]
-    - Intermediate_Objects: [temporary objects created/direct mapping]
-    - Memory_Leaks: [objects properly released/potential leaks]
-    - Peak_Memory: [memory spikes during mapping]
-  
+  - DTO_Size: [minimal data/complete objects/excessive fields]
+  - Intermediate_Objects: [temporary objects created/direct mapping]
+  - Memory_Leaks: [objects properly released/potential leaks]
+  - Peak_Memory: [memory spikes during mapping]
+
   - Bottleneck_Identification:
-    - Slowest_Mappings: [identified performance hotspots]
-    - Complex_Transformations: [expensive calculations/simple copies]
-    - External_Dependencies: [database calls during mapping/pure transformation]
-  
+  - Slowest_Mappings: [identified performance hotspots]
+  - Complex_Transformations: [expensive calculations/simple copies]
+  - External_Dependencies: [database calls during mapping/pure transformation]
+
   ### MAINTENANCE_BURDEN_ANALYSIS
   - Code_Duplication:
-    - Mapping_Logic_Duplication:
-      ```php
-      // Duplication across multiple mappers
-      class UserResponseMapper {
-          public static function fromUser(User $user): UserResponse {
-              // Common transformation logic repeated
-              $formattedDate = $user->getCreatedAt()->format('Y-m-d H:i:s');
-              // ...
-          }
-      }
-      
-      class AdminUserResponseMapper {
-          public static function fromUser(User $user): AdminUserResponse {
-              // Same transformation logic duplicated
-              $formattedDate = $user->getCreatedAt()->format('Y-m-d H:i:s');
-              // ...
-          }
-      }
-      ```
-      - Duplication_Level: [extensive/moderate/minimal]
-      - Common_Patterns: [list repeated transformation patterns]
-      - Extraction_Opportunities: [shared utility functions/base classes]
+  - Mapping_Logic_Duplication:
+    ```php
+    // Duplication across multiple mappers
+    class UserResponseMapper {
+        public static function fromUser(User $user): UserResponse {
+            // Common transformation logic repeated
+            $formattedDate = $user->getCreatedAt()->format('Y-m-d H:i:s');
+            // ...
+        }
+    }
     
-    - Validation_Duplication:
-      ```php
-      // Validation logic duplicated across DTOs
-      public function validateEmail(string $email): bool {
-          // Same validation in multiple DTOs
-          return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
-      }
-      ```
+    class AdminUserResponseMapper {
+        public static function fromUser(User $user): AdminUserResponse {
+            // Same transformation logic duplicated
+            $formattedDate = $user->getCreatedAt()->format('Y-m-d H:i:s');
+            // ...
+        }
+    }
+    ```
+    - Duplication_Level: [extensive/moderate/minimal]
+    - Common_Patterns: [list repeated transformation patterns]
+    - Extraction_Opportunities: [shared utility functions/base classes]
   
+  - Validation_Duplication:
+    ```php
+    // Validation logic duplicated across DTOs
+    public function validateEmail(string $email): bool {
+        // Same validation in multiple DTOs
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+    ```
+
   - Change_Impact_Assessment:
-    - Domain_Model_Changes:
-      - Impact_Scope: [how many DTOs affected by domain changes]
-      - Update_Effort: [automatic/manual updates required]
-      - Breaking_Changes: [API contract breaks/backward compatible]
-    
-    - API_Evolution:
-      - Versioning_Support: [multiple API versions supported]
-      - Deprecation_Strategy: [graceful deprecation/abrupt changes]
-      - Migration_Path: [clear upgrade path/difficult migration]
+  - Domain_Model_Changes:
+    - Impact_Scope: [how many DTOs affected by domain changes]
+    - Update_Effort: [automatic/manual updates required]
+    - Breaking_Changes: [API contract breaks/backward compatible]
   
+  - API_Evolution:
+    - Versioning_Support: [multiple API versions supported]
+    - Deprecation_Strategy: [graceful deprecation/abrupt changes]
+    - Migration_Path: [clear upgrade path/difficult migration]
+
   - Error_Prone_Areas:
-    - Type_Mismatches: [string/int confusion/strong typing]
-    - Null_Reference_Errors: [NullPointerException risks]
-    - Missing_Field_Mapping: [forgotten fields/incomplete mapping]
-    - Validation_Bypassing: [validation circumvention risks]
-  
+  - Type_Mismatches: [string/int confusion/strong typing]
+  - Null_Reference_Errors: [NullPointerException risks]
+  - Missing_Field_Mapping: [forgotten fields/incomplete mapping]
+  - Validation_Bypassing: [validation circumvention risks]
+
   ### QUALITY_EVALUATION
   - Type_Safety_Analysis:
-    - Strong_Typing:
-      ```php
-      // Good: Strong typing with value objects
-      class UserResponse {
-          public function __construct(
-              public readonly UserId $id,
-              public readonly Email $email,
-              public readonly UserName $name
-          ) {}
-      }
-      ```
-    
-    - Weak_Typing:
-      ```php
-      // Poor: Primitive obsession
-      class UserResponse {
-          public string $id;        // Should be UserId
-          public string $email;     // Should be Email
-          public string $name;      // Should be UserName
-      }
-      ```
-      - Type_Safety_Level: [strong/moderate/weak]
-      - Value_Object_Usage: [extensive/some/none]
-      - Primitive_Obsession: [avoided/some/extensive]
+  - Strong_Typing:
+    ```php
+    // Good: Strong typing with value objects
+    class UserResponse {
+        public function __construct(
+            public readonly UserId $id,
+            public readonly Email $email,
+            public readonly UserName $name
+        ) {}
+    }
+    ```
   
+  - Weak_Typing:
+    ```php
+    // Poor: Primitive obsession
+    class UserResponse {
+        public string $id;        // Should be UserId
+        public string $email;     // Should be Email
+        public string $name;      // Should be UserName
+    }
+    ```
+    - Type_Safety_Level: [strong/moderate/weak]
+    - Value_Object_Usage: [extensive/some/none]
+    - Primitive_Obsession: [avoided/some/extensive]
+
   - Error_Handling_Quality:
-    - Exception_Handling:
-      ```php
-      public function mapUser(User $user): UserResponse {
-          try {
-              return new UserResponse(
-                  $user->getId(),
-                  $user->getEmail(),
-                  $user->getName()
-              );
-          } catch (Exception $e) {
-              throw new MappingException("Failed to map user", 0, $e);
-          }
-      }
-      ```
-      - Exception_Strategy: [specific exceptions/generic/none]
-      - Error_Context: [detailed context/minimal/none]
-      - Recovery_Options: [fallback strategies/fail fast]
-    
-    - Validation_Integration:
-      ```php
-      public function mapAndValidate(UserRequest $request): UserResponse {
-          $this->validator->validate($request);
-          return $this->mapper->map($request, UserResponse::class);
-      }
-      ```
-      - Validation_Placement: [before mapping/during/after/none]
-      - Error_Aggregation: [collect all errors/fail on first]
+  - Exception_Handling:
+    ```php
+    public function mapUser(User $user): UserResponse {
+        try {
+            return new UserResponse(
+                $user->getId(),
+                $user->getEmail(),
+                $user->getName()
+            );
+        } catch (Exception $e) {
+            throw new MappingException("Failed to map user", 0, $e);
+        }
+    }
+    ```
+    - Exception_Strategy: [specific exceptions/generic/none]
+    - Error_Context: [detailed context/minimal/none]
+    - Recovery_Options: [fallback strategies/fail fast]
   
+  - Validation_Integration:
+    ```php
+    public function mapAndValidate(UserRequest $request): UserResponse {
+        $this->validator->validate($request);
+        return $this->mapper->map($request, UserResponse::class);
+    }
+    ```
+    - Validation_Placement: [before mapping/during/after/none]
+    - Error_Aggregation: [collect all errors/fail on first]
+
   - Testing_Support_Quality:
-    - Test_Friendly_Design: [easy to test/complex setup required]
-    - Mock_Support: [dependencies easily mocked/hard to mock]
-    - Test_Data_Creation: [simple test builders/complex setup]
-  
+  - Test_Friendly_Design: [easy to test/complex setup required]
+  - Mock_Support: [dependencies easily mocked/hard to mock]
+  - Test_Data_Creation: [simple test builders/complex setup]
+
   ### IMPROVEMENT_OPPORTUNITIES
   - Strategy_Optimization:
-    - Standardization_Opportunities:
-      ```php
-      // Standardized mapping interface
-      interface MapperInterface {
-          public function map(object $source, string $targetClass): object;
-          public function mapCollection(array $sources, string $targetClass): array;
-      }
-      
-      // Base mapper with common functionality
-      abstract class BaseMapper implements MapperInterface {
-          protected function formatDate(DateTime $date): string {
-              return $date->format('Y-m-d H:i:s');
-          }
-          
-          protected function mapValueObject(ValueObject $vo): string {
-              return $vo->value();
-          }
-      }
-      ```
+  - Standardization_Opportunities:
+    ```php
+    // Standardized mapping interface
+    interface MapperInterface {
+        public function map(object $source, string $targetClass): object;
+        public function mapCollection(array $sources, string $targetClass): array;
+    }
     
-    - Tool_Introduction:
-      - AutoMapper_Benefits: [reduced boilerplate/consistency]
-      - Framework_Integration: [leverage existing tools]
-      - Custom_Tool_Development: [tailored solution benefits]
-    
-    - Pattern_Improvements:
-      - Factory_Pattern: [centralized object creation]
-      - Builder_Pattern: [complex object construction]
-      - Strategy_Pattern: [different mapping strategies]
+    // Base mapper with common functionality
+    abstract class BaseMapper implements MapperInterface {
+        protected function formatDate(DateTime $date): string {
+            return $date->format('Y-m-d H:i:s');
+        }
+        
+        protected function mapValueObject(ValueObject $vo): string {
+            return $vo->value();
+        }
+    }
+    ```
   
+  - Tool_Introduction:
+    - AutoMapper_Benefits: [reduced boilerplate/consistency]
+    - Framework_Integration: [leverage existing tools]
+    - Custom_Tool_Development: [tailored solution benefits]
+  
+  - Pattern_Improvements:
+    - Factory_Pattern: [centralized object creation]
+    - Builder_Pattern: [complex object construction]
+    - Strategy_Pattern: [different mapping strategies]
+
   - Performance_Enhancements:
-    - Caching_Strategies:
-      ```php
-      class CachedMapper {
-          private array $mappingCache = [];
-          
-          public function map(object $source, string $targetClass): object {
-              $cacheKey = $this->generateCacheKey($source, $targetClass);
-              
-              if (!isset($this->mappingCache[$cacheKey])) {
-                  $this->mappingCache[$cacheKey] = $this->performMapping($source, $targetClass);
-              }
-              
-              return $this->mappingCache[$cacheKey];
-          }
-      }
-      ```
-      - Mapping_Cache: [cache frequently used mappings]
-      - Result_Cache: [cache mapping results]
-      - Reflection_Cache: [cache reflection metadata]
-    
-    - Lazy_Loading:
-      ```php
-      class LazyMappedResponse {
-          private ?array $mappedData = null;
-          
-          public function getData(): array {
-              if ($this->mappedData === null) {
-                  $this->mappedData = $this->performMapping();
-              }
-              return $this->mappedData;
-          }
-      }
-      ```
+  - Caching_Strategies:
+    ```php
+    class CachedMapper {
+        private array $mappingCache = [];
+        
+        public function map(object $source, string $targetClass): object {
+            $cacheKey = $this->generateCacheKey($source, $targetClass);
+            
+            if (!isset($this->mappingCache[$cacheKey])) {
+                $this->mappingCache[$cacheKey] = $this->performMapping($source, $targetClass);
+            }
+            
+            return $this->mappingCache[$cacheKey];
+        }
+    }
+    ```
+    - Mapping_Cache: [cache frequently used mappings]
+    - Result_Cache: [cache mapping results]
+    - Reflection_Cache: [cache reflection metadata]
   
+  - Lazy_Loading:
+    ```php
+    class LazyMappedResponse {
+        private ?array $mappedData = null;
+        
+        public function getData(): array {
+            if ($this->mappedData === null) {
+                $this->mappedData = $this->performMapping();
+            }
+            return $this->mappedData;
+        }
+    }
+    ```
+
   - Maintenance_Improvements:
-    - Code_Generation: [generate mapping code/maintain manually]
-    - Convention_Over_Configuration: [reduce explicit mapping]
-    - Centralized_Transformations: [shared transformation logic]
-  
+  - Code_Generation: [generate mapping code/maintain manually]
+  - Convention_Over_Configuration: [reduce explicit mapping]
+  - Centralized_Transformations: [shared transformation logic]
+
   ### TOOL_RECOMMENDATIONS
   - Framework_Specific:
-    - Symfony: [Serializer component optimization]
-    - Laravel: [API Resources best practices]
-    - Custom: [lightweight mapping solution]
-  
+  - Symfony: [Serializer component optimization]
+  - Laravel: [API Resources best practices]
+  - Custom: [lightweight mapping solution]
+
   - Third_Party_Tools:
-    - AutoMapper_PHP: [if available and suitable]
-    - MapStruct_Alternative: [code generation tools]
-    - Custom_Solution: [build vs buy analysis]
-  
+  - AutoMapper_PHP: [if available and suitable]
+  - MapStruct_Alternative: [code generation tools]
+  - Custom_Solution: [build vs buy analysis]
+
   - Performance_Tools:
-    - Profiling: [identify mapping bottlenecks]
-    - Monitoring: [track mapping performance]
-    - Optimization: [specific optimization techniques]
-  
+  - Profiling: [identify mapping bottlenecks]
+  - Monitoring: [track mapping performance]
+  - Optimization: [specific optimization techniques]
+
   ### MAPPING_QUALITY_SCORE
   - Strategy_Consistency: [0-10]
   - Performance_Efficiency: [0-10]
   - Maintenance_Ease: [0-10]
   - Type_Safety: [0-10]
   - Error_Handling: [0-10]
-  
-  - Overall_Mapping_Quality: [average]
-  
-  - Improvement_Priority:
-    1. [Most critical mapping issue]
-    2. [Second highest impact improvement]
-    3. [Third priority enhancement]
-  
-  - ROI_Assessment:
-    - High_ROI: [improvements with biggest impact/effort ratio]
-    - Medium_ROI: [worthwhile improvements]
-    - Low_ROI: [nice-to-have improvements]
 
-output_parser:
-  sections:
-    - MAPPING_STRATEGY_ASSESSMENT
-    - PERFORMANCE_IMPACT_ANALYSIS
-    - MAINTENANCE_BURDEN_ANALYSIS
-    - QUALITY_EVALUATION
-    - IMPROVEMENT_OPPORTUNITIES
-    - TOOL_RECOMMENDATIONS
-    - MAPPING_QUALITY_SCORE
-  confidence_impact: 0.3
+  - Overall_Mapping_Quality: [average]
+
+  - Improvement_Priority:
+  1. [Most critical mapping issue]
+  2. [Second highest impact improvement]
+  3. [Third priority enhancement]
+
+  - ROI_Assessment:
+  - High_ROI: [improvements with biggest impact/effort ratio]
+  - Medium_ROI: [worthwhile improvements]
+  - Low_ROI: [nice-to-have improvements]

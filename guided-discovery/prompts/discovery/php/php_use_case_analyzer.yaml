@@ -1,115 +1,96 @@
 name: php_use_case_analyzer
 category: discovery
-complexity: moderate
-targets_uncertainties: ["USECASE-001", "APP-001", "COMMAND-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - discoveries.domain.entities
-
-provides_context:
-  - discoveries.application.use_cases
-  - discoveries.application.commands
-  - discoveries.application.queries
-  - discoveries.application.services
-  - discoveries.application.dto_patterns
+targets_uncertainties: ['USECASE-001', 'APP-001', 'COMMAND-001']
 
 template: |
   # PHP Use Case Analysis
-  
-  I need to understand the application layer use cases and how business operations are organized.
-  
-  **Task Context**: {{task.description}}
-  **Application Layer**: {{discoveries.architecture.layers.application}}
-  
+
   ## Discovery Goals
-  
+
   1. **Use Case Organization**
-     - Use case identification
-     - Naming patterns
-     - Folder structure
-     - Single Responsibility adherence
-  
+   - Use case identification
+   - Naming patterns
+   - Folder structure
+   - Single Responsibility adherence
+
   2. **Command/Query Separation**
-     - CQRS implementation
-     - Command handlers
-     - Query handlers
-     - Command/Query bus usage
-  
+   - CQRS implementation
+   - Command handlers
+   - Query handlers
+   - Command/Query bus usage
+
   3. **Application Services**
-     - Service organization
-     - Service responsibilities
-     - Orchestration patterns
-     - Transaction boundaries
-  
+   - Service organization
+   - Service responsibilities
+   - Orchestration patterns
+   - Transaction boundaries
+
   4. **Data Transfer Objects**
-     - Request DTOs
-     - Response DTOs
-     - DTO validation
-     - Mapping strategies
-  
+   - Request DTOs
+   - Response DTOs
+   - DTO validation
+   - Mapping strategies
+
   5. **Use Case Flow**
-     - Input validation
-     - Business rule execution
-     - Side effects handling
-     - Response formatting
-  
+   - Input validation
+   - Business rule execution
+   - Side effects handling
+   - Response formatting
+
   Please analyze application use cases:
-  
+
   ### USE_CASE_ORGANIZATION
   - Structure_Pattern: [feature-based/operation-based/mixed]
   - Naming_Convention: [e.g., CreateUserUseCase, CreateUserHandler]
   - Base_Classes: [if any]
   - Example_Use_Cases:
-    - [List 5-10 main use cases found]
+  - [List 5-10 main use cases found]
   - Grouping: [by feature/by operation type/by aggregate]
-  
+
   ### COMMAND_QUERY_PATTERN
   - CQRS_Implementation: [full/partial/none]
   - Commands:
-    - Pattern: [command + handler/service methods/other]
-    - Example: [e.g., CreateOrderCommand + Handler]
-    - Validation: [where validation occurs]
+  - Pattern: [command + handler/service methods/other]
+  - Example: [e.g., CreateOrderCommand + Handler]
+  - Validation: [where validation occurs]
   - Queries:
-    - Pattern: [query + handler/repository methods/other]
-    - Example: [e.g., GetUserByEmailQuery + Handler]
-    - Return_Type: [DTOs/entities/arrays]
+  - Pattern: [query + handler/repository methods/other]
+  - Example: [e.g., GetUserByEmailQuery + Handler]
+  - Return_Type: [DTOs/entities/arrays]
   - Bus_Usage: [command bus/query bus/none]
-  
+
   ### APPLICATION_SERVICES
   - Service_Types: [use case services/orchestration services/mixed]
   - Example_Service:
-    - Name: [e.g., OrderService]
-    - Responsibilities: [list main operations]
-    - Dependencies: [repositories, domain services, etc.]
+  - Name: [e.g., OrderService]
+  - Responsibilities: [list main operations]
+  - Dependencies: [repositories, domain services, etc.]
   - Transaction_Handling: [service level/handler level/infrastructure]
   - Error_Handling: [exceptions/result objects/mixed]
-  
+
   ### DATA_TRANSFER_OBJECTS
   - Request_DTOs:
-    - Location: [path]
-    - Pattern: [plain objects/value objects/arrays]
-    - Validation: [in DTO/in handler/separate validator]
-    - Example: [show a request DTO structure]
+  - Location: [path]
+  - Pattern: [plain objects/value objects/arrays]
+  - Validation: [in DTO/in handler/separate validator]
+  - Example: [show a request DTO structure]
   - Response_DTOs:
-    - Pattern: [dedicated DTOs/arrays/mixed]
-    - Mapping: [manual/automapper/factory]
-    - Example: [show a response DTO structure]
-  
+  - Pattern: [dedicated DTOs/arrays/mixed]
+  - Mapping: [manual/automapper/factory]
+  - Example: [show a response DTO structure]
+
   ### USE_CASE_FLOW
   - Typical_Flow:
-    1. [Input validation]
-    2. [Authorization check]
-    3. [Business logic execution]
-    4. [Persistence]
-    5. [Event dispatching]
-    6. [Response formatting]
+  1. [Input validation]
+  2. [Authorization check]
+  3. [Business logic execution]
+  4. [Persistence]
+  5. [Event dispatching]
+  6. [Response formatting]
   - Authorization: [where/how authorization is handled]
   - Event_Dispatching: [when/how events are dispatched]
   - Error_Responses: [how errors are communicated]
-  
+
   ### APPLICATION_LAYER_QUALITY
   - Use_Case_Granularity: [fine/coarse/mixed]
   - Business_Logic_Location: [domain/application/mixed]
@@ -117,13 +98,3 @@ template: |
   - Testability: [high/medium/low]
   - Issues: [list any problems found]
   - Recommendations: [list improvements]
-
-output_parser:
-  sections:
-    - USE_CASE_ORGANIZATION
-    - COMMAND_QUERY_PATTERN
-    - APPLICATION_SERVICES
-    - DATA_TRANSFER_OBJECTS
-    - USE_CASE_FLOW
-    - APPLICATION_LAYER_QUALITY
-  confidence_impact: 0.4

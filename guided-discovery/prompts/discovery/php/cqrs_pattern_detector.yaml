@@ -1,171 +1,153 @@
 name: cqrs_pattern_detector
 category: discovery
-complexity: moderate
-targets_uncertainties: ["CQRS-001", "COMMAND-001", "QUERY-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - discoveries.application.use_cases
-
-provides_context:
-  - discoveries.cqrs.implementation_level
-  - discoveries.cqrs.command_patterns
-  - discoveries.cqrs.query_patterns
-  - discoveries.cqrs.separation_quality
+targets_uncertainties: ['CQRS-001', 'COMMAND-001', 'QUERY-001']
 
 template: |
   # CQRS Pattern Detection and Analysis
-  
-  I need to detect and analyze Command Query Responsibility Segregation (CQRS) patterns in this PHP codebase.
-  
-  **Task Context**: {{task.description}}
-  **Architecture**: {{discoveries.architecture.layers}}
-  
+
   ## Detection Goals
-  
+
   1. **CQRS Implementation Level**
-     - No separation (traditional CRUD)
-     - Basic separation (different methods)
-     - Interface separation (command/query interfaces)
-     - Full CQRS (separate models, buses, handlers)
-  
+   - No separation (traditional CRUD)
+   - Basic separation (different methods)
+   - Interface separation (command/query interfaces)
+   - Full CQRS (separate models, buses, handlers)
+
   2. **Command Pattern Detection**
-     - Command objects/DTOs
-     - Command handlers
-     - Command bus implementation
-     - Command validation
-  
+   - Command objects/DTOs
+   - Command handlers
+   - Command bus implementation
+   - Command validation
+
   3. **Query Pattern Detection**
-     - Query objects/DTOs
-     - Query handlers
-     - Query bus implementation
-     - Read model optimization
-  
+   - Query objects/DTOs
+   - Query handlers
+   - Query bus implementation
+   - Read model optimization
+
   4. **Separation Quality**
-     - Command/query mixing
-     - Side effects in queries
-     - Query results in commands
-     - Consistency boundaries
-  
+   - Command/query mixing
+   - Side effects in queries
+   - Query results in commands
+   - Consistency boundaries
+
   5. **Supporting Infrastructure**
-     - Event dispatching
-     - Read model projections
-     - Command/query buses
-     - Middleware patterns
-  
+   - Event dispatching
+   - Read model projections
+   - Command/query buses
+   - Middleware patterns
+
   Please analyze CQRS patterns:
-  
+
   ### CQRS_IMPLEMENTATION_LEVEL
   - Current_Level:
-    - Pattern: [none/basic/interface/full-cqrs/event-sourcing]
-    - Evidence: [describe what indicates this level]
+  - Pattern: [none/basic/interface/full-cqrs/event-sourcing]
+  - Evidence: [describe what indicates this level]
   - Command_Side:
-    - Commands_Exist: [yes/no/partial]
-    - Command_Location: [path if exists]
-    - Command_Count: [number of commands]
-    - Example_Command: [show a command structure]
+  - Commands_Exist: [yes/no/partial]
+  - Command_Location: [path if exists]
+  - Command_Count: [number of commands]
+  - Example_Command: [show a command structure]
   - Query_Side:
-    - Queries_Exist: [yes/no/partial]
-    - Query_Location: [path if exists]  
-    - Query_Count: [number of queries]
-    - Example_Query: [show a query structure]
-  
+  - Queries_Exist: [yes/no/partial]
+  - Query_Location: [path if exists]  
+  - Query_Count: [number of queries]
+  - Example_Query: [show a query structure]
+
   ### COMMAND_PATTERN_ANALYSIS
   - Command_Objects:
-    - Structure: [DTOs/value objects/simple arrays]
-    - Naming: [consistent/inconsistent pattern]
-    - Example_Structure:
-      ```php
-      class CreateOrderCommand {
-          public function __construct(
-              public readonly string $customerId,
-              public readonly array $items
-          ) {}
-      }
-      ```
+  - Structure: [DTOs/value objects/simple arrays]
+  - Naming: [consistent/inconsistent pattern]
+  - Example_Structure:
+    ```php
+    class CreateOrderCommand {
+        public function __construct(
+            public readonly string $customerId,
+            public readonly array $items
+        ) {}
+    }
+    ```
   - Command_Handlers:
-    - Pattern: [dedicated handlers/service methods/controllers]
-    - Location: [where handlers are defined]
-    - Naming_Convention: [e.g., CreateOrderHandler]
-    - Example_Handler:
-      ```php
-      class CreateOrderHandler {
-          public function handle(CreateOrderCommand $command): void
-      }
-      ```
+  - Pattern: [dedicated handlers/service methods/controllers]
+  - Location: [where handlers are defined]
+  - Naming_Convention: [e.g., CreateOrderHandler]
+  - Example_Handler:
+    ```php
+    class CreateOrderHandler {
+        public function handle(CreateOrderCommand $command): void
+    }
+    ```
   - Command_Bus:
-    - Implementation: [custom/Symfony Messenger/Laravel/none]
-    - Middleware: [validation/logging/transaction/none]
-    - Async_Support: [yes/no/partial]
-  
+  - Implementation: [custom/Symfony Messenger/Laravel/none]
+  - Middleware: [validation/logging/transaction/none]
+  - Async_Support: [yes/no/partial]
+
   ### QUERY_PATTERN_ANALYSIS
   - Query_Objects:
-    - Structure: [query DTOs/criteria objects/arrays]
-    - Filtering: [how filters are handled]
-    - Pagination: [pagination approach]
-    - Example_Query:
-      ```php
-      class GetOrdersByCustomerQuery {
-          public function __construct(
-              public readonly string $customerId,
-              public readonly ?DateRange $dateRange = null
-          ) {}
-      }
-      ```
+  - Structure: [query DTOs/criteria objects/arrays]
+  - Filtering: [how filters are handled]
+  - Pagination: [pagination approach]
+  - Example_Query:
+    ```php
+    class GetOrdersByCustomerQuery {
+        public function __construct(
+            public readonly string $customerId,
+            public readonly ?DateRange $dateRange = null
+        ) {}
+    }
+    ```
   - Query_Handlers:
-    - Pattern: [dedicated handlers/repository methods]
-    - Return_Types: [DTOs/arrays/entities]
-    - Optimization: [specific read optimizations]
+  - Pattern: [dedicated handlers/repository methods]
+  - Return_Types: [DTOs/arrays/entities]
+  - Optimization: [specific read optimizations]
   - Read_Models:
-    - Separate_Models: [yes/no/shared with commands]
-    - Projections: [materialized views/cache/database]
-    - Denormalization: [level of denormalization]
-  
+  - Separate_Models: [yes/no/shared with commands]
+  - Projections: [materialized views/cache/database]
+  - Denormalization: [level of denormalization]
+
   ### SEPARATION_QUALITY_ASSESSMENT
   - Command_Query_Mixing:
-    - Violations: [list methods that mix command/query]
-    - Pure_Commands: [percentage that don't return business data]
-    - Pure_Queries: [percentage with no side effects]
+  - Violations: [list methods that mix command/query]
+  - Pure_Commands: [percentage that don't return business data]
+  - Pure_Queries: [percentage with no side effects]
   - Side_Effects_Analysis:
-    - Query_Side_Effects: [list queries with side effects]
-    - Command_Return_Data: [commands returning business data]
-    - Logging_Events: [appropriate side effects vs business changes]
+  - Query_Side_Effects: [list queries with side effects]
+  - Command_Return_Data: [commands returning business data]
+  - Logging_Events: [appropriate side effects vs business changes]
   - Consistency_Boundaries:
-    - Transaction_Scope: [per command/per aggregate/mixed]
-    - Cross_Aggregate: [how handled]
-    - Eventual_Consistency: [used/needed/avoided]
-  
+  - Transaction_Scope: [per command/per aggregate/mixed]
+  - Cross_Aggregate: [how handled]
+  - Eventual_Consistency: [used/needed/avoided]
+
   ### SUPPORTING_INFRASTRUCTURE
   - Event_System:
-    - Domain_Events: [fired from commands?]
-    - Integration_Events: [for read model updates?]
-    - Event_Handlers: [update projections?]
+  - Domain_Events: [fired from commands?]
+  - Integration_Events: [for read model updates?]
+  - Event_Handlers: [update projections?]
   - Middleware_Pipeline:
-    - Validation: [command/query validation]
-    - Authorization: [security checks]
-    - Logging: [audit trail]
-    - Caching: [query result caching]
+  - Validation: [command/query validation]
+  - Authorization: [security checks]
+  - Logging: [audit trail]
+  - Caching: [query result caching]
   - Framework_Integration:
-    - Laravel_Commands: [Artisan vs CQRS commands]
-    - Symfony_Messenger: [used for CQRS?]
-    - Custom_Bus: [homebrew implementation]
-  
+  - Laravel_Commands: [Artisan vs CQRS commands]
+  - Symfony_Messenger: [used for CQRS?]
+  - Custom_Bus: [homebrew implementation]
+
   ### CQRS_BENEFITS_REALIZATION
   - Performance_Benefits:
-    - Read_Optimization: [separate read models helping?]
-    - Write_Optimization: [focused command models?]
-    - Scalability: [separate read/write scaling?]
+  - Read_Optimization: [separate read models helping?]
+  - Write_Optimization: [focused command models?]
+  - Scalability: [separate read/write scaling?]
   - Complexity_Management:
-    - Clear_Intent: [commands express business intent?]
-    - Testability: [easier to test handlers?]
-    - Maintainability: [easier to modify?]
+  - Clear_Intent: [commands express business intent?]
+  - Testability: [easier to test handlers?]
+  - Maintainability: [easier to modify?]
   - Issues_Identified:
-    - Over_Engineering: [CQRS where CRUD sufficient?]
-    - Under_Implementation: [missing CQRS benefits?]
-    - Inconsistent_Application: [mixed patterns?]
-  
+  - Over_Engineering: [CQRS where CRUD sufficient?]
+  - Under_Implementation: [missing CQRS benefits?]
+  - Inconsistent_Application: [mixed patterns?]
+
   ### CQRS_MATURITY_SCORE
   - Implementation_Completeness: [0-10]
   - Separation_Quality: [0-10]
@@ -173,21 +155,10 @@ template: |
   - Benefits_Realization: [0-10]
   - Overall_CQRS_Score: [average]
   - Maturity_Level:
-    - 🥉 Basic (0-4): Some separation attempts
-    - 🥈 Intermediate (5-7): Good separation, basic infrastructure
-    - 🥇 Advanced (8-10): Full CQRS with events, projections
+  - 🥉 Basic (0-4): Some separation attempts
+  - 🥈 Intermediate (5-7): Good separation, basic infrastructure
+  - 🥇 Advanced (8-10): Full CQRS with events, projections
   - Recommendations:
-    1. [Most important improvement]
-    2. [Second priority]
-    3. [Third priority]
-
-output_parser:
-  sections:
-    - CQRS_IMPLEMENTATION_LEVEL
-    - COMMAND_PATTERN_ANALYSIS
-    - QUERY_PATTERN_ANALYSIS
-    - SEPARATION_QUALITY_ASSESSMENT
-    - SUPPORTING_INFRASTRUCTURE
-    - CQRS_BENEFITS_REALIZATION
-    - CQRS_MATURITY_SCORE
-  confidence_impact: 0.35
+  1. [Most important improvement]
+  2. [Second priority]
+  3. [Third priority]

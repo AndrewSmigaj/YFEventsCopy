@@ -23,8 +23,13 @@ targets_uncertainties:
  - DEP-001
 
 prompt_sequence:
- - prompt: general_explorer
+ - prompt: architecture_context_loader
  order: 1
+ mandatory: true
+ purpose: Load architecture configuration into context for all subsequent prompts
+ 
+ - prompt: general_explorer
+ order: 2
  mandatory: true
  purpose: Get overview of codebase structure and tech stack
  

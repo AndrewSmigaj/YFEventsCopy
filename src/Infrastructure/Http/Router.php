@@ -6,6 +6,8 @@ namespace YFEvents\Infrastructure\Http;
 
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Discovery\RequestTracker;
+use YakimaFinds\Utils\SystemLogger;
 
 /**
  * Simple HTTP router for handling requests
@@ -16,11 +18,26 @@ class Router
     private ContainerInterface $container;
     private ConfigInterface $config;
     private string $currentPrefix = '';
+    private ?SystemLogger $logger = null;
+    private bool $runtimeDiscoveryEnabled;
 
     public function __construct(ContainerInterface $container, ConfigInterface $config)
     {
         $this->container = $container;
         $this->config = $config;
+        
+        // Initialize runtime discovery logging if enabled
+        $this->runtimeDiscoveryEnabled = getenv('ENABLE_RUNTIME_DISCOVERY') === 'true' ||
+                                       $config->get('runtime_discovery.enabled', false);
+        
+        if ($this->runtimeDiscoveryEnabled) {
+            try {
+                $db = $this->container->resolve(\PDO::class);
+                $this->logger = SystemLogger::create($db, 'runtime_discovery');
+            } catch (\Exception $e) {
+                error_log("[runtime_discovery] Router: Failed to initialize logger: " . $e->getMessage());
+            }
+        }
     }
 
     /**
@@ -78,6 +95,15 @@ class Router
         $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getCurrentPath();
 
+        // Log dispatch attempt
+        if ($this->logger) {
+            $this->logger->info('ROUTE_DISPATCH_START', [
+                'method' => $method,
+                'path' => $path,
+                'request_id' => RequestTracker::getRequestId()
+            ]);
+        }
+
         $pathMatches = [];
         $allowedMethods = [];
 
@@ -112,9 +138,29 @@ class Router
             $controllerClass = $route['controller'];
             $action = $route['action'];
 
+            // Log route match
+            if ($this->logger) {
+                $this->logger->info('ROUTE_MATCHED', [
+                    'method' => $route['method'],
+                    'path' => $route['path'],
+                    'controller' => $controllerClass,
+                    'action' => $action,
+                    'request_id' => RequestTracker::getRequestId()
+                ]);
+            }
+
             // Instantiate controller with dependencies from container
             $config = $this->container->resolve(\YFEvents\Infrastructure\Config\ConfigInterface::class);
             $controller = new $controllerClass($this->container, $config);
+
+            // Log controller instantiation
+            if ($this->logger) {
+                $this->logger->info('CONTROLLER_INSTANTIATED', [
+                    'controller' => $controllerClass,
+                    'namespace' => substr($controllerClass, 0, strrpos($controllerClass, '\\')),
+                    'request_id' => RequestTracker::getRequestId()
+                ]);
+            }
 
             // Extract path parameters
             $params = array_slice($matches, 1);
@@ -126,6 +172,15 @@ class Router
 
             // Call the controller method
             $controller->$action();
+
+            // Log successful execution
+            if ($this->logger) {
+                $this->logger->info('CONTROLLER_ACTION_COMPLETE', [
+                    'controller' => $controllerClass,
+                    'action' => $action,
+                    'request_id' => RequestTracker::getRequestId()
+                ]);
+            }
 
         } catch (\Exception $e) {
             $this->handleError($e);
@@ -215,6 +270,13 @@ class Router
      */
     private function handleNotFound(): void
     {
+        if ($this->logger) {
+            $this->logger->info('ROUTE_NOT_FOUND', [
+                'method' => $_SERVER['REQUEST_METHOD'],
+                'path' => $this->getCurrentPath(),
+                'request_id' => RequestTracker::getRequestId()
+            ]);
+        }
         ErrorHandler::handle404($this->getCurrentPath(), $_SERVER['REQUEST_METHOD']);
     }
 

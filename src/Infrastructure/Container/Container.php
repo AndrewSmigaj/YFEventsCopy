@@ -8,6 +8,8 @@ use ReflectionClass;
 use ReflectionParameter;
 use InvalidArgumentException;
 use RuntimeException;
+use YFEvents\Infrastructure\Discovery\RequestTracker;
+use YakimaFinds\Utils\SystemLogger;
 
 /**
  * Simple dependency injection container
@@ -17,6 +19,30 @@ class Container implements ContainerInterface
     private array $bindings = [];
     private array $instances = [];
     private array $singletons = [];
+    private ?SystemLogger $logger = null;
+    private bool $runtimeDiscoveryEnabled;
+
+    public function __construct()
+    {
+        // Check if runtime discovery is enabled
+        $this->runtimeDiscoveryEnabled = getenv('ENABLE_RUNTIME_DISCOVERY') === 'true';
+        
+        // Logger will be initialized later when PDO is available
+    }
+
+    /**
+     * Initialize logger after PDO is available
+     */
+    private function initializeLogger(): void
+    {
+        if ($this->runtimeDiscoveryEnabled && !$this->logger && isset($this->instances[\PDO::class])) {
+            try {
+                $this->logger = SystemLogger::create($this->instances[\PDO::class], 'runtime_discovery');
+            } catch (\Exception $e) {
+                error_log("[runtime_discovery] Container: Failed to initialize logger: " . $e->getMessage());
+            }
+        }
+    }
 
     public function bind(string $abstract, string|callable $concrete): void
     {
@@ -35,6 +61,9 @@ class Container implements ContainerInterface
 
     public function resolve(string $abstract): object
     {
+        // Try to initialize logger if not done yet
+        $this->initializeLogger();
+        
         // Return existing instance if bound
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
@@ -43,19 +72,25 @@ class Container implements ContainerInterface
         // Check for singleton
         if (isset($this->singletons[$abstract])) {
             if (!isset($this->instances[$abstract])) {
-                $this->instances[$abstract] = $this->build($this->singletons[$abstract]);
+                $instance = $this->build($this->singletons[$abstract]);
+                $this->instances[$abstract] = $instance;
+                $this->logResolution($abstract, get_class($instance), 'singleton');
             }
             return $this->instances[$abstract];
         }
 
         // Check for regular binding
         if (isset($this->bindings[$abstract])) {
-            return $this->build($this->bindings[$abstract]);
+            $instance = $this->build($this->bindings[$abstract]);
+            $this->logResolution($abstract, get_class($instance), 'binding');
+            return $instance;
         }
 
         // Try to auto-resolve if it's a class
         if (class_exists($abstract)) {
-            return $this->build($abstract);
+            $instance = $this->build($abstract);
+            $this->logResolution($abstract, get_class($instance), 'auto-resolve');
+            return $instance;
         }
 
         throw new RuntimeException("Unable to resolve binding for: {$abstract}");
@@ -72,6 +107,25 @@ class Container implements ContainerInterface
     public function getBindings(): array
     {
         return array_merge($this->bindings, $this->singletons, array_keys($this->instances));
+    }
+
+    /**
+     * Log service resolution
+     */
+    private function logResolution(string $abstract, string $concrete, string $type): void
+    {
+        if ($this->logger) {
+            // Extract namespace from concrete class
+            $namespace = substr($concrete, 0, strrpos($concrete, '\\') ?: 0);
+            
+            $this->logger->info('SERVICE_RESOLVED', [
+                'abstract' => $abstract,
+                'concrete' => $concrete,
+                'namespace' => $namespace,
+                'type' => $type,
+                'request_id' => RequestTracker::getRequestId()
+            ]);
+        }
     }
 
     /**

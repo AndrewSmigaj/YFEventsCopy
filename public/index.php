@@ -11,6 +11,27 @@ define('BASE_PATH', dirname(__DIR__));
 // Load autoloader from correct location
 require_once BASE_PATH . '/vendor/autoload.php';
 
+// Initialize runtime discovery logging if enabled
+$enableRuntimeDiscovery = getenv('ENABLE_RUNTIME_DISCOVERY') === 'true' || 
+                         (file_exists(BASE_PATH . '/.env') && 
+                          strpos(file_get_contents(BASE_PATH . '/.env'), 'ENABLE_RUNTIME_DISCOVERY=true') !== false);
+
+if ($enableRuntimeDiscovery) {
+    use YFEvents\Infrastructure\Discovery\RequestTracker;
+    use YakimaFinds\Utils\SystemLogger;
+    
+    // Initialize request tracking
+    $requestId = RequestTracker::getRequestId();
+    
+    // Log request start (we'll get DB connection after bootstrap)
+    error_log(sprintf(
+        "[runtime_discovery] REQUEST_START: %s %s [request_id: %s]",
+        $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN',
+        $_SERVER['REQUEST_URI'] ?? '/',
+        $requestId
+    ));
+}
+
 // Configure error reporting
 // TODO: After Phase 9, use EnvLoader to get APP_DEBUG from .env
 $isProduction = file_exists(BASE_PATH . '/.env') && 
@@ -28,6 +49,26 @@ try {
     // Bootstrap the application
     $container = Bootstrap::boot();
     $config = $container->resolve(\YFEvents\Infrastructure\Config\ConfigInterface::class);
+
+    // Log bootstrap completion with SystemLogger if runtime discovery enabled
+    if ($enableRuntimeDiscovery) {
+        try {
+            $db = $container->resolve(\PDO::class);
+            $logger = \YakimaFinds\Utils\SystemLogger::create($db, 'runtime_discovery');
+            $logger->info('REQUEST_START', [
+                'method' => $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN',
+                'url' => $_SERVER['REQUEST_URI'] ?? '/',
+                'request_id' => $requestId,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown',
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown'
+            ]);
+            $logger->info('BOOTSTRAP_COMPLETE', [
+                'request_id' => $requestId
+            ]);
+        } catch (\Exception $e) {
+            error_log("[runtime_discovery] Failed to initialize SystemLogger: " . $e->getMessage());
+        }
+    }
 
     // Create router
     $router = new Router($container, $config);

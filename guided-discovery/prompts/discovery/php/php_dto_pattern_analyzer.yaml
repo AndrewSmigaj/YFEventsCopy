@@ -1,414 +1,384 @@
 name: php_dto_pattern_analyzer
 category: discovery
-complexity: moderate
-targets_uncertainties: ["DTO-001", "BOUNDARY-001", "MAPPING-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - discoveries.api.endpoints
-
-provides_context:
-  - discoveries.dto.usage_patterns
-  - discoveries.dto.mapping_strategies
-  - discoveries.dto.validation_approach
-  - discoveries.dto.serialization_patterns
+targets_uncertainties: ['DTO-001', 'BOUNDARY-001', 'MAPPING-001']
 
 template: |
   # PHP DTO Pattern Analysis
-  
-  I need to analyze Data Transfer Object (DTO) patterns and boundary object usage in this PHP application.
-  
-  **Task Context**: {{task.description}}
-  **Architecture**: {{discoveries.architecture.layers}}
-  
+
   ## Analysis Goals
-  
+
   1. **DTO Usage Patterns**
-     - DTO identification and classification
-     - Boundary object implementation
-     - Request/Response patterns
-     - Internal communication DTOs
-  
+   - DTO identification and classification
+   - Boundary object implementation
+   - Request/Response patterns
+   - Internal communication DTOs
+
   2. **Mapping Strategies**
-     - DTO to domain mapping
-     - Transformation patterns
-     - Mapping tools and frameworks
-     - Performance considerations
-  
+   - DTO to domain mapping
+   - Transformation patterns
+   - Mapping tools and frameworks
+   - Performance considerations
+
   3. **Validation Approaches**
-     - DTO validation patterns
-     - Validation placement
-     - Error handling
-     - Business rule validation
-  
+   - DTO validation patterns
+   - Validation placement
+   - Error handling
+   - Business rule validation
+
   4. **Serialization Patterns**
-     - JSON serialization
-     - API response formatting
-     - Framework integration
-     - Custom serializers
-  
+   - JSON serialization
+   - API response formatting
+   - Framework integration
+   - Custom serializers
+
   5. **Boundary Management**
-     - Layer boundary enforcement
-     - Data flow control
-     - Leaky abstraction prevention
-     - Contract definition
-  
+   - Layer boundary enforcement
+   - Data flow control
+   - Leaky abstraction prevention
+   - Contract definition
+
   Please analyze DTO patterns:
-  
+
   ### DTO_USAGE_PATTERNS
   - DTO_Discovery:
-    - Total_DTOs: [count of DTO classes/objects]
-    - Naming_Patterns: [*Request/*Response/*DTO/*Data/custom]
-    - Location_Organization:
-      - Request_DTOs: [path and count]
-      - Response_DTOs: [path and count]
-      - Internal_DTOs: [path and count]
-      - Command_DTOs: [path and count]
-      - Query_DTOs: [path and count]
-  
+  - Total_DTOs: [count of DTO classes/objects]
+  - Naming_Patterns: [*Request/*Response/*DTO/*Data/custom]
+  - Location_Organization:
+    - Request_DTOs: [path and count]
+    - Response_DTOs: [path and count]
+    - Internal_DTOs: [path and count]
+    - Command_DTOs: [path and count]
+    - Query_DTOs: [path and count]
+
   - DTO_Classification:
-    - API_Boundary_DTOs:
-      ```php
-      class CreateUserRequest {
-          public string $name;
-          public string $email;
-          public string $password;
-          public ?array $preferences = null;
-          
-          public static function fromArray(array $data): self {
-              // Factory method for creation
-          }
-          
-          public function validate(): array {
-              // Validation logic
-          }
-      }
-      
-      class UserResponse {
-          public string $id;
-          public string $name;
-          public string $email;
-          public string $createdAt;
-          
-          public static function fromUser(User $user): self {
-              // Domain to DTO mapping
-          }
-      }
-      ```
-      - Count: [number of API DTOs]
-      - Completeness: [all endpoints have DTOs/some/none]
-      - Consistency: [consistent patterns/mixed]
+  - API_Boundary_DTOs:
+    ```php
+    class CreateUserRequest {
+        public string $name;
+        public string $email;
+        public string $password;
+        public ?array $preferences = null;
+        
+        public static function fromArray(array $data): self {
+            // Factory method for creation
+        }
+        
+        public function validate(): array {
+            // Validation logic
+        }
+    }
     
-    - Internal_Communication_DTOs:
-      ```php
-      class OrderProcessingData {
-          public CustomerId $customerId;
-          public array $items;
-          public PaymentInfo $payment;
-          public ShippingInfo $shipping;
-      }
-      ```
-      - Count: [number of internal DTOs]
-      - Usage: [service-to-service/layer-to-layer]
-      - Type_Safety: [typed properties/arrays/mixed]
-    
-    - Command_Query_DTOs:
-      ```php
-      class CreateOrderCommand {
-          public function __construct(
-              public readonly string $customerId,
-              public readonly array $items,
-              public readonly PaymentData $payment
-          ) {}
-      }
-      
-      class OrdersByCustomerQuery {
-          public function __construct(
-              public readonly string $customerId,
-              public readonly ?DateRange $dateRange = null,
-              public readonly int $limit = 20
-          ) {}
-      }
-      ```
-      - CQRS_Integration: [used with CQRS/standalone]
-      - Immutability: [readonly properties/immutable/mutable]
+    class UserResponse {
+        public string $id;
+        public string $name;
+        public string $email;
+        public string $createdAt;
+        
+        public static function fromUser(User $user): self {
+            // Domain to DTO mapping
+        }
+    }
+    ```
+    - Count: [number of API DTOs]
+    - Completeness: [all endpoints have DTOs/some/none]
+    - Consistency: [consistent patterns/mixed]
   
+  - Internal_Communication_DTOs:
+    ```php
+    class OrderProcessingData {
+        public CustomerId $customerId;
+        public array $items;
+        public PaymentInfo $payment;
+        public ShippingInfo $shipping;
+    }
+    ```
+    - Count: [number of internal DTOs]
+    - Usage: [service-to-service/layer-to-layer]
+    - Type_Safety: [typed properties/arrays/mixed]
+  
+  - Command_Query_DTOs:
+    ```php
+    class CreateOrderCommand {
+        public function __construct(
+            public readonly string $customerId,
+            public readonly array $items,
+            public readonly PaymentData $payment
+        ) {}
+    }
+    
+    class OrdersByCustomerQuery {
+        public function __construct(
+            public readonly string $customerId,
+            public readonly ?DateRange $dateRange = null,
+            public readonly int $limit = 20
+        ) {}
+    }
+    ```
+    - CQRS_Integration: [used with CQRS/standalone]
+    - Immutability: [readonly properties/immutable/mutable]
+
   ### MAPPING_STRATEGIES
   - Domain_to_DTO_Mapping:
-    - Manual_Mapping:
-      ```php
-      class UserResponse {
-          public static function fromUser(User $user): self {
-              $response = new self();
-              $response->id = $user->getId()->value();
-              $response->name = $user->getName();
-              $response->email = $user->getEmail()->value();
-              return $response;
-          }
-      }
-      ```
-      - Prevalence: [percentage of manual mapping]
-      - Consistency: [consistent patterns/ad-hoc]
-      - Location: [in DTO/separate mapper/mixed]
-    
-    - Automated_Mapping:
-      ```php
-      // Using AutoMapper or similar
-      $userResponse = $this->mapper->map($user, UserResponse::class);
-      
-      // Using Symfony Serializer
-      $response = $this->serializer->normalize($user, UserResponse::class);
-      ```
-      - Tool_Used: [AutoMapper/Symfony Serializer/custom/none]
-      - Configuration: [attributes/XML/YAML/PHP]
-      - Performance: [optimized/acceptable/slow]
-    
-    - Factory_Pattern:
-      ```php
-      class UserResponseFactory {
-          public function createFromUser(User $user): UserResponse {
-              return new UserResponse(
-                  id: $user->getId()->value(),
-                  name: $user->getName(),
-                  email: $user->getEmail()->value()
-              );
-          }
-          
-          public function createCollection(array $users): array {
-              return array_map([$this, 'createFromUser'], $users);
-          }
-      }
-      ```
-      - Usage: [dedicated factories/static methods/none]
-      - Centralization: [centralized/distributed]
+  - Manual_Mapping:
+    ```php
+    class UserResponse {
+        public static function fromUser(User $user): self {
+            $response = new self();
+            $response->id = $user->getId()->value();
+            $response->name = $user->getName();
+            $response->email = $user->getEmail()->value();
+            return $response;
+        }
+    }
+    ```
+    - Prevalence: [percentage of manual mapping]
+    - Consistency: [consistent patterns/ad-hoc]
+    - Location: [in DTO/separate mapper/mixed]
   
+  - Automated_Mapping:
+    ```php
+    // Using AutoMapper or similar
+    $userResponse = $this->mapper->map($user, UserResponse::class);
+    
+    // Using Symfony Serializer
+    $response = $this->serializer->normalize($user, UserResponse::class);
+    ```
+    - Tool_Used: [AutoMapper/Symfony Serializer/custom/none]
+    - Configuration: [attributes/XML/YAML/PHP]
+    - Performance: [optimized/acceptable/slow]
+  
+  - Factory_Pattern:
+    ```php
+    class UserResponseFactory {
+        public function createFromUser(User $user): UserResponse {
+            return new UserResponse(
+                id: $user->getId()->value(),
+                name: $user->getName(),
+                email: $user->getEmail()->value()
+            );
+        }
+        
+        public function createCollection(array $users): array {
+            return array_map([$this, 'createFromUser'], $users);
+        }
+    }
+    ```
+    - Usage: [dedicated factories/static methods/none]
+    - Centralization: [centralized/distributed]
+
   - DTO_to_Domain_Mapping:
-    - Request_to_Command:
-      ```php
-      class CreateUserRequest {
-          public function toCommand(): CreateUserCommand {
-              return new CreateUserCommand(
-                  name: $this->name,
-                  email: new Email($this->email),
-                  password: new Password($this->password)
-              );
-          }
-      }
-      ```
-    
-    - Validation_Integration:
-      ```php
-      public function toCommand(): CreateUserCommand {
-          $this->validate(); // Validate before mapping
-          return new CreateUserCommand(/* ... */);
-      }
-      ```
+  - Request_to_Command:
+    ```php
+    class CreateUserRequest {
+        public function toCommand(): CreateUserCommand {
+            return new CreateUserCommand(
+                name: $this->name,
+                email: new Email($this->email),
+                password: new Password($this->password)
+            );
+        }
+    }
+    ```
   
+  - Validation_Integration:
+    ```php
+    public function toCommand(): CreateUserCommand {
+        $this->validate(); // Validate before mapping
+        return new CreateUserCommand(/* ... */);
+    }
+    ```
+
   ### VALIDATION_APPROACH
   - Validation_Placement:
-    - DTO_Level_Validation:
-      ```php
-      class CreateUserRequest {
-          public function validate(): ValidationResult {
-              $errors = [];
-              
-              if (empty($this->name)) {
-                  $errors[] = 'Name is required';
-              }
-              
-              if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-                  $errors[] = 'Invalid email format';
-              }
-              
-              return new ValidationResult($errors);
-          }
-      }
-      ```
-    
-    - Framework_Validation:
-      ```php
-      // Symfony Validator
-      use Symfony\Component\Validator\Constraints as Assert;
-      
-      class CreateUserRequest {
-          #[Assert\NotBlank]
-          #[Assert\Length(min: 2, max: 100)]
-          public string $name;
-          
-          #[Assert\Email]
-          public string $email;
-      }
-      
-      // Laravel Form Request
-      class CreateUserRequest extends FormRequest {
-          public function rules(): array {
-              return [
-                  'name' => 'required|string|min:2|max:100',
-                  'email' => 'required|email|unique:users'
-              ];
-          }
-      }
-      ```
-    
-    - Separate_Validator:
-      ```php
-      class CreateUserRequestValidator {
-          public function validate(CreateUserRequest $request): ValidationResult {
-              // Dedicated validator class
-          }
-      }
-      ```
+  - DTO_Level_Validation:
+    ```php
+    class CreateUserRequest {
+        public function validate(): ValidationResult {
+            $errors = [];
+            
+            if (empty($this->name)) {
+                $errors[] = 'Name is required';
+            }
+            
+            if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Invalid email format';
+            }
+            
+            return new ValidationResult($errors);
+        }
+    }
+    ```
   
+  - Framework_Validation:
+    ```php
+    // Symfony Validator
+    use Symfony\Component\Validator\Constraints as Assert;
+    
+    class CreateUserRequest {
+        #[Assert\NotBlank]
+        #[Assert\Length(min: 2, max: 100)]
+        public string $name;
+        
+        #[Assert\Email]
+        public string $email;
+    }
+    
+    // Laravel Form Request
+    class CreateUserRequest extends FormRequest {
+        public function rules(): array {
+            return [
+                'name' => 'required|string|min:2|max:100',
+                'email' => 'required|email|unique:users'
+            ];
+        }
+    }
+    ```
+  
+  - Separate_Validator:
+    ```php
+    class CreateUserRequestValidator {
+        public function validate(CreateUserRequest $request): ValidationResult {
+            // Dedicated validator class
+        }
+    }
+    ```
+
   - Validation_Types:
-    - Format_Validation: [data format, types, ranges]
-    - Business_Rule_Validation: [domain-specific rules]
-    - Cross_Field_Validation: [field dependencies]
-    - External_Validation: [database uniqueness, API calls]
-  
+  - Format_Validation: [data format, types, ranges]
+  - Business_Rule_Validation: [domain-specific rules]
+  - Cross_Field_Validation: [field dependencies]
+  - External_Validation: [database uniqueness, API calls]
+
   - Error_Handling:
-    - Error_Format: [exception/result object/array]
-    - Error_Propagation: [early return/collect all/mixed]
-    - Localization: [i18n support/hardcoded/none]
-  
+  - Error_Format: [exception/result object/array]
+  - Error_Propagation: [early return/collect all/mixed]
+  - Localization: [i18n support/hardcoded/none]
+
   ### SERIALIZATION_PATTERNS
   - JSON_Serialization:
-    - Framework_Serializer:
-      ```php
-      // Symfony Serializer
-      $json = $this->serializer->serialize($userResponse, 'json');
-      
-      // Laravel API Resources
-      class UserResource extends JsonResource {
-          public function toArray($request): array {
-              return [
-                  'id' => $this->id,
-                  'name' => $this->name,
-                  'email' => $this->email
-              ];
-          }
-      }
-      ```
+  - Framework_Serializer:
+    ```php
+    // Symfony Serializer
+    $json = $this->serializer->serialize($userResponse, 'json');
     
-    - Custom_Serialization:
-      ```php
-      class UserResponse implements JsonSerializable {
-          public function jsonSerialize(): array {
-              return [
-                  'id' => $this->id,
-                  'name' => $this->name,
-                  'email' => $this->email
-              ];
-          }
-      }
-      ```
-    
-    - Attributes_Configuration:
-      ```php
-      use Symfony\Component\Serializer\Annotation\SerializedName;
-      
-      class UserResponse {
-          #[SerializedName('user_id')]
-          public string $id;
-          
-          #[SerializedName('full_name')]
-          public string $name;
-      }
-      ```
+    // Laravel API Resources
+    class UserResource extends JsonResource {
+        public function toArray($request): array {
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'email' => $this->email
+            ];
+        }
+    }
+    ```
   
+  - Custom_Serialization:
+    ```php
+    class UserResponse implements JsonSerializable {
+        public function jsonSerialize(): array {
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'email' => $this->email
+            ];
+        }
+    }
+    ```
+  
+  - Attributes_Configuration:
+    ```php
+    use Symfony\Component\Serializer\Annotation\SerializedName;
+    
+    class UserResponse {
+        #[SerializedName('user_id')]
+        public string $id;
+        
+        #[SerializedName('full_name')]
+        public string $name;
+    }
+    ```
+
   - Response_Formatting:
-    - Envelope_Pattern: [data wrapper/direct/mixed]
-    - Metadata_Inclusion: [pagination/links/timestamps]
-    - Error_Response_Format: [consistent/varied]
-    - Content_Negotiation: [JSON/XML/multiple formats]
-  
+  - Envelope_Pattern: [data wrapper/direct/mixed]
+  - Metadata_Inclusion: [pagination/links/timestamps]
+  - Error_Response_Format: [consistent/varied]
+  - Content_Negotiation: [JSON/XML/multiple formats]
+
   ### BOUNDARY_MANAGEMENT
   - Layer_Boundary_Enforcement:
-    - API_Layer:
-      - Input_Sanitization: [all inputs through DTOs/some/none]
-      - Output_Formatting: [all outputs as DTOs/mixed/direct entities]
-      - Validation_Gateway: [DTOs validate at boundary/mixed/none]
-    
-    - Application_Layer:
-      - Command_DTOs: [use cases accept DTOs/mixed/direct params]
-      - Response_DTOs: [use cases return DTOs/mixed/direct entities]
-      - Internal_Communication: [DTOs between services/direct calls]
-    
-    - Domain_Protection:
-      - Domain_Isolation: [domain never sees DTOs/some leakage/heavy coupling]
-      - Entity_Exposure: [entities never leave domain/some exposure/direct API]
-      - Value_Object_Usage: [VOs in DTOs/primitive obsession]
+  - API_Layer:
+    - Input_Sanitization: [all inputs through DTOs/some/none]
+    - Output_Formatting: [all outputs as DTOs/mixed/direct entities]
+    - Validation_Gateway: [DTOs validate at boundary/mixed/none]
   
+  - Application_Layer:
+    - Command_DTOs: [use cases accept DTOs/mixed/direct params]
+    - Response_DTOs: [use cases return DTOs/mixed/direct entities]
+    - Internal_Communication: [DTOs between services/direct calls]
+  
+  - Domain_Protection:
+    - Domain_Isolation: [domain never sees DTOs/some leakage/heavy coupling]
+    - Entity_Exposure: [entities never leave domain/some exposure/direct API]
+    - Value_Object_Usage: [VOs in DTOs/primitive obsession]
+
   - Data_Flow_Control:
-    - Unidirectional_Flow: [clear data flow direction/bidirectional/chaotic]
-    - Transformation_Points: [clear transformation boundaries/mixed/unclear]
-    - Leaky_Abstractions: [none/some/significant - list examples]
-  
+  - Unidirectional_Flow: [clear data flow direction/bidirectional/chaotic]
+  - Transformation_Points: [clear transformation boundaries/mixed/unclear]
+  - Leaky_Abstractions: [none/some/significant - list examples]
+
   ### PERFORMANCE_CONSIDERATIONS
   - Mapping_Performance:
-    - Reflection_Usage: [heavy/moderate/minimal/none]
-    - Caching: [mapping rules cached/repeated calculations]
-    - Lazy_Loading: [deferred transformations/eager loading]
-    - Bulk_Operations: [optimized for collections/N+1 mapping]
-  
+  - Reflection_Usage: [heavy/moderate/minimal/none]
+  - Caching: [mapping rules cached/repeated calculations]
+  - Lazy_Loading: [deferred transformations/eager loading]
+  - Bulk_Operations: [optimized for collections/N+1 mapping]
+
   - Memory_Usage:
-    - DTO_Size: [minimal data/complete objects/excessive data]
-    - Object_Creation: [object pooling/factory optimization/naive creation]
-    - Collection_Handling: [streaming/chunking/load all]
-  
+  - DTO_Size: [minimal data/complete objects/excessive data]
+  - Object_Creation: [object pooling/factory optimization/naive creation]
+  - Collection_Handling: [streaming/chunking/load all]
+
   - Serialization_Performance:
-    - Framework_Overhead: [measured overhead/unknown]
-    - Custom_Optimization: [optimized paths/generic/unoptimized]
-    - Caching_Strategy: [serialized cache/object cache/no cache]
-  
+  - Framework_Overhead: [measured overhead/unknown]
+  - Custom_Optimization: [optimized paths/generic/unoptimized]
+  - Caching_Strategy: [serialized cache/object cache/no cache]
+
   ### DTO_QUALITY_ASSESSMENT
   - Design_Quality:
-    - Immutability: [fully immutable/mostly/mutable]
-    - Type_Safety: [strongly typed/mixed/weakly typed]
-    - Null_Handling: [explicit nullable/implicit/problematic]
-    - Cohesion: [focused DTOs/mixed concerns/God objects]
-  
+  - Immutability: [fully immutable/mostly/mutable]
+  - Type_Safety: [strongly typed/mixed/weakly typed]
+  - Null_Handling: [explicit nullable/implicit/problematic]
+  - Cohesion: [focused DTOs/mixed concerns/God objects]
+
   - Maintenance_Burden:
-    - Duplication: [minimal/some/excessive duplication]
-    - Consistency: [consistent patterns/some variation/chaotic]
-    - Documentation: [well documented/partial/undocumented]
-    - Evolution: [easy to change/moderate effort/brittle]
-  
+  - Duplication: [minimal/some/excessive duplication]
+  - Consistency: [consistent patterns/some variation/chaotic]
+  - Documentation: [well documented/partial/undocumented]
+  - Evolution: [easy to change/moderate effort/brittle]
+
   - Testing_Support:
-    - Test_Friendly: [easy to create test data/complex setup]
-    - Builder_Pattern: [test builders available/missing]
-    - Fixture_Support: [good fixtures/basic/none]
-  
+  - Test_Friendly: [easy to create test data/complex setup]
+  - Builder_Pattern: [test builders available/missing]
+  - Fixture_Support: [good fixtures/basic/none]
+
   ### DTO_RECOMMENDATIONS
   - Immediate_Improvements:
-    1. [Most critical issue to address]
-    2. [Second priority improvement]
-    3. [Third priority enhancement]
-  
-  - Pattern_Standardization:
-    - [Standardize naming conventions]
-    - [Consistent validation approach]
-    - [Unified mapping strategy]
-  
-  - Performance_Optimizations:
-    - [Optimize mapping performance]
-    - [Reduce object creation overhead]
-    - [Implement caching where beneficial]
-  
-  - Architecture_Enhancements:
-    - [Better boundary enforcement]
-    - [Improved error handling]
-    - [Enhanced type safety]
+  1. [Most critical issue to address]
+  2. [Second priority improvement]
+  3. [Third priority enhancement]
 
-output_parser:
-  sections:
-    - DTO_USAGE_PATTERNS
-    - MAPPING_STRATEGIES
-    - VALIDATION_APPROACH
-    - SERIALIZATION_PATTERNS
-    - BOUNDARY_MANAGEMENT
-    - PERFORMANCE_CONSIDERATIONS
-    - DTO_QUALITY_ASSESSMENT
-    - DTO_RECOMMENDATIONS
-  confidence_impact: 0.35
+  - Pattern_Standardization:
+  - [Standardize naming conventions]
+  - [Consistent validation approach]
+  - [Unified mapping strategy]
+
+  - Performance_Optimizations:
+  - [Optimize mapping performance]
+  - [Reduce object creation overhead]
+  - [Implement caching where beneficial]
+
+  - Architecture_Enhancements:
+  - [Better boundary enforcement]
+  - [Improved error handling]
+  - [Enhanced type safety]

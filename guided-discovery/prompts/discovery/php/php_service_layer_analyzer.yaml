@@ -1,314 +1,283 @@
 name: php_service_layer_analyzer
 category: discovery
-complexity: moderate
-targets_uncertainties: ["SERVICE-001", "ORCHESTRATION-001", "TRANSACTION-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - discoveries.application.use_cases
-
-provides_context:
-  - discoveries.services.layer_organization
-  - discoveries.services.service_patterns
-  - discoveries.services.orchestration_approach
-  - discoveries.services.transaction_management
+targets_uncertainties: ['SERVICE-001', 'ORCHESTRATION-001', 'TRANSACTION-001']
 
 template: |
   # PHP Service Layer Analysis
-  
-  I need to analyze the service layer organization and patterns in this PHP application.
-  
-  **Task Context**: {{task.description}}
-  **Architecture Layers**: {{discoveries.architecture.layers}}
-  
+
   ## Analysis Goals
-  
+
   1. **Service Layer Organization**
-     - Service classification (domain vs application)
-     - Service location and structure
-     - Naming conventions
-     - Service granularity
-  
+   - Service classification (domain vs application)
+   - Service location and structure
+   - Naming conventions
+   - Service granularity
+
   2. **Service Patterns**
-     - Service types and responsibilities
-     - Orchestration vs business logic
-     - Dependency patterns
-     - Interface usage
-  
+   - Service types and responsibilities
+   - Orchestration vs business logic
+   - Dependency patterns
+   - Interface usage
+
   3. **Transaction Management**
-     - Transaction boundaries
-     - Service coordination
-     - Error handling
-     - Rollback strategies
-  
+   - Transaction boundaries
+   - Service coordination
+   - Error handling
+   - Rollback strategies
+
   4. **Integration Patterns**
-     - Service-to-service communication
-     - Event integration
-     - External service coordination
-     - Async processing
-  
+   - Service-to-service communication
+   - Event integration
+   - External service coordination
+   - Async processing
+
   5. **Quality Assessment**
-     - Single Responsibility Principle
-     - Coupling and cohesion
-     - Testability
-     - Maintainability
-  
+   - Single Responsibility Principle
+   - Coupling and cohesion
+   - Testability
+   - Maintainability
+
   Please analyze the service layer:
-  
+
   ### SERVICE_LAYER_ORGANIZATION
   - Service_Discovery:
-    - Total_Services: [count of service classes]
-    - Location_Patterns:
-      - Application_Services: [path and count]
-      - Domain_Services: [path and count]
-      - Infrastructure_Services: [path and count]
-      - Mixed_Location: [services in wrong layers]
-  
+  - Total_Services: [count of service classes]
+  - Location_Patterns:
+    - Application_Services: [path and count]
+    - Domain_Services: [path and count]
+    - Infrastructure_Services: [path and count]
+    - Mixed_Location: [services in wrong layers]
+
   - Service_Classification:
-    - Application_Services:
-      - Count: [number]
-      - Examples: [UserRegistrationService, OrderProcessingService]
-      - Purpose: [orchestration/use case implementation]
-      - Pattern: [one per use case/grouped by feature]
-    
-    - Domain_Services:
-      - Count: [number]
-      - Examples: [PricingService, InventoryService]
-      - Purpose: [business logic/domain operations]
-      - Location: [in domain layer?]
-    
-    - Infrastructure_Services:
-      - Count: [number]
-      - Examples: [EmailService, FileStorageService]
-      - Purpose: [external integration/technical concerns]
+  - Application_Services:
+    - Count: [number]
+    - Examples: [UserRegistrationService, OrderProcessingService]
+    - Purpose: [orchestration/use case implementation]
+    - Pattern: [one per use case/grouped by feature]
   
+  - Domain_Services:
+    - Count: [number]
+    - Examples: [PricingService, InventoryService]
+    - Purpose: [business logic/domain operations]
+    - Location: [in domain layer?]
+  
+  - Infrastructure_Services:
+    - Count: [number]
+    - Examples: [EmailService, FileStorageService]
+    - Purpose: [external integration/technical concerns]
+
   - Naming_Conventions:
-    - Consistency: [consistent/mixed/poor]
-    - Pattern: [*Service/*Handler/*Manager/mixed]
-    - Clarity: [intention-revealing/unclear]
-    - Examples:
-      - Good: [UserRegistrationService, OrderFulfillmentService]
-      - Poor: [UserManager, DataProcessor, Helper]
-  
+  - Consistency: [consistent/mixed/poor]
+  - Pattern: [*Service/*Handler/*Manager/mixed]
+  - Clarity: [intention-revealing/unclear]
+  - Examples:
+    - Good: [UserRegistrationService, OrderFulfillmentService]
+    - Poor: [UserManager, DataProcessor, Helper]
+
   ### SERVICE_PATTERNS_ANALYSIS
   - Service_Types:
-    - Orchestration_Services:
-      ```php
-      // Example orchestration service
-      class OrderProcessingService {
-          public function processOrder(ProcessOrderCommand $command): OrderResult {
-              // Coordinates multiple domain services
-              $customer = $this->customerService->validateCustomer($command->customerId);
-              $inventory = $this->inventoryService->reserveItems($command->items);
-              $payment = $this->paymentService->processPayment($command->payment);
-              $order = $this->orderService->createOrder($customer, $inventory, $payment);
-              $this->notificationService->sendConfirmation($order);
-              return OrderResult::success($order);
-          }
-      }
-      ```
-      - Count: [number of orchestration services]
-      - Complexity: [simple/moderate/complex]
-      - Transaction_Scope: [service level/repository level]
-    
-    - Business_Logic_Services:
-      ```php
-      // Example domain service
-      class PricingService {
-          public function calculateOrderTotal(Order $order, Customer $customer): Money {
-              $subtotal = $order->calculateSubtotal();
-              $discount = $this->discountCalculator->calculate($customer, $order);
-              $tax = $this->taxCalculator->calculate($subtotal, $customer->getAddress());
-              return $subtotal->subtract($discount)->add($tax);
-          }
-      }
-      ```
-      - Count: [number of business logic services]
-      - Domain_Purity: [framework-free/mixed/coupled]
-      - Testability: [easily testable/complex setup]
+  - Orchestration_Services:
+    ```php
+    // Example orchestration service
+    class OrderProcessingService {
+        public function processOrder(ProcessOrderCommand $command): OrderResult {
+            // Coordinates multiple domain services
+            $customer = $this->customerService->validateCustomer($command->customerId);
+            $inventory = $this->inventoryService->reserveItems($command->items);
+            $payment = $this->paymentService->processPayment($command->payment);
+            $order = $this->orderService->createOrder($customer, $inventory, $payment);
+            $this->notificationService->sendConfirmation($order);
+            return OrderResult::success($order);
+        }
+    }
+    ```
+    - Count: [number of orchestration services]
+    - Complexity: [simple/moderate/complex]
+    - Transaction_Scope: [service level/repository level]
   
+  - Business_Logic_Services:
+    ```php
+    // Example domain service
+    class PricingService {
+        public function calculateOrderTotal(Order $order, Customer $customer): Money {
+            $subtotal = $order->calculateSubtotal();
+            $discount = $this->discountCalculator->calculate($customer, $order);
+            $tax = $this->taxCalculator->calculate($subtotal, $customer->getAddress());
+            return $subtotal->subtract($discount)->add($tax);
+        }
+    }
+    ```
+    - Count: [number of business logic services]
+    - Domain_Purity: [framework-free/mixed/coupled]
+    - Testability: [easily testable/complex setup]
+
   - Dependency_Patterns:
-    - Injection_Style: [constructor/setter/property]
-    - Interface_Usage: [extensive/moderate/minimal]
-    - Service_Locator: [avoided/used sparingly/overused]
-    - Circular_Dependencies: [none/some/problematic]
-  
+  - Injection_Style: [constructor/setter/property]
+  - Interface_Usage: [extensive/moderate/minimal]
+  - Service_Locator: [avoided/used sparingly/overused]
+  - Circular_Dependencies: [none/some/problematic]
+
   ### ORCHESTRATION_APPROACH
   - Coordination_Patterns:
-    - Sequential_Processing:
-      ```php
-      public function processOrder($data): OrderResult {
-          $step1 = $this->service1->execute($data);
-          $step2 = $this->service2->execute($step1);
-          $step3 = $this->service3->execute($step2);
-          return $step3;
-      }
-      ```
-    
-    - Parallel_Processing:
-      ```php
-      public function processOrder($data): OrderResult {
-          // Services that can run in parallel
-          $inventoryResult = $this->inventoryService->reserve($data);
-          $customerResult = $this->customerService->validate($data);
-          // Combine results
-      }
-      ```
-    
-    - Event_Driven:
-      ```php
-      public function processOrder($data): void {
-          $this->eventDispatcher->dispatch(new OrderReceived($data));
-          // Async handlers process the order
-      }
-      ```
+  - Sequential_Processing:
+    ```php
+    public function processOrder($data): OrderResult {
+        $step1 = $this->service1->execute($data);
+        $step2 = $this->service2->execute($step1);
+        $step3 = $this->service3->execute($step2);
+        return $step3;
+    }
+    ```
   
+  - Parallel_Processing:
+    ```php
+    public function processOrder($data): OrderResult {
+        // Services that can run in parallel
+        $inventoryResult = $this->inventoryService->reserve($data);
+        $customerResult = $this->customerService->validate($data);
+        // Combine results
+    }
+    ```
+  
+  - Event_Driven:
+    ```php
+    public function processOrder($data): void {
+        $this->eventDispatcher->dispatch(new OrderReceived($data));
+        // Async handlers process the order
+    }
+    ```
+
   - Error_Handling:
-    - Strategy: [exception-based/result-objects/mixed]
-    - Rollback_Approach: [transaction rollback/compensation/manual]
-    - Error_Propagation: [bubble up/transform/handle locally]
-  
+  - Strategy: [exception-based/result-objects/mixed]
+  - Rollback_Approach: [transaction rollback/compensation/manual]
+  - Error_Propagation: [bubble up/transform/handle locally]
+
   - Saga_Pattern:
-    - Usage: [implemented/considered/not used]
-    - Long_Running_Processes: [how handled]
-    - Compensation_Logic: [implemented/missing]
-  
+  - Usage: [implemented/considered/not used]
+  - Long_Running_Processes: [how handled]
+  - Compensation_Logic: [implemented/missing]
+
   ### TRANSACTION_MANAGEMENT
   - Transaction_Boundaries:
-    - Service_Level:
-      ```php
-      @Transactional
-      public function processOrder(OrderData $data): OrderResult {
-          // Entire service method in transaction
-      }
-      ```
-    
-    - Repository_Level:
-      ```php
-      public function processOrder(OrderData $data): OrderResult {
-          $this->entityManager->beginTransaction();
-          try {
-              // Multiple repository calls
-              $this->entityManager->commit();
-          } catch (Exception $e) {
-              $this->entityManager->rollback();
-              throw $e;
-          }
-      }
-      ```
-    
-    - Unit_of_Work:
-      ```php
-      public function processOrder(OrderData $data): OrderResult {
-          $this->unitOfWork->begin();
-          // Work with aggregates
-          $this->unitOfWork->commit();
-      }
-      ```
+  - Service_Level:
+    ```php
+    @Transactional
+    public function processOrder(OrderData $data): OrderResult {
+        // Entire service method in transaction
+    }
+    ```
   
+  - Repository_Level:
+    ```php
+    public function processOrder(OrderData $data): OrderResult {
+        $this->entityManager->beginTransaction();
+        try {
+            // Multiple repository calls
+            $this->entityManager->commit();
+        } catch (Exception $e) {
+            $this->entityManager->rollback();
+            throw $e;
+        }
+    }
+    ```
+  
+  - Unit_of_Work:
+    ```php
+    public function processOrder(OrderData $data): OrderResult {
+        $this->unitOfWork->begin();
+        // Work with aggregates
+        $this->unitOfWork->commit();
+    }
+    ```
+
   - Transaction_Scope:
-    - Granularity: [per use case/per service/per repository]
-    - Nesting: [supports nested/flat only]
-    - Cross_Service: [distributed transactions/eventual consistency]
-  
+  - Granularity: [per use case/per service/per repository]
+  - Nesting: [supports nested/flat only]
+  - Cross_Service: [distributed transactions/eventual consistency]
+
   - Consistency_Model:
-    - Strong_Consistency: [within aggregate boundaries]
-    - Eventual_Consistency: [across aggregates/services]
-    - Compensation: [saga pattern for failures]
-  
+  - Strong_Consistency: [within aggregate boundaries]
+  - Eventual_Consistency: [across aggregates/services]
+  - Compensation: [saga pattern for failures]
+
   ### INTEGRATION_PATTERNS
   - Service_Communication:
-    - Direct_Calls: [synchronous service calls]
-    - Event_Bus: [async event-driven communication]
-    - Message_Queue: [queued processing]
-    - HTTP_API: [service-to-service HTTP calls]
-  
+  - Direct_Calls: [synchronous service calls]
+  - Event_Bus: [async event-driven communication]
+  - Message_Queue: [queued processing]
+  - HTTP_API: [service-to-service HTTP calls]
+
   - External_Service_Integration:
-    - Adapter_Pattern: [external services wrapped in adapters]
-    - Anti_Corruption_Layer: [protecting from external changes]
-    - Circuit_Breaker: [resilience patterns]
-  
+  - Adapter_Pattern: [external services wrapped in adapters]
+  - Anti_Corruption_Layer: [protecting from external changes]
+  - Circuit_Breaker: [resilience patterns]
+
   - Async_Processing:
-    - Job_Queues: [background job processing]
-    - Event_Handlers: [async event processing]
-    - Scheduled_Tasks: [cron-like processing]
-  
+  - Job_Queues: [background job processing]
+  - Event_Handlers: [async event processing]
+  - Scheduled_Tasks: [cron-like processing]
+
   ### SERVICE_QUALITY_ASSESSMENT
   - Single_Responsibility:
-    - Well_Focused_Services: [list examples]
-    - Overly_Complex_Services: [services doing too much]
-    - God_Services: [services with too many dependencies]
-  
+  - Well_Focused_Services: [list examples]
+  - Overly_Complex_Services: [services doing too much]
+  - God_Services: [services with too many dependencies]
+
   - Coupling_Analysis:
-    - Low_Coupling: [services with minimal dependencies]
-    - High_Coupling: [tightly coupled services]
-    - Coupling_Type: [data/stamp/control/content/pathological]
-  
+  - Low_Coupling: [services with minimal dependencies]
+  - High_Coupling: [tightly coupled services]
+  - Coupling_Type: [data/stamp/control/content/pathological]
+
   - Cohesion_Assessment:
-    - High_Cohesion: [services with related responsibilities]
-    - Low_Cohesion: [services with unrelated functions]
-    - Cohesion_Type: [functional/sequential/communicational/procedural]
-  
+  - High_Cohesion: [services with related responsibilities]
+  - Low_Cohesion: [services with unrelated functions]
+  - Cohesion_Type: [functional/sequential/communicational/procedural]
+
   - Testability_Factors:
-    - Easy_to_Test: [services with clear dependencies]
-    - Testing_Challenges: [services hard to test]
-    - Mock_Friendly: [interfaces enable mocking]
-    - Test_Coverage: [current test coverage if known]
-  
+  - Easy_to_Test: [services with clear dependencies]
+  - Testing_Challenges: [services hard to test]
+  - Mock_Friendly: [interfaces enable mocking]
+  - Test_Coverage: [current test coverage if known]
+
   ### FRAMEWORK_INTEGRATION
   - Framework_Coupling:
-    - Framework_Independent: [services not tied to framework]
-    - Framework_Aware: [minimal framework dependencies]
-    - Framework_Coupled: [heavily dependent on framework]
-  
+  - Framework_Independent: [services not tied to framework]
+  - Framework_Aware: [minimal framework dependencies]
+  - Framework_Coupled: [heavily dependent on framework]
+
   - Annotation_Usage:
-    - Dependency_Injection: [@Inject, @Autowired, etc.]
-    - Transaction_Management: [@Transactional, etc.]
-    - Validation: [@Valid, etc.]
-    - Caching: [@Cacheable, etc.]
-  
+  - Dependency_Injection: [@Inject, @Autowired, etc.]
+  - Transaction_Management: [@Transactional, etc.]
+  - Validation: [@Valid, etc.]
+  - Caching: [@Cacheable, etc.]
+
   ### SERVICE_LAYER_RECOMMENDATIONS
   - Immediate_Improvements:
-    - [Split oversized services]
-    - [Extract domain services from application layer]
-    - [Introduce missing interfaces]
-  
+  - [Split oversized services]
+  - [Extract domain services from application layer]
+  - [Introduce missing interfaces]
+
   - Architecture_Enhancements:
-    - [Implement proper transaction boundaries]
-    - [Add event-driven communication]
-    - [Introduce result objects for error handling]
-  
+  - [Implement proper transaction boundaries]
+  - [Add event-driven communication]
+  - [Introduce result objects for error handling]
+
   - Testing_Improvements:
-    - [Make services more testable]
-    - [Add integration test fixtures]
-    - [Improve mocking support]
-  
+  - [Make services more testable]
+  - [Add integration test fixtures]
+  - [Improve mocking support]
+
   ### SERVICE_MATURITY_SCORE
   - Organization_Quality: [0-10]
   - Responsibility_Clarity: [0-10]
   - Transaction_Management: [0-10]
   - Integration_Patterns: [0-10]
   - Testability: [0-10]
-  
-  - Overall_Service_Score: [average]
-  
-  - Maturity_Level:
-    - 🔴 Basic (0-4): Services exist but poor organization
-    - 🟡 Developing (5-6): Good organization, some patterns
-    - 🟢 Mature (7-8): Well-organized, proper patterns
-    - 🟦 Advanced (9-10): Excellent service design
 
-output_parser:
-  sections:
-    - SERVICE_LAYER_ORGANIZATION
-    - SERVICE_PATTERNS_ANALYSIS
-    - ORCHESTRATION_APPROACH
-    - TRANSACTION_MANAGEMENT
-    - INTEGRATION_PATTERNS
-    - SERVICE_QUALITY_ASSESSMENT
-    - FRAMEWORK_INTEGRATION
-    - SERVICE_LAYER_RECOMMENDATIONS
-    - SERVICE_MATURITY_SCORE
-  confidence_impact: 0.35
+  - Overall_Service_Score: [average]
+
+  - Maturity_Level:
+  - 🔴 Basic (0-4): Services exist but poor organization
+  - 🟡 Developing (5-6): Good organization, some patterns
+  - 🟢 Mature (7-8): Well-organized, proper patterns
+  - 🟦 Advanced (9-10): Excellent service design

@@ -1,103 +1,124 @@
 name: dependency_mapper
 category: discovery
-complexity: simple
-targets_uncertainties: ["TECH-001", "IMPL-001"]
-estimated_duration: 5-10 minutes
-
-requires_context:
-  - task.description
-  - discoveries.technical.languages
-
-provides_context:
-  - discoveries.dependencies.internal
-  - discoveries.dependencies.external
-  - discoveries.dependencies.versions
-  - discoveries.constraints.version_requirements
+targets_uncertainties: ['TECH-001', 'IMPL-001']
 
 template: |
   # Dependency Mapping
-  
+
   I need to understand the internal and external dependencies of this project.
-  
+
   **Task Context**: {{task.description}}
   {{#if discoveries.technical.languages}}
   **Languages**: {{discoveries.technical.languages}}
   {{/if}}
-  
+
   ## Discovery Goals
-  
+
   1. **External Dependencies**
-     - Package manager files (package.json, requirements.txt, go.mod, etc.)
-     - Direct dependencies vs dev dependencies
-     - Version constraints
-     - Security vulnerabilities (if apparent)
-  
+   - Package manager files (package.json, requirements.txt, go.mod, etc.)
+   - Direct dependencies vs dev dependencies
+   - Version constraints
+   - Security vulnerabilities (if apparent)
+
   2. **Internal Dependencies**
-     - Shared modules/libraries
-     - Common utilities
-     - Core services that others depend on
-     - Circular dependencies
-  
+   - Shared modules/libraries
+   - Common utilities
+   - Core services that others depend on
+   - Circular dependencies
+
   3. **Version Requirements**
-     - Language version requirements
-     - Framework version constraints
-     - Database version requirements
-     - OS/platform requirements
-  
+   - Language version requirements
+   - Framework version constraints
+   - Database version requirements
+   - OS/platform requirements
+
   4. **Integration Points**
-     - External APIs/services
-     - Database connections
-     - Message queues
-     - File storage systems
-  
+   - External APIs/services
+   - Database connections
+   - Message queues
+   - File storage systems
+
   Look for:
   - Package manager files
   - Import/require statements
   - Configuration files
   - Docker/container definitions
   - CI/CD configurations
-  
+
   Please provide findings in this structure:
-  
+
   ### EXTERNAL_DEPENDENCIES
   - Package_Manager: [npm|pip|maven|etc]
   - Main_Deps:
-    - [package]: [version]
+  - [package]: [version]
   - Dev_Deps:
-    - [package]: [version]
+  - [package]: [version]
   - Total_Count: [number]
-  
+
   ### INTERNAL_MODULES
   - Shared:
-    - [module]: [purpose]
+  - [module]: [purpose]
   - Core:
-    - [service]: [dependents]
+  - [service]: [dependents]
   - Utils: [location]
-  
+
   ### VERSION_REQUIREMENTS
   - Language: [version requirement]
   - Framework: [version requirement]
   - Database: [version requirement]
   - Platform: [requirements]
-  
+
   ### INTEGRATION_POINTS
   - APIs:
-    - [service]: [purpose]
+  - [service]: [purpose]
   - Databases:
-    - [type]: [connection details]
+  - [type]: [connection details]
   - Queues: [if any]
   - Storage: [if any]
-  
+
   ### DEPENDENCY_HEALTH
   - Outdated: [count or list]
   - Security: [any obvious issues]
   - Conflicts: [any conflicts]
 
-output_parser:
-  sections:
-    - EXTERNAL_DEPENDENCIES
-    - INTERNAL_MODULES
-    - VERSION_REQUIREMENTS
-    - INTEGRATION_POINTS
-    - DEPENDENCY_HEALTH
-  confidence_impact: 0.25
+  ### DISCOVERIES
+  ```json
+  {
+  "discoveries": {
+    "dependencies": {
+      "external": {
+        "package_manager": "[identified manager]",
+        "main_deps": {"package": "version"},
+        "dev_deps": {"package": "version"},
+        "total_count": 0
+      },
+      "internal": {
+        "shared_modules": ["module1", "module2"],
+        "core_services": ["service1", "service2"],
+        "utils_location": "path/to/utils"
+      },
+      "version_requirements": {
+        "language": "version",
+        "framework": "version",
+        "database": "version",
+        "platform": "requirements"
+      },
+      "integration_points": {
+        "apis": ["api1", "api2"],
+        "databases": ["db1"],
+        "queues": [],
+        "storage": []
+      },
+      "health": {
+        "outdated_count": 0,
+        "security_issues": [],
+        "conflicts": []
+      }
+    }
+  }
+  }
+  ```
+
+  ### UNCERTAINTY_UPDATES
+  - TECH-001 (Technology stack): partial - dependencies identified
+  - IMPL-001 (Implementation details): partial - integration points mapped

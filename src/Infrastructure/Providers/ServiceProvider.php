@@ -44,13 +44,21 @@ use YFEvents\Application\Services\Communication\AdminSellerChatService;
 use YFEvents\Application\Services\YFClaim\InquiryService;
 use YFEvents\Domain\YFClaim\Repositories\InquiryRepositoryInterface;
 use YFEvents\Infrastructure\Repositories\YFClaim\InquiryRepository;
+use YFEvents\Infrastructure\Discovery\RequestTracker;
+use YakimaFinds\Utils\SystemLogger;
 
 /**
  * Main service provider for dependency injection
  */
 class ServiceProvider
 {
-    public function __construct(private ContainerInterface $container) {}
+    private ?SystemLogger $logger = null;
+    private bool $runtimeDiscoveryEnabled;
+    
+    public function __construct(private ContainerInterface $container) 
+    {
+        $this->runtimeDiscoveryEnabled = getenv('ENABLE_RUNTIME_DISCOVERY') === 'true';
+    }
 
     /**
      * Register all services in the container
@@ -59,8 +67,33 @@ class ServiceProvider
     {
         $this->registerConfig();
         $this->registerDatabase();
+        
+        // Initialize logger after database is available
+        $this->initializeLogger();
+        
         $this->registerRepositories();
         $this->registerServices();
+        
+        if ($this->logger) {
+            $this->logger->info('SERVICE_PROVIDER_COMPLETE', [
+                'request_id' => RequestTracker::getRequestId()
+            ]);
+        }
+    }
+    
+    /**
+     * Initialize logger after database is available
+     */
+    private function initializeLogger(): void
+    {
+        if ($this->runtimeDiscoveryEnabled && !$this->logger) {
+            try {
+                $db = $this->container->resolve(\PDO::class);
+                $this->logger = SystemLogger::create($db, 'runtime_discovery');
+            } catch (\Exception $e) {
+                error_log("[runtime_discovery] ServiceProvider: Failed to initialize logger: " . $e->getMessage());
+            }
+        }
     }
 
     /**

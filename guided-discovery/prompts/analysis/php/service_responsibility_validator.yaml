@@ -1,355 +1,324 @@
 name: service_responsibility_validator
 category: analysis
-complexity: moderate
-targets_uncertainties: ["SRP-001", "COHESION-001", "SERVICE-DESIGN-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.services.layer_organization
-  - discoveries.services.service_patterns
-
-provides_context:
-  - analysis.services.srp_compliance
-  - analysis.services.cohesion_analysis
-  - analysis.services.refactoring_opportunities
-  - analysis.services.design_improvements
+targets_uncertainties: ['SRP-001', 'COHESION-001', 'SERVICE-DESIGN-001']
 
 template: |
   # Service Responsibility Validation
-  
-  I need to validate Single Responsibility Principle (SRP) compliance and analyze service design quality.
-  
-  **Task Context**: {{task.description}}
-  **Service Organization**: {{discoveries.services.layer_organization}}
-  
+
   ## Validation Goals
-  
+
   1. **Single Responsibility Analysis**
-     - Service responsibility identification
-     - SRP violation detection
-     - Responsibility overlap analysis
-     - Service purpose clarity
-  
+   - Service responsibility identification
+   - SRP violation detection
+   - Responsibility overlap analysis
+   - Service purpose clarity
+
   2. **Cohesion Assessment**
-     - Functional cohesion measurement
-     - Method relatedness analysis
-     - Data cohesion evaluation
-     - Temporal cohesion detection
-  
+   - Functional cohesion measurement
+   - Method relatedness analysis
+   - Data cohesion evaluation
+   - Temporal cohesion detection
+
   3. **Coupling Analysis**
-     - Service dependency analysis
-     - Coupling type identification
-     - Dependency direction validation
-     - Circular dependency detection
-  
+   - Service dependency analysis
+   - Coupling type identification
+   - Dependency direction validation
+   - Circular dependency detection
+
   4. **Service Size Analysis**
-     - Method count analysis
-     - Complexity measurement
-     - Cognitive load assessment
-     - Maintainability evaluation
-  
+   - Method count analysis
+   - Complexity measurement
+   - Cognitive load assessment
+   - Maintainability evaluation
+
   5. **Refactoring Opportunities**
-     - Service splitting candidates
-     - Responsibility extraction
-     - Interface introduction
-     - Pattern application
-  
+   - Service splitting candidates
+   - Responsibility extraction
+   - Interface introduction
+   - Pattern application
+
   Please analyze service responsibilities:
-  
+
   ### SRP_COMPLIANCE_ANALYSIS
   - Service_Responsibility_Mapping:
-    - Well_Focused_Services:
-      ```php
-      // GOOD: Single clear responsibility
-      class OrderCalculationService {
-          public function calculateTotal(Order $order): Money { }
-          public function calculateTax(Order $order): Money { }
-          public function applyDiscount(Order $order, Discount $discount): Money { }
-          // All methods related to order calculations
-      }
-      ```
-      - Count: [number of well-focused services]
-      - Examples: [list 3-5 good examples]
-      - Responsibility_Clarity: [crystal clear/mostly clear/some ambiguity]
-    
-    - SRP_Violations:
-      ```php
-      // BAD: Multiple responsibilities
-      class UserService {
-          public function createUser(UserData $data): User { }           // User management
-          public function sendWelcomeEmail(User $user): void { }         // Email responsibility
-          public function logUserActivity(User $user, string $action): void { } // Logging responsibility
-          public function validateUserCredentials(string $email, string $password): bool { } // Authentication
-          public function generateUserReport(User $user): Report { }     // Reporting responsibility
-      }
-      ```
-      - Count: [number of violating services]
-      - Violation_Types:
-        - Mixed_Concerns: [business logic + infrastructure]
-        - Multiple_Domains: [spanning multiple business areas]
-        - Cross_Layer: [mixing layer responsibilities]
-        - God_Services: [doing everything]
+  - Well_Focused_Services:
+    ```php
+    // GOOD: Single clear responsibility
+    class OrderCalculationService {
+        public function calculateTotal(Order $order): Money { }
+        public function calculateTax(Order $order): Money { }
+        public function applyDiscount(Order $order, Discount $discount): Money { }
+        // All methods related to order calculations
+    }
+    ```
+    - Count: [number of well-focused services]
+    - Examples: [list 3-5 good examples]
+    - Responsibility_Clarity: [crystal clear/mostly clear/some ambiguity]
   
+  - SRP_Violations:
+    ```php
+    // BAD: Multiple responsibilities
+    class UserService {
+        public function createUser(UserData $data): User { }           // User management
+        public function sendWelcomeEmail(User $user): void { }         // Email responsibility
+        public function logUserActivity(User $user, string $action): void { } // Logging responsibility
+        public function validateUserCredentials(string $email, string $password): bool { } // Authentication
+        public function generateUserReport(User $user): Report { }     // Reporting responsibility
+    }
+    ```
+    - Count: [number of violating services]
+    - Violation_Types:
+      - Mixed_Concerns: [business logic + infrastructure]
+      - Multiple_Domains: [spanning multiple business areas]
+      - Cross_Layer: [mixing layer responsibilities]
+      - God_Services: [doing everything]
+
   - Responsibility_Categories:
-    - Business_Logic: [services containing domain rules]
-    - Orchestration: [services coordinating other services]
-    - Data_Access: [services handling persistence]
-    - External_Integration: [services calling external APIs]
-    - Cross_Cutting: [logging, caching, validation services]
-    - Mixed_Responsibilities: [services with multiple categories]
-  
+  - Business_Logic: [services containing domain rules]
+  - Orchestration: [services coordinating other services]
+  - Data_Access: [services handling persistence]
+  - External_Integration: [services calling external APIs]
+  - Cross_Cutting: [logging, caching, validation services]
+  - Mixed_Responsibilities: [services with multiple categories]
+
   - SRP_Violation_Severity:
-    - Minor_Violations:
-      - [Slight responsibility overlap]
-      - [Similar but separate concerns]
-      - [Easy to extract]
-    - Major_Violations:
-      - [Completely different concerns]
-      - [Multiple business domains]
-      - [Infrastructure mixed with business logic]
-    - Critical_Violations:
-      - [God services]
-      - [Framework coupling in domain services]
-      - [Cross-layer violations]
-  
+  - Minor_Violations:
+    - [Slight responsibility overlap]
+    - [Similar but separate concerns]
+    - [Easy to extract]
+  - Major_Violations:
+    - [Completely different concerns]
+    - [Multiple business domains]
+    - [Infrastructure mixed with business logic]
+  - Critical_Violations:
+    - [God services]
+    - [Framework coupling in domain services]
+    - [Cross-layer violations]
+
   ### COHESION_ANALYSIS
   - Functional_Cohesion:
-    - High_Cohesion_Services:
-      ```php
-      class PasswordService {
-          public function hashPassword(string $password): HashedPassword { }
-          public function verifyPassword(string $password, HashedPassword $hash): bool { }
-          public function generateTemporaryPassword(): string { }
-          public function validatePasswordStrength(string $password): ValidationResult { }
-          // All methods work together for password operations
-      }
-      ```
-      - Characteristics: [all methods work toward single goal]
-      - Count: [number of highly cohesive services]
-      - Quality_Indicators: [method interdependence/shared data/common purpose]
-    
-    - Low_Cohesion_Services:
-      ```php
-      class UtilityService {
-          public function formatDate(DateTime $date): string { }          // Date formatting
-          public function sendEmail(string $to, string $subject): void { } // Email sending
-          public function calculateDistance(Point $a, Point $b): float { } // Math operations
-          public function validateCreditCard(string $number): bool { }    // Validation
-          // Unrelated methods grouped together
-      }
-      ```
-      - Issues: [unrelated methods/shared nothing/unclear purpose]
-      - Refactoring_Needed: [split into focused services]
+  - High_Cohesion_Services:
+    ```php
+    class PasswordService {
+        public function hashPassword(string $password): HashedPassword { }
+        public function verifyPassword(string $password, HashedPassword $hash): bool { }
+        public function generateTemporaryPassword(): string { }
+        public function validatePasswordStrength(string $password): ValidationResult { }
+        // All methods work together for password operations
+    }
+    ```
+    - Characteristics: [all methods work toward single goal]
+    - Count: [number of highly cohesive services]
+    - Quality_Indicators: [method interdependence/shared data/common purpose]
   
+  - Low_Cohesion_Services:
+    ```php
+    class UtilityService {
+        public function formatDate(DateTime $date): string { }          // Date formatting
+        public function sendEmail(string $to, string $subject): void { } // Email sending
+        public function calculateDistance(Point $a, Point $b): float { } // Math operations
+        public function validateCreditCard(string $number): bool { }    // Validation
+        // Unrelated methods grouped together
+    }
+    ```
+    - Issues: [unrelated methods/shared nothing/unclear purpose]
+    - Refactoring_Needed: [split into focused services]
+
   - Cohesion_Types:
-    - Functional: [methods contribute to single task]
-    - Sequential: [output of one method feeds next]
-    - Communicational: [methods operate on same data]
-    - Procedural: [methods follow execution sequence]
-    - Temporal: [methods executed at same time]
-    - Logical: [methods grouped by category only]
-    - Coincidental: [no meaningful relationship]
-  
+  - Functional: [methods contribute to single task]
+  - Sequential: [output of one method feeds next]
+  - Communicational: [methods operate on same data]
+  - Procedural: [methods follow execution sequence]
+  - Temporal: [methods executed at same time]
+  - Logical: [methods grouped by category only]
+  - Coincidental: [no meaningful relationship]
+
   - Data_Cohesion:
-    - Shared_State: [services operating on related data]
-    - Data_Transformation: [services transforming same data types]
-    - Entity_Focus: [services focused on specific entities]
-  
+  - Shared_State: [services operating on related data]
+  - Data_Transformation: [services transforming same data types]
+  - Entity_Focus: [services focused on specific entities]
+
   ### COUPLING_ANALYSIS
   - Service_Dependencies:
-    - Low_Coupling_Examples:
-      ```php
-      class OrderService {
-          public function __construct(
-              private OrderRepositoryInterface $orderRepository,
-              private InventoryServiceInterface $inventoryService
-          ) {}
-          // Depends only on abstractions, minimal dependencies
-      }
-      ```
-    
-    - High_Coupling_Examples:
-      ```php
-      class OrderService {
-          public function __construct(
-              private UserService $userService,
-              private ProductService $productService,
-              private InventoryService $inventoryService,
-              private PricingService $pricingService,
-              private TaxService $taxService,
-              private ShippingService $shippingService,
-              private PaymentService $paymentService,
-              private NotificationService $notificationService,
-              private AuditService $auditService,
-              private EmailService $emailService
-          ) {}
-          // Too many dependencies - likely doing too much
-      }
-      ```
+  - Low_Coupling_Examples:
+    ```php
+    class OrderService {
+        public function __construct(
+            private OrderRepositoryInterface $orderRepository,
+            private InventoryServiceInterface $inventoryService
+        ) {}
+        // Depends only on abstractions, minimal dependencies
+    }
+    ```
   
+  - High_Coupling_Examples:
+    ```php
+    class OrderService {
+        public function __construct(
+            private UserService $userService,
+            private ProductService $productService,
+            private InventoryService $inventoryService,
+            private PricingService $pricingService,
+            private TaxService $taxService,
+            private ShippingService $shippingService,
+            private PaymentService $paymentService,
+            private NotificationService $notificationService,
+            private AuditService $auditService,
+            private EmailService $emailService
+        ) {}
+        // Too many dependencies - likely doing too much
+    }
+    ```
+
   - Coupling_Types:
-    - Data_Coupling: [passing simple data]
-    - Stamp_Coupling: [passing data structures]
-    - Control_Coupling: [passing control flags]
-    - External_Coupling: [depending on external systems]
-    - Common_Coupling: [sharing global data]
-    - Content_Coupling: [accessing internal data]
-  
+  - Data_Coupling: [passing simple data]
+  - Stamp_Coupling: [passing data structures]
+  - Control_Coupling: [passing control flags]
+  - External_Coupling: [depending on external systems]
+  - Common_Coupling: [sharing global data]
+  - Content_Coupling: [accessing internal data]
+
   - Circular_Dependencies:
-    - Detection: [A depends on B, B depends on A]
-    - Impact: [testing difficulty/deployment issues]
-    - Resolution: [interface extraction/dependency inversion]
-  
+  - Detection: [A depends on B, B depends on A]
+  - Impact: [testing difficulty/deployment issues]
+  - Resolution: [interface extraction/dependency inversion]
+
   ### SERVICE_SIZE_ANALYSIS
   - Method_Count_Distribution:
-    - Small_Services: [1-5 methods]
-    - Medium_Services: [6-15 methods]
-    - Large_Services: [16-30 methods]
-    - Huge_Services: [30+ methods]
-  
+  - Small_Services: [1-5 methods]
+  - Medium_Services: [6-15 methods]
+  - Large_Services: [16-30 methods]
+  - Huge_Services: [30+ methods]
+
   - Complexity_Metrics:
-    - Cyclomatic_Complexity: [per service average]
-    - Lines_of_Code: [per service average]
-    - Dependency_Count: [average dependencies per service]
-    - Public_Method_Count: [public interface size]
-  
+  - Cyclomatic_Complexity: [per service average]
+  - Lines_of_Code: [per service average]
+  - Dependency_Count: [average dependencies per service]
+  - Public_Method_Count: [public interface size]
+
   - Cognitive_Load_Assessment:
-    - Understandability: [easy/moderate/complex to understand]
-    - Modifiability: [easy/risky to change]
-    - Testability: [straightforward/complex to test]
-  
+  - Understandability: [easy/moderate/complex to understand]
+  - Modifiability: [easy/risky to change]
+  - Testability: [straightforward/complex to test]
+
   ### DESIGN_PATTERN_ANALYSIS
   - Pattern_Usage:
-    - Strategy_Pattern: [different algorithms for same operation]
-    - Command_Pattern: [encapsulating operations]
-    - Facade_Pattern: [simplifying complex subsystems]
-    - Template_Method: [defining algorithm structure]
-    - Observer_Pattern: [event notification]
-  
+  - Strategy_Pattern: [different algorithms for same operation]
+  - Command_Pattern: [encapsulating operations]
+  - Facade_Pattern: [simplifying complex subsystems]
+  - Template_Method: [defining algorithm structure]
+  - Observer_Pattern: [event notification]
+
   - Anti_Patterns:
-    - God_Service: [service doing everything]
-    - Anemic_Service: [service with no logic, just delegation]
-    - Chatty_Service: [requiring many calls to accomplish task]
-    - Blob_Service: [large service with unclear purpose]
-  
+  - God_Service: [service doing everything]
+  - Anemic_Service: [service with no logic, just delegation]
+  - Chatty_Service: [requiring many calls to accomplish task]
+  - Blob_Service: [large service with unclear purpose]
+
   ### REFACTORING_OPPORTUNITIES
   - Service_Splitting_Candidates:
-    - Split_by_Responsibility:
-      ```php
-      // Before: Mixed responsibilities
-      class UserManagementService {
-          public function createUser() { }
-          public function sendEmail() { }
-          public function generateReport() { }
-      }
-      
-      // After: Separate services
-      class UserService {
-          public function createUser() { }
-      }
-      class EmailService {
-          public function sendEmail() { }
-      }
-      class ReportingService {
-          public function generateReport() { }
-      }
-      ```
+  - Split_by_Responsibility:
+    ```php
+    // Before: Mixed responsibilities
+    class UserManagementService {
+        public function createUser() { }
+        public function sendEmail() { }
+        public function generateReport() { }
+    }
     
-    - Split_by_Data:
-      ```php
-      // Split services operating on different data
-      class CustomerOrderService { } // Customer-related operations
-      class ProductOrderService { } // Product-related operations
-      ```
-    
-    - Split_by_Abstraction_Level:
-      ```php
-      // High-level orchestration
-      class OrderProcessingService { }
-      // Low-level operations
-      class OrderCalculationService { }
-      class OrderValidationService { }
-      ```
+    // After: Separate services
+    class UserService {
+        public function createUser() { }
+    }
+    class EmailService {
+        public function sendEmail() { }
+    }
+    class ReportingService {
+        public function generateReport() { }
+    }
+    ```
   
+  - Split_by_Data:
+    ```php
+    // Split services operating on different data
+    class CustomerOrderService { } // Customer-related operations
+    class ProductOrderService { } // Product-related operations
+    ```
+  
+  - Split_by_Abstraction_Level:
+    ```php
+    // High-level orchestration
+    class OrderProcessingService { }
+    // Low-level operations
+    class OrderCalculationService { }
+    class OrderValidationService { }
+    ```
+
   - Interface_Introduction:
-    - Extract_Interfaces: [for better testability]
-    - Segregate_Interfaces: [split large interfaces]
-    - Define_Contracts: [clear service contracts]
-  
+  - Extract_Interfaces: [for better testability]
+  - Segregate_Interfaces: [split large interfaces]
+  - Define_Contracts: [clear service contracts]
+
   - Responsibility_Extraction:
-    - Extract_Cross_Cutting: [logging, validation, caching]
-    - Extract_Domain_Logic: [move business rules to domain]
-    - Extract_Infrastructure: [move technical concerns]
-  
+  - Extract_Cross_Cutting: [logging, validation, caching]
+  - Extract_Domain_Logic: [move business rules to domain]
+  - Extract_Infrastructure: [move technical concerns]
+
   ### TESTING_IMPACT_ANALYSIS
   - Test_Complexity:
-    - Simple_to_Test: [services with clear dependencies]
-    - Complex_Setup: [services requiring elaborate mocking]
-    - Integration_Required: [services hard to unit test]
-  
+  - Simple_to_Test: [services with clear dependencies]
+  - Complex_Setup: [services requiring elaborate mocking]
+  - Integration_Required: [services hard to unit test]
+
   - Mock_Requirements:
-    - Minimal_Mocking: [few dependencies to mock]
-    - Extensive_Mocking: [many dependencies]
-    - Difficult_Mocking: [concrete dependencies]
-  
+  - Minimal_Mocking: [few dependencies to mock]
+  - Extensive_Mocking: [many dependencies]
+  - Difficult_Mocking: [concrete dependencies]
+
   - Test_Coverage_Challenges:
-    - Easy_Coverage: [straightforward test scenarios]
-    - Complex_Scenarios: [many edge cases to test]
-    - Integration_Heavy: [requires integration tests]
-  
+  - Easy_Coverage: [straightforward test scenarios]
+  - Complex_Scenarios: [many edge cases to test]
+  - Integration_Heavy: [requires integration tests]
+
   ### IMPROVEMENT_ROADMAP
   - Phase_1_Critical_Fixes:
-    - Duration: [1-2 weeks]
-    - Actions:
-      - [Split worst God services]
-      - [Extract obvious responsibilities]
-      - [Remove circular dependencies]
-  
+  - Duration: [1-2 weeks]
+  - Actions:
+    - [Split worst God services]
+    - [Extract obvious responsibilities]
+    - [Remove circular dependencies]
+
   - Phase_2_Design_Improvements:
-    - Duration: [1-2 months]
-    - Actions:
-      - [Apply design patterns]
-      - [Improve interfaces]
-      - [Enhance cohesion]
-  
+  - Duration: [1-2 months]
+  - Actions:
+    - [Apply design patterns]
+    - [Improve interfaces]
+    - [Enhance cohesion]
+
   - Phase_3_Architecture_Refinement:
-    - Duration: [2-3 months]
-    - Actions:
-      - [Perfect service boundaries]
-      - [Optimize performance]
-      - [Enhance testability]
-  
+  - Duration: [2-3 months]
+  - Actions:
+    - [Perfect service boundaries]
+    - [Optimize performance]
+    - [Enhance testability]
+
   ### SERVICE_QUALITY_SCORE
   - SRP_Compliance: [0-10]
   - Cohesion_Quality: [0-10]
   - Coupling_Quality: [0-10]
   - Size_Appropriateness: [0-10]
   - Design_Pattern_Usage: [0-10]
-  
-  - Overall_Service_Quality: [average]
-  
-  - Quality_Grade:
-    - A (9-10): Excellent service design
-    - B (7-8): Good design, minor improvements needed
-    - C (5-6): Acceptable, some refactoring beneficial
-    - D (3-4): Poor design, significant refactoring needed
-    - F (0-2): Critical design flaws, major overhaul required
-  
-  - Priority_Actions:
-    1. [Most critical service design issue]
-    2. [Second highest impact improvement]  
-    3. [Third priority enhancement]
 
-output_parser:
-  sections:
-    - SRP_COMPLIANCE_ANALYSIS
-    - COHESION_ANALYSIS
-    - COUPLING_ANALYSIS
-    - SERVICE_SIZE_ANALYSIS
-    - DESIGN_PATTERN_ANALYSIS
-    - REFACTORING_OPPORTUNITIES
-    - TESTING_IMPACT_ANALYSIS
-    - IMPROVEMENT_ROADMAP
-    - SERVICE_QUALITY_SCORE
-  confidence_impact: 0.3
+  - Overall_Service_Quality: [average]
+
+  - Quality_Grade:
+  - A (9-10): Excellent service design
+  - B (7-8): Good design, minor improvements needed
+  - C (5-6): Acceptable, some refactoring beneficial
+  - D (3-4): Poor design, significant refactoring needed
+  - F (0-2): Critical design flaws, major overhaul required
+
+  - Priority_Actions:
+  1. [Most critical service design issue]
+  2. [Second highest impact improvement]  
+  3. [Third priority enhancement]

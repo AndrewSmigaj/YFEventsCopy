@@ -1,351 +1,319 @@
 name: port_adapter_mapper
 category: analysis
-complexity: moderate
-targets_uncertainties: ["INTEGRATION-001", "BOUNDARY-001", "ADAPTER-QUALITY-001"]
-estimated_duration: 25-30 minutes
-
-requires_context:
-  - task.description
-  - discoveries.hexagonal.ports
-  - discoveries.hexagonal.adapters
-  - discoveries.dependencies.external_dependencies
-
-provides_context:
-  - analysis.adapters.mapping_quality
-  - analysis.adapters.integration_boundaries
-  - analysis.adapters.refactoring_opportunities
-  - analysis.adapters.port_design_issues
+targets_uncertainties: ['INTEGRATION-001', 'BOUNDARY-001', 'ADAPTER-QUALITY-001']
 
 template: |
   # Port and Adapter Mapping Analysis
-  
-  I need to analyze how external integrations map to hexagonal architecture ports and adapters.
-  
-  **Task Context**: {{task.description}}
-  **Existing Ports**: {{discoveries.hexagonal.ports}}
-  **Current Adapters**: {{discoveries.hexagonal.adapters}}
-  
+
   ## Analysis Goals
-  
+
   1. **Integration Boundary Mapping**
-     - External system integrations
-     - Current adapter implementations
-     - Missing port abstractions
-     - Boundary violation identification
-  
+   - External system integrations
+   - Current adapter implementations
+   - Missing port abstractions
+   - Boundary violation identification
+
   2. **Port Design Analysis**
-     - Interface appropriateness
-     - Abstraction level
-     - Cohesion and coupling
-     - Technology independence
-  
+   - Interface appropriateness
+   - Abstraction level
+   - Cohesion and coupling
+   - Technology independence
+
   3. **Adapter Quality Assessment**
-     - Single responsibility adherence
-     - Error handling patterns
-     - Configuration management
-     - Testing support
-  
+   - Single responsibility adherence
+   - Error handling patterns
+   - Configuration management
+   - Testing support
+
   4. **Refactoring Opportunities**
-     - Missing abstractions
-     - Leaky integrations
-     - Adapter improvements
-     - Port redesign needs
-  
+   - Missing abstractions
+   - Leaky integrations
+   - Adapter improvements
+   - Port redesign needs
+
   Please analyze port/adapter mappings:
-  
+
   ### INTEGRATION_BOUNDARY_MAPPING
   - External_Systems_Inventory:
-    - Databases:
-      - Type: [MySQL/PostgreSQL/MongoDB/Redis/etc.]
-      - Access_Pattern: [ORM/Query Builder/Raw SQL]
-      - Current_Abstraction: [Repository/DAO/Direct/None]
-      - Port_Exists: [yes/no]
-      - Quality: [well-abstracted/leaky/tightly-coupled]
-    
-    - External_APIs:
-      - Services: [Payment/Email/SMS/Analytics/etc.]
-      - Protocol: [REST/GraphQL/SOAP/gRPC]
-      - Current_Integration: [Direct/Client Library/Wrapper]
-      - Port_Exists: [yes/no]
-      - Error_Handling: [robust/basic/none]
-    
-    - File_Systems:
-      - Types: [Local/S3/CDN/FTP]
-      - Current_Access: [Direct/Abstracted/Mixed]
-      - Port_Exists: [yes/no]
-      - Configuration: [hardcoded/configurable]
-    
-    - Message_Systems:
-      - Types: [RabbitMQ/Redis/SQS/Kafka]
-      - Usage: [Events/Commands/Jobs/Pub-Sub]
-      - Abstraction_Level: [Framework/Direct/Custom]
-      - Port_Design: [exists/missing/poor]
+  - Databases:
+    - Type: [MySQL/PostgreSQL/MongoDB/Redis/etc.]
+    - Access_Pattern: [ORM/Query Builder/Raw SQL]
+    - Current_Abstraction: [Repository/DAO/Direct/None]
+    - Port_Exists: [yes/no]
+    - Quality: [well-abstracted/leaky/tightly-coupled]
   
+  - External_APIs:
+    - Services: [Payment/Email/SMS/Analytics/etc.]
+    - Protocol: [REST/GraphQL/SOAP/gRPC]
+    - Current_Integration: [Direct/Client Library/Wrapper]
+    - Port_Exists: [yes/no]
+    - Error_Handling: [robust/basic/none]
+  
+  - File_Systems:
+    - Types: [Local/S3/CDN/FTP]
+    - Current_Access: [Direct/Abstracted/Mixed]
+    - Port_Exists: [yes/no]
+    - Configuration: [hardcoded/configurable]
+  
+  - Message_Systems:
+    - Types: [RabbitMQ/Redis/SQS/Kafka]
+    - Usage: [Events/Commands/Jobs/Pub-Sub]
+    - Abstraction_Level: [Framework/Direct/Custom]
+    - Port_Design: [exists/missing/poor]
+
   ### PORT_DESIGN_ANALYSIS
   - Repository_Ports:
-    - Design_Quality:
-      ```php
-      // Example repository port analysis
-      interface UserRepositoryPort {
-          public function findById(UserId $id): ?User;           // ✅ Good
-          public function findByEmail(string $email): ?User;     // ✅ Good
-          public function save(User $user): void;                // ✅ Good
-          public function findWithPagination($limit, $offset);   // ❌ Poor - leaky abstraction
-      }
-      ```
-    - Issues_Found:
-      - Leaky_Abstractions: [SQL concepts in domain interfaces]
-      - Technology_Coupling: [database-specific methods]
-      - Poor_Cohesion: [mixed responsibilities]
-      - Missing_Methods: [domain needs not covered]
-  
+  - Design_Quality:
+    ```php
+    // Example repository port analysis
+    interface UserRepositoryPort {
+        public function findById(UserId $id): ?User;           // ✅ Good
+        public function findByEmail(string $email): ?User;     // ✅ Good
+        public function save(User $user): void;                // ✅ Good
+        public function findWithPagination($limit, $offset);   // ❌ Poor - leaky abstraction
+    }
+    ```
+  - Issues_Found:
+    - Leaky_Abstractions: [SQL concepts in domain interfaces]
+    - Technology_Coupling: [database-specific methods]
+    - Poor_Cohesion: [mixed responsibilities]
+    - Missing_Methods: [domain needs not covered]
+
   - External_Service_Ports:
-    - Design_Examples:
-      ```php
-      // Payment gateway port
-      interface PaymentGatewayPort {
-          public function processPayment(PaymentRequest $request): PaymentResult;
-          public function refundPayment(RefundRequest $request): RefundResult;
-          public function getTransactionStatus(TransactionId $id): TransactionStatus;
-      }
-      
-      // Issues to look for:
-      // ❌ Gateway-specific methods: stripeCreateCustomer()
-      // ❌ Technical details: processPaymentWithRetry()
-      // ✅ Domain-focused: processPayment()
-      ```
-    - Common_Problems:
-      - Vendor_Specific: [interfaces tied to specific services]
-      - Too_Granular: [too many small methods]
-      - Too_Generic: [one method does everything]
-      - Error_Modeling: [poor error representation]
-  
+  - Design_Examples:
+    ```php
+    // Payment gateway port
+    interface PaymentGatewayPort {
+        public function processPayment(PaymentRequest $request): PaymentResult;
+        public function refundPayment(RefundRequest $request): RefundResult;
+        public function getTransactionStatus(TransactionId $id): TransactionStatus;
+    }
+    
+    // Issues to look for:
+    // ❌ Gateway-specific methods: stripeCreateCustomer()
+    // ❌ Technical details: processPaymentWithRetry()
+    // ✅ Domain-focused: processPayment()
+    ```
+  - Common_Problems:
+    - Vendor_Specific: [interfaces tied to specific services]
+    - Too_Granular: [too many small methods]
+    - Too_Generic: [one method does everything]
+    - Error_Modeling: [poor error representation]
+
   - Communication_Ports:
-    - Message_Queue_Ports:
-      ```php
-      interface EventPublisherPort {
-          public function publish(DomainEvent $event): void;
-          public function publishBatch(array $events): void;
-      }
-      
-      // vs problematic:
-      interface RabbitMQPort {
-          public function sendToQueue($queueName, $message): void; // ❌ Leaky
-      }
-      ```
-    - File_Storage_Ports:
-      ```php
-      interface DocumentStoragePort {
-          public function store(Document $document): DocumentId;
-          public function retrieve(DocumentId $id): Document;
-          public function delete(DocumentId $id): void;
-      }
-      ```
-  
+  - Message_Queue_Ports:
+    ```php
+    interface EventPublisherPort {
+        public function publish(DomainEvent $event): void;
+        public function publishBatch(array $events): void;
+    }
+    
+    // vs problematic:
+    interface RabbitMQPort {
+        public function sendToQueue($queueName, $message): void; // ❌ Leaky
+    }
+    ```
+  - File_Storage_Ports:
+    ```php
+    interface DocumentStoragePort {
+        public function store(Document $document): DocumentId;
+        public function retrieve(DocumentId $id): Document;
+        public function delete(DocumentId $id): void;
+    }
+    ```
+
   ### ADAPTER_QUALITY_ASSESSMENT
   - Database_Adapters:
-    - Implementation_Quality:
-      ```php
-      class DoctrineUserRepository implements UserRepositoryPort {
-          public function findById(UserId $id): ?User {
-              $entity = $this->entityManager->find(UserEntity::class, $id->value());
-              return $entity ? $this->toDomain($entity) : null;
-          }
-          
-          private function toDomain(UserEntity $entity): User {
-              // Proper mapping from persistence to domain
-          }
-      }
-      ```
-    - Quality_Indicators:
-      - Mapping_Logic: [domain ↔ persistence conversion]
-      - Error_Translation: [persistence errors → domain exceptions]
-      - Transaction_Handling: [proper transaction boundaries]
-      - Query_Optimization: [N+1 prevention, eager loading]
-  
+  - Implementation_Quality:
+    ```php
+    class DoctrineUserRepository implements UserRepositoryPort {
+        public function findById(UserId $id): ?User {
+            $entity = $this->entityManager->find(UserEntity::class, $id->value());
+            return $entity ? $this->toDomain($entity) : null;
+        }
+        
+        private function toDomain(UserEntity $entity): User {
+            // Proper mapping from persistence to domain
+        }
+    }
+    ```
+  - Quality_Indicators:
+    - Mapping_Logic: [domain ↔ persistence conversion]
+    - Error_Translation: [persistence errors → domain exceptions]
+    - Transaction_Handling: [proper transaction boundaries]
+    - Query_Optimization: [N+1 prevention, eager loading]
+
   - External_API_Adapters:
-    - Implementation_Patterns:
-      ```php
-      class StripePaymentAdapter implements PaymentGatewayPort {
-          public function processPayment(PaymentRequest $request): PaymentResult {
-              try {
-                  $stripeCharge = $this->stripeClient->charges->create([
-                      'amount' => $request->getAmount()->getCents(),
-                      'currency' => $request->getCurrency()->getCode(),
-                      'source' => $request->getPaymentMethod()->getToken(),
-                  ]);
-                  
-                  return PaymentResult::success(
-                      new TransactionId($stripeCharge->id),
-                      $request->getAmount()
-                  );
-              } catch (StripeException $e) {
-                  return PaymentResult::failure(
-                      PaymentError::fromStripeException($e)
-                  );
-              }
-          }
-      }
-      ```
-    - Quality_Metrics:
-      - Error_Handling: [comprehensive/basic/missing]
-      - Retry_Logic: [implemented/missing/inappropriate]
-      - Configuration: [externalized/hardcoded]
-      - Logging: [appropriate/excessive/missing]
-      - Testing: [mockable/difficult/impossible]
-  
+  - Implementation_Patterns:
+    ```php
+    class StripePaymentAdapter implements PaymentGatewayPort {
+        public function processPayment(PaymentRequest $request): PaymentResult {
+            try {
+                $stripeCharge = $this->stripeClient->charges->create([
+                    'amount' => $request->getAmount()->getCents(),
+                    'currency' => $request->getCurrency()->getCode(),
+                    'source' => $request->getPaymentMethod()->getToken(),
+                ]);
+                
+                return PaymentResult::success(
+                    new TransactionId($stripeCharge->id),
+                    $request->getAmount()
+                );
+            } catch (StripeException $e) {
+                return PaymentResult::failure(
+                    PaymentError::fromStripeException($e)
+                );
+            }
+        }
+    }
+    ```
+  - Quality_Metrics:
+    - Error_Handling: [comprehensive/basic/missing]
+    - Retry_Logic: [implemented/missing/inappropriate]
+    - Configuration: [externalized/hardcoded]
+    - Logging: [appropriate/excessive/missing]
+    - Testing: [mockable/difficult/impossible]
+
   ### BOUNDARY_VIOLATION_ANALYSIS
   - Direct_Integration_Violations:
-    - Framework_Leakage:
-      ```php
-      // ❌ BAD: Domain depends on framework
-      class OrderService {
-          public function createOrder(Request $request): Response {
-              // Domain service depending on HTTP framework
-          }
-      }
-      
-      // ✅ GOOD: Clean boundary
-      class OrderService {
-          public function createOrder(CreateOrderCommand $command): OrderResult {
-              // Pure domain logic
-          }
-      }
-      ```
+  - Framework_Leakage:
+    ```php
+    // ❌ BAD: Domain depends on framework
+    class OrderService {
+        public function createOrder(Request $request): Response {
+            // Domain service depending on HTTP framework
+        }
+    }
     
-    - Database_Leakage:
-      ```php
-      // ❌ BAD: Domain knows about persistence
-      class Order {
-          public function save(): void {
-              DB::table('orders')->insert($this->toArray());
-          }
-      }
-      
-      // ✅ GOOD: Domain is persistence ignorant
-      class Order {
-          // No persistence knowledge
-      }
-      ```
+    // ✅ GOOD: Clean boundary
+    class OrderService {
+        public function createOrder(CreateOrderCommand $command): OrderResult {
+            // Pure domain logic
+        }
+    }
+    ```
   
+  - Database_Leakage:
+    ```php
+    // ❌ BAD: Domain knows about persistence
+    class Order {
+        public function save(): void {
+            DB::table('orders')->insert($this->toArray());
+        }
+    }
+    
+    // ✅ GOOD: Domain is persistence ignorant
+    class Order {
+        // No persistence knowledge
+    }
+    ```
+
   - Missing_Abstractions:
-    - Direct_Service_Calls: [domain calling external APIs directly]
-    - Hardcoded_Integrations: [no abstraction layer]
-    - Framework_Dependencies: [business logic tied to framework]
-  
+  - Direct_Service_Calls: [domain calling external APIs directly]
+  - Hardcoded_Integrations: [no abstraction layer]
+  - Framework_Dependencies: [business logic tied to framework]
+
   ### REFACTORING_OPPORTUNITIES
   - Port_Introduction_Candidates:
-    - Missing_Ports:
-      - [List integrations that need ports]
-      - [Estimate effort for each]
-      - [Priority based on coupling risk]
-    
-    - Port_Design_Improvements:
-      ```php
-      // Current problematic port
-      interface EmailPort {
-          public function sendEmail($to, $subject, $body, $attachments = []): bool;
-      }
-      
-      // Improved port design
-      interface NotificationPort {
-          public function sendNotification(Notification $notification): NotificationResult;
-      }
-      ```
+  - Missing_Ports:
+    - [List integrations that need ports]
+    - [Estimate effort for each]
+    - [Priority based on coupling risk]
   
+  - Port_Design_Improvements:
+    ```php
+    // Current problematic port
+    interface EmailPort {
+        public function sendEmail($to, $subject, $body, $attachments = []): bool;
+    }
+    
+    // Improved port design
+    interface NotificationPort {
+        public function sendNotification(Notification $notification): NotificationResult;
+    }
+    ```
+
   - Adapter_Improvements:
-    - Error_Handling_Enhancement:
-      - [Standardize error responses]
-      - [Add retry mechanisms]
-      - [Improve error translation]
-    
-    - Configuration_Externalization:
-      - [Remove hardcoded URLs/keys]
-      - [Add environment-based config]
-      - [Support multiple environments]
-    
-    - Testing_Support:
-      - [Create in-memory adapters]
-      - [Add integration test fixtures]
-      - [Improve mockability]
+  - Error_Handling_Enhancement:
+    - [Standardize error responses]
+    - [Add retry mechanisms]
+    - [Improve error translation]
   
+  - Configuration_Externalization:
+    - [Remove hardcoded URLs/keys]
+    - [Add environment-based config]
+    - [Support multiple environments]
+  
+  - Testing_Support:
+    - [Create in-memory adapters]
+    - [Add integration test fixtures]
+    - [Improve mockability]
+
   ### INTEGRATION_TESTING_STRATEGY
   - Current_Testing_Approach:
-    - Unit_Tests: [mock ports vs real adapters]
-    - Integration_Tests: [test with real services]
-    - Contract_Tests: [verify port compliance]
-  
+  - Unit_Tests: [mock ports vs real adapters]
+  - Integration_Tests: [test with real services]
+  - Contract_Tests: [verify port compliance]
+
   - Testing_Improvements:
-    - Test_Doubles:
-      ```php
-      class InMemoryUserRepository implements UserRepositoryPort {
-          private array $users = [];
-          
-          public function save(User $user): void {
-              $this->users[$user->getId()->value()] = $user;
-          }
-          
-          public function findById(UserId $id): ?User {
-              return $this->users[$id->value()] ?? null;
-          }
-      }
-      ```
-    
-    - Contract_Testing:
-      ```php
-      abstract class UserRepositoryPortTest extends TestCase {
-          abstract protected function createRepository(): UserRepositoryPort;
-          
-          public function test_save_and_retrieve_user(): void {
-              $repository = $this->createRepository();
-              // Test contract compliance
-          }
-      }
-      ```
+  - Test_Doubles:
+    ```php
+    class InMemoryUserRepository implements UserRepositoryPort {
+        private array $users = [];
+        
+        public function save(User $user): void {
+            $this->users[$user->getId()->value()] = $user;
+        }
+        
+        public function findById(UserId $id): ?User {
+            return $this->users[$id->value()] ?? null;
+        }
+    }
+    ```
   
+  - Contract_Testing:
+    ```php
+    abstract class UserRepositoryPortTest extends TestCase {
+        abstract protected function createRepository(): UserRepositoryPort;
+        
+        public function test_save_and_retrieve_user(): void {
+            $repository = $this->createRepository();
+            // Test contract compliance
+        }
+    }
+    ```
+
   ### MIGRATION_STRATEGY
   - Incremental_Port_Introduction:
-    - Phase_1: [Identify highest-risk integrations]
-    - Phase_2: [Create ports for critical dependencies]
-    - Phase_3: [Implement adapters]
-    - Phase_4: [Migrate existing code]
-    - Phase_5: [Remove old direct integrations]
-  
+  - Phase_1: [Identify highest-risk integrations]
+  - Phase_2: [Create ports for critical dependencies]
+  - Phase_3: [Implement adapters]
+  - Phase_4: [Migrate existing code]
+  - Phase_5: [Remove old direct integrations]
+
   - Risk_Mitigation:
-    - Parallel_Implementation: [new adapters alongside old]
-    - Feature_Flags: [toggle between implementations]
-    - Gradual_Migration: [service by service]
-    - Rollback_Plan: [how to revert if needed]
-  
+  - Parallel_Implementation: [new adapters alongside old]
+  - Feature_Flags: [toggle between implementations]
+  - Gradual_Migration: [service by service]
+  - Rollback_Plan: [how to revert if needed]
+
   ### ADAPTER_QUALITY_SCORE
   - Quality_Metrics:
-    - Port_Design_Quality: [0-10]
-    - Adapter_Implementation: [0-10]
-    - Error_Handling: [0-10]
-    - Testing_Support: [0-10]
-    - Configuration_Management: [0-10]
-  
-  - Overall_Score: [average of metrics]
-  
-  - Improvement_Priority:
-    1. [Highest impact improvement]
-    2. [Medium impact improvement]
-    3. [Low impact improvement]
-  
-  - Benefits_Expected:
-    - Testing: [faster, more reliable tests]
-    - Flexibility: [easier to change implementations]
-    - Maintainability: [clearer boundaries]
-    - Reliability: [better error handling]
+  - Port_Design_Quality: [0-10]
+  - Adapter_Implementation: [0-10]
+  - Error_Handling: [0-10]
+  - Testing_Support: [0-10]
+  - Configuration_Management: [0-10]
 
-output_parser:
-  sections:
-    - INTEGRATION_BOUNDARY_MAPPING
-    - PORT_DESIGN_ANALYSIS
-    - ADAPTER_QUALITY_ASSESSMENT
-    - BOUNDARY_VIOLATION_ANALYSIS
-    - REFACTORING_OPPORTUNITIES
-    - INTEGRATION_TESTING_STRATEGY
-    - MIGRATION_STRATEGY
-    - ADAPTER_QUALITY_SCORE
-  confidence_impact: 0.35
+  - Overall_Score: [average of metrics]
+
+  - Improvement_Priority:
+  1. [Highest impact improvement]
+  2. [Medium impact improvement]
+  3. [Low impact improvement]
+
+  - Benefits_Expected:
+  - Testing: [faster, more reliable tests]
+  - Flexibility: [easier to change implementations]
+  - Maintainability: [clearer boundaries]
+  - Reliability: [better error handling]

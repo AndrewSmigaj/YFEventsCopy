@@ -6,16 +6,43 @@ namespace YFEvents\Presentation\Http\Controllers;
 
 use YFEvents\Infrastructure\Container\ContainerInterface;
 use YFEvents\Infrastructure\Config\ConfigInterface;
+use YFEvents\Infrastructure\Discovery\RequestTracker;
+use YakimaFinds\Utils\SystemLogger;
 
 /**
  * Base controller with common functionality
  */
 abstract class BaseController
 {
+    protected ?SystemLogger $logger = null;
+    
     public function __construct(
         protected ContainerInterface $container,
         protected ConfigInterface $config
-    ) {}
+    ) {
+        // Initialize runtime discovery logging if enabled
+        if (getenv('ENABLE_RUNTIME_DISCOVERY') === 'true' || $config->get('runtime_discovery.enabled', false)) {
+            try {
+                $db = $this->container->resolve(\PDO::class);
+                $this->logger = SystemLogger::create($db, 'runtime_discovery');
+            } catch (\Exception $e) {
+                error_log("[runtime_discovery] BaseController: Failed to initialize logger: " . $e->getMessage());
+            }
+        }
+    }
+    
+    /**
+     * Log controller action execution
+     */
+    protected function logAction(string $action, array $context = []): void
+    {
+        if ($this->logger) {
+            $context['controller'] = static::class;
+            $context['action'] = $action;
+            $context['request_id'] = RequestTracker::getRequestId();
+            $this->logger->info('CONTROLLER_ACTION', $context);
+        }
+    }
 
     /**
      * Render a JSON response

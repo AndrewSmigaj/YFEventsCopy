@@ -471,6 +471,10 @@ if (isset($_GET['action'])) {
             <a href="#sales" class="nav-item" onclick="showSection('sales')">🏪 My Sales</a>
             <a href="#offers" class="nav-item" onclick="showSection('offers')">💰 Recent Offers</a>
             <a href="#analytics" class="nav-item" onclick="showSection('analytics')">📈 Analytics</a>
+            <a href="#chat" class="nav-item" onclick="showSection('chat')">
+                💬 Messages
+                <span id="unread-badge" class="badge" style="display: none; background: #dc3545; color: white; border-radius: 10px; padding: 2px 6px; font-size: 0.75rem; margin-left: 0.5rem;">0</span>
+            </a>
             <a href="/modules/yfclaim/www/admin/" class="nav-item">⚙️ Full Admin</a>
         </div>
     </nav>
@@ -618,6 +622,28 @@ if (isset($_GET['action'])) {
         </div>
 
         <!-- Other sections (offers, analytics) would be implemented similarly -->
+        
+        <!-- Chat Section -->
+        <div id="chat-section" class="section" style="display: none;">
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 class="card-title" style="margin-bottom: 0.25rem;">💬 Communication Hub</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin: 0;">Connect with admins and get support</p>
+                    </div>
+                    <button class="btn btn-sm" onclick="openChatInNewWindow()">
+                        Open in New Window
+                    </button>
+                </div>
+                <div style="background: #f8f9fa; border-radius: 0 0 12px 12px; overflow: hidden;">
+                    <iframe id="chat-iframe" 
+                            src="/communication/?embedded=true&seller_id=<?= htmlspecialchars($seller['id']) ?>" 
+                            style="width: 100%; height: calc(100vh - 300px); min-height: 500px; border: none;"
+                            allow="camera; microphone">
+                    </iframe>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>

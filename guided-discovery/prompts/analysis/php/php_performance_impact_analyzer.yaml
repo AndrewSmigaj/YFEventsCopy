@@ -1,222 +1,190 @@
 name: php_performance_impact_analyzer
 category: analysis
-complexity: moderate
-targets_uncertainties: ["PERF-001", "IMPACT-001", "SCALE-001"]
-estimated_duration: 20-25 minutes
-
-requires_context:
-  - task.description
-  - discoveries.architecture.layers
-  - discoveries.repositories.implementations
-
-provides_context:
-  - analysis.performance.impact_assessment
-  - analysis.performance.bottlenecks
-  - analysis.performance.optimization_opportunities
-  - analysis.performance.recommendations
+targets_uncertainties: ['PERF-001', 'IMPACT-001', 'SCALE-001']
 
 template: |
   # PHP Clean Architecture Performance Impact Analysis
-  
-  I need to assess the performance impact of clean architecture implementation.
-  
-  **Task Context**: {{task.description}}
-  **Architecture**: {{discoveries.architecture.layers}}
-  
+
   ## Analysis Goals
-  
+
   1. **Abstraction Overhead**
-     - Interface indirection cost
-     - Object creation overhead
-     - Method call chains
-     - Memory usage
-  
+   - Interface indirection cost
+   - Object creation overhead
+   - Method call chains
+   - Memory usage
+
   2. **Data Access Impact**
-     - Repository pattern overhead
-     - Query efficiency
-     - Lazy loading issues
-     - N+1 problems
-  
+   - Repository pattern overhead
+   - Query efficiency
+   - Lazy loading issues
+   - N+1 problems
+
   3. **Dependency Injection Cost**
-     - Container resolution time
-     - Object graph creation
-     - Autowiring performance
-     - Singleton vs transient
-  
+   - Container resolution time
+   - Object graph creation
+   - Autowiring performance
+   - Singleton vs transient
+
   4. **Scalability Factors**
-     - Horizontal scaling readiness
-     - Caching opportunities
-     - Async processing potential
-     - Resource utilization
-  
+   - Horizontal scaling readiness
+   - Caching opportunities
+   - Async processing potential
+   - Resource utilization
+
   5. **Optimization Strategies**
-     - Performance improvements
-     - Caching layers
-     - Query optimization
-     - Architecture adjustments
-  
+   - Performance improvements
+   - Caching layers
+   - Query optimization
+   - Architecture adjustments
+
   Please analyze performance impact:
-  
+
   ### ABSTRACTION_OVERHEAD
   - Interface_Indirection:
-    - Call_Depth: [average method call chain]
-    - Virtual_Methods: [interface method calls]
-    - Performance_Impact: [negligible/noticeable/significant]
+  - Call_Depth: [average method call chain]
+  - Virtual_Methods: [interface method calls]
+  - Performance_Impact: [negligible/noticeable/significant]
   - Object_Creation:
-    - Factory_Usage: [overhead assessment]
-    - DTO_Creation: [frequency and cost]
-    - Entity_Hydration: [complexity]
+  - Factory_Usage: [overhead assessment]
+  - DTO_Creation: [frequency and cost]
+  - Entity_Hydration: [complexity]
   - Memory_Usage:
-    - Object_Count: [increased/same/decreased]
-    - Memory_Footprint: [impact assessment]
-    - Garbage_Collection: [frequency impact]
+  - Object_Count: [increased/same/decreased]
+  - Memory_Footprint: [impact assessment]
+  - Garbage_Collection: [frequency impact]
   - Autoloading:
-    - Class_Count: [total classes to load]
-    - PSR4_Performance: [impact level]
-    - Opcache_Benefit: [effectiveness]
-  
+  - Class_Count: [total classes to load]
+  - PSR4_Performance: [impact level]
+  - Opcache_Benefit: [effectiveness]
+
   ### DATA_ACCESS_PERFORMANCE
   - Repository_Pattern_Impact:
-    - Query_Overhead: [wrapper cost]
-    - Result_Mapping: [entity creation cost]
-    - Collection_Handling: [memory usage]
+  - Query_Overhead: [wrapper cost]
+  - Result_Mapping: [entity creation cost]
+  - Collection_Handling: [memory usage]
   - Query_Efficiency:
-    - N_Plus_One_Risk: [low/medium/high]
-    - Eager_Loading: [properly used?]
-    - Query_Complexity: [simple/complex]
+  - N_Plus_One_Risk: [low/medium/high]
+  - Eager_Loading: [properly used?]
+  - Query_Complexity: [simple/complex]
   - ORM_Abstraction:
-    - Hydration_Cost: [performance impact]
-    - Lazy_Loading: [issues identified]
-    - Query_Builder_Overhead: [assessment]
+  - Hydration_Cost: [performance impact]
+  - Lazy_Loading: [issues identified]
+  - Query_Builder_Overhead: [assessment]
   - Caching_Opportunities:
-    - Repository_Caching: [implemented/possible]
-    - Query_Result_Cache: [strategy]
-    - Entity_Cache: [approach]
-  
+  - Repository_Caching: [implemented/possible]
+  - Query_Result_Cache: [strategy]
+  - Entity_Cache: [approach]
+
   ### DEPENDENCY_INJECTION_PERFORMANCE
   - Container_Performance:
-    - Resolution_Time: [fast/acceptable/slow]
-    - Compilation: [compiled/runtime]
-    - Cache_Usage: [container caching]
+  - Resolution_Time: [fast/acceptable/slow]
+  - Compilation: [compiled/runtime]
+  - Cache_Usage: [container caching]
   - Service_Creation:
-    - Graph_Complexity: [simple/moderate/complex]
-    - Circular_Detection: [performance cost]
-    - Factory_Performance: [overhead]
+  - Graph_Complexity: [simple/moderate/complex]
+  - Circular_Detection: [performance cost]
+  - Factory_Performance: [overhead]
   - Optimization_Status:
-    - Autowire_Cache: [used/not used]
-    - Service_Locator: [avoided/used sparingly]
-    - Lazy_Services: [where applicable]
-  
+  - Autowire_Cache: [used/not used]
+  - Service_Locator: [avoided/used sparingly]
+  - Lazy_Services: [where applicable]
+
   ### REQUEST_LIFECYCLE_ANALYSIS
   - Bootstrap_Time:
-    - Container_Build: [milliseconds]
-    - Route_Matching: [performance]
-    - Middleware_Stack: [overhead]
+  - Container_Build: [milliseconds]
+  - Route_Matching: [performance]
+  - Middleware_Stack: [overhead]
   - Request_Processing:
-    - Controller_Dispatch: [time]
-    - Use_Case_Execution: [overhead]
-    - Response_Building: [cost]
+  - Controller_Dispatch: [time]
+  - Use_Case_Execution: [overhead]
+  - Response_Building: [cost]
   - Typical_Request_Flow:
-    ```
-    1. Route matching: [Xms]
-    2. Controller init: [Xms]
-    3. Use case exec: [Xms]
-    4. Data access: [Xms]
-    5. Response format: [Xms]
-    Total: [Xms]
-    ```
-  
+  ```
+  1. Route matching: [Xms]
+  2. Controller init: [Xms]
+  3. Use case exec: [Xms]
+  4. Data access: [Xms]
+  5. Response format: [Xms]
+  Total: [Xms]
+  ```
+
   ### SCALABILITY_ASSESSMENT
   - Horizontal_Scaling:
-    - Stateless_Design: [yes/mostly/no]
-    - Session_Handling: [scalable/issues]
-    - Shared_State: [minimal/some/problematic]
+  - Stateless_Design: [yes/mostly/no]
+  - Session_Handling: [scalable/issues]
+  - Shared_State: [minimal/some/problematic]
   - Caching_Strategy:
-    - Application_Cache: [Redis/Memcached/none]
-    - HTTP_Cache: [Varnish/CDN/none]
-    - Database_Cache: [query cache usage]
+  - Application_Cache: [Redis/Memcached/none]
+  - HTTP_Cache: [Varnish/CDN/none]
+  - Database_Cache: [query cache usage]
   - Async_Potential:
-    - Event_System: [async ready?]
-    - Job_Queues: [implemented/possible]
-    - CQRS_Benefits: [read/write separation]
-  
+  - Event_System: [async ready?]
+  - Job_Queues: [implemented/possible]
+  - CQRS_Benefits: [read/write separation]
+
   ### PERFORMANCE_BOTTLENECKS
   - Identified_Issues:
-    - Biggest_Bottleneck: [description]
-    - Secondary_Issues: [list]
-    - Architecture_Related: [vs implementation]
+  - Biggest_Bottleneck: [description]
+  - Secondary_Issues: [list]
+  - Architecture_Related: [vs implementation]
   - Measurement_Data:
-    - Profiling_Results: [if available]
-    - Slow_Queries: [identified]
-    - Memory_Peaks: [where occurring]
+  - Profiling_Results: [if available]
+  - Slow_Queries: [identified]
+  - Memory_Peaks: [where occurring]
   - Root_Causes:
-    - Over_Abstraction: [where problematic]
-    - Poor_Implementation: [vs architecture]
-    - Missing_Optimization: [opportunities]
-  
+  - Over_Abstraction: [where problematic]
+  - Poor_Implementation: [vs architecture]
+  - Missing_Optimization: [opportunities]
+
   ### OPTIMIZATION_RECOMMENDATIONS
   - Quick_Wins:
-    - [Enable opcache properly]
-    - [Add repository caching]
-    - [Optimize autoloader]
+  - [Enable opcache properly]
+  - [Add repository caching]
+  - [Optimize autoloader]
   - Architecture_Adjustments:
-    - [Where to reduce abstraction]
-    - [Caching layer placement]
-    - [Read model introduction]
+  - [Where to reduce abstraction]
+  - [Caching layer placement]
+  - [Read model introduction]
   - Implementation_Improvements:
-    - [Query optimization]
-    - [Lazy loading fixes]
-    - [Service optimization]
+  - [Query optimization]
+  - [Lazy loading fixes]
+  - [Service optimization]
   - Advanced_Optimizations:
-    - [CQRS for read performance]
-    - [Event sourcing benefits]
-    - [Microservice extraction]
-  
+  - [CQRS for read performance]
+  - [Event sourcing benefits]
+  - [Microservice extraction]
+
   ### PERFORMANCE_VS_BENEFITS
   - Trade_off_Analysis:
-    - Performance_Cost: [X% overhead]
-    - Maintainability_Gain: [assessment]
-    - Testability_Gain: [assessment]
-    - Worth_It: [yes/depends/no]
+  - Performance_Cost: [X% overhead]
+  - Maintainability_Gain: [assessment]
+  - Testability_Gain: [assessment]
+  - Worth_It: [yes/depends/no]
   - Context_Consideration:
-    - Application_Type: [suits clean architecture?]
-    - Performance_Requirements: [strict/moderate/relaxed]
-    - Team_Size: [justifies complexity?]
-  
+  - Application_Type: [suits clean architecture?]
+  - Performance_Requirements: [strict/moderate/relaxed]
+  - Team_Size: [justifies complexity?]
+
   ### MONITORING_RECOMMENDATIONS
   - Key_Metrics:
-    - Response_Time: [p50, p95, p99]
-    - Memory_Usage: [per request]
-    - Query_Count: [per request]
+  - Response_Time: [p50, p95, p99]
+  - Memory_Usage: [per request]
+  - Query_Count: [per request]
   - APM_Tools:
-    - Recommended: [New Relic/DataDog/etc]
-    - Custom_Metrics: [what to track]
+  - Recommended: [New Relic/DataDog/etc]
+  - Custom_Metrics: [what to track]
   - Alerting:
-    - Performance_Thresholds: [suggested]
-    - Degradation_Detection: [approach]
-  
+  - Performance_Thresholds: [suggested]
+  - Degradation_Detection: [approach]
+
   ### PERFORMANCE_SCORE
   - Current_Performance: [score 1-10]
   - Optimization_Potential: [score 1-10]
   - Architecture_Fitness: [score 1-10]
   - Overall_Assessment:
-    - Grade: [A/B/C/D/F]
-    - Recommendation: [proceed/optimize/reconsider]
+  - Grade: [A/B/C/D/F]
+  - Recommendation: [proceed/optimize/reconsider]
   - Action_Priority:
-    1. [Most important optimization]
-    2. [Second priority]
-    3. [Third priority]
-
-output_parser:
-  sections:
-    - ABSTRACTION_OVERHEAD
-    - DATA_ACCESS_PERFORMANCE
-    - DEPENDENCY_INJECTION_PERFORMANCE
-    - REQUEST_LIFECYCLE_ANALYSIS
-    - SCALABILITY_ASSESSMENT
-    - PERFORMANCE_BOTTLENECKS
-    - OPTIMIZATION_RECOMMENDATIONS
-    - PERFORMANCE_VS_BENEFITS
-    - MONITORING_RECOMMENDATIONS
-    - PERFORMANCE_SCORE
-  confidence_impact: 0.3
+  1. [Most important optimization]
+  2. [Second priority]
+  3. [Third priority]

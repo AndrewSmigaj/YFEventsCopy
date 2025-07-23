@@ -1,79 +1,75 @@
 name: general_explorer
 category: discovery
-complexity: simple
-targets_uncertainties: ["ARCH-001", "TECH-001"]
-estimated_duration: 5-10 minutes
-
-requires_context:
-  - task.description
-
-provides_context:
-  - discoveries.architecture.style
-  - discoveries.architecture.main_components
-  - discoveries.technical.languages
-  - discoveries.technical.frameworks
+targets_uncertainties: ['ARCH-001', 'TECH-001']
 
 template: |
   # General Codebase Exploration
-  
-  I need to understand the overall structure and technology of this codebase.
-  
-  **Task Context**: {{task.description}}
-  
-  ## Discovery Goals
-  
-  1. **Project Structure**
-     - Main directories and their purposes
-     - Key entry points (main, index, app, server files)
-     - Configuration files
-     - Module/package organization
-  
-  2. **Technology Stack**
-     - Programming languages used
-     - Major frameworks and libraries
-     - Build tools and package managers
-     - Database systems
-  
-  3. **Architecture Pattern**
-     - Overall architecture style (MVC, microservices, layered, etc.)
-     - How components communicate
-     - Request flow pattern
-  
-  4. **Development Setup**
-     - How to run the project
-     - Test setup
-     - Build process
-     - Environment configuration
-  
-  Please explore the codebase and provide findings in this structure:
-  
-  ### PROJECT_STRUCTURE
-  - Root: [main directory path]
-  - Entry: [main entry file(s)]
-  - Key_Dirs:
-    - [directory]: [purpose]
-  - Config_Files: [list main config files]
-  
-  ### TECHNOLOGY_STACK  
-  - Languages: [list with versions if found]
-  - Framework: [main framework]
-  - Database: [database type]
-  - Build_Tool: [build/bundler]
-  
-  ### ARCHITECTURE_PATTERN
-  - Style: [architecture style]
-  - Components: [main components]
-  - Flow: [request flow description]
-  
-  ### DEVELOPMENT_SETUP
-  - Run: [how to run]
-  - Test: [test command]
-  - Build: [build command]
 
-output_parser:
-  sections:
-    - PROJECT_STRUCTURE
-    - TECHNOLOGY_STACK
-    - ARCHITECTURE_PATTERN
-    - DEVELOPMENT_SETUP
-  confidence_impact: 0.3
+  I need to understand the overall structure and technology of this codebase.
+
+  Task: {{task.description}}
+
+  ## Discovery Goals
+
+  1. **Project Structure**
+   - Main directories and their purposes
+   - Key entry points (main, index, app, server files)
+   - Configuration files
+   - Module/package organization
+
+  2. **Technology Stack**
+   - Programming languages used
+   - Major frameworks and libraries
+   - Build tools and package managers
+   - Database systems
+
+  3. **Architecture Pattern**
+   - Overall architecture style (MVC, microservices, layered, etc.)
+   - How components communicate
+   - Request flow pattern
+
+  4. **Development Setup**
+   - How to run the project
+   - Test setup
+   - Build process
+   - Environment configuration
+
+  ## Structured Output
+
+  After exploration, I'll update the context with discoveries:
+
+  ### DISCOVERIES
+  ```json
+  {
+  "discoveries": {
+    "architecture": {
+      "style": "MVC|microservices|layered|etc",
+      "main_components": ["component1", "component2"],
+      "communication_pattern": "REST|RPC|events|etc"
+    },
+    "technical": {
+      "languages": ["language1", "language2"],
+      "framework": "framework_name",
+      "database": "database_type",
+      "build_tools": ["tool1", "tool2"]
+    },
+    "project": {
+      "root_directory": "path",
+      "entry_points": ["file1", "file2"],
+      "key_directories": {
+        "src": "source code",
+        "tests": "test files"
+      }
+    },
+    "development": {
+      "run_command": "npm start",
+      "test_command": "npm test",
+      "build_command": "npm build"
+    }
+  }
+  }
+  ```
+
+  ### UNCERTAINTY_UPDATES
+  - ARCH-001 (Overall architecture): Will be resolved/partial based on findings
+  - TECH-001 (Technology stack): Will be resolved/partial based on findings

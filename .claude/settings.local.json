@@ -63,8 +63,7 @@
       "Bash(kill:*)",
       "Bash(sudo a2enmod:*)",
       "Bash(sudo systemctl status:*)",
-      "Bash(ls:*)",
-      "Bash(mkdir:*)"
+      "Bash(ln:*)"
     ],
     "deny": []
   }

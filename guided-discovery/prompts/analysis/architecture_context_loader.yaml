@@ -1,0 +1,60 @@
+name: architecture_context_loader
+description: Load key architecture information into context for subsequent prompts
+purpose: Extract and save critical paths and configuration from architecture.yaml to context
+type: analysis
+category: architecture
+
+required_actions:
+  - Read architecture.yaml
+  - Extract key information
+  - Save to context file under discoveries.architecture
+
+context_updates:
+  discoveries:
+    architecture:
+      web_root: "[Extract from architecture.yaml routing_system.web_root]"
+      project_status: "[Extract project.status]"
+      project_version: "[Extract project.version]"
+      namespace: "[Extract project.namespace]"
+      modules: "[List active modules from structure.root]"
+      database_name: "[Extract database name if present]"
+      key_paths:
+        domain: "src/Domain/"
+        application: "src/Application/"
+        infrastructure: "src/Infrastructure/"
+        presentation: "src/Presentation/"
+        routes: "routes/"
+        config: "config/"
+        public: "[web_root path]"
+        modules: "modules/"
+
+output_format: |
+  ## Architecture Context Loaded
+  
+  I've extracted the following key information from architecture.yaml and saved it to the context:
+  
+  **Web Root**: {web_root}
+  **Project Status**: {project_status}
+  **Namespace**: {namespace}
+  
+  This information is now available in the context file under `discoveries.architecture` for all subsequent prompts to use.
+
+instructions: |
+  1. Read /mnt/d/YFEventsCopy/architecture.yaml
+  2. Extract all key paths and configuration values
+  3. Update the active context file with a discoveries.architecture object containing:
+     - web_root (from routing_system.web_root)
+     - project details (status, version, namespace)
+     - key paths for all layers
+     - active modules list
+  4. Make this information available for all subsequent prompts in the chain
+  
+  Example of how other prompts can reference this:
+  - Use `context.discoveries.architecture.web_root` to know where to start exploration
+  - Use `context.discoveries.architecture.key_paths.domain` to find domain entities
+  - Use `context.discoveries.architecture.namespace` for proper class references
+
+validation:
+  - Ensure architecture.yaml exists before proceeding
+  - Verify web_root is extracted and saved
+  - Confirm context file is updated with discoveries.architecture object

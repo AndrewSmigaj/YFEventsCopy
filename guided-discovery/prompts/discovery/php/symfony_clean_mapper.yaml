@@ -1,204 +1,172 @@
 name: symfony_clean_mapper
 category: discovery
-complexity: complex
-targets_uncertainties: ["SYMFONY-001", "FRAMEWORK-002", "BUNDLE-001"]
-estimated_duration: 25-30 minutes
-
-requires_context:
-  - task.description
-  - discoveries.php.architecture_style
-  - discoveries.dependencies.composer_packages
-
-provides_context:
-  - discoveries.symfony.structure
-  - discoveries.symfony.bundle_organization
-  - discoveries.symfony.service_configuration
-  - discoveries.symfony.clean_alignment
+targets_uncertainties: ['SYMFONY-001', 'FRAMEWORK-002', 'BUNDLE-001']
 
 template: |
   # Symfony to Clean Architecture Mapping
-  
-  I need to map Symfony components and structure to clean architecture patterns.
-  
-  **Task Context**: {{task.description}}
-  **Symfony Version**: {{discoveries.dependencies.symfony_version}}
-  
+
   ## Discovery Goals
-  
+
   1. **Symfony Structure**
-     - Bundle organization
-     - Service configuration
-     - Event system
-     - Command/Query buses
-  
+   - Bundle organization
+   - Service configuration
+   - Event system
+   - Command/Query buses
+
   2. **DDD Alignment**
-     - Existing DDD patterns
-     - Bounded contexts
-     - Domain events
-     - Value objects
-  
+   - Existing DDD patterns
+   - Bounded contexts
+   - Domain events
+   - Value objects
+
   3. **Service Layer**
-     - Service definitions
-     - Dependency injection
-     - Controller services
-     - Command handlers
-  
+   - Service definitions
+   - Dependency injection
+   - Controller services
+   - Command handlers
+
   4. **Doctrine Integration**
-     - Entity mapping
-     - Repository pattern
-     - Data mapper usage
-     - Query optimization
-  
+   - Entity mapping
+   - Repository pattern
+   - Data mapper usage
+   - Query optimization
+
   5. **Clean Architecture Fit**
-     - Current alignment
-     - Migration needs
-     - Symfony advantages
-     - Integration approach
-  
+   - Current alignment
+   - Migration needs
+   - Symfony advantages
+   - Integration approach
+
   Please analyze Symfony structure:
-  
+
   ### SYMFONY_STRUCTURE
   - Bundle_Organization:
-    - Architecture: [monolithic/modular/microservices]
-    - Bundles: [list main bundles]
-    - Bounded_Contexts: [if DDD, list contexts]
-    - Shared_Kernel: [shared code location]
+  - Architecture: [monolithic/modular/microservices]
+  - Bundles: [list main bundles]
+  - Bounded_Contexts: [if DDD, list contexts]
+  - Shared_Kernel: [shared code location]
   - Directory_Structure:
-    - Source_Root: [src/ organization]
-    - Domain: [if exists, where?]
-    - Application: [if exists, where?]
-    - Infrastructure: [if exists, where?]
+  - Source_Root: [src/ organization]
+  - Domain: [if exists, where?]
+  - Application: [if exists, where?]
+  - Infrastructure: [if exists, where?]
   - Configuration:
-    - Service_Files: [YAML/XML/PHP/Annotations]
-    - Autowiring: [enabled/disabled/partial]
-    - Autoconfigure: [enabled/disabled]
-  
+  - Service_Files: [YAML/XML/PHP/Annotations]
+  - Autowiring: [enabled/disabled/partial]
+  - Autoconfigure: [enabled/disabled]
+
   ### SYMFONY_SERVICE_LAYER
   - Service_Architecture:
-    - Pattern: [traditional/DDD/CQRS/mixed]
-    - Service_Types: [controllers/handlers/services]
+  - Pattern: [traditional/DDD/CQRS/mixed]
+  - Service_Types: [controllers/handlers/services]
   - Dependency_Injection:
-    - Container_Usage: [proper DI/service locator]
-    - Interface_Bindings: [how many, where defined]
-    - Factory_Services: [usage pattern]
+  - Container_Usage: [proper DI/service locator]
+  - Interface_Bindings: [how many, where defined]
+  - Factory_Services: [usage pattern]
   - Controllers:
-    - Type: [ADR/traditional/invokable]
-    - Thickness: [thin/fat/mixed]
-    - Service_Injection: [constructor/method]
-  
+  - Type: [ADR/traditional/invokable]
+  - Thickness: [thin/fat/mixed]
+  - Service_Injection: [constructor/method]
+
   ### COMMAND_QUERY_ARCHITECTURE
   - Command_Bus:
-    - Implementation: [Messenger/SimpleBus/custom/none]
-    - Command_Handlers: [location, count]
-    - Middleware: [validation, logging, etc.]
+  - Implementation: [Messenger/SimpleBus/custom/none]
+  - Command_Handlers: [location, count]
+  - Middleware: [validation, logging, etc.]
   - Query_Bus:
-    - Separate: [yes/no]
-    - Query_Handlers: [if used]
+  - Separate: [yes/no]
+  - Query_Handlers: [if used]
   - Event_Dispatcher:
-    - Domain_Events: [separate from Symfony events?]
-    - Event_Subscribers: [organization]
-    - Async_Events: [Messenger integration?]
-  
+  - Domain_Events: [separate from Symfony events?]
+  - Event_Subscribers: [organization]
+  - Async_Events: [Messenger integration?]
+
   ### DOCTRINE_ANALYSIS
   - Entity_Mapping:
-    - Type: [annotations/XML/YAML/PHP]
-    - Location: [inline/separate]
-    - Complexity: [simple/complex relations]
+  - Type: [annotations/XML/YAML/PHP]
+  - Location: [inline/separate]
+  - Complexity: [simple/complex relations]
   - Repository_Pattern:
-    - Custom_Repos: [yes/no/some]
-    - Repository_Interfaces: [defined?]
-    - Query_Methods: [in repos or services?]
+  - Custom_Repos: [yes/no/some]
+  - Repository_Interfaces: [defined?]
+  - Query_Methods: [in repos or services?]
   - Data_Mapper_Usage:
-    - Pure_Entities: [Doctrine-free entities?]
-    - DTO_Pattern: [for queries?]
-    - Hydration: [custom hydrators?]
-  
+  - Pure_Entities: [Doctrine-free entities?]
+  - DTO_Pattern: [for queries?]
+  - Hydration: [custom hydrators?]
+
   ### CLEAN_ARCHITECTURE_ALIGNMENT
   - Current_Alignment:
-    - Layer_Separation: [clear/mixed/none]
-    - Dependency_Rule: [followed/violated]
-    - Framework_Independence: [high/medium/low]
+  - Layer_Separation: [clear/mixed/none]
+  - Dependency_Rule: [followed/violated]
+  - Framework_Independence: [high/medium/low]
   - Positive_Patterns:
-    - [What's already clean]
-    - [Good abstractions]
-    - [Proper boundaries]
+  - [What's already clean]
+  - [Good abstractions]
+  - [Proper boundaries]
   - Problem_Areas:
-    - [Framework coupling]
-    - [Layer violations]
-    - [Missing abstractions]
-  
+  - [Framework coupling]
+  - [Layer violations]
+  - [Missing abstractions]
+
   ### SYMFONY_TO_CLEAN_MAPPING
   - Bundle_to_Bounded_Context:
-    - Strategy: [1:1 bundle to context]
-    - Shared_Kernel: [extract to domain]
-    - Bundle_Interfaces: [define contracts]
+  - Strategy: [1:1 bundle to context]
+  - Shared_Kernel: [extract to domain]
+  - Bundle_Interfaces: [define contracts]
   - Service_to_Use_Case:
-    - Current_Services: [map to use cases]
-    - Command_Handlers: [already use cases?]
-    - Controller_Actions: [extract to use cases]
+  - Current_Services: [map to use cases]
+  - Command_Handlers: [already use cases?]
+  - Controller_Actions: [extract to use cases]
   - Doctrine_to_Repository:
-    - Entity_to_Domain: [separate domain entities]
-    - Repo_to_Interface: [define in domain]
-    - Custom_Queries: [query objects/specifications]
-  
+  - Entity_to_Domain: [separate domain entities]
+  - Repo_to_Interface: [define in domain]
+  - Custom_Queries: [query objects/specifications]
+
   ### SYMFONY_ADVANTAGES
   - Helpful_Features:
-    - Service_Container: [clean DI setup]
-    - Messenger: [command/event buses]
-    - Form_Component: [DTO validation]
-    - Serializer: [DTO transformation]
+  - Service_Container: [clean DI setup]
+  - Messenger: [command/event buses]
+  - Form_Component: [DTO validation]
+  - Serializer: [DTO transformation]
   - Architecture_Support:
-    - Flex_Recipes: [clean architecture recipes?]
-    - Bundle_Structure: [natural boundaries]
-    - Event_System: [domain events]
-  
+  - Flex_Recipes: [clean architecture recipes?]
+  - Bundle_Structure: [natural boundaries]
+  - Event_System: [domain events]
+
   ### MIGRATION_STRATEGY
   - Incremental_Approach:
-    - Keep_Symfony: [as infrastructure layer]
-    - Extract_Domain: [pure PHP domain]
-    - Wrap_Framework: [adapter pattern]
+  - Keep_Symfony: [as infrastructure layer]
+  - Extract_Domain: [pure PHP domain]
+  - Wrap_Framework: [adapter pattern]
   - Bundle_by_Bundle:
-    - Start_With: [simplest bundle]
-    - Extract_Layers: [within each bundle]
-    - Define_Contracts: [between bundles]
+  - Start_With: [simplest bundle]
+  - Extract_Layers: [within each bundle]
+  - Define_Contracts: [between bundles]
   - Testing_Strategy:
-    - Symfony_Tests: [keep for infrastructure]
-    - Domain_Tests: [pure PHP unit tests]
-    - Integration: [test adapters]
-  
+  - Symfony_Tests: [keep for infrastructure]
+  - Domain_Tests: [pure PHP unit tests]
+  - Integration: [test adapters]
+
   ### IMPLEMENTATION_RECOMMENDATIONS
   - Quick_Wins:
-    - [Extract value objects]
-    - [Define repository interfaces]
-    - [Thin controllers via handlers]
+  - [Extract value objects]
+  - [Define repository interfaces]
+  - [Thin controllers via handlers]
   - Medium_Term:
-    - [Separate domain entities]
-    - [Implement use cases]
-    - [Clean service layer]
+  - [Separate domain entities]
+  - [Implement use cases]
+  - [Clean service layer]
   - Long_Term:
-    - [Full clean architecture]
-    - [Framework independence]
-    - [Modular monolith/microservices]
-  
+  - [Full clean architecture]
+  - [Framework independence]
+  - [Modular monolith/microservices]
+
   ### EFFORT_ASSESSMENT
   - Complexity: [low/medium/high/very high]
   - Symfony_Knowledge: [helps/neutral/hinders]
   - Major_Challenges:
-    - [Doctrine decoupling]
-    - [Bundle reorganization]
-    - [Service extraction]
+  - [Doctrine decoupling]
+  - [Bundle reorganization]
+  - [Service extraction]
   - Timeline: [realistic estimate]
-
-output_parser:
-  sections:
-    - SYMFONY_STRUCTURE
-    - SYMFONY_SERVICE_LAYER
-    - COMMAND_QUERY_ARCHITECTURE
-    - DOCTRINE_ANALYSIS
-    - CLEAN_ARCHITECTURE_ALIGNMENT
-    - SYMFONY_TO_CLEAN_MAPPING
-    - SYMFONY_ADVANTAGES
-    - MIGRATION_STRATEGY
-    - IMPLEMENTATION_RECOMMENDATIONS
-    - EFFORT_ASSESSMENT
-  confidence_impact: 0.4

@@ -1,0 +1,48 @@
+name: example_prompt
+category: discovery
+targets_uncertainties: ["ARCH-001", "TECH-001"]
+
+template: |
+  # Prompt Title
+  
+  I need to analyze X to understand Y.
+  
+  Task: {{task.description}}
+  
+  ## Analysis Goals
+  
+  1. **First Goal**
+     - Specific things to find
+     - How they relate to uncertainties
+  
+  2. **Second Goal**
+     - More specific analysis
+  
+  ## Structured Output
+  
+  After analysis, I'll update the context with discoveries in this structure:
+  
+  ### DISCOVERIES
+  ```json
+  {
+    "discoveries": {
+      "category_name": {
+        "field1": "value1",
+        "field2": "value2"
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  Based on findings, I'll update uncertainty status:
+  - ARCH-001: resolved/partial/unresolved
+  - TECH-001: resolved/partial/unresolved
+  
+  ## Context Update
+  
+  I will:
+  1. Read the current task context file
+  2. Update discoveries section with findings
+  3. Update uncertainty statuses
+  4. Write the updated context back

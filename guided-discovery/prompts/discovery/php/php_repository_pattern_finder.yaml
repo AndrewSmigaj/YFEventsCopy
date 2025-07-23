@@ -1,120 +1,92 @@
 name: php_repository_pattern_finder
 category: discovery
-complexity: moderate
-targets_uncertainties: ["REPO-001", "DATA-001", "PERSIST-001"]
-estimated_duration: 15-20 minutes
-
-requires_context:
-  - task.description
-  - discoveries.domain.entities
-  - discoveries.architecture.layers
-
-provides_context:
-  - discoveries.repositories.interfaces
-  - discoveries.repositories.implementations
-  - discoveries.repositories.persistence_mechanism
-  - discoveries.repositories.query_patterns
+targets_uncertainties: ['REPO-001', 'DATA-001', 'PERSIST-001']
 
 template: |
   # PHP Repository Pattern Discovery
-  
-  I need to understand how the repository pattern is implemented for data persistence.
-  
-  **Task Context**: {{task.description}}
-  **Domain Entities**: {{discoveries.domain.entities}}
-  
+
   ## Discovery Goals
-  
+
   1. **Repository Interfaces**
-     - Interface definitions
-     - Method signatures
-     - Return types
-     - Domain vs infrastructure location
-  
+   - Interface definitions
+   - Method signatures
+   - Return types
+   - Domain vs infrastructure location
+
   2. **Repository Implementations**
-     - Concrete implementations
-     - Persistence mechanisms (ORM, Query Builder, Raw SQL)
-     - Framework integration
-     - Transaction handling
-  
+   - Concrete implementations
+   - Persistence mechanisms (ORM, Query Builder, Raw SQL)
+   - Framework integration
+   - Transaction handling
+
   3. **Query Patterns**
-     - Simple CRUD operations
-     - Complex queries
-     - Specification pattern usage
-     - Query objects
-  
+   - Simple CRUD operations
+   - Complex queries
+   - Specification pattern usage
+   - Query objects
+
   4. **Persistence Abstraction**
-     - Level of abstraction
-     - Leaky abstractions
-     - ORM usage patterns
-     - Database agnostic approach
-  
+   - Level of abstraction
+   - Leaky abstractions
+   - ORM usage patterns
+   - Database agnostic approach
+
   5. **Data Mapping**
-     - Entity to database mapping
-     - Hydration approach
-     - Lazy loading strategy
-     - Identity map pattern
-  
+   - Entity to database mapping
+   - Hydration approach
+   - Lazy loading strategy
+   - Identity map pattern
+
   Please analyze repository patterns:
-  
+
   ### REPOSITORY_INTERFACES
   - Location: [domain layer/application layer/other]
   - Naming_Convention: [e.g., UserRepositoryInterface, IUserRepository]
   - Common_Methods:
-    - Find: [findById, find, findOne]
-    - List: [findAll, findBy, matching]
-    - Save: [save, persist, store]
-    - Delete: [remove, delete]
+  - Find: [findById, find, findOne]
+  - List: [findAll, findBy, matching]
+  - Save: [save, persist, store]
+  - Delete: [remove, delete]
   - Example_Interface:
-    - Name: [e.g., UserRepositoryInterface]
-    - Methods: [list with signatures]
-    - Return_Types: [entities/collections/primitives]
-  
+  - Name: [e.g., UserRepositoryInterface]
+  - Methods: [list with signatures]
+  - Return_Types: [entities/collections/primitives]
+
   ### REPOSITORY_IMPLEMENTATIONS
   - Location: [infrastructure layer path]
   - Base_Class: [if any]
   - Persistence_Type:
-    - ORM: [Doctrine/Eloquent/none]
-    - Query_Builder: [used/not used]
-    - Raw_SQL: [used/not used]
+  - ORM: [Doctrine/Eloquent/none]
+  - Query_Builder: [used/not used]
+  - Raw_SQL: [used/not used]
   - Example_Implementation:
-    - Name: [e.g., DoctrineUserRepository]
-    - Persistence: [how it persists data]
-    - Queries: [how it queries data]
-  
+  - Name: [e.g., DoctrineUserRepository]
+  - Persistence: [how it persists data]
+  - Queries: [how it queries data]
+
   ### QUERY_PATTERNS
   - Simple_Queries: [ORM methods/query builder/SQL]
   - Complex_Queries: [DQL/query builder/raw SQL]
   - Specification_Pattern: [used/not used]
   - Query_Objects: [used/not used]
   - Custom_Query_Methods: [list examples]
-  
+
   ### PERSISTENCE_ABSTRACTION
   - Abstraction_Level: [high/medium/low]
   - ORM_Leakage: [none/minimal/significant]
   - Database_Agnostic: [yes/no/partial]
   - Migration_Support: [how schema changes are handled]
-  
+
   ### DATA_MAPPING
   - Mapping_Type: [annotations/XML/PHP/YAML]
   - Hydration: [automatic/manual/mixed]
   - Relationships: [how associations are handled]
   - Lazy_Loading: [enabled/disabled/selective]
   - Identity_Map: [used/not used]
-  
+
   ### REPOSITORY_QUALITY
   - Interface_Segregation: [good/moderate/poor]
   - Testability: [high/medium/low]
   - Performance_Considerations: [N+1/eager loading/optimized]
   - Issues_Found: [list any problems]
   - Recommendations: [list improvements]
-
-output_parser:
-  sections:
-    - REPOSITORY_INTERFACES
-    - REPOSITORY_IMPLEMENTATIONS
-    - QUERY_PATTERNS
-    - PERSISTENCE_ABSTRACTION
-    - DATA_MAPPING
-    - REPOSITORY_QUALITY
-  confidence_impact: 0.35
