@@ -22,8 +22,14 @@ class AuthController extends BaseController
         
         // Get database connection
         $dbConfig = $config->get('database');
-        $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset={$dbConfig['charset']}";
-        $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], $dbConfig['options']);
+        $charset = $dbConfig['charset'] ?? 'utf8mb4';
+        $dsn = "mysql:host={$dbConfig['host']};dbname={$dbConfig['name']};charset={$charset}";
+        $options = $dbConfig['options'] ?? [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false
+        ];
+        $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], $options);
         
         $this->authService = new AuthService($pdo);
     }

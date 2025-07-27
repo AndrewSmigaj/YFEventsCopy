@@ -380,6 +380,16 @@ class ClaimsController extends BaseController
                     'contact_name' => $seller->getContactName()
                 ];
                 
+                // Set legacy session variables for module compatibility
+                // These were removed in the unified auth refactor but the module files
+                // were reverted and still expect them
+                $_SESSION['claim_seller_logged_in'] = true;
+                $_SESSION['claim_seller_id'] = $seller->getId();
+                $_SESSION['yfclaim_seller_id'] = $seller->getId();
+                $_SESSION['yfclaim_seller_name'] = $seller->getCompanyName();
+                $_SESSION['seller_name'] = $seller->getContactName();
+                $_SESSION['company_name'] = $seller->getCompanyName();
+                
                 // Ensure seller is in global chat channels
                 try {
                     $adminSellerChat = $this->container->resolve(\YFEvents\Application\Services\Communication\AdminSellerChatService::class);
@@ -2432,8 +2442,8 @@ ITEM;
         <div style="background: #e3f2fd; border: 2px solid #1976d2; border-radius: 8px; padding: 15px; margin: 20px 0;">
             <h4 style="margin: 0 0 10px 0; color: #1976d2;">🔐 Test Credentials</h4>
             <p style="margin: 5px 0; font-family: monospace; font-size: 14px;">
-                <strong>Username:</strong> estate_pros<br>
-                <strong>Password:</strong> test123
+                <strong>Username:</strong> claude_test_seller<br>
+                <strong>Password:</strong> ClaudeTest123!
             </p>
             <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
                 ⚠️ These are test credentials for development only

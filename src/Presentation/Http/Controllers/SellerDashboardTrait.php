@@ -424,7 +424,9 @@ trait SellerDashboardTrait
             </div>
             <div class="seller-info">
                 <span>Welcome, <?= htmlspecialchars($seller['company_name'] ?? 'Seller') ?></span>
-                <a href="/seller/logout" class="btn btn-sm">Logout</a>
+                <form method="POST" action="/seller/logout" style="display: inline;">
+                    <button type="submit" class="btn btn-sm">Logout</button>
+                </form>
             </div>
         </div>
     </header>

@@ -1,0 +1,165 @@
+name: active_code_discovery
+description: Systematic discovery chain for identifying which code is actually being used when multiple versions exist
+version: "1.0"
+type: discovery
+specialization: multi_version_resolution
+
+metadata:
+  average_duration: 60-90 minutes
+  complexity: complex
+  critical_for: deployment_safety
+
+targets_phase: discovery
+optimal_for:
+  - Codebases with multiple versions of components
+  - Pre-deployment verification
+  - Architecture documentation from actual usage
+  - Identifying obsolete code for deletion
+
+targets_uncertainties:
+  primary:
+    - MULTI-001
+    - MULTI-002
+    - MULTI-003
+    - MULTI-004
+    - MULTI-005
+  secondary:
+    - ARCH-005
+    - DEPLOY-001
+
+prerequisites:
+  min_confidence:
+    TECH-001: 0.1  # Very low requirement - we discover this
+  required_discoveries:
+    - None  # Start from scratch
+
+prompt_sequence:
+  # Phase 1: Entry Point Discovery
+  - prompt: production_entry_point_identifier
+    order: 1
+    mandatory: true
+    purpose: Find all web-accessible entry points and determine which are production
+    
+  - prompt: apache_config_analyzer
+    order: 2
+    mandatory: true
+    purpose: Analyze web server config to find DocumentRoot and rewrite rules
+    
+  - prompt: route_tracer
+    order: 3
+    mandatory: true
+    purpose: Trace routes from entry points to controllers
+    
+  # Phase 2: Component Duplication Analysis
+  - prompt: duplicate_component_finder
+    order: 4
+    mandatory: true
+    purpose: Find all similar/duplicate components (controllers, models, services)
+    
+  - prompt: namespace_collision_detector
+    order: 5
+    mandatory: true
+    purpose: Identify namespace conflicts and overlapping functionality
+    
+  # Phase 3: Runtime Flow Analysis
+  - prompt: request_flow_tracer
+    order: 6
+    mandatory: true
+    purpose: Trace actual request flow from entry to response
+    
+  - prompt: database_query_analyzer
+    order: 7
+    mandatory: true
+    purpose: Identify which models/repositories actually touch the database
+    
+  - prompt: session_auth_tracer
+    order: 8
+    mandatory: true
+    purpose: Trace authentication flow to identify active auth system
+    
+  # Phase 4: Usage Pattern Analysis
+  - prompt: include_require_analyzer
+    order: 9
+    mandatory: true
+    purpose: Analyze include/require patterns to find active dependencies
+    
+  - prompt: class_instantiation_tracker
+    order: 10
+    mandatory: true
+    purpose: Track which classes are actually instantiated
+    
+  - prompt: dead_code_identifier
+    order: 11
+    mandatory: false
+    purpose: Identify potentially dead code
+    condition: "discoveries.duplicates.count > 0"
+
+success_criteria:
+  required_discoveries:
+    - entry_points.production
+    - routes.active
+    - authentication.active_system
+    - components.active_versions
+  critical_validations:
+    - "Must identify primary entry point"
+    - "Must trace at least one complete request flow"
+    - "Must identify active authentication system"
+
+chain_variants:
+  quick_scan:
+    when: "time_constraint == 'urgent'"
+    modifications:
+      - focus_on: ["entry_points", "routes", "authentication"]
+      - skip_prompts: ["dead_code_identifier", "namespace_collision_detector"]
+      
+  deep_analysis:
+    when: "goal == 'complete_cleanup'"
+    modifications:
+      - add_prompt: dependency_graph_builder
+      - add_prompt: test_coverage_analyzer
+      - extended_analysis: true
+
+output_artifacts:
+  active_components_map:
+    format: yaml
+    includes:
+      - entry_points
+      - active_routes
+      - active_controllers
+      - active_models
+      - active_services
+      - authentication_flow
+      
+  architecture_diagram_data:
+    format: json
+    includes:
+      - component_relationships
+      - request_flows
+      - layer_boundaries
+      - external_dependencies
+      
+  obsolete_code_report:
+    format: markdown
+    includes:
+      - duplicate_components
+      - unused_files
+      - dead_code_paths
+      - safe_to_delete_list
+
+next_chain_logic:
+  - condition: "discoveries.duplicates.count > 10"
+    next_chain: cleanup_planning
+    reason: "Many duplicates found - need cleanup strategy"
+    
+  - condition: "discoveries.authentication.systems.count > 1"
+    next_chain: auth_consolidation_planning
+    reason: "Multiple auth systems need consolidation"
+    
+  - default: architecture_diagram_generation
+    reason: "Ready to create accurate architecture diagram"
+
+post_execution:
+  - generate_active_code_map
+  - create_deployment_safe_list
+  - identify_critical_paths
+  - recommend_cleanup_priority

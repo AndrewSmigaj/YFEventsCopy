@@ -1,7 +1,7 @@
-# Disable PATH_INFO for admin/index.php to prevent /admin/login being treated as /admin/index.php/login
-<Files "admin/index.php">
-    AcceptPathInfo Off
-</Files>
+# REMOVED: PATH_INFO rules for non-existent admin/index.php
+# <Files "admin/index.php">
+#     AcceptPathInfo Off
+# </Files>
 
 RewriteEngine On
 
@@ -9,9 +9,9 @@ RewriteEngine On
 RewriteCond %{REQUEST_URI} ^/admin/(events|shops|scrapers|users|login|logout|status|dashboard)/?$
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Allow direct access to admin PHP files and assets
-RewriteCond %{REQUEST_URI} ^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
-RewriteRule ^admin/(.*)$ admin/$1 [L]
+# REMOVED: Rules causing redirect loops - no /public/admin/ directory exists
+# RewriteCond %{REQUEST_URI} ^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
+# RewriteRule ^admin/(.*)$ admin/$1 [L]
 
 # Route API calls through the router
 RewriteCond %{REQUEST_URI} ^/api/
@@ -20,7 +20,8 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 # Handle other routes through router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
+# REMOVED: Exclusion for non-existent admin files
+# RewriteCond %{REQUEST_URI} !^/admin/.*\.(php|css|js|png|jpg|jpeg|gif|ico)$
 RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Ensure index.php is executed for all requests
