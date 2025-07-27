@@ -37,7 +37,14 @@ class AuthService
      */
     public function login(string $username, string $password): array
     {
-        $result = $this->yfAuthService->authenticate($username, $password);
+        try {
+            $result = $this->yfAuthService->authenticate($username, $password);
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
         
         if ($result['success']) {
             // Regenerate session ID for security

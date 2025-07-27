@@ -4,7 +4,7 @@ namespace YFEvents\Modules\YFAuth\Models;
 use PDO;
 
 class PermissionModel extends BaseModel {
-    protected $table = 'yfa_permissions';
+    protected $table = 'yfa_auth_permissions';
     protected $fillable = ['name', 'display_name', 'description', 'module'];
     
     /**
@@ -46,8 +46,8 @@ class PermissionModel extends BaseModel {
      * Get roles that have this permission
      */
     public function getRoles($permissionId) {
-        $sql = "SELECT r.* FROM yfa_roles r
-                JOIN yfa_role_permissions rp ON r.id = rp.role_id
+        $sql = "SELECT r.* FROM yfa_auth_roles r
+                JOIN yfa_auth_role_permissions rp ON r.id = rp.role_id
                 WHERE rp.permission_id = ?
                 ORDER BY r.name";
         
@@ -60,7 +60,7 @@ class PermissionModel extends BaseModel {
      * Check if permission is assigned to any role
      */
     public function isAssigned($permissionId) {
-        $sql = "SELECT COUNT(*) FROM yfa_role_permissions WHERE permission_id = ?";
+        $sql = "SELECT COUNT(*) FROM yfa_auth_role_permissions WHERE permission_id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$permissionId]);
         return $stmt->fetchColumn() > 0;

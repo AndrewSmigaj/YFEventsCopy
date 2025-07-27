@@ -70,7 +70,12 @@ class AuthService {
             $sessionLifetime
         );
         
+        // Load user roles
+        $user['roles'] = $this->userModel->getRoles($user['id']);
+        $user['permissions'] = $this->userModel->getPermissions($user['id']);
+        
         return [
+            'success' => true,
             'user' => $user,
             'session_id' => $sessionId,
             'expires_at' => time() + $sessionLifetime

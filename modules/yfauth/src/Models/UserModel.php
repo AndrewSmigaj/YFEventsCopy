@@ -5,7 +5,7 @@ use PDO;
 use Exception;
 
 class UserModel extends BaseModel {
-    protected $table = 'yfa_users';
+    protected $table = 'yfa_auth_users';
     protected $fillable = [
         'username', 'email', 'password_hash', 'first_name', 'last_name', 
         'phone', 'status', 'email_verified', 'email_verification_token',
@@ -138,8 +138,8 @@ class UserModel extends BaseModel {
      * Get user roles
      */
     public function getRoles($userId) {
-        $sql = "SELECT r.* FROM yfa_roles r
-                JOIN yfa_user_roles ur ON r.id = ur.role_id
+        $sql = "SELECT r.* FROM yfa_auth_roles r
+                JOIN yfa_auth_user_roles ur ON r.id = ur.role_id
                 WHERE ur.user_id = ?
                 ORDER BY r.name";
         
@@ -152,8 +152,8 @@ class UserModel extends BaseModel {
      * Has role check
      */
     public function hasRole($userId, $roleName) {
-        $sql = "SELECT COUNT(*) FROM yfa_user_roles ur
-                JOIN yfa_roles r ON ur.role_id = r.id
+        $sql = "SELECT COUNT(*) FROM yfa_auth_user_roles ur
+                JOIN yfa_auth_roles r ON ur.role_id = r.id
                 WHERE ur.user_id = ? AND r.name = ?";
         
         $stmt = $this->db->prepare($sql);
@@ -165,9 +165,9 @@ class UserModel extends BaseModel {
      * Get user permissions
      */
     public function getPermissions($userId) {
-        $sql = "SELECT DISTINCT p.* FROM yfa_permissions p
-                JOIN yfa_role_permissions rp ON p.id = rp.permission_id
-                JOIN yfa_user_roles ur ON rp.role_id = ur.role_id
+        $sql = "SELECT DISTINCT p.* FROM yfa_auth_permissions p
+                JOIN yfa_auth_role_permissions rp ON p.id = rp.permission_id
+                JOIN yfa_auth_user_roles ur ON rp.role_id = ur.role_id
                 WHERE ur.user_id = ?
                 ORDER BY p.name";
         
@@ -180,9 +180,9 @@ class UserModel extends BaseModel {
      * Has permission check
      */
     public function hasPermission($userId, $permissionName) {
-        $sql = "SELECT COUNT(*) FROM yfa_permissions p
-                JOIN yfa_role_permissions rp ON p.id = rp.permission_id
-                JOIN yfa_user_roles ur ON rp.role_id = ur.role_id
+        $sql = "SELECT COUNT(*) FROM yfa_auth_permissions p
+                JOIN yfa_auth_role_permissions rp ON p.id = rp.permission_id
+                JOIN yfa_auth_user_roles ur ON rp.role_id = ur.role_id
                 WHERE ur.user_id = ? AND p.name = ?";
         
         $stmt = $this->db->prepare($sql);
@@ -194,7 +194,7 @@ class UserModel extends BaseModel {
      * Assign role to user
      */
     public function assignRole($userId, $roleId, $assignedBy = null) {
-        $sql = "INSERT INTO yfa_user_roles (user_id, role_id, assigned_by) 
+        $sql = "INSERT INTO yfa_auth_user_roles (user_id, role_id, assigned_by) 
                 VALUES (?, ?, ?)
                 ON DUPLICATE KEY UPDATE assigned_at = NOW(), assigned_by = ?";
         
@@ -206,7 +206,7 @@ class UserModel extends BaseModel {
      * Remove role from user
      */
     public function removeRole($userId, $roleId) {
-        $sql = "DELETE FROM yfa_user_roles WHERE user_id = ? AND role_id = ?";
+        $sql = "DELETE FROM yfa_auth_user_roles WHERE user_id = ? AND role_id = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$userId, $roleId]);
     }

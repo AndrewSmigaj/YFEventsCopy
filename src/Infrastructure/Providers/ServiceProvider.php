@@ -44,20 +44,14 @@ use YFEvents\Application\Services\Communication\AdminSellerChatService;
 use YFEvents\Application\Services\YFClaim\InquiryService;
 use YFEvents\Domain\YFClaim\Repositories\InquiryRepositoryInterface;
 use YFEvents\Infrastructure\Repositories\YFClaim\InquiryRepository;
-use YFEvents\Infrastructure\Discovery\RequestTracker;
-use YakimaFinds\Utils\SystemLogger;
 
 /**
  * Main service provider for dependency injection
  */
 class ServiceProvider
 {
-    private ?SystemLogger $logger = null;
-    private bool $runtimeDiscoveryEnabled;
-    
     public function __construct(private ContainerInterface $container) 
     {
-        $this->runtimeDiscoveryEnabled = getenv('ENABLE_RUNTIME_DISCOVERY') === 'true';
     }
 
     /**
@@ -67,33 +61,8 @@ class ServiceProvider
     {
         $this->registerConfig();
         $this->registerDatabase();
-        
-        // Initialize logger after database is available
-        $this->initializeLogger();
-        
         $this->registerRepositories();
         $this->registerServices();
-        
-        if ($this->logger) {
-            $this->logger->info('SERVICE_PROVIDER_COMPLETE', [
-                'request_id' => RequestTracker::getRequestId()
-            ]);
-        }
-    }
-    
-    /**
-     * Initialize logger after database is available
-     */
-    private function initializeLogger(): void
-    {
-        if ($this->runtimeDiscoveryEnabled && !$this->logger) {
-            try {
-                $db = $this->container->resolve(\PDO::class);
-                $this->logger = SystemLogger::create($db, 'runtime_discovery');
-            } catch (\Exception $e) {
-                error_log("[runtime_discovery] ServiceProvider: Failed to initialize logger: " . $e->getMessage());
-            }
-        }
     }
 
     /**
@@ -116,9 +85,10 @@ class ServiceProvider
                 $config->loadFromFile($configPath . '/app.php');
             }
             
-            if (file_exists($configPath . '/database.php')) {
-                $config->loadFromFile($configPath . '/database.php');
-            }
+            // Database.php creates connection directly, not a config array
+            // if (file_exists($configPath . '/database.php')) {
+            //     $config->loadFromFile($configPath . '/database.php');
+            // }
 
             // Load environment variables
             if (file_exists(__DIR__ . '/../../../.env')) {
@@ -136,6 +106,7 @@ class ServiceProvider
     {
         $this->container->singleton(ConnectionInterface::class, function ($container) {
             $config = $container->resolve(ConfigInterface::class);
+            
             
             return new Connection(
                 host: $config->get('database.host', 'localhost'),
@@ -324,13 +295,13 @@ class ServiceProvider
                     case 'DB_HOST':
                         $config->set('database.host', $value);
                         break;
-                    case 'DB_NAME':
+                    case 'DB_DATABASE':
                         $config->set('database.name', $value);
                         break;
-                    case 'DB_USER':
+                    case 'DB_USERNAME':
                         $config->set('database.username', $value);
                         break;
-                    case 'DB_PASS':
+                    case 'DB_PASSWORD':
                         $config->set('database.password', $value);
                         break;
                     case 'APP_ENV':

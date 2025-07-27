@@ -320,8 +320,16 @@ class ClaimsController extends BaseController
         header('Content-Type: application/json');
 
         try {
-            $username = trim($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
+            // Handle JSON input
+            $input = json_decode(file_get_contents('php://input'), true);
+            if (!$input) {
+                // Fall back to POST data
+                $input = $_POST;
+            }
+            
+            // Accept either username or email
+            $username = trim($input['username'] ?? $input['email'] ?? '');
+            $password = $input['password'] ?? '';
 
             if (empty($username) || empty($password)) {
                 throw new Exception('Username and password are required');
@@ -355,7 +363,7 @@ class ClaimsController extends BaseController
                 if (!$seller) {
                     // Create seller profile if it doesn't exist
                     $seller = Seller::fromArray([
-                        'auth_user_id' => $_SESSION['auth']['user_id'],
+                        'user_id' => $_SESSION['auth']['user_id'],
                         'email' => $_SESSION['auth']['email'],
                         'contact_name' => $_SESSION['auth']['username'],
                         'company_name' => $_SESSION['auth']['username'] . "'s Sales",

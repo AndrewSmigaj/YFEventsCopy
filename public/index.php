@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use YFEvents\Application\Bootstrap;
 use YFEvents\Infrastructure\Http\Router;
+use YFEvents\Infrastructure\Discovery\RequestTracker;
+use YakimaFinds\Utils\SystemLogger;
 
 // Define base path constant for consistent path resolution
 define('BASE_PATH', dirname(__DIR__));
@@ -17,8 +19,6 @@ $enableRuntimeDiscovery = getenv('ENABLE_RUNTIME_DISCOVERY') === 'true' ||
                           strpos(file_get_contents(BASE_PATH . '/.env'), 'ENABLE_RUNTIME_DISCOVERY=true') !== false);
 
 if ($enableRuntimeDiscovery) {
-    use YFEvents\Infrastructure\Discovery\RequestTracker;
-    use YakimaFinds\Utils\SystemLogger;
     
     // Initialize request tracking
     $requestId = RequestTracker::getRequestId();
@@ -102,6 +102,6 @@ try {
             'trace' => $e->getTraceAsString()
         ];
     }
-
+    
     echo json_encode($response, JSON_PRETTY_PRINT);
 }

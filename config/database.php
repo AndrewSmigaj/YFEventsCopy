@@ -14,9 +14,9 @@ if (file_exists($envFile)) {
 
 // Database configuration
 $host = $_ENV['DB_HOST'] ?? 'localhost';
-$dbname = $_ENV['DB_NAME'] ?? 'yakima_finds';
-$username = $_ENV['DB_USER'] ?? 'root';
-$password = $_ENV['DB_PASS'] ?? '';
+$dbname = $_ENV['DB_DATABASE'] ?? 'yakima_finds';
+$username = $_ENV['DB_USERNAME'] ?? 'root';
+$password = $_ENV['DB_PASSWORD'] ?? '';
 
 // Define constants for backward compatibility
 define('DB_HOST', $host);

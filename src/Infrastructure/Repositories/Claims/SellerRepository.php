@@ -93,8 +93,24 @@ class SellerRepository implements SellerRepositoryInterface
     {
         $data = $seller->toArray();
         
+        // Map entity fields to database columns
+        $dbData = [
+            'company_name' => $data['company_name'],
+            'contact_name' => $data['contact_name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'address' => $data['address'] ?? null,
+            'city' => $data['city'] ?? null,
+            'state' => $data['state'] ?? 'WA',
+            'zip' => $data['zip_code'] ?? null, // Map zip_code to zip
+            'website' => $data['website'] ?? null,
+            'status' => $data['status'] ?? 'pending',
+            'auth_user_id' => $data['user_id'] ?? null // Map user_id to auth_user_id
+        ];
+        
         if ($seller->getId()) {
             // Update existing
+            $dbData['id'] = $seller->getId();
             $sql = 'UPDATE yfc_sellers SET 
                 company_name = :company_name,
                 contact_name = :contact_name,
@@ -111,10 +127,9 @@ class SellerRepository implements SellerRepositoryInterface
                 WHERE id = :id';
             
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($data);
+            $stmt->execute($dbData);
         } else {
             // Insert new
-            unset($data['id']);
             $sql = 'INSERT INTO yfc_sellers (
                 company_name, contact_name, email, phone, 
                 address, city, state, zip, website, 
@@ -126,7 +141,7 @@ class SellerRepository implements SellerRepositoryInterface
             )';
             
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($data);
+            $stmt->execute($dbData);
             
             $data['id'] = (int)$this->pdo->lastInsertId();
             return Seller::fromArray($data);

@@ -4,7 +4,7 @@ namespace YFEvents\Modules\YFAuth\Models;
 use PDO;
 
 class RoleModel extends BaseModel {
-    protected $table = 'yfa_roles';
+    protected $table = 'yfa_auth_roles';
     protected $fillable = ['name', 'display_name', 'description', 'is_system'];
     
     /**
@@ -18,8 +18,8 @@ class RoleModel extends BaseModel {
      * Get role permissions
      */
     public function getPermissions($roleId) {
-        $sql = "SELECT p.* FROM yfa_permissions p
-                JOIN yfa_role_permissions rp ON p.id = rp.permission_id
+        $sql = "SELECT p.* FROM yfa_auth_permissions p
+                JOIN yfa_auth_role_permissions rp ON p.id = rp.permission_id
                 WHERE rp.role_id = ?
                 ORDER BY p.module, p.name";
         
@@ -32,7 +32,7 @@ class RoleModel extends BaseModel {
      * Assign permission to role
      */
     public function assignPermission($roleId, $permissionId) {
-        $sql = "INSERT IGNORE INTO yfa_role_permissions (role_id, permission_id) VALUES (?, ?)";
+        $sql = "INSERT IGNORE INTO yfa_auth_role_permissions (role_id, permission_id) VALUES (?, ?)";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$roleId, $permissionId]);
     }
@@ -41,7 +41,7 @@ class RoleModel extends BaseModel {
      * Remove permission from role
      */
     public function removePermission($roleId, $permissionId) {
-        $sql = "DELETE FROM yfa_role_permissions WHERE role_id = ? AND permission_id = ?";
+        $sql = "DELETE FROM yfa_auth_role_permissions WHERE role_id = ? AND permission_id = ?";
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$roleId, $permissionId]);
     }
@@ -54,13 +54,13 @@ class RoleModel extends BaseModel {
         
         try {
             // Remove all existing permissions
-            $sql = "DELETE FROM yfa_role_permissions WHERE role_id = ?";
+            $sql = "DELETE FROM yfa_auth_role_permissions WHERE role_id = ?";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([$roleId]);
             
             // Add new permissions
             if (!empty($permissionIds)) {
-                $sql = "INSERT INTO yfa_role_permissions (role_id, permission_id) VALUES ";
+                $sql = "INSERT INTO yfa_auth_role_permissions (role_id, permission_id) VALUES ";
                 $values = [];
                 $params = [];
                 
@@ -88,8 +88,8 @@ class RoleModel extends BaseModel {
      * Get role users
      */
     public function getUsers($roleId) {
-        $sql = "SELECT u.* FROM yfa_users u
-                JOIN yfa_user_roles ur ON u.id = ur.user_id
+        $sql = "SELECT u.* FROM yfa_auth_users u
+                JOIN yfa_auth_user_roles ur ON u.id = ur.user_id
                 WHERE ur.role_id = ?
                 ORDER BY u.created_at DESC";
         
@@ -102,7 +102,7 @@ class RoleModel extends BaseModel {
      * Count users in role
      */
     public function getUserCount($roleId) {
-        $sql = "SELECT COUNT(*) FROM yfa_user_roles WHERE role_id = ?";
+        $sql = "SELECT COUNT(*) FROM yfa_auth_user_roles WHERE role_id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$roleId]);
         return $stmt->fetchColumn();
@@ -129,7 +129,7 @@ class RoleModel extends BaseModel {
     public function getAllWithCounts() {
         $sql = "SELECT r.*, COUNT(ur.user_id) as user_count
                 FROM {$this->table} r
-                LEFT JOIN yfa_user_roles ur ON r.id = ur.role_id
+                LEFT JOIN yfa_auth_user_roles ur ON r.id = ur.role_id
                 GROUP BY r.id
                 ORDER BY r.id";
         

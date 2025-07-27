@@ -14,7 +14,7 @@ class LoginAttemptModel extends BaseModel {
         return $this->create([
             'email' => $email,
             'ip_address' => $ipAddress,
-            'success' => $success
+            'success' => $success ? 1 : 0
         ]);
     }
     

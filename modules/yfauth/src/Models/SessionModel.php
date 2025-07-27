@@ -4,7 +4,7 @@ namespace YFEvents\Modules\YFAuth\Models;
 use PDO;
 
 class SessionModel extends BaseModel {
-    protected $table = 'yfa_sessions';
+    protected $table = 'yfa_auth_sessions';
     protected $fillable = ['id', 'user_id', 'ip_address', 'user_agent', 'payload', 'last_activity', 'expires_at'];
     
     /**
@@ -20,7 +20,7 @@ class SessionModel extends BaseModel {
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
             'payload' => json_encode([]),
-            'last_activity' => time(),
+            'last_activity' => date('Y-m-d H:i:s'),
             'expires_at' => $expiresAt
         ];
         
@@ -55,7 +55,7 @@ class SessionModel extends BaseModel {
      * Update session activity
      */
     public function updateActivity($sessionId, $payload = null) {
-        $data = ['last_activity' => time()];
+        $data = ['last_activity' => date('Y-m-d H:i:s')];
         
         if ($payload !== null) {
             $data['payload'] = json_encode($payload);
