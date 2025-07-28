@@ -36,6 +36,7 @@ DB_PASSWORD=""
 ADMIN_EMAIL=""
 GOOGLE_MAPS_API_KEY=""
 DEPLOY_USER="yfevents"
+FRESH_DB=false
 DEPLOY_DIR="/var/www/yfevents"
 REPO_URL="git@github.com:AndrewSmigaj/YFEventsCopy.git"
 REPO_BRANCH="main"
@@ -576,6 +577,57 @@ install_database_schemas() {
     
     cd "$DEPLOY_DIR"
     
+    # Check if database already has tables
+    local table_count=$(mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$DB_NAME';" -s -N 2>/dev/null || echo "0")
+    
+    if [[ $table_count -gt 0 ]]; then
+        print_warning "Database already contains $table_count tables"
+        
+        if [[ "$FRESH_DB" == "true" ]]; then
+            print_info "Fresh database flag set, dropping all tables..."
+            choice=1
+        else
+            print_info "Options:"
+            print_info "1. Drop all tables and reinstall (data will be lost)"
+            print_info "2. Skip database schema installation"
+            print_info "3. Exit"
+            
+            read -p "Choose option [1-3]: " choice
+        fi
+        
+        case $choice in
+            1)
+                print_warning "Dropping all tables in database $DB_NAME..."
+                mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" <<-'EOSQL'
+                    SET FOREIGN_KEY_CHECKS = 0;
+                    SET @tables = NULL;
+                    SELECT GROUP_CONCAT('`', table_name, '`') INTO @tables
+                    FROM information_schema.tables
+                    WHERE table_schema = DATABASE();
+                    SET @tables = CONCAT('DROP TABLE IF EXISTS ', @tables);
+                    PREPARE stmt FROM @tables;
+                    EXECUTE stmt;
+                    DEALLOCATE PREPARE stmt;
+                    SET FOREIGN_KEY_CHECKS = 1;
+EOSQL
+                print_success "All tables dropped"
+                ;;
+            2)
+                print_info "Skipping database schema installation"
+                save_state "install_database_schemas" "completed"
+                return 0
+                ;;
+            3)
+                print_info "Exiting..."
+                exit 0
+                ;;
+            *)
+                print_error "Invalid choice"
+                return 4
+                ;;
+        esac
+    fi
+    
     # Core schemas (required)
     local core_schemas=(
         "database/calendar_schema.sql"
@@ -881,6 +933,10 @@ parse_arguments() {
                 REPO_BRANCH="$2"
                 shift 2
                 ;;
+            --fresh-db)
+                FRESH_DB=true
+                shift
+                ;;
             *)
                 print_error "Unknown option: $1"
                 show_help
@@ -902,6 +958,7 @@ Options:
     --domain DOMAIN     Set domain name (otherwise prompted)
     --repo URL          Set repository URL (default: $REPO_URL)
     --branch BRANCH     Set repository branch (default: $REPO_BRANCH)
+    --fresh-db          Drop existing database tables without prompting
 
 Example:
     sudo $0 --domain example.com
