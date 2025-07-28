@@ -277,7 +277,6 @@ install_php() {
         "php${PHP_VERSION}-fpm"
         "php${PHP_VERSION}-mysql"
         "php${PHP_VERSION}-curl"
-        "php${PHP_VERSION}-json"
         "php${PHP_VERSION}-mbstring"
         "php${PHP_VERSION}-xml"
         "php${PHP_VERSION}-zip"
