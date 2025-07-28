@@ -1,0 +1,222 @@
+name: script_structure_planner
+category: planning
+targets_uncertainties: ["IMPL-001", "IMPL-002"]
+
+template: |
+  # Script Structure Planning
+  
+  I need to plan the detailed structure and function organization for our deployment script.
+  
+  **Task Context**: {{task.description}}
+  **Current Phase**: {{current_phase}}
+  **Architecture Decisions**: Single Bash script (yfevents-deploy.sh)
+  
+  ## Context from Architecture
+  
+  From our deployment_architect discoveries:
+  - Single-file Bash script approach
+  - Interactive prompts for configuration
+  - Fail-fast error handling
+  - Colored output with progress indicators
+  - 14 deployment steps identified
+  
+  ## Planning Goals
+  
+  Based on the deployment steps and our context, I need to plan:
+  
+  1. **Function Organization**
+     - Group related functions logically
+     - Name functions clearly and consistently
+     - Define parameter patterns
+     - Plan return value conventions
+  
+  2. **Execution Flow**
+     - Main entry point structure
+     - Step-by-step execution sequence
+     - Decision points (dry-run, help, etc.)
+     - Progress tracking approach
+  
+  3. **Integration Points**
+     - Where configuration is loaded
+     - Where validation occurs
+     - Where logging happens
+     - Where errors are handled
+  
+  4. **Code Standards**
+     - Variable naming (UPPER_CASE globals, lower_case locals)
+     - Function naming (verb_noun pattern)
+     - Error codes (meaningful exit codes)
+     - Output formatting (colors, prefixes)
+  
+  ## Deployment Steps to Functions Mapping
+  
+  Our 14 deployment steps need specific functions:
+  1. Pre-flight checks → validate_system()
+  2. System updates → update_system()
+  3. User creation → create_deployment_user()
+  4. Apache installation → install_apache()
+  5. PHP installation → install_php()
+  6. MySQL installation → install_mysql()
+  7. Git installation → install_git()
+  8. Composer installation → install_composer()
+  9. Firewall setup → configure_firewall()
+  10. Code deployment → deploy_application()
+  11. Dependencies → install_dependencies()
+  12. Configuration → configure_application()
+  13. Permissions → set_permissions()
+  14. SSL setup → configure_ssl()
+  
+  ## Script Blueprint
+  
+  ```bash
+  #!/bin/bash
+  # yfevents-deploy.sh - Deploy application to Ubuntu server
+  
+  # === GLOBALS ===
+  SCRIPT_VERSION="1.0.0"
+  DEPLOY_USER="yfevents"
+  APP_DIR="/var/www/yfevents"
+  [other globals]
+  
+  # === UTILITIES ===
+  print_header() { }
+  print_success() { }
+  print_error() { }
+  confirm_action() { }
+  check_command() { }
+  
+  # === VALIDATION ===
+  validate_system() { }
+  check_ubuntu_version() { }
+  check_root_access() { }
+  check_internet() { }
+  
+  # === INSTALLATION ===
+  update_system() { }
+  install_apache() { }
+  install_php() { }
+  install_mysql() { }
+  install_git() { }
+  install_composer() { }
+  
+  # === CONFIGURATION ===
+  create_deployment_user() { }
+  configure_firewall() { }
+  configure_apache_vhost() { }
+  configure_php() { }
+  setup_mysql_database() { }
+  
+  # === DEPLOYMENT ===
+  deploy_application() { }
+  install_dependencies() { }
+  configure_application() { }
+  set_permissions() { }
+  configure_ssl() { }
+  
+  # === MAIN ===
+  parse_arguments() { }
+  show_summary() { }
+  main() { }
+  
+  # Entry point
+  main "$@"
+  ```
+  
+  ### SCRIPT_STRUCTURE
+  ```json
+  {
+    "design": {
+      "script_structure": {
+        "organization": {
+          "total_lines_estimate": 800,
+          "function_count": 25,
+          "sections": [
+            "Header and Documentation",
+            "Global Variables",
+            "Utility Functions",
+            "Validation Functions", 
+            "Installation Functions",
+            "Configuration Functions",
+            "Deployment Functions",
+            "Main Logic"
+          ]
+        },
+        "functions": {
+          "utilities": [
+            "print_header",
+            "print_success",
+            "print_error", 
+            "print_warning",
+            "confirm_action",
+            "check_command"
+          ],
+          "validation": [
+            "validate_system",
+            "check_ubuntu_version",
+            "check_root_access",
+            "check_internet"
+          ],
+          "installation": [
+            "update_system",
+            "install_apache",
+            "install_php",
+            "install_mysql",
+            "install_git",
+            "install_composer"
+          ],
+          "configuration": [
+            "create_deployment_user",
+            "configure_firewall",
+            "configure_apache_vhost",
+            "configure_php",
+            "setup_mysql_database"
+          ],
+          "deployment": [
+            "deploy_application",
+            "install_dependencies",
+            "configure_application",
+            "set_permissions",
+            "configure_ssl"
+          ],
+          "main": [
+            "parse_arguments",
+            "show_summary",
+            "main"
+          ]
+        },
+        "execution_flow": {
+          "entry": "main function processes arguments",
+          "sequence": [
+            "Parse command line arguments",
+            "Show deployment summary",
+            "Run pre-flight validation",
+            "Execute installation steps",
+            "Configure services",
+            "Deploy application",
+            "Final validation"
+          ],
+          "exit_codes": {
+            "0": "Success",
+            "1": "General error",
+            "2": "Validation failed",
+            "3": "Installation failed",
+            "4": "Configuration failed",
+            "5": "Deployment failed"
+          }
+        },
+        "standards": {
+          "functions": "verb_noun naming (install_apache, configure_firewall)",
+          "variables": "UPPER_CASE for globals, lower_case for locals",
+          "parameters": "Positional for required, flags for optional",
+          "returns": "0 for success, non-zero for failure",
+          "output": "Colored prefixes ([✓], [✗], [!], [?])"
+        }
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  Based on this structure planning:
+  - IMPL-001: Partially resolved - have function structure
+  - IMPL-002: Partially resolved - have execution flow

@@ -1,0 +1,92 @@
+name: chain_selection_validator
+category: discovery
+targets_uncertainties: ["CHAIN-002"]
+
+template: |
+  # Chain Selection Validation
+  
+  Before proceeding, let me validate this chain selection makes sense.
+  
+  **Task**: {{task.description}}
+  **Intent**: {{intent_summary.primary_intent}}
+  **Selected Chain**: {{selected_chain.name}}
+  **Match Score**: {{match_score}}/100
+  
+  ## Sanity Check Questions
+  
+  ### 1. The Obvious Test
+  
+  Reading the task again: "{{task.description}}"
+  
+  We're about to run: {{selected_chain.name}} - {{selected_chain.description}}
+  
+  **Does this make obvious sense?**
+  [Step back and think: would a developer reading this think we're doing the right thing?]
+  
+  ### 2. The Outcome Test
+  
+  **What the user wants**: 
+  [Restate in simple terms what outcome the user expects]
+  
+  **What this chain produces**:
+  [What will we have after running this chain]
+  
+  **Do these align?** [YES/NO]
+  
+  ### 3. Common Mismatch Patterns
+  
+  Check for these red flags:
+  
+  - [ ] **Design/Create chain for validation task**: User wants to check/ensure something exists correctly, but chain creates new designs
+  - [ ] **Validation chain for creation task**: User wants to build something new, but chain only validates existing things  
+  - [ ] **Wrong domain**: Chain is for different technology/domain than the task
+  - [ ] **Wrong phase**: Chain targets different phase than we're in
+  - [ ] **Too generic**: Chain is too broad for specific task needs
+  - [ ] **Too specific**: Chain is too narrow and will miss important aspects
+  
+  ### 4. The "What Would Help More" Test
+  
+  Instead of {{selected_chain.name}}, would any of these be better?
+  
+  - **Direct analysis**: Just analyze the code without a chain
+  - **Custom prompts**: Create specific prompts for this exact need
+  - **Different chain**: [Suggest specific alternative if applicable]
+  - **Multiple chains**: Run several chains in sequence
+  
+  ### 5. Risk Assessment
+  
+  **If we proceed with {{selected_chain.name}}**:
+  
+  Likely outcomes:
+  - BEST case: [what happens if it works perfectly]
+  - LIKELY case: [realistic expectation]
+  - WORST case: [what could go wrong]
+  
+  **Risk level**: [LOW/MEDIUM/HIGH]
+  
+  ## VALIDATION_RESULT
+  
+  ```json
+  {
+    "chain": "{{selected_chain.name}}",
+    "validation_passed": [true/false],
+    "confidence": "[HIGH/MEDIUM/LOW]",
+    "concerns": ["concern1", "concern2"],
+    "recommendation": "[PROCEED/RECONSIDER/ABORT]",
+    "alternative_suggestion": "[alternative approach if needed]",
+    "reasoning": "[brief explanation of decision]"
+  }
+  ```
+  
+  ## Final Recommendation
+  
+  [Clear statement about whether to proceed or choose different approach]
+  
+  If PROCEED:
+  "✅ This chain aligns well with the task intent. Proceed with {{selected_chain.name}}."
+  
+  If RECONSIDER:
+  "⚠️ This chain might work but consider these alternatives: [list]"
+  
+  If ABORT:
+  "❌ This chain doesn't match the task needs. Instead, try: [specific alternative]"

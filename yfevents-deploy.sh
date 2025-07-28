@@ -660,6 +660,13 @@ deploy_application() {
         fi
     fi
     
+    # Fix git ownership warning
+    git config --global --add safe.directory "$DEPLOY_DIR" >> "$LOG_FILE" 2>&1
+    
+    # Set correct ownership immediately after cloning
+    print_info "Setting initial ownership..."
+    chown -R "$DEPLOY_USER:www-data" "$DEPLOY_DIR"
+    
     save_state "deploy_application" "completed"
     print_success "Application deployed from repository"
 }

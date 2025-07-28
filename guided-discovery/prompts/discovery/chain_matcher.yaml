@@ -1,0 +1,102 @@
+name: chain_matcher
+category: discovery  
+targets_uncertainties: ["CHAIN-001"]
+
+template: |
+  # Chain-Task Match Analysis
+  
+  I need to evaluate if this discovery chain matches the task intent.
+  
+  **Task**: {{task.description}}
+  **Task Intent**: {{intent_summary.primary_intent}}
+  **Chain**: {{chain.name}}
+  **Chain Description**: {{chain.description}}
+  
+  ## Match Evaluation
+  
+  ### What the Task Needs
+  
+  Based on intent analysis:
+  - Primary goal: {{intent_summary.primary_intent}}
+  - Success looks like: {{intent_summary.success_criteria}}
+  - Needs chains that: {{intent_summary.chain_characteristics_needed}}
+  
+  ### What the Chain Provides
+  
+  Chain: **{{chain.name}}**
+  - Purpose: {{chain.description}}
+  - Optimal for: {{chain.optimal_for}}
+  - Targets uncertainties: {{chain.targets_uncertainties}}
+  - Phase: {{chain.targets_phase}}
+  
+  ### Critical Questions
+  
+  1. **Intent Alignment**
+     - Does "{{chain.description}}" align with {{intent_summary.primary_intent}} intent?
+     - Answer: [YES/NO/PARTIAL] because [explanation]
+  
+  2. **Outcome Match**  
+     - Will running this chain help achieve: "{{task.description}}"?
+     - Answer: [YES/NO/PARTIAL] because [explanation]
+  
+  3. **Uncertainty Resolution**
+     - Task uncertainties: {{task_uncertainties}}
+     - Chain targets: {{chain.targets_uncertainties}}
+     - Overlap assessment: [STRONG/MODERATE/WEAK/NONE]
+  
+  4. **Phase Appropriateness**
+     - Current phase: {{current_phase}}
+     - Chain targets phase: {{chain.targets_phase}}
+     - Match: [APPROPRIATE/MISALIGNED]
+  
+  ### Specific Analysis
+  
+  For a {{intent_summary.primary_intent}} task:
+  
+  **If VALIDATION intent + {{chain.name}} chain**:
+  [Explain if a validation task should use this chain]
+  
+  **If CREATION intent + {{chain.name}} chain**:
+  [Explain if a creation task should use this chain]
+  
+  **Red Flags**:
+  - [ ] Chain creates/designs when task needs validation
+  - [ ] Chain validates when task needs creation
+  - [ ] Chain analyzes wrong phase (discovery vs implementation)
+  - [ ] Chain targets different problem domain
+  
+  ### Alternative Consideration
+  
+  If this chain is a poor match, better alternatives might be:
+  - [Alternative 1]: Because it [reason]
+  - [Alternative 2]: Because it [reason]
+  - Custom chain with prompts: [prompt1, prompt2] targeting [specific need]
+  
+  ## MATCH_SCORE
+  
+  **Overall Match Score**: [0-100]
+  
+  Breakdown:
+  - Intent alignment: [0-25] points
+  - Outcome match: [0-25] points  
+  - Uncertainty targeting: [0-25] points
+  - Phase appropriateness: [0-25] points
+  
+  **Recommendation**:
+  - 80-100: EXCELLENT match - proceed with confidence
+  - 60-79: GOOD match - should work with minor gaps
+  - 40-59: QUESTIONABLE - consider alternatives
+  - 0-39: POOR match - do not use, find better chain
+  
+  ## MATCH_SUMMARY
+  ```json
+  {
+    "chain": "{{chain.name}}",
+    "match_score": [score],
+    "intent_aligned": [true/false],
+    "will_achieve_goal": [true/false],
+    "recommendation": "[USE/CONSIDER/AVOID]",
+    "reasoning": "[one-line explanation]",
+    "better_alternatives": ["chain1", "chain2"] 
+  }
+  ```

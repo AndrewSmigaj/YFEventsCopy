@@ -112,12 +112,153 @@
       "error_handling": {
         "strategy": "fail-fast with clear messages",
         "rollback": "manual with documented steps",
-        "logging": "detailed log file with timestamps"
+        "logging": "detailed log file with timestamps",
+        "detection": {
+          "methods": [
+            "Function return codes",
+            "Command exit status checks",
+            "Output validation",
+            "File/service existence checks"
+          ],
+          "error_types": {
+            "fatal": ["System requirements not met", "Critical service failures"],
+            "recoverable": ["Network timeouts", "Package conflicts"],
+            "warnings": ["Optional features unavailable", "Performance concerns"]
+          }
+        },
+        "recovery": {
+          "retry_policy": {
+            "network_operations": "3 attempts with exponential backoff",
+            "package_installation": "2 attempts with cleanup between",
+            "service_start": "2 attempts with 5 second delay"
+          },
+          "partial_success": {
+            "tracking": "State file at /tmp/deploy_state.json",
+            "resume": "Skip completed steps on retry",
+            "cleanup": "Remove incomplete installations"
+          }
+        },
+        "rollback_procedures": {
+          "automatic": [
+            "Revert configuration files from backups",
+            "Remove created users/groups",
+            "Undo firewall changes"
+          ],
+          "manual": [
+            "Database changes",
+            "Deployed application code",
+            "SSL certificates"
+          ],
+          "procedures": {
+            "config_rollback": "cp /tmp/backup/* /original/location/",
+            "service_rollback": "systemctl stop service && apt remove package",
+            "firewall_rollback": "ufw --force reset && ufw enable"
+          }
+        },
+        "logging_details": {
+          "location": "/var/log/yfevents-deploy.log",
+          "structure": "[timestamp] [level] [function] message",
+          "levels": ["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"],
+          "rotation": "New file per deployment run",
+          "debug_mode": "Verbose output with set -x"
+        },
+        "user_guidance": {
+          "error_messages": "Clear description + suggested fix",
+          "progress_tracking": "Step X of Y format",
+          "failure_summary": "What failed + how to fix + how to retry",
+          "support_info": "Log location + common issues FAQ"
+        }
       },
       "user_experience": {
         "interaction": "interactive prompts for required values",
         "feedback": "colored output with progress indicators",
         "documentation": "inline help with --help flag"
+      },
+      "script_structure": {
+        "organization": {
+          "total_lines_estimate": 800,
+          "function_count": 25,
+          "sections": [
+            "Header and Documentation",
+            "Global Variables",
+            "Utility Functions",
+            "Validation Functions", 
+            "Installation Functions",
+            "Configuration Functions",
+            "Deployment Functions",
+            "Main Logic"
+          ]
+        },
+        "functions": {
+          "utilities": [
+            "print_header",
+            "print_success",
+            "print_error", 
+            "print_warning",
+            "confirm_action",
+            "check_command"
+          ],
+          "validation": [
+            "validate_system",
+            "check_ubuntu_version",
+            "check_root_access",
+            "check_internet"
+          ],
+          "installation": [
+            "update_system",
+            "install_apache",
+            "install_php",
+            "install_mysql",
+            "install_git",
+            "install_composer"
+          ],
+          "configuration": [
+            "create_deployment_user",
+            "configure_firewall",
+            "configure_apache_vhost",
+            "configure_php",
+            "setup_mysql_database"
+          ],
+          "deployment": [
+            "deploy_application",
+            "install_dependencies",
+            "configure_application",
+            "set_permissions",
+            "configure_ssl"
+          ],
+          "main": [
+            "parse_arguments",
+            "show_summary",
+            "main"
+          ]
+        },
+        "execution_flow": {
+          "entry": "main function processes arguments",
+          "sequence": [
+            "Parse command line arguments",
+            "Show deployment summary",
+            "Run pre-flight validation",
+            "Execute installation steps",
+            "Configure services",
+            "Deploy application",
+            "Final validation"
+          ],
+          "exit_codes": {
+            "0": "Success",
+            "1": "General error",
+            "2": "Validation failed",
+            "3": "Installation failed",
+            "4": "Configuration failed",
+            "5": "Deployment failed"
+          }
+        },
+        "standards": {
+          "functions": "verb_noun naming (install_apache, configure_firewall)",
+          "variables": "UPPER_CASE for globals, lower_case for locals",
+          "parameters": "Positional for required, flags for optional",
+          "returns": "0 for success, non-zero for failure",
+          "output": "Colored prefixes ([✓], [✗], [!], [?])"
+        }
       }
     },
     "infrastructure": {
@@ -183,9 +324,9 @@
     {
       "chain": "deployment_design",
       "started_at": "2025-07-27T19:00:00",
-      "completed_at": null,
-      "prompts_executed": ["deployment_architect"],
-      "outcome": "in_progress"
+      "completed_at": "2025-07-27T20:30:00",
+      "prompts_executed": ["deployment_architect", "script_structure_planner", "error_handler_designer"],
+      "outcome": "completed"
     }
   ],
   "chain_progress": {
@@ -196,16 +337,16 @@
       "skipped": ["performance_profiler"]
     },
     "deployment_design": {
-      "status": "in_progress",
-      "completed": ["deployment_architect"],
-      "remaining": ["script_structure_planner", "error_handler_designer"],
-      "skipped": []
+      "status": "completed",
+      "completed": ["deployment_architect", "script_structure_planner", "error_handler_designer"],
+      "remaining": [],
+      "skipped": ["configuration_manager_designer", "testing_strategy_planner"]
     }
   },
   "confidence": {
     "requirements": 95.0,
     "technical": 98.0,
-    "implementation": 92.0,
-    "overall": 95.0
+    "implementation": 97.0,
+    "overall": 98.0
   }
 }

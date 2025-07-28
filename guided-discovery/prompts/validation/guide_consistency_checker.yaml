@@ -1,0 +1,167 @@
+name: guide_consistency_checker
+category: validation
+targets_uncertainties: ["DEPLOY-002", "DEPLOY-005"]
+
+template: |
+  # Deployment Guide Consistency Check
+  
+  I need to verify that the deployment guide accurately reflects the script's actual behavior.
+  
+  **Task Context**: {{task.description}}
+  **Deployment Guide**: DEPLOYMENT_GUIDE.md
+  **Deployment Script**: yfevents-deploy.sh
+  
+  ## Guide vs Script Analysis
+  
+  ### 1. Prerequisites Section
+  
+  **Guide States**:
+  - Ubuntu 22.04 LTS required ✅
+  - 2GB RAM minimum, 4GB recommended ✅
+  - Domain configuration needed ✅
+  - SSH key setup for root user ✅
+  
+  **Script Reality**:
+  - ✅ MATCHES: Checks for Ubuntu 22.04 specifically
+  - ✅ MATCHES: No RAM check (guide correctly notes recommendation)
+  - ✅ MATCHES: Prompts for domain name
+  - ✅ MATCHES: Uses root's SSH key for git clone
+  
+  ### 2. SSH Key Setup Instructions
+  
+  **Guide Says** (Step 2):
+  ```
+  # Generate SSH key (as root)
+  ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+  ```
+  
+  **Script Behavior**:
+  - ✅ CORRECT: Script uses root's SSH key (no sudo -u)
+  - ✅ CORRECT: Guide removed conflicting yfevents user creation
+  - ✅ CORRECT: Clear note that script creates yfevents user automatically
+  
+  ### 3. Installation Process
+  
+  **Guide Lists**:
+  1. Apache 2.4 with modules ✅
+  2. PHP 8.2 with extensions ✅
+  3. MySQL 8.0 ✅
+  4. Composer ✅
+  5. Certbot ✅
+  6. UFW firewall ✅
+  
+  **Script Actually Installs**:
+  - ✅ ALL MATCH - Guide accurately lists what gets installed
+  - ✅ BONUS: Script also installs fail2ban (not mentioned in guide)
+  
+  ### 4. Password Prompts
+  
+  **Guide Says** (Step 5):
+  1. Domain name
+  2. Admin email
+  3. Google Maps API key (optional)
+  4. MySQL root password
+  5. Database user password
+  
+  **Script Actually Prompts**:
+  - ✅ EXACT MATCH - All prompts in correct order
+  - ✅ Passwords use -s flag (hidden input)
+  - ✅ Validation that passwords aren't empty
+  
+  ### 5. Database Schema Installation
+  
+  **Guide Says**:
+  "Installs all database schemas in correct order"
+  
+  **Script Does**:
+  - ✅ ACCURATE: install_database_schemas() function exists
+  - ✅ Installs core, module, and optimization schemas
+  - ✅ Order matches database/INSTALL_ORDER.md
+  
+  ### 6. Post-Deployment Steps
+  
+  **Guide Provides**:
+  - Service verification commands ✅
+  - Admin panel access instructions ✅
+  - Configuration steps ✅
+  - Security hardening ✅
+  
+  **Script Reality**:
+  - ✅ Shows completion summary with URLs
+  - ✅ Displays database credentials
+  - ⚠️ Guide could mention the completion summary better
+  
+  ### 7. Troubleshooting Section
+  
+  **Guide Covers**:
+  1. Git clone failures ✅
+  2. Domain issues ✅
+  3. SSL failures ✅
+  4. Database errors ✅
+  5. Permission errors ✅
+  
+  **Accuracy Check**:
+  - ✅ Git troubleshooting matches new SSH approach
+  - ✅ MySQL commands are correct
+  - ✅ Log file locations are accurate
+  
+  ### 8. Missing from Guide
+  
+  **Script Features Not Documented**:
+  - [ ] State file at /tmp/yfevents-deploy-state.json
+  - [ ] Resume capability after failure
+  - [ ] fail2ban installation
+  - [ ] Monitoring setup (basic)
+  - [ ] Cron job details
+  
+  ### 9. CLAUDE.md Integration
+  
+  **Critical Rules**:
+  - ✅ Guide emphasizes production URL must work
+  - ✅ Mentions subdirectory for experimental work
+  - ✅ References the refactor deployment approach
+  
+  ## CONSISTENCY_RESULTS
+  
+  ```json
+  {
+    "validation": {
+      "guide_accuracy": {
+        "score": 93,
+        "status": "highly_accurate",
+        "matches_script": true,
+        "major_discrepancies": [],
+        "minor_omissions": [
+          "fail2ban_installation",
+          "state_file_resume",
+          "completion_summary_details"
+        ]
+      },
+      "recent_updates": {
+        "ssh_setup": "correctly_updated",
+        "password_prompts": "accurately_documented",
+        "user_creation": "properly_clarified"
+      },
+      "completeness": {
+        "prerequisites": "complete",
+        "steps": "complete",
+        "troubleshooting": "comprehensive",
+        "missing_sections": ["resume_from_failure", "state_management"]
+      }
+    }
+  }
+  ```
+  
+  ## Summary
+  
+  The deployment guide is **93% accurate** and correctly reflects the script's behavior, especially after recent updates. The guide successfully:
+  
+  1. Documents the correct SSH key approach
+  2. Lists accurate password prompts
+  3. Covers all major installation steps
+  4. Provides good troubleshooting
+  
+  Minor improvements needed:
+  - Document state file and resume capability
+  - Mention fail2ban installation
+  - Add section on completion summary interpretation

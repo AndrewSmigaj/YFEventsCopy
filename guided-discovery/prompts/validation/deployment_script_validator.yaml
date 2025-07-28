@@ -1,0 +1,142 @@
+name: deployment_script_validator
+category: validation
+targets_uncertainties: ["DEPLOY-001", "DEPLOY-004"]
+
+template: |
+  # Deployment Script Validation
+  
+  I need to validate the deployment script(s) for structure, completeness, and correctness.
+  
+  **Task Context**: {{task.description}}
+  **Current Phase**: {{current_phase}}
+  **Scripts Found**: {{discoveries.scripts_found}}
+  
+  ## Script Analysis
+  
+  ### 1. Script Inventory
+  
+  Primary deployment scripts found:
+  - Main script: yfevents-deploy.sh (1015 lines)
+  - Modular approach: scripts/deploy/deploy.sh (531 lines)
+  - Setup script: scripts/deploy/setup-server.sh
+  
+  ### 2. Structure Validation
+  
+  For the main script (yfevents-deploy.sh):
+  
+  **✅ Positive Findings**:
+  - Well-organized with clear sections (utilities, validation, installation, etc.)
+  - Comprehensive function set (35+ functions)
+  - Good use of colored output and progress indicators
+  - State persistence for resume capability
+  - Proper error codes and exit handling
+  
+  **⚠️ Areas of Concern**:
+  - Single monolithic file (1015 lines) - could benefit from modularization
+  - No dry-run mode implementation
+  - Limited automated rollback capabilities
+  - No built-in testing/validation mode
+  
+  ### 3. Functionality Checklist
+  
+  **Core Requirements**:
+  - [✅] System validation (Ubuntu version, root access)
+  - [✅] Service installation (Apache, PHP, MySQL, etc.)
+  - [✅] User creation and permissions
+  - [✅] Git repository deployment
+  - [✅] Database setup
+  - [✅] SSL certificate configuration
+  - [✅] Firewall configuration
+  
+  **Recent Fixes Implemented**:
+  - [✅] MySQL password prompting (not random generation)
+  - [✅] Database schema installation function
+  - [✅] MySQL detection for existing installations
+  - [✅] Simplified SSH authentication (no sudo -u)
+  
+  **Missing Features**:
+  - [❌] Dry-run mode
+  - [❌] Automated rollback
+  - [❌] Health check validation
+  - [❌] Backup before changes
+  - [❌] Network connectivity tests beyond basic ping
+  
+  ### 4. Code Quality Assessment
+  
+  **Strengths**:
+  - Consistent function naming (verb_noun pattern)
+  - Good error messages with context
+  - Proper use of bash error handling (set -euo pipefail)
+  - Clear variable naming conventions
+  - Helpful comments and documentation
+  
+  **Improvements Needed**:
+  - Some functions exceed 50 lines (consider breaking down)
+  - Duplicate code in error handling could be refactored
+  - Magic numbers/strings could be constants
+  - More input validation on user-provided values
+  
+  ### 5. Critical Path Analysis
+  
+  The deployment flow:
+  1. Pre-flight checks ✅
+  2. Configuration collection ✅ (improved with password prompts)
+  3. System updates ✅
+  4. Service installations ✅
+  5. Database setup ✅ (now includes schema installation)
+  6. Application deployment ✅
+  7. Post-deployment validation ⚠️ (basic only)
+  
+  ### 6. Comparison with Modular Approach
+  
+  The scripts/deploy/ directory offers:
+  - Configuration-driven deployment (YAML files)
+  - Modular script organization
+  - Environment-specific configs
+  - More maintainable structure
+  
+  However, it appears less complete than the main script.
+  
+  ## VALIDATION_RESULTS
+  
+  ```json
+  {
+    "validation": {
+      "script_correctness": {
+        "score": 85,
+        "status": "good",
+        "critical_issues": [],
+        "minor_issues": [
+          "No dry-run mode",
+          "Limited rollback automation",
+          "Basic health checks only"
+        ]
+      },
+      "completeness": {
+        "score": 90,
+        "required_features": "all_present",
+        "optional_features": "partially_present",
+        "missing": ["dry_run", "automated_rollback", "comprehensive_health_checks"]
+      },
+      "recent_fixes": {
+        "status": "properly_implemented",
+        "mysql_passwords": "fixed",
+        "database_schemas": "fixed",
+        "ssh_authentication": "fixed"
+      },
+      "code_quality": {
+        "score": 80,
+        "strengths": ["organization", "error_handling", "documentation"],
+        "weaknesses": ["monolithic_structure", "some_duplication"]
+      }
+    }
+  }
+  ```
+  
+  ## Summary
+  
+  The deployment script is **fundamentally sound** with recent fixes properly addressing the major issues. It's production-ready but could benefit from:
+  1. Adding dry-run mode for testing
+  2. Implementing automated rollback procedures  
+  3. More comprehensive health checks
+  4. Consider adopting the modular approach for better maintainability

@@ -67,14 +67,20 @@ ssh username@your-droplet-ip
 The deployment script needs SSH access to clone the repository. You'll use the root user's SSH key.
 
 ```bash
-# Generate SSH key (as root)
+# Generate SSH key (as root) - IMPORTANT: Use the default name 'id_rsa'
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 
 # Display the public key
 cat ~/.ssh/id_rsa.pub
 
-# Test GitHub connection
+# Test GitHub connection (should see "Hi username! You've successfully authenticated...")
 ssh -T git@github.com
+
+# Note: If you use a custom key name (e.g., yfevents_deploy), you must configure SSH:
+# Create ~/.ssh/config with:
+# Host github.com
+#   IdentityFile ~/.ssh/yfevents_deploy
+#   IdentitiesOnly yes
 ```
 
 **Important**: Copy the public key output and add it to your GitHub repository:
@@ -243,20 +249,29 @@ dpkg-reconfigure -plow unattended-upgrades
 #### 1. Git Clone Failed
 - **SSH Key Issues**:
   ```bash
-  # Test SSH connection as deployment user
-  sudo -u yfevents ssh -T git@github.com
+  # Test SSH connection
+  ssh -T git@github.com
   
-  # Check SSH key exists
-  sudo ls -la /home/yfevents/.ssh/
+  # If using custom key name, check which key SSH is trying:
+  ssh -vT git@github.com 2>&1 | grep "Offering"
+  
+  # If custom key name (e.g., yfevents_deploy), create ~/.ssh/config:
+  cat > ~/.ssh/config << EOF
+  Host github.com
+    IdentityFile ~/.ssh/yfevents_deploy
+    IdentitiesOnly yes
+  EOF
+  chmod 600 ~/.ssh/config
   
   # Verify key is added to GitHub
   # Go to: https://github.com/AndrewSmigaj/YFEventsCopy/settings/keys
   ```
 
-- **Permission denied**:
+- **Permission denied (publickey)**:
   ```bash
-  # Fix SSH directory permissions
-  sudo chmod 700 /home/yfevents/.ssh
+  # Ensure SSH key has correct permissions
+  chmod 600 ~/.ssh/id_rsa
+  chmod 644 ~/.ssh/id_rsa.pub
   sudo chmod 600 /home/yfevents/.ssh/id_rsa
   sudo chmod 644 /home/yfevents/.ssh/id_rsa.pub
   sudo chown -R yfevents:yfevents /home/yfevents/.ssh

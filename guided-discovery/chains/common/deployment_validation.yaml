@@ -1,0 +1,68 @@
+name: deployment_validation
+description: Validate and review existing deployment scripts for correctness and completeness
+version: "1.0"
+type: validation
+
+metadata:
+  average_duration: 15-25 minutes
+  complexity: moderate
+
+targets_phase: discovery
+optimal_for:
+  - Validating deployment script correctness
+  - Ensuring guide accuracy
+  - Checking error handling completeness
+  - Finding edge cases and gaps
+  - Verifying security practices
+
+targets_uncertainties:
+  primary:
+    - DEPLOY-001  # Edge case handling
+    - DEPLOY-004  # Error handling adequacy
+    - DEPLOY-005  # Guide accuracy
+  secondary:
+    - DEPLOY-002  # Database schema completeness
+    - DEPLOY-003  # SSH flow correctness
+
+prompt_sequence:
+  - prompt: deployment_script_validator
+    order: 1
+    mandatory: true
+    purpose: Validate script structure, completeness, and correctness
+    
+  - prompt: edge_case_analyzer
+    order: 2
+    mandatory: true
+    purpose: Identify missing edge cases and failure scenarios
+    
+  - prompt: guide_consistency_checker
+    order: 3
+    mandatory: true
+    purpose: Verify deployment guide matches script behavior
+    
+  - prompt: security_practice_reviewer
+    order: 4
+    mandatory: false
+    purpose: Check for security best practices
+    condition: "task.description contains 'security' || uncertainties contains 'security'"
+    
+  - prompt: error_recovery_validator
+    order: 5
+    mandatory: true
+    purpose: Validate error handling and recovery mechanisms
+
+success_criteria:
+  required_discoveries:
+    - validation.script_correctness
+    - validation.edge_cases
+    - validation.guide_accuracy
+    - validation.error_handling
+  optional_discoveries:
+    - validation.security_assessment
+    - validation.performance_considerations
+
+post_execution:
+  - validation_summary
+  - issue_list
+  - improvement_recommendations
+  - risk_assessment

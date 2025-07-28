@@ -1,0 +1,174 @@
+name: error_handler_designer
+category: planning
+targets_uncertainties: ["IMPL-003", "IMPL-004"]
+
+template: |
+  # Error Handling and Rollback Design
+  
+  I need to design comprehensive error handling and rollback procedures for our deployment script.
+  
+  **Task Context**: {{task.description}}
+  **Current Phase**: {{current_phase}}
+  **Error Strategy**: {{discoveries.design.error_handling.strategy}}
+  
+  ## Context from Previous Planning
+  
+  From our architecture and structure:
+  - Fail-fast strategy with clear messages
+  - Manual rollback with documented steps
+  - Detailed logging with timestamps
+  - Exit codes 0-5 for different failure types
+  
+  ## Error Handling Goals
+  
+  Based on our deployment flow, I need to design:
+  
+  1. **Error Detection**
+     - How each function signals failure
+     - What constitutes a recoverable vs fatal error
+     - When to continue vs when to abort
+     - Error message formatting
+  
+  2. **Error Recovery**
+     - Retry mechanisms for transient failures
+     - Partial success handling
+     - State preservation for resumption
+     - Cleanup procedures
+  
+  3. **Rollback Procedures**
+     - What can be rolled back automatically
+     - Manual rollback instructions
+     - State tracking for rollback
+     - Rollback verification
+  
+  4. **Logging and Debugging**
+     - Log file structure and location
+     - Log levels and verbosity
+     - Debug mode capabilities
+     - Error context capture
+  
+  ## Function-Specific Error Handling
+  
+  For each function category:
+  
+  **Validation Functions**
+  - Non-destructive, safe to retry
+  - Clear messages about what failed
+  - Suggestions for fixing issues
+  
+  **Installation Functions**
+  - Check if already installed
+  - Handle partial installations
+  - Package manager error handling
+  
+  **Configuration Functions**
+  - Backup before changes
+  - Validate configuration syntax
+  - Test configuration before applying
+  
+  **Deployment Functions**
+  - Git operation failures
+  - Network connectivity issues
+  - Permission problems
+  
+  ## Error Handling Patterns
+  
+  ```bash
+  # Standard error handling pattern
+  function_name() {
+    local step="Description of step"
+    print_header "$step"
+    
+    # Pre-checks
+    if ! pre_check_condition; then
+      print_error "Pre-check failed: specific reason"
+      return 2
+    fi
+    
+    # Main operation with error capture
+    if ! main_operation 2>&1 | tee -a "$LOG_FILE"; then
+      print_error "Operation failed - check $LOG_FILE"
+      log_error "Detailed error context"
+      return 3
+    fi
+    
+    # Post-validation
+    if ! validate_success; then
+      print_warning "Operation completed but validation failed"
+      return 4
+    fi
+    
+    print_success "Step completed successfully"
+    return 0
+  }
+  ```
+  
+  ### ERROR_HANDLING_DESIGN
+  ```json
+  {
+    "design": {
+      "error_handling": {
+        "detection": {
+          "methods": [
+            "Function return codes",
+            "Command exit status checks",
+            "Output validation",
+            "File/service existence checks"
+          ],
+          "error_types": {
+            "fatal": ["System requirements not met", "Critical service failures"],
+            "recoverable": ["Network timeouts", "Package conflicts"],
+            "warnings": ["Optional features unavailable", "Performance concerns"]
+          }
+        },
+        "recovery": {
+          "retry_policy": {
+            "network_operations": "3 attempts with exponential backoff",
+            "package_installation": "2 attempts with cleanup between",
+            "service_start": "2 attempts with 5 second delay"
+          },
+          "partial_success": {
+            "tracking": "State file at /tmp/deploy_state.json",
+            "resume": "Skip completed steps on retry",
+            "cleanup": "Remove incomplete installations"
+          }
+        },
+        "rollback": {
+          "automatic": [
+            "Revert configuration files from backups",
+            "Remove created users/groups",
+            "Undo firewall changes"
+          ],
+          "manual": [
+            "Database changes",
+            "Deployed application code",
+            "SSL certificates"
+          ],
+          "procedures": {
+            "config_rollback": "cp /tmp/backup/* /original/location/",
+            "service_rollback": "systemctl stop service && apt remove package",
+            "firewall_rollback": "ufw --force reset && ufw enable"
+          }
+        },
+        "logging": {
+          "location": "/var/log/yfevents-deploy.log",
+          "structure": "[timestamp] [level] [function] message",
+          "levels": ["DEBUG", "INFO", "WARNING", "ERROR", "FATAL"],
+          "rotation": "New file per deployment run",
+          "debug_mode": "Verbose output with set -x"
+        },
+        "user_guidance": {
+          "error_messages": "Clear description + suggested fix",
+          "progress_tracking": "Step X of Y format",
+          "failure_summary": "What failed + how to fix + how to retry",
+          "support_info": "Log location + common issues FAQ"
+        }
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  Based on this error handling design:
+  - IMPL-003: Resolved - comprehensive error handling designed
+  - IMPL-004: Resolved - rollback procedures defined

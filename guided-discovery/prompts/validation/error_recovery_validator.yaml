@@ -1,0 +1,202 @@
+name: error_recovery_validator
+category: validation
+targets_uncertainties: ["DEPLOY-004"]
+
+template: |
+  # Error Handling and Recovery Validation
+  
+  I need to validate the error handling and recovery mechanisms in the deployment script.
+  
+  **Task Context**: {{task.description}}
+  **Script**: {{discoveries.validation.scripts_found.main}}
+  **Edge Cases Found**: {{discoveries.validation.edge_cases.critical_gaps}}
+  
+  ## Error Handling Analysis
+  
+  ### 1. Global Error Configuration
+  
+  **✅ Strong Foundation**:
+  ```bash
+  set -euo pipefail  # Line 11
+  ```
+  - `-e`: Exit on error
+  - `-u`: Exit on undefined variable
+  - `-o pipefail`: Pipe failures cause exit
+  - Trap handler: `cleanup_on_exit`
+  
+  ### 2. State Management
+  
+  **State File**: `/tmp/yfevents-deploy-state.json`
+  
+  **✅ Good Practices**:
+  - `save_state()` function tracks progress
+  - JSON format for structured data
+  - State saved before each major operation
+  
+  **❌ Weaknesses**:
+  - No state file validation
+  - No corruption detection
+  - No lock file to prevent concurrent runs
+  - State in /tmp (lost on reboot)
+  
+  ### 3. Error Reporting
+  
+  **✅ Excellent Error Messages**:
+  ```bash
+  print_error "Failed to install MySQL Server"
+  print_info "Check log file: $LOG_FILE"
+  ```
+  - Clear error descriptions
+  - Log file references
+  - Colored output for visibility
+  - Context-specific guidance
+  
+  ### 4. Function-Level Error Handling
+  
+  **Pattern Analysis**:
+  - Most functions return non-zero on failure ✅
+  - Main loop catches and exits on error ✅
+  - Consistent exit codes (1-5) ✅
+  
+  **Example - Good**:
+  ```bash
+  if ! apt-get install -y mysql-server >> "$LOG_FILE" 2>&1; then
+      print_error "Failed to install MySQL Server"
+      return 3
+  fi
+  ```
+  
+  ### 5. Recovery Mechanisms
+  
+  **✅ Partial Recovery**:
+  - State file allows resume from failure point
+  - MySQL detection prevents reinstall
+  - Repository pull vs clone logic
+  
+  **❌ Missing Recovery**:
+  - No automatic rollback procedures
+  - No cleanup of partial installations
+  - No transaction-like operations
+  - Manual intervention required
+  
+  ### 6. Critical Operations Analysis
+  
+  **Database Operations**:
+  - ⚠️ No transaction wrapping
+  - ⚠️ Schema errors could leave partial data
+  - ✅ Uses IF NOT EXISTS clauses
+  
+  **File Operations**:
+  - ⚠️ No backup before modifications
+  - ⚠️ Config file overwrites without confirmation
+  - ✅ Permission changes are explicit
+  
+  **Service Operations**:
+  - ✅ Checks service status after start
+  - ⚠️ No rollback if service fails to start
+  - ⚠️ No dependency checking
+  
+  ### 7. Rollback Capabilities
+  
+  **Current State**: MANUAL ONLY
+  
+  **Documentation Provides**:
+  ```bash
+  # Remove application files
+  sudo rm -rf /var/www/yfevents
+  # Drop database
+  mysql -u root -p -e "DROP DATABASE IF EXISTS yakima_finds;"
+  ```
+  
+  **Missing Automation**:
+  - No automatic cleanup function
+  - No restoration of original state
+  - No backup creation before changes
+  
+  ### 8. Logging and Debugging
+  
+  **✅ Comprehensive Logging**:
+  - All operations logged to `/var/log/yfevents-deploy.log`
+  - Timestamps included
+  - Both stdout and stderr captured
+  - Log file path shown on error
+  
+  **Enhancement Opportunities**:
+  - Log rotation not configured
+  - No debug mode (-x)
+  - No verbose flag for troubleshooting
+  
+  ### 9. Timeout and Retry Logic
+  
+  **Current State**: NONE
+  
+  **Missing**:
+  - No timeout on network operations
+  - No retry on transient failures
+  - No exponential backoff
+  - Could hang on network issues
+  
+  ### 10. Signal Handling
+  
+  **Basic Implementation**:
+  ```bash
+  trap cleanup_on_exit EXIT
+  ```
+  
+  **Missing**:
+  - No SIGTERM handling
+  - No SIGINT (Ctrl+C) specific handling
+  - No graceful shutdown procedures
+  
+  ## ERROR_RECOVERY_SUMMARY
+  
+  ```json
+  {
+    "validation": {
+      "error_handling": {
+        "score": 72,
+        "strengths": [
+          "set -euo pipefail",
+          "consistent_error_messages",
+          "state_persistence",
+          "comprehensive_logging"
+        ],
+        "weaknesses": [
+          "no_automatic_rollback",
+          "no_concurrent_run_protection",
+          "no_timeout_retry_logic",
+          "limited_signal_handling"
+        ]
+      },
+      "recovery_capability": {
+        "score": 45,
+        "manual_recovery": "documented",
+        "automatic_recovery": "minimal",
+        "resume_capability": "basic",
+        "rollback_capability": "none"
+      },
+      "production_readiness": {
+        "verdict": "Acceptable with careful operation",
+        "recommendation": "Add dry-run mode and lock file as minimum"
+      }
+    }
+  }
+  ```
+  
+  ## Recommendations
+  
+  ### Immediate Improvements (High Priority):
+  1. **Add lock file** to prevent concurrent execution
+  2. **Implement dry-run mode** for safe testing
+  3. **Add state file validation** to detect corruption
+  4. **Create backup function** before modifications
+  
+  ### Future Enhancements:
+  1. Automatic rollback procedures
+  2. Timeout and retry logic for network operations
+  3. Transaction-like operations for database changes
+  4. Signal handling improvements
+  
+  ## Summary
+  
+  The script has **solid basic error handling** but lacks sophisticated recovery mechanisms. It's production-ready for experienced operators who understand manual recovery procedures, but would benefit from automation improvements for general use.

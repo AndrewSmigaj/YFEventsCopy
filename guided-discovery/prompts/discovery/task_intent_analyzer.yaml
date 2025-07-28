@@ -1,0 +1,88 @@
+name: task_intent_analyzer
+category: discovery
+targets_uncertainties: ["TASK-001"]
+
+template: |
+  # Task Intent Analysis
+  
+  Before selecting discovery chains, I need to understand what the user is truly asking for.
+  
+  **Task Description**: {{task.description}}
+  **Task Type**: {{task.type}}
+  
+  ## Intent Analysis
+  
+  Let me analyze the key action words and context:
+  
+  ### Action Words Found
+  [Identify verbs and intent indicators in the task description]
+  
+  ### Primary Intent Categories
+  
+  **CREATION** (Build something new):
+  - Keywords: create, build, implement, develop, design, make, construct
+  - Example: "Create a deployment script for..."
+  - Chain types needed: design, architecture, planning chains
+  
+  **VALIDATION** (Check existing things):
+  - Keywords: ensure, validate, check, verify, test, confirm, review
+  - Example: "Ensure the deployment script is correct"
+  - Chain types needed: validation, review, testing chains
+  
+  **DEBUGGING** (Fix problems):
+  - Keywords: fix, debug, resolve, troubleshoot, solve, repair
+  - Example: "Fix the authentication issue in..."
+  - Chain types needed: debugging, analysis, root-cause chains
+  
+  **ANALYSIS** (Understand something):
+  - Keywords: analyze, understand, explore, investigate, examine, study
+  - Example: "Analyze the codebase architecture"
+  - Chain types needed: discovery, analysis, exploration chains
+  
+  **OPTIMIZATION** (Improve existing):
+  - Keywords: optimize, improve, enhance, refactor, upgrade, modernize
+  - Example: "Optimize the database queries"
+  - Chain types needed: performance, refactoring, improvement chains
+  
+  ### My Assessment
+  
+  Based on "{{task.description}}", the primary intent is:
+  
+  **[INTENT_CATEGORY]** because [explanation based on keywords and context]
+  
+  ### Secondary Intents
+  [Any additional intents detected]
+  
+  ### What Success Looks Like
+  For this intent, success means:
+  - [Specific outcome 1]
+  - [Specific outcome 2]
+  - [Specific outcome 3]
+  
+  ### Chain Selection Guidance
+  
+  For **[INTENT_CATEGORY]** tasks, I should look for chains that:
+  - [Characteristic 1 of appropriate chains]
+  - [Characteristic 2 of appropriate chains]
+  - [Characteristic 3 of appropriate chains]
+  
+  I should AVOID chains that:
+  - [What doesn't match this intent]
+  - [Common mismatches to watch for]
+  
+  ### Intent Confidence
+  
+  My confidence in this intent analysis: [HIGH/MEDIUM/LOW]
+  Reasoning: [Why I'm confident or uncertain]
+  
+  ## INTENT_SUMMARY
+  ```json
+  {
+    "primary_intent": "[VALIDATION/CREATION/DEBUGGING/ANALYSIS/OPTIMIZATION]",
+    "confidence": "[HIGH/MEDIUM/LOW]",
+    "key_indicators": ["word1", "word2", "word3"],
+    "success_criteria": ["criteria1", "criteria2"],
+    "chain_characteristics_needed": ["characteristic1", "characteristic2"],
+    "chains_to_avoid": ["chains_that_dont_match_intent"]
+  }
+  ```

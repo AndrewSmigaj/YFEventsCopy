@@ -1,0 +1,169 @@
+name: edge_case_analyzer
+category: validation
+targets_uncertainties: ["DEPLOY-001", "DEPLOY-004"]
+
+template: |
+  # Edge Case Analysis for Deployment Script
+  
+  I need to identify missing edge cases and potential failure scenarios in the deployment script.
+  
+  **Task Context**: {{task.description}}
+  **Script**: {{discoveries.validation.scripts_found.main}}
+  **Current Issues**: {{discoveries.validation.script_correctness.minor_issues}}
+  
+  ## Edge Case Analysis
+  
+  ### 1. Environment & Prerequisites
+  
+  **Handled Well** ✅:
+  - Ubuntu version check (specifically 22.04)
+  - Root/sudo access verification
+  - Internet connectivity test
+  - Port availability checks (80, 443, 3306)
+  
+  **Missing/Weak Edge Cases** ⚠️:
+  - [ ] What if running on Ubuntu 24.04 or newer?
+  - [ ] What if system has non-standard package sources?
+  - [ ] What if DNS resolution is broken?
+  - [ ] What if system clock is wrong (affects SSL certs)?
+  - [ ] What if /tmp is full or noexec mounted?
+  - [ ] What if locale is not UTF-8?
+  
+  ### 2. Network & Connectivity
+  
+  **Handled** ✅:
+  - Basic internet check via Google DNS ping
+  - Port conflict detection
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] IPv6-only environments
+  - [ ] Proxy/firewall environments
+  - [ ] GitHub SSH connection issues
+  - [ ] Package repository mirror failures
+  - [ ] Network interruption during large downloads
+  - [ ] Rate limiting from package servers
+  
+  ### 3. Service Installation
+  
+  **Handled** ✅:
+  - Existing MySQL detection
+  - Service start/enable failures
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] Partial installation from previous failed attempts
+  - [ ] Conflicting packages (e.g., nginx installed)
+  - [ ] MariaDB vs MySQL differences
+  - [ ] PHP version conflicts (if PHP 8.1 exists)
+  - [ ] Apache modules that fail to enable
+  - [ ] Disk space exhaustion during installation
+  
+  ### 4. Git/SSH Operations
+  
+  **Handled** ✅:
+  - Basic git clone with error message
+  - SSH key guidance in error
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] SSH key has passphrase
+  - [ ] SSH agent not running
+  - [ ] Repository is private (needs different error)
+  - [ ] Git clone interrupted (partial clone)
+  - [ ] Branch doesn't exist
+  - [ ] Disk full during clone
+  - [ ] Permission issues on deploy directory
+  
+  ### 5. Database Operations
+  
+  **Handled** ✅:
+  - Database and user creation
+  - Schema installation
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] Database already exists with data
+  - [ ] User exists with different password
+  - [ ] Schema file has syntax errors
+  - [ ] Foreign key constraint failures
+  - [ ] Character set/collation mismatches
+  - [ ] MySQL max_connections reached
+  - [ ] Insufficient MySQL privileges
+  
+  ### 6. Configuration & Permissions
+  
+  **Handled** ✅:
+  - File ownership settings
+  - Apache vhost configuration
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] SELinux enabled (blocks Apache)
+  - [ ] AppArmor restrictions
+  - [ ] Immutable file attributes
+  - [ ] ACLs on directories
+  - [ ] .env file already exists with different values
+  - [ ] Apache config syntax errors
+  
+  ### 7. SSL Certificate
+  
+  **Handled** ✅:
+  - Basic certbot installation and run
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] Domain doesn't resolve to server IP
+  - [ ] CAA records blocking Let's Encrypt
+  - [ ] Rate limit hit (5 certs/week/domain)
+  - [ ] Firewall blocking port 80 validation
+  - [ ] Existing certificate conflicts
+  
+  ### 8. Recovery & State
+  
+  **Handled** ✅:
+  - State file for resume
+  - Some error recovery guidance
+  
+  **Missing Edge Cases** ⚠️:
+  - [ ] State file corrupted
+  - [ ] System reboot during deployment
+  - [ ] Script killed (SIGKILL)
+  - [ ] Concurrent script execution
+  - [ ] Rollback with partial database changes
+  - [ ] Log file rotation during execution
+  
+  ## Critical Missing Features
+  
+  1. **Dry-Run Mode**: No way to test without making changes
+  2. **Validation Mode**: Can't verify system without deploying
+  3. **Backup Creation**: No automatic backup before changes
+  4. **Lock File**: No prevention of concurrent execution
+  5. **Atomic Operations**: Some operations can leave system in inconsistent state
+  
+  ## EDGE_CASE_SUMMARY
+  
+  ```json
+  {
+    "validation": {
+      "edge_cases": {
+        "handled_well": [
+          "basic_prerequisites",
+          "service_detection",
+          "error_messages"
+        ],
+        "critical_gaps": [
+          "network_edge_cases",
+          "partial_failure_recovery",
+          "concurrent_execution",
+          "environment_variations"
+        ],
+        "risk_level": "MEDIUM",
+        "production_impact": "Script works for happy path, may struggle with complex environments"
+      }
+    }
+  }
+  ```
+  
+  ## Recommendations
+  
+  1. **Add pre-flight validation**: More comprehensive environment checks
+  2. **Implement dry-run**: Allow testing without changes
+  3. **Add lock file**: Prevent concurrent execution
+  4. **Enhance network checks**: Beyond basic ping
+  5. **Improve state management**: Handle corrupted state files
+  6. **Add rollback hooks**: For each major operation
