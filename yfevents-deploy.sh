@@ -37,7 +37,7 @@ ADMIN_EMAIL=""
 GOOGLE_MAPS_API_KEY=""
 DEPLOY_USER="yfevents"
 DEPLOY_DIR="/var/www/yfevents"
-REPO_URL="https://github.com/AndrewSmigaj/YFEventsCopy.git"
+REPO_URL="git@github.com:AndrewSmigaj/YFEventsCopy.git"
 REPO_BRANCH="main"
 
 ################################################################################
@@ -578,8 +578,9 @@ deploy_application() {
             return 5
         fi
     else
-        if ! git clone -b "$REPO_BRANCH" "$REPO_URL" "$DEPLOY_DIR" >> "$LOG_FILE" 2>&1; then
+        if ! sudo -u "$DEPLOY_USER" git clone -b "$REPO_BRANCH" "$REPO_URL" "$DEPLOY_DIR" >> "$LOG_FILE" 2>&1; then
             print_error "Failed to clone repository"
+            print_info "Make sure the deployment user's SSH key is added to GitHub"
             return 5
         fi
     fi
