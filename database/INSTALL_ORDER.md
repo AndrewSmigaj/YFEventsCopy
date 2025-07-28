@@ -1,37 +1,38 @@
 # Database Installation Order
 
 ## Overview
-Install database schemas in this order to handle dependencies correctly.
+Install database schemas in this three-tier order to handle dependencies correctly.
 
-## Installation Steps
+## Three-Tier Architecture
 
-### 1. Core Tables (Required)
+### Tier 1: Core Infrastructure (Required First)
+These provide foundational tables that other schemas depend on.
+
 ```bash
-# Calendar and events system
+# Base tables for events, shops, and categories
 mysql -u username -p dbname < database/calendar_schema.sql
 
-# Shop system
+# Authentication system (many features depend on yfa_auth_users)
+mysql -u username -p dbname < modules/yfauth/database/schema.sql
+```
+
+### Tier 2: Core Application Features
+These depend on infrastructure tables and must be installed second.
+
+```bash
+# Shop claiming system (depends on yfa_auth_users)
 mysql -u username -p dbname < database/shop_claim_system.sql
 
 # Module support system
 mysql -u username -p dbname < database/modules_schema.sql
 ```
 
-### 2. Communication Systems
-```bash
-# Choose ONE of these (not both):
-# Option A: Fixed version (recommended)
+# Communication system (depends on yfa_auth_users)
 mysql -u username -p dbname < database/communication_schema_fixed.sql
-
-# Option B: Original version
-# mysql -u username -p dbname < database/communication_schema.sql
 
 # Chat system
 mysql -u username -p dbname < database/yfchat_schema.sql
-```
 
-### 3. System Features
-```bash
 # Batch processing for queues
 mysql -u username -p dbname < database/batch_processing_schema.sql
 
@@ -39,11 +40,10 @@ mysql -u username -p dbname < database/batch_processing_schema.sql
 mysql -u username -p dbname < database/intelligent_scraper_schema.sql
 ```
 
-### 4. Module Schemas
-```bash
-# YFAuth - Authentication module
-mysql -u username -p dbname < modules/yfauth/database/schema.sql
+### Tier 3: Optional Modules
+These are truly optional and can be installed as needed.
 
+```bash
 # YFClaim - Estate sales module  
 mysql -u username -p dbname < modules/yfclaim/database/schema.sql
 
@@ -75,23 +75,40 @@ mysql -u username -p dbname < database/security_improvements.sql
 mysql -u username -p dbname < database/audit_logging.sql
 ```
 
-## Notes
+## Important Notes
 
-- **Foreign Keys**: calendar_schema.sql must be run before tables that reference events
-- **Module Tables**: Some modules may share tables (YFClaim and YFClassifieds)
-- **User Tables**: Production uses main `users` table, not module-specific versions
-- **Improvements**: Can be applied after main schema is working
+### Why Three Tiers?
+- **Infrastructure**: YFAuth is not truly "optional" - many core features depend on `yfa_auth_users`
+- **Dependencies**: shop_claim_system, communication_schema, and others have foreign keys to auth tables
+- **Architecture**: This reflects that authentication is foundational infrastructure, not a plugin
 
-## Quick Install (All Core)
+### Key Dependencies
+- `shop_claim_system.sql` → requires `yfa_auth_users` (admin assignments)
+- `communication_schema_fixed.sql` → requires `yfa_auth_users` (messaging)
+- `local_shops` → requires `shop_categories` and `shop_owners` (same file)
+- Module schemas → may require various core tables
+
+## Quick Install Script
 ```bash
 #!/bin/bash
 DB_NAME="your_database"
 DB_USER="your_user"
 
-for schema in calendar_schema.sql shop_claim_system.sql modules_schema.sql communication_schema_fixed.sql yfchat_schema.sql batch_processing_schema.sql intelligent_scraper_schema.sql; do
+# Tier 1: Infrastructure
+echo "Installing infrastructure schemas..."
+mysql -u $DB_USER -p $DB_NAME < database/calendar_schema.sql
+mysql -u $DB_USER -p $DB_NAME < modules/yfauth/database/schema.sql
+
+# Tier 2: Core Application
+echo "Installing core application schemas..."
+for schema in shop_claim_system.sql modules_schema.sql communication_schema_fixed.sql yfchat_schema.sql batch_processing_schema.sql intelligent_scraper_schema.sql; do
     echo "Installing $schema..."
     mysql -u $DB_USER -p $DB_NAME < database/$schema
 done
+
+# Tier 3: Optional Modules (uncomment as needed)
+# echo "Installing optional modules..."
+# mysql -u $DB_USER -p $DB_NAME < modules/yfclaim/database/schema.sql
 ```
 
 ## Verification
