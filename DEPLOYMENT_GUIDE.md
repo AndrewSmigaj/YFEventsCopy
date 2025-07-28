@@ -64,24 +64,17 @@ ssh username@your-droplet-ip
 
 ### Step 2: Set Up SSH Key for Repository Access
 
-The deployment script will create a `yfevents` user that needs SSH access to clone the repository.
+The deployment script needs SSH access to clone the repository. You'll use the root user's SSH key.
 
 ```bash
-# Create the deployment user first (if not already created)
-sudo useradd -m -s /bin/bash yfevents
-sudo usermod -a -G www-data yfevents
-
-# Switch to the deployment user
-sudo su - yfevents
-
-# Generate SSH key
+# Generate SSH key (as root)
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 
 # Display the public key
 cat ~/.ssh/id_rsa.pub
 
-# Exit back to root
-exit
+# Test GitHub connection
+ssh -T git@github.com
 ```
 
 **Important**: Copy the public key output and add it to your GitHub repository:
@@ -91,6 +84,8 @@ exit
 4. Paste the public key
 5. Leave "Allow write access" unchecked (read-only is safer)
 6. Click "Add key"
+
+**Note**: The deployment script will create the `yfevents` user automatically - do not create it manually.
 
 ### Step 3: Download the Deployment Script
 
@@ -120,10 +115,10 @@ sudo ./yfevents-deploy.sh --domain events.example.com --email admin@example.com
 The script will prompt for:
 
 1. **Domain Name**: Enter your full domain (e.g., events.example.com)
-2. **Database Root Password**: Create a strong password for MySQL root
-3. **Application Database Password**: Create a password for the yfevents database user
-4. **Admin Email**: Your email for SSL certificates and notifications
-5. **Google Maps API Key**: Your API key from Google Cloud Console
+2. **Admin Email**: Your email for SSL certificates and notifications
+3. **Google Maps API Key**: Your API key from Google Cloud Console (optional)
+4. **MySQL Root Password**: Create a strong password for MySQL root user
+5. **Database User Password**: Create a password for the yfevents database user
 
 ### Step 6: Monitor Installation Progress
 
@@ -181,8 +176,11 @@ Installation typically takes 10-15 minutes.
 ### 8. Database Setup
 - Creates application database
 - Creates database user with limited privileges
-- Imports initial schema
-- Loads sample data (if available)
+- Installs all database schemas in correct order:
+  - Core tables (events, shops, sources)
+  - Communication system tables
+  - Module tables (auth, claims)
+  - Performance optimizations
 
 ### 9. Cron Jobs
 - Sets up event scraping (daily at 2 AM)

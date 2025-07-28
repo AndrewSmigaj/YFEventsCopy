@@ -313,6 +313,22 @@ install_mysql() {
     print_header "Installing MySQL $MYSQL_VERSION"
     save_state "install_mysql" "started"
     
+    # Check if MySQL is already installed
+    if systemctl is-active --quiet mysql || systemctl is-active --quiet mariadb; then
+        print_warning "MySQL/MariaDB is already installed"
+        print_info "Attempting to connect with provided password..."
+        
+        if mysql --user=root --password="$DB_ROOT_PASSWORD" -e "SELECT 1;" &>/dev/null; then
+            print_success "Successfully connected to existing MySQL"
+            save_state "install_mysql" "completed"
+            return 0
+        else
+            print_error "Cannot connect to existing MySQL with provided password"
+            print_info "Please check your MySQL root password"
+            return 3
+        fi
+    fi
+    
     print_info "Installing MySQL Server..."
     export DEBIAN_FRONTEND=noninteractive
     
@@ -554,6 +570,65 @@ EOSQL
     print_success "Database and user created"
 }
 
+install_database_schemas() {
+    print_header "Installing Database Schemas"
+    save_state "install_database_schemas" "started"
+    
+    cd "$DEPLOY_DIR"
+    
+    # Core schemas (required)
+    local core_schemas=(
+        "database/calendar_schema.sql"
+        "database/shop_claim_system.sql"
+        "database/modules_schema.sql"
+        "database/communication_schema_fixed.sql"
+        "database/yfchat_schema.sql"
+        "database/batch_processing_schema.sql"
+        "database/intelligent_scraper_schema.sql"
+    )
+    
+    # Module schemas
+    local module_schemas=(
+        "modules/yfauth/database/schema.sql"
+        "modules/yfclaim/database/schema.sql"
+    )
+    
+    print_info "Installing core database schemas..."
+    for schema in "${core_schemas[@]}"; do
+        if [[ -f "$schema" ]]; then
+            print_info "Installing $(basename $schema)..."
+            if ! mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" < "$schema" >> "$LOG_FILE" 2>&1; then
+                print_error "Failed to install $schema"
+                return 4
+            fi
+        else
+            print_warning "Schema file not found: $schema"
+        fi
+    done
+    
+    print_info "Installing module schemas..."
+    for schema in "${module_schemas[@]}"; do
+        if [[ -f "$schema" ]]; then
+            print_info "Installing $(basename $schema)..."
+            if ! mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" < "$schema" >> "$LOG_FILE" 2>&1; then
+                print_error "Failed to install $schema"
+                return 4
+            fi
+        else
+            print_warning "Module schema not found: $schema"
+        fi
+    done
+    
+    # Optional: Performance and security improvements
+    if [[ -f "database/performance_optimization.sql" ]]; then
+        print_info "Applying performance optimizations..."
+        mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" < "database/performance_optimization.sql" >> "$LOG_FILE" 2>&1 || true
+    fi
+    
+    save_state "install_database_schemas" "completed"
+    print_success "Database schemas installed successfully"
+}
+
 ################################################################################
 # Deployment Functions
 ################################################################################
@@ -577,9 +652,10 @@ deploy_application() {
             return 5
         fi
     else
-        if ! sudo -u "$DEPLOY_USER" git clone -b "$REPO_BRANCH" "$REPO_URL" "$DEPLOY_DIR" >> "$LOG_FILE" 2>&1; then
+        if ! git clone -b "$REPO_BRANCH" "$REPO_URL" "$DEPLOY_DIR" >> "$LOG_FILE" 2>&1; then
             print_error "Failed to clone repository"
-            print_info "Make sure the deployment user's SSH key is added to GitHub"
+            print_info "Make sure your SSH key is added to GitHub as a deploy key"
+            print_info "Run: ssh -T git@github.com to test your connection"
             return 5
         fi
     fi
@@ -863,9 +939,23 @@ collect_configuration() {
     echo -n "Enter Google Maps API key (or press Enter to skip): "
     read -r GOOGLE_MAPS_API_KEY
     
-    print_info "Generating secure passwords..."
-    DB_ROOT_PASSWORD=$(generate_password)
-    DB_PASSWORD=$(generate_password)
+    echo -n "Enter MySQL root password (will be set during installation): "
+    read -s DB_ROOT_PASSWORD
+    echo
+    
+    if [[ -z "$DB_ROOT_PASSWORD" ]]; then
+        print_error "MySQL root password is required"
+        exit 1
+    fi
+    
+    echo -n "Enter password for database user '$DB_USER': "
+    read -s DB_PASSWORD
+    echo
+    
+    if [[ -z "$DB_PASSWORD" ]]; then
+        print_error "Database user password is required"
+        exit 1
+    fi
     
     print_success "Configuration collected"
 }
@@ -917,6 +1007,7 @@ run_deployment() {
         "setup_mysql_database"
         "deploy_application"
         "install_dependencies"
+        "install_database_schemas"
         "configure_application"
         "set_permissions"
         "configure_ssl"
