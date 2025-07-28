@@ -1,0 +1,78 @@
+name: deployment_design
+description: Design deployment script architecture and implementation plan
+version: "1.0"
+type: planning
+
+metadata:
+  average_duration: 20-30 minutes
+  complexity: moderate
+
+targets_phase: planning
+optimal_for:
+  - Deployment script design
+  - Infrastructure automation planning
+  - CI/CD pipeline design
+  - Server provisioning scripts
+
+targets_uncertainties:
+  primary:
+    - DESIGN-001
+    - IMPL-002
+  secondary:
+    - SCALE-002
+    - MAINT-001
+
+prompt_sequence:
+  - prompt: deployment_architect
+    order: 1
+    mandatory: true
+    purpose: Design overall deployment script architecture
+    
+  - prompt: script_structure_planner
+    order: 2
+    mandatory: true
+    purpose: Plan script structure, functions, and flow
+    
+  - prompt: error_handler_designer
+    order: 3
+    mandatory: true
+    purpose: Design error handling and rollback procedures
+    
+  - prompt: configuration_manager_designer
+    order: 4
+    mandatory: false
+    purpose: Design configuration and secrets management
+    condition: "task.description contains 'config' || discoveries.infrastructure.deployment.configuration != 'none'"
+    
+  - prompt: testing_strategy_planner
+    order: 5
+    mandatory: false
+    purpose: Plan testing approach for deployment script
+    condition: "complexity != 'simple'"
+
+success_criteria:
+  required_discoveries:
+    - design.architecture
+    - design.script_structure
+    - design.error_handling
+  optional_discoveries:
+    - design.configuration_approach
+    - design.testing_strategy
+
+next_chain_logic:
+  - condition: "confidence.overall >= 98"
+    next_chain: implementation_ready
+    reason: "High confidence design complete"
+    
+  - condition: "uncertainties.design > 2"
+    next_chain: design_refinement
+    reason: "Design needs refinement"
+    
+  - default: design_review
+    reason: "Design ready for review"
+
+post_execution:
+  - design_summary
+  - implementation_checklist
+  - risk_mitigation_plan
+  - approval_requirements

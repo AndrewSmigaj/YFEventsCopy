@@ -1,0 +1,122 @@
+name: deployment_gaps_explorer
+category: discovery
+targets_uncertainties: ["DEPLOY-005", "IMPL-001"]
+
+template: |
+  # Deployment Gaps Explorer
+  
+  I need to identify and fill gaps in deployment knowledge before creating the script.
+  
+  **Task Context**: {{task.description}}
+  **Current Confidence**: {{confidence.overall}}%
+  
+  ## Gaps to Explore
+  
+  Based on uncertainty analysis, I need to investigate:
+  
+  1. **Git Repository Details**
+     - Repository URL pattern/structure
+     - Default branch name (main, master, production?)
+     - SSH key setup for deployment user
+     - Any git submodules or special requirements
+  
+  2. **Digital Ocean Specifics**
+     - Recommended droplet size (RAM, CPU, storage)
+     - Floating IP requirements
+     - Block storage needs
+     - Backup strategy (DO backups, snapshots, custom)
+     - Firewall rules specific to DO
+  
+  3. **Deployment Process Details**
+     - Zero-downtime deployment needs
+     - Database migration handling
+     - Asset compilation/optimization
+     - Cache clearing procedures
+     - Rollback procedures
+  
+  4. **Cron Job Requirements**
+     - Full list of scheduled tasks
+     - Timing for each cron job
+     - User context for cron execution
+     - Error handling for cron failures
+  
+  5. **Monitoring Enhancements**
+     - System resource monitoring needs
+     - Application performance monitoring
+     - Error tracking requirements
+     - Alerting thresholds
+     - Log rotation policies
+  
+  Look for:
+  - Existing deployment documentation
+  - Git configuration files
+  - Cron configuration
+  - Monitoring setup scripts
+  - DO-specific configurations
+  
+  ## Structured Output
+  
+  ### GIT_REPOSITORY
+  - URL_Pattern: [how to construct repo URL]
+  - Default_Branch: [main branch name]
+  - SSH_Keys: [where/how configured]
+  - Special_Requirements: [submodules, LFS, etc]
+  
+  ### DIGITAL_OCEAN_SPECS
+  - Droplet_Size: [recommended specs]
+  - Storage: [local vs block storage]
+  - Networking: [floating IP, private networking]
+  - Backups: [strategy and frequency]
+  
+  ### DEPLOYMENT_DETAILS
+  - Pre_Deploy: [steps before deployment]
+  - Deploy_Steps: [exact deployment sequence]
+  - Post_Deploy: [cleanup, cache, etc]
+  - Rollback: [how to revert]
+  
+  ### CRON_JOBS
+  - Scraping: [schedule and command]
+  - Email_Processing: [if applicable]
+  - Cleanup: [temp files, logs]
+  - Backups: [database, files]
+  
+  ### MONITORING_SETUP
+  - System: [CPU, memory, disk monitoring]
+  - Application: [error rates, response times]
+  - Alerts: [email, SMS, webhook]
+  - Tools: [specific tools to use]
+  
+  ### DISCOVERIES
+  ```json
+  {
+    "discoveries": {
+      "deployment_gaps": {
+        "git": {
+          "repository_url": "[pattern or actual]",
+          "default_branch": "[branch name]",
+          "ssh_configured": true/false
+        },
+        "digital_ocean": {
+          "droplet_size": "[size recommendation]",
+          "storage_needs": "[GB required]",
+          "backup_strategy": "[approach]"
+        },
+        "cron_jobs": [
+          {
+            "name": "[job name]",
+            "schedule": "[cron expression]",
+            "command": "[command to run]"
+          }
+        ],
+        "monitoring": {
+          "current_state": "[basic/none/advanced]",
+          "recommended": "[monitoring approach]"
+        }
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  - DEPLOY-005 (monitoring/logging): resolved/partial based on findings
+  - IMPL-001 (implementation details): partial - deployment specifics identified

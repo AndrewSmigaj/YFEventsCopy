@@ -1,0 +1,114 @@
+name: database_analyzer
+category: discovery
+targets_uncertainties: ["TECH-001", "IMPL-001", "SCALE-001"]
+
+template: |
+  # Database Analysis
+  
+  I need to analyze the database structure, relationships, and patterns in detail.
+  
+  **Task Context**: {{task.description}}
+  **Database Type**: {{discoveries.technical.database}}
+  
+  ## Discovery Goals
+  
+  1. **Schema Analysis**
+     - Core tables and their purposes
+     - Column types and constraints
+     - Indexes and performance considerations
+     - Data volume estimates
+  
+  2. **Relationship Mapping**
+     - Foreign key relationships
+     - Join patterns
+     - Orphaned data risks
+     - Referential integrity
+  
+  3. **Data Patterns**
+     - Naming conventions
+     - Common data types used
+     - Denormalization patterns
+     - Audit/timestamp fields
+  
+  4. **Database Features**
+     - Stored procedures/functions
+     - Triggers
+     - Views
+     - Events/scheduled tasks
+  
+  5. **Performance Considerations**
+     - Large tables
+     - Missing indexes
+     - Query patterns
+     - Backup/restore procedures
+  
+  Look for:
+  - SQL schema files
+  - Migration scripts
+  - Database documentation
+  - Model definitions
+  - Query patterns in code
+  
+  ## Structured Output
+  
+  ### SCHEMA_OVERVIEW
+  - Total_Tables: [count]
+  - Core_Tables: [list of main tables]
+  - Module_Tables: [tables by module/feature]
+  - Largest_Tables: [tables with most data]
+  
+  ### RELATIONSHIPS
+  - Primary_Entities: [main domain objects]
+  - Relationship_Type: [1:1, 1:N, M:N patterns]
+  - Orphan_Risks: [tables without FK constraints]
+  
+  ### DATA_PATTERNS
+  - Naming_Convention: [snake_case, camelCase, etc]
+  - Common_Types: [frequently used column types]
+  - Audit_Fields: [created_at, updated_at patterns]
+  - Soft_Delete: [if used]
+  
+  ### PERFORMANCE
+  - Indexed_Columns: [count and coverage]
+  - Large_Tables: [tables needing optimization]
+  - Query_Complexity: [simple/complex joins]
+  
+  ### MAINTENANCE
+  - Backup_Strategy: [if documented]
+  - Migration_Approach: [how schema changes are handled]
+  - Data_Retention: [archival policies if any]
+  
+  ### DISCOVERIES
+  ```json
+  {
+    "discoveries": {
+      "database": {
+        "schema": {
+          "table_count": 0,
+          "core_tables": [],
+          "module_tables": {},
+          "naming_convention": "[identified convention]"
+        },
+        "relationships": {
+          "primary_entities": [],
+          "foreign_keys": 0,
+          "join_complexity": "[simple/moderate/complex]"
+        },
+        "performance": {
+          "indexed_properly": true/false,
+          "large_tables": [],
+          "optimization_needed": []
+        },
+        "maintenance": {
+          "migrations": "[approach]",
+          "backups": "[strategy if found]"
+        }
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  - TECH-001 (Technology stack): partial - database layer understood
+  - IMPL-001 (Implementation details): partial - data model mapped
+  - SCALE-001 (Scaling considerations): partial - performance factors identified

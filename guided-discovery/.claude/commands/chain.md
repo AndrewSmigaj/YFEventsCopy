@@ -55,7 +55,22 @@ Continuing from where we left off...
 ### Executing Next Prompt
 
 [Load next unexecuted prompt from the chain's prompt_sequence]
-[Load prompt YAML from /mnt/d/YFEventsCopy/guided-discovery/prompts/]
+[Check if prompt YAML exists at /mnt/d/YFEventsCopy/guided-discovery/prompts/]
+
+If prompt file doesn't exist:
+```
+⚠️ Prompt [prompt_name] not found!
+Creating new prompt for: [prompt.purpose from chain definition]
+
+[Create a new prompt file based on:
+- Prompt name and purpose from chain definition
+- Uncertainties it should target
+- Task context and discoveries so far
+- Use PROMPT_TEMPLATE.yaml as base structure]
+
+✅ Created prompt: [prompt_name].yaml
+Now executing...
+```
 
 **Executing**: [prompt_name] ([X/Y] in chain)
 **Purpose**: [prompt.purpose from chain definition]

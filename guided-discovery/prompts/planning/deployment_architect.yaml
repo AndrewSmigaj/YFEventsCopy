@@ -1,0 +1,129 @@
+name: deployment_architect
+category: planning
+targets_uncertainties: ["DESIGN-001", "IMPL-002"]
+
+template: |
+  # Deployment Script Architecture Design
+  
+  I need to design the architecture for a deployment script based on discoveries.
+  
+  **Task Context**: {{task.description}}
+  **Current Phase**: {{current_phase}}
+  **Confidence Level**: {{confidence.overall}}%
+  
+  ## Design Goals
+  
+  Based on our discoveries, I need to architect a deployment script that:
+  
+  1. **Core Functionality**
+     - Provisions a fresh Digital Ocean Ubuntu 22.04 droplet
+     - Installs all required services and dependencies
+     - Deploys the YFEvents application
+     - Configures security and monitoring
+     - Provides rollback capabilities
+  
+  2. **Design Principles**
+     - Idempotent operations (safe to run multiple times)
+     - Clear error handling and recovery
+     - Modular structure for maintainability
+     - Progress tracking and logging
+     - Dry-run capability for testing
+  
+  3. **Script Components**
+     - Pre-flight checks
+     - Environment setup
+     - Service installation
+     - Application deployment
+     - Configuration management
+     - Post-deployment validation
+     - Rollback procedures
+  
+  4. **User Experience**
+     - Clear prompts for required inputs
+     - Progress indicators
+     - Error messages with solutions
+     - Summary of actions taken
+     - Next steps guidance
+  
+  ## Architecture Decisions
+  
+  ### SCRIPT_TYPE
+  - Language: [Bash/Python/Other]
+  - Why: [Justification based on requirements]
+  
+  ### STRUCTURE
+  - Single_File vs Multi_File: [Decision]
+  - Modules/Functions: [List main components]
+  - Configuration: [How config is handled]
+  
+  ### DEPLOYMENT_FLOW
+  1. [Step 1 with description]
+  2. [Step 2 with description]
+  3. [Continue...]
+  
+  ### ERROR_HANDLING
+  - Strategy: [Fail-fast vs Continue-with-warnings]
+  - Rollback: [Automatic vs Manual]
+  - Logging: [Where and how]
+  
+  ### SECURITY_CONSIDERATIONS
+  - Secrets: [How handled]
+  - Permissions: [File and user permissions]
+  - Network: [Firewall rules]
+  
+  ### TESTING_APPROACH
+  - Dry_Run: [How implemented]
+  - Validation: [Health checks]
+  - Rollback_Test: [How to test]
+  
+  ## Design Blueprint
+  
+  ```
+  deployment-script/
+  ├── deploy.sh                 # Main entry point
+  ├── lib/
+  │   ├── common.sh            # Shared functions
+  │   ├── checks.sh            # Pre-flight checks
+  │   ├── install.sh           # Service installation
+  │   ├── deploy.sh            # App deployment
+  │   └── rollback.sh          # Rollback procedures
+  ├── config/
+  │   ├── defaults.conf        # Default values
+  │   └── services.conf        # Service configurations
+  └── logs/
+      └── [deployment logs]
+  ```
+  
+  ### DESIGN_DECISIONS
+  ```json
+  {
+    "design": {
+      "architecture": {
+        "script_language": "[chosen language]",
+        "structure": "[single/modular]",
+        "entry_point": "[main script name]",
+        "configuration_approach": "[how config is managed]"
+      },
+      "components": {
+        "pre_flight": "[validation approach]",
+        "installation": "[service setup approach]",
+        "deployment": "[app deployment approach]",
+        "validation": "[post-deploy checks]"
+      },
+      "error_handling": {
+        "strategy": "[chosen strategy]",
+        "rollback": "[rollback approach]",
+        "logging": "[logging approach]"
+      },
+      "user_experience": {
+        "interaction": "[interactive/automated]",
+        "feedback": "[progress indication approach]",
+        "documentation": "[help/usage approach]"
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  - DESIGN-001 (script architecture): resolved/partial based on design
+  - IMPL-002 (implementation approach): resolved/partial based on decisions

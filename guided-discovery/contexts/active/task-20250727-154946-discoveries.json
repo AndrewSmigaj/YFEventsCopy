@@ -1,0 +1,111 @@
+{
+  "tech_stack": {
+    "core_stack": {
+      "language": "PHP 8.2+",
+      "framework": "Custom DDD/Hexagonal",
+      "database": "MySQL/MariaDB",
+      "cache": "file-based"
+    },
+    "development_tools": {
+      "build": "none",
+      "test": "custom scripts",
+      "lint": "PHP-CS-Fixer",
+      "package_manager": "Composer"
+    },
+    "infrastructure": {
+      "container": "none",
+      "cloud": "Digital Ocean",
+      "ci_cd": "none",
+      "deploy": "shell scripts",
+      "web_server": "Apache",
+      "php_handler": "PHP-FPM"
+    },
+    "client_side": {
+      "framework": "none",
+      "css": "plain",
+      "state": "none",
+      "bundler": "none"
+    },
+    "notable_libraries": {
+      "auth": "Custom session-based",
+      "api": "REST",
+      "orm": "none",
+      "other": ["Guzzle", "Monolog", "PHPDotenv", "Carbon", "Google Maps API"]
+    }
+  },
+  "dependencies": {
+    "external": {
+      "package_manager": "Composer",
+      "main_deps": {
+        "php": ">=8.2",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-json": "*",
+        "ext-curl": "*"
+      },
+      "dev_deps": {
+        "phpunit/phpunit": "^11.0",
+        "phpstan/phpstan": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "monolog/monolog": "^3.0",
+        "guzzlehttp/guzzle": "^7.0",
+        "vlucas/phpdotenv": "^5.0",
+        "nesbot/carbon": "^2.0"
+      },
+      "total_count": 50
+    },
+    "internal": {
+      "shared_modules": ["Container", "Router", "AuthService"],
+      "core_services": ["EventService", "ShopService", "ClaimService"],
+      "utils_location": "YakimaFinds/Utils"
+    },
+    "version_requirements": {
+      "language": "PHP >= 8.2",
+      "framework": "Custom",
+      "database": "MySQL 5.7+",
+      "platform": "Ubuntu 22.04"
+    },
+    "integration_points": {
+      "apis": ["Google Maps API", "Segmind API", "OpenStreetMap"],
+      "databases": ["MySQL"],
+      "queues": [],
+      "storage": ["Local filesystem"]
+    },
+    "health": {
+      "outdated_count": 0,
+      "security_issues": [],
+      "conflicts": []
+    }
+  },
+  "infrastructure": {
+    "server": {
+      "os": "Ubuntu 22.04 LTS",
+      "provider": "Digital Ocean",
+      "web_server": "Apache 2.4",
+      "php_version": "8.2 or 8.3",
+      "php_handler": "PHP-FPM",
+      "database": "MySQL 8.0"
+    },
+    "directories": {
+      "app_root": "/var/www/yfevents",
+      "document_root": "/var/www/yfevents/public",
+      "logs": "/var/log/apache2",
+      "sessions": "/var/lib/php/sessions"
+    },
+    "services": {
+      "required": ["apache2", "mysql", "php-fpm", "fail2ban"],
+      "optional": ["certbot", "redis"]
+    },
+    "security": {
+      "firewall": "ufw",
+      "ssl": "Let's Encrypt via Certbot",
+      "fail2ban": "enabled",
+      "ssh": "key-based recommended"
+    },
+    "deployment": {
+      "method": "git pull + composer install",
+      "user": "yfevents",
+      "permissions": "www-data:www-data"
+    }
+  }
+}

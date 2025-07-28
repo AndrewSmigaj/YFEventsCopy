@@ -1,0 +1,124 @@
+name: infrastructure_analyzer
+category: discovery
+targets_uncertainties: ["DEPLOY-001", "DEPLOY-002", "DEPLOY-003", "DEPLOY-004", "DEPLOY-005"]
+
+template: |
+  # Infrastructure Analysis for Deployment
+  
+  I need to analyze the infrastructure requirements and configuration for deployment.
+  
+  **Task Context**: {{task.description}}
+  
+  ## Discovery Goals
+  
+  1. **Server Infrastructure**
+     - Operating system requirements
+     - Web server configuration needs
+     - PHP version and extensions
+     - Database server requirements
+     - Required system services
+  
+  2. **Deployment Configuration**
+     - Application directory structure
+     - File permissions and ownership
+     - Environment configuration approach
+     - Sensitive data handling
+     - SSL/TLS requirements
+  
+  3. **Security Infrastructure**
+     - Firewall configuration
+     - SSH access controls
+     - Application security measures
+     - Database security
+     - API key protection
+  
+  4. **Deployment Process**
+     - Code deployment method
+     - Dependency installation
+     - Database migration approach
+     - Configuration management
+     - Service restart procedures
+  
+  5. **Monitoring & Maintenance**
+     - Log file locations and rotation
+     - Health check endpoints
+     - Backup strategies
+     - Update procedures
+  
+  Look for:
+  - Existing deployment scripts
+  - Server configuration files
+  - Environment configuration examples
+  - Security best practices in code
+  - Infrastructure documentation
+  
+  ## Structured Output
+  
+  After analysis, I'll provide findings in this structure:
+  
+  ### INFRASTRUCTURE_REQUIREMENTS
+  - OS: [version and distribution]
+  - Web_Server: [type and version]
+  - PHP: [version and required extensions]
+  - Database: [type and version]
+  - Other_Services: [list of required services]
+  
+  ### DEPLOYMENT_CONFIGURATION
+  - App_Directory: [path]
+  - Document_Root: [path]
+  - Permissions: [user/group requirements]
+  - Config_Method: [how configuration is handled]
+  
+  ### SECURITY_SETUP
+  - Firewall: [ports and rules]
+  - SSL: [certificate approach]
+  - Access_Control: [SSH, sudo requirements]
+  - Secrets_Management: [how secrets are handled]
+  
+  ### DEPLOYMENT_PROCESS
+  - Method: [git, rsync, etc.]
+  - Steps: [ordered list of deployment steps]
+  - Rollback: [rollback strategy]
+  
+  ### MONITORING
+  - Logs: [locations and types]
+  - Health: [monitoring approach]
+  - Alerts: [alerting strategy]
+  
+  ### DISCOVERIES
+  ```json
+  {
+    "discoveries": {
+      "infrastructure": {
+        "server": {
+          "os": "[operating system]",
+          "web_server": "[web server type]",
+          "php_version": "[PHP version]",
+          "database": "[database type]"
+        },
+        "deployment": {
+          "method": "[deployment method]",
+          "directory": "[app directory]",
+          "user": "[deployment user]",
+          "configuration": "[config approach]"
+        },
+        "security": {
+          "firewall": "[firewall type]",
+          "ssl": "[SSL approach]",
+          "access_control": "[access method]"
+        },
+        "monitoring": {
+          "logs": "[log locations]",
+          "health_checks": "[health check approach]"
+        }
+      }
+    }
+  }
+  ```
+  
+  ### UNCERTAINTY_UPDATES
+  - DEPLOY-001 (deployment requirements): resolved/partial based on findings
+  - DEPLOY-002 (services configuration): resolved/partial based on findings
+  - DEPLOY-003 (security requirements): resolved/partial based on findings
+  - DEPLOY-004 (environment configuration): resolved/partial based on findings
+  - DEPLOY-005 (monitoring/logging): resolved/partial based on findings
