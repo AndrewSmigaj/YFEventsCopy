@@ -1,7 +1,78 @@
 -- Yakima Finds Event Calendar Database Schema
 -- Integrates with existing CMS database
 
--- Events table - main event storage
+-- Calendar sources for scraping (no dependencies)
+CREATE TABLE calendar_sources (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    scrape_type ENUM('ical', 'html', 'json', 'eventbrite', 'facebook') NOT NULL,
+    scrape_config JSON,
+    last_scraped TIMESTAMP NULL,
+    active BOOLEAN DEFAULT TRUE,
+    created_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_active (active),
+    INDEX idx_last_scraped (last_scraped)
+);
+
+-- Shop owners for business management (no dependencies)
+CREATE TABLE shop_owners (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(50),
+    verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    verification_token VARCHAR(255),
+    password_hash VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_verification (verification_status)
+);
+
+-- Shop categories for organization (self-reference ok)
+CREATE TABLE shop_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    parent_id INT NULL,
+    icon VARCHAR(100),
+    sort_order INT DEFAULT 0,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_parent (parent_id),
+    INDEX idx_slug (slug),
+    FOREIGN KEY (parent_id) REFERENCES shop_categories(id) ON DELETE SET NULL
+);
+
+-- Event categories for filtering (no dependencies)
+CREATE TABLE event_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    color VARCHAR(7) DEFAULT '#3498db',
+    icon VARCHAR(100),
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_slug (slug),
+    INDEX idx_active (active)
+);
+
+-- Calendar permissions for CMS integration (no dependencies)
+CREATE TABLE calendar_permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    permission ENUM('view_pending', 'approve_events', 'manage_sources', 'manage_shops', 'admin') NOT NULL,
+    granted_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user (user_id),
+    INDEX idx_permission (permission)
+);
+
+-- Events table - main event storage (depends on calendar_sources)
 CREATE TABLE events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -29,23 +100,7 @@ CREATE TABLE events (
     FOREIGN KEY (source_id) REFERENCES calendar_sources(id) ON DELETE SET NULL
 );
 
--- Calendar sources for scraping
-CREATE TABLE calendar_sources (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    url VARCHAR(500) NOT NULL,
-    scrape_type ENUM('ical', 'html', 'json', 'eventbrite', 'facebook') NOT NULL,
-    scrape_config JSON,
-    last_scraped TIMESTAMP NULL,
-    active BOOLEAN DEFAULT TRUE,
-    created_by INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_active (active),
-    INDEX idx_last_scraped (last_scraped)
-);
-
--- Local shops/businesses directory
+-- Local shops/businesses directory (depends on shop_categories, shop_owners)
 CREATE TABLE local_shops (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -74,62 +129,7 @@ CREATE TABLE local_shops (
     FOREIGN KEY (owner_id) REFERENCES shop_owners(id) ON DELETE SET NULL
 );
 
--- Shop categories for organization
-CREATE TABLE shop_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    parent_id INT NULL,
-    icon VARCHAR(100),
-    sort_order INT DEFAULT 0,
-    active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_parent (parent_id),
-    INDEX idx_slug (slug),
-    FOREIGN KEY (parent_id) REFERENCES shop_categories(id) ON DELETE SET NULL
-);
-
--- Shop owners for business management
-CREATE TABLE shop_owners (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(50),
-    verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
-    verification_token VARCHAR(255),
-    password_hash VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_email (email),
-    INDEX idx_verification (verification_status)
-);
-
--- Calendar permissions for CMS integration
-CREATE TABLE calendar_permissions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    permission ENUM('view_pending', 'approve_events', 'manage_sources', 'manage_shops', 'admin') NOT NULL,
-    granted_by INT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_user (user_id),
-    INDEX idx_permission (permission)
-);
-
--- Event categories for filtering
-CREATE TABLE event_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL UNIQUE,
-    color VARCHAR(7) DEFAULT '#3498db',
-    icon VARCHAR(100),
-    active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_slug (slug),
-    INDEX idx_active (active)
-);
-
--- Event-category relationships (many-to-many)
+-- Event-category relationships (many-to-many) (depends on events, event_categories)
 CREATE TABLE event_category_relations (
     event_id INT NOT NULL,
     category_id INT NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE event_category_relations (
     FOREIGN KEY (category_id) REFERENCES event_categories(id) ON DELETE CASCADE
 );
 
--- Shop images for gallery
+-- Shop images for gallery (depends on local_shops)
 CREATE TABLE shop_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     shop_id INT NOT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE shop_images (
     INDEX idx_primary (is_primary)
 );
 
--- Event images
+-- Event images (depends on events)
 CREATE TABLE event_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -166,7 +166,7 @@ CREATE TABLE event_images (
     INDEX idx_primary (is_primary)
 );
 
--- Scraping logs for monitoring
+-- Scraping logs for monitoring (depends on calendar_sources)
 CREATE TABLE scraping_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     source_id INT NOT NULL,
