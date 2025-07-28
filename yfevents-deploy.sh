@@ -597,7 +597,8 @@ install_database_schemas() {
     for schema in "${core_schemas[@]}"; do
         if [[ -f "$schema" ]]; then
             print_info "Installing $(basename $schema)..."
-            if ! mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" < "$schema" >> "$LOG_FILE" 2>&1; then
+            # Disable foreign key checks to handle out-of-order table creation
+            if ! (echo "SET FOREIGN_KEY_CHECKS=0;" && cat "$schema" && echo "SET FOREIGN_KEY_CHECKS=1;") | mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" >> "$LOG_FILE" 2>&1; then
                 print_error "Failed to install $schema"
                 return 4
             fi
@@ -610,7 +611,8 @@ install_database_schemas() {
     for schema in "${module_schemas[@]}"; do
         if [[ -f "$schema" ]]; then
             print_info "Installing $(basename $schema)..."
-            if ! mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" < "$schema" >> "$LOG_FILE" 2>&1; then
+            # Disable foreign key checks to handle out-of-order table creation
+            if ! (echo "SET FOREIGN_KEY_CHECKS=0;" && cat "$schema" && echo "SET FOREIGN_KEY_CHECKS=1;") | mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" >> "$LOG_FILE" 2>&1; then
                 print_error "Failed to install $schema"
                 return 4
             fi
