@@ -628,24 +628,41 @@ EOSQL
         esac
     fi
     
-    # Core schemas (required)
+    # Core infrastructure schemas (must be installed first)
+    local infrastructure_schemas=(
+        "database/calendar_schema.sql"              # Base tables for events, shops, categories
+        "modules/yfauth/database/schema.sql"        # Authentication system (required by many features)
+    )
+    
+    # Core application schemas (depend on infrastructure)
     local core_schemas=(
-        "database/calendar_schema.sql"
-        "database/shop_claim_system.sql"
-        "database/modules_schema.sql"
-        "database/communication_schema_fixed.sql"
-        "database/yfchat_schema.sql"
-        "database/batch_processing_schema.sql"
-        "database/intelligent_scraper_schema.sql"
+        "database/shop_claim_system.sql"            # Depends on yfa_auth_users
+        "database/modules_schema.sql"               # Module management system
+        "database/communication_schema_fixed.sql"   # Messaging system (depends on yfa_auth_users)
+        "database/yfchat_schema.sql"               # Chat system
+        "database/batch_processing_schema.sql"      # Queue processing
+        "database/intelligent_scraper_schema.sql"   # AI-powered scraping
     )
     
-    # Module schemas
+    # Optional module schemas
     local module_schemas=(
-        "modules/yfauth/database/schema.sql"
-        "modules/yfclaim/database/schema.sql"
+        "modules/yfclaim/database/schema.sql"       # Estate sale claims module
     )
     
-    print_info "Installing core database schemas..."
+    print_info "Installing infrastructure schemas..."
+    for schema in "${infrastructure_schemas[@]}"; do
+        if [[ -f "$schema" ]]; then
+            print_info "Installing $(basename $schema)..."
+            if ! mysql --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME" < "$schema" >> "$LOG_FILE" 2>&1; then
+                print_error "Failed to install $schema"
+                return 4
+            fi
+        else
+            print_warning "Infrastructure schema not found: $schema"
+        fi
+    done
+    
+    print_info "Installing core application schemas..."
     for schema in "${core_schemas[@]}"; do
         if [[ -f "$schema" ]]; then
             print_info "Installing $(basename $schema)..."
@@ -654,11 +671,11 @@ EOSQL
                 return 4
             fi
         else
-            print_warning "Schema file not found: $schema"
+            print_warning "Core schema not found: $schema"
         fi
     done
     
-    print_info "Installing module schemas..."
+    print_info "Installing optional module schemas..."
     for schema in "${module_schemas[@]}"; do
         if [[ -f "$schema" ]]; then
             print_info "Installing $(basename $schema)..."
