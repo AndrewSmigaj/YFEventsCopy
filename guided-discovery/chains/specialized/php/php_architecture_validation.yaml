@@ -283,6 +283,8 @@ output_artifacts:
  - metrics
 
 post_execution:
+  - uncertainty_analysis_recommendation
+  - confidence_summary
  - validation_summary_generator
  - architecture_scorecard_builder
  - improvement_roadmap_creator
@@ -304,22 +306,3 @@ integration_support:
  output_format: checkstyle
  threshold_configuration: configurable
 
-next_chain_logic:
- - condition: "validation_score < 70"
- next_chain: architecture_remediation_guide
- reason: "Architecture needs significant improvements"
- 
- - condition: "validation_score >= 70 && validation_score < 80"
- next_chain: architecture_improvement_guide
- reason: "Architecture is acceptable but can be improved"
- 
- - condition: "validation_score >= 80 && has_critical_issues"
- next_chain: critical_issue_resolution
- reason: "High score but critical issues must be addressed"
- 
- - condition: "validation_score >= 90"
- next_chain: architecture_optimization_guide
- reason: "Excellent architecture - optimize further"
- 
- - default: validation_complete
- reason: "Validation complete - review report for details"

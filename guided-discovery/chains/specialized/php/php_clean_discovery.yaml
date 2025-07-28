@@ -111,22 +111,9 @@ chain_variants:
  after: php_layer_analyzer
  - reduce_expectations: true
 
-next_chain_logic:
- - condition: "discoveries.domain.entities == null || discoveries.domain.entities.length == 0"
- next_chain: php_domain_analysis
- reason: "Need to understand domain layer"
- 
- - condition: "discoveries.php.architecture_style contains 'legacy' || discoveries.php.architecture_style == 'mvc'"
- next_chain: php_migration_planning
- reason: "Legacy code needs migration planning"
- 
- next_chain: php_quality_assessment
- reason: "Ready for quality assessment"
- 
- - default: targeted_discovery
- reason: "Focus on remaining uncertainties"
-
 post_execution:
+  - uncertainty_analysis_recommendation
+  - confidence_summary
  - php_architecture_summary
  - clean_readiness_assessment
  - key_findings_report

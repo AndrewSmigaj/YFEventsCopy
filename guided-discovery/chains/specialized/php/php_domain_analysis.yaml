@@ -87,27 +87,9 @@ chain_variants:
  - add_prompt: event_sourcing_analyzer
  condition: "event sourcing mentioned"
 
-next_chain_logic:
- - condition: "discoveries.domain.anemic_domain == true"
- next_chain: domain_refactoring_guide
- reason: "Domain needs significant improvement"
- 
- - condition: "discoveries.repositories.interfaces == null || discoveries.repositories.interfaces.length == 0"
- next_chain: repository_pattern_implementation
- reason: "Need to implement repository pattern"
- 
- - condition: "task.type == 'analysis'"
- next_chain: php_quality_assessment
- reason: "Ready for quality assessment"
- 
- - condition: "task.type == 'implementation'"
- next_chain: domain_implementation_guide
- reason: "Ready to implement improvements"
- 
- - default: php_use_case_analysis
- reason: "Analyze application layer next"
-
 post_execution:
+  - uncertainty_analysis_recommendation
+  - confidence_summary
  - domain_model_assessment
  - ddd_compliance_report
  - repository_pattern_evaluation

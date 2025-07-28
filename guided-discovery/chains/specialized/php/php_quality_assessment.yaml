@@ -132,27 +132,9 @@ scoring_thresholds:
  max_score: 59
  certification: "⭐⭐ Requires Attention"
 
-next_chain_logic:
- - condition: "validation.architecture.total_score >= 85"
- next_chain: optimization_opportunities
- reason: "Excellent architecture, optimize further"
- 
- - condition: "validation.architecture.total_score < 60"
- next_chain: architecture_remediation_plan
- reason: "Significant improvements needed"
- 
- - condition: "analysis.coupling.technical_debt == 'high'"
- next_chain: technical_debt_reduction
- reason: "Address technical debt"
- 
- - condition: "testing.coverage.overall < 60"
- next_chain: test_improvement_plan
- reason: "Improve test coverage"
- 
- - default: continuous_improvement_guide
- reason: "Maintain and improve architecture"
-
 post_execution:
+  - uncertainty_analysis_recommendation
+  - confidence_summary
  - architecture_scorecard
  - quality_metrics_dashboard
  - improvement_prioritization

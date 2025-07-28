@@ -63,23 +63,9 @@ success_criteria:
  - performance.bottlenecks
  - database.schema
 
-next_chain_logic:
- - condition: "task.description contains 'migrate' || task.description contains 'upgrade'"
- next_chain: migration_planning
- reason: "Migration task detected"
- 
- - condition: "discoveries.dependencies.outdated > 5"
- next_chain: dependency_update_analysis
- reason: "Many outdated dependencies found"
- 
- - condition: "task.description contains 'scale' || task.description contains 'performance'"
- next_chain: performance_optimization
- reason: "Performance/scaling focus needed"
- 
- - default: solution_design
- reason: "Technical understanding sufficient"
-
 post_execution:
+ - uncertainty_analysis_recommendation
+ - confidence_summary
  - tech_stack_summary
  - dependency_health_report
  - version_compatibility_check
