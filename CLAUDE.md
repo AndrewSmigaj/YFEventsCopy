@@ -296,6 +296,8 @@ php cron/scrape-events.php --source-id=1
 - `calendar_sources`: Scraper configurations (iCal, HTML, JSON formats)
 - `event_categories`: Hierarchical categorization
 - `yfc_*` tables: YFClaim module (sellers, sales, items, offers, buyers)
+- `communication_*` tables: Messaging system (NOT yfchat - that's incompatible)
+- `yfa_auth_*` tables: Authentication system (core infrastructure, not optional)
 
 ### Scraping System
 - **EventScraper**: Base interface for all scrapers

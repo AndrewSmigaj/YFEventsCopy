@@ -639,7 +639,6 @@ EOSQL
         "database/shop_claim_system.sql"            # Depends on yfa_auth_users
         "database/modules_schema.sql"               # Module management system
         "database/communication_schema_fixed.sql"   # Messaging system (depends on yfa_auth_users)
-        "database/yfchat_schema.sql"               # Chat system
         "database/batch_processing_schema.sql"      # Queue processing
         "database/intelligent_scraper_schema.sql"   # AI-powered scraping
     )

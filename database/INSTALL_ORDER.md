@@ -28,10 +28,11 @@ mysql -u username -p dbname < database/modules_schema.sql
 ```
 
 # Communication system (depends on yfa_auth_users)
+# This is the main messaging system used by seller dashboard and other features
 mysql -u username -p dbname < database/communication_schema_fixed.sql
 
-# Chat system
-mysql -u username -p dbname < database/yfchat_schema.sql
+# Note: yfchat_schema.sql is NOT used - it expects a 'users' table that doesn't exist
+# The communication_schema_fixed.sql provides all chat/messaging functionality
 
 # Batch processing for queues
 mysql -u username -p dbname < database/batch_processing_schema.sql
@@ -101,7 +102,7 @@ mysql -u $DB_USER -p $DB_NAME < modules/yfauth/database/schema.sql
 
 # Tier 2: Core Application
 echo "Installing core application schemas..."
-for schema in shop_claim_system.sql modules_schema.sql communication_schema_fixed.sql yfchat_schema.sql batch_processing_schema.sql intelligent_scraper_schema.sql; do
+for schema in shop_claim_system.sql modules_schema.sql communication_schema_fixed.sql batch_processing_schema.sql intelligent_scraper_schema.sql; do
     echo "Installing $schema..."
     mysql -u $DB_USER -p $DB_NAME < database/$schema
 done
