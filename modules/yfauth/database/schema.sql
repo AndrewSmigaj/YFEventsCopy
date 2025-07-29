@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS yfa_auth_activity_log (
 );
 
 -- Login attempts tracking for brute force protection
-CREATE TABLE IF NOT EXISTS yfa_auth_login_attempts (
+CREATE TABLE IF NOT EXISTS yfa_login_attempts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255),
     ip_address VARCHAR(45),

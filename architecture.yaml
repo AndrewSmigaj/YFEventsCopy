@@ -65,7 +65,7 @@ database:
     - yfa_auth_permissions
     - yfa_auth_role_permissions
     - yfa_auth_sessions
-    - yfa_auth_login_attempts
+    - yfa_login_attempts
     
     # YFClaim module tables (verified by seller system)
     - yfc_sellers
