@@ -34,11 +34,11 @@ mysql -u username -p dbname < database/communication_schema_fixed.sql
 # Note: yfchat_schema.sql is NOT used - it expects a 'users' table that doesn't exist
 # The communication_schema_fixed.sql provides all chat/messaging functionality
 
-# Batch processing for queues
-mysql -u username -p dbname < database/batch_processing_schema.sql
-
-# Intelligent scraper
+# Intelligent scraper (must be installed before batch_processing)
 mysql -u username -p dbname < database/intelligent_scraper_schema.sql
+
+# Batch processing for queues (depends on intelligent_scraper tables)
+mysql -u username -p dbname < database/batch_processing_schema.sql
 ```
 
 ### Tier 3: Optional Modules
@@ -87,6 +87,7 @@ mysql -u username -p dbname < database/audit_logging.sql
 - `shop_claim_system.sql` → requires `yfa_auth_users` (admin assignments)
 - `communication_schema_fixed.sql` → requires `yfa_auth_users` (messaging)
 - `local_shops` → requires `shop_categories` and `shop_owners` (same file)
+- `batch_processing_schema.sql` → requires `intelligent_scraper_batches` and `intelligent_scraper_sessions`
 - Module schemas → may require various core tables
 
 ## Quick Install Script
@@ -102,7 +103,7 @@ mysql -u $DB_USER -p $DB_NAME < modules/yfauth/database/schema.sql
 
 # Tier 2: Core Application
 echo "Installing core application schemas..."
-for schema in shop_claim_system.sql modules_schema.sql communication_schema_fixed.sql batch_processing_schema.sql intelligent_scraper_schema.sql; do
+for schema in shop_claim_system.sql modules_schema.sql communication_schema_fixed.sql intelligent_scraper_schema.sql batch_processing_schema.sql; do
     echo "Installing $schema..."
     mysql -u $DB_USER -p $DB_NAME < database/$schema
 done
