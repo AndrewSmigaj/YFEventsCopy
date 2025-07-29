@@ -112,6 +112,19 @@ CREATE TABLE IF NOT EXISTS yfa_auth_activity_log (
     INDEX idx_created (created_at)
 );
 
+-- Login attempts tracking for brute force protection
+CREATE TABLE IF NOT EXISTS yfa_auth_login_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255),
+    ip_address VARCHAR(45),
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    success BOOLEAN DEFAULT FALSE,
+    user_agent TEXT,
+    INDEX idx_email (email),
+    INDEX idx_ip (ip_address),
+    INDEX idx_attempted (attempted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Insert default roles
 INSERT INTO yfa_auth_roles (name, display_name, description, is_system) VALUES
 ('super_admin', 'Super Administrator', 'Full system access', TRUE),
