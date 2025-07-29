@@ -481,10 +481,11 @@ configure_apache_vhost() {
     cat > "$vhost_file" <<EOF
 <VirtualHost *:80>
     ServerName $DOMAIN_NAME
-    DocumentRoot $DEPLOY_DIR/www/html
+    DocumentRoot $DEPLOY_DIR/public
+    DirectoryIndex index.php
     
-    <Directory $DEPLOY_DIR/www/html>
-        Options Indexes FollowSymLinks
+    <Directory $DEPLOY_DIR/public>
+        Options -Indexes +FollowSymLinks
         AllowOverride All
         Require all granted
     </Directory>
